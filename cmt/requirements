@@ -1,0 +1,17 @@
+#################################################
+package gmsbAnalysis
+
+author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+
+use AtlasPolicy	       AtlasPolicy-*
+use GaudiInterface     GaudiInterface-*		External
+use AthenaBaseComps    AthenaBaseComps-*   	Control
+
+private
+use egammaEvent	       egammaEvent-*		Reconstruction/egamma
+end_private
+
+library gmsbAnalysis *.cxx -s=components *.cxx
+apply_pattern component_library
+#apply_pattern declare_joboptions files="MyJobOptions.py"
+#################################################
