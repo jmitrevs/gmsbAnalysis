@@ -38,7 +38,7 @@ from D2PDMaker.D2PDFlags import D2PDFlags
 #D2PDFlags.DPDMakerScripts.append("D2PDMaker/D2PD_WenuStream.py")
 #D2PDFlags.DPDMakerScripts.append("myFirstD2PD.py")
 #D2PDFlags.DPDMakerScripts.append("eeSkim.py")
-D2PDFlags.DPDMakerScripts.append("gmsbAnalysis/refine_ee_2g15_looseSkim.py")
+D2PDFlags.DPDMakerScripts.append("gmsbAnalysis/refine_ee_g10_looseSkim.py")
 
 #==============================================================================
 # Load your input file
@@ -48,8 +48,8 @@ from glob import glob
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #athenaCommonFlags.FilesInput=glob("/data3/jmitrevs/mc09_7TeV.114007.SPS8_110_jimmy_susy.merge.AOD.e530_s765_s767_r1302_r1306_tid140030_00/AOD.*1.pool.*")
 
-inputList = glob("/data3/jmitrevs/dataskims/ee/user.jmitrevs*periodE[345678]*/*pool.root*")
-inputList.extend(glob("/data3/jmitrevs/dataskims/ee/user.jmitrevs*period[FGHI]*/*pool.root*"))
+inputList = glob("/data3/jmitrevs/dataskims/ee/user.jmitrevs*periodE[12]*/*pool.root*")
+inputList.extend(glob("/data3/jmitrevs/dataskims/ee/user.jmitrevs*period[ABCD]*/*pool.root*"))
 
 ## for messaging
 from AthenaCommon.Logging import logging

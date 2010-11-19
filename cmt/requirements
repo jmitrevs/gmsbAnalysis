@@ -9,9 +9,10 @@ use AthenaBaseComps    AthenaBaseComps-*   	Control
 
 private
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma
+use MissingETEvent     MissingETEvent-*         Reconstruction
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx
 apply_pattern component_library
-#apply_pattern declare_joboptions files="MyJobOptions.py"
+apply_pattern declare_joboptions files="*.py"
 #################################################

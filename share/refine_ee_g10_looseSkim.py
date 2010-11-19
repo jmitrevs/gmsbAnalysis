@@ -55,7 +55,7 @@ topSequence += D2PDElectronSelector( "HighPtPhotonSelector",
 include("PrimaryDPDMaker/SetupTrigDecisionTool.py")
 from PrimaryDPDMaker.TriggerFilter import TriggerFilter
 topSequence += TriggerFilter( "D2PDTriggerFilterGMSB",
-                              trigger = "EF_2g15_loose"
+                              trigger = "EF_g10_loose"
                               )
 
 
@@ -67,7 +67,7 @@ from D2PDMaker.D2PDHelpers import buildFileName
 # This stream HAS TO start with "StreamD2AOD_"! If the input was an (D)ESD(M), this should start with "StreamD2ESD(M)_".
 # See this twiki for more information: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DPDNamingConvention
 streamName = "StreamD2AOD_GMSB"
-fileName   = D2PDFlags.OutputDirectoryName() + "D2AOD_GMSBee2.pool.root"
+fileName   = D2PDFlags.OutputDirectoryName() + "D2AOD_GMSBee2_g10_loose.pool.root"
 SimpleGMSBStream = MSMgr.NewPoolStream( streamName, fileName )
 
 # Only events that pass the filters listed below are written out
