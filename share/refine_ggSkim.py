@@ -72,7 +72,7 @@ SimpleGMSBStream = MSMgr.NewPoolStream( streamName, fileName )
 # Only events that pass the filters listed below are written out
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
-SimpleGMSBStream.AcceptAlgs( ["DiPhotonSelector", "HighPtPhotonSelector"] )
+SimpleGMSBStream.RequireAlgs( ["DiPhotonSelector", "HighPtPhotonSelector"] )
 #SimpleGMSBStream.RequireAlgs( ["D2PDTriggerFilterGMSB"] )
 
 

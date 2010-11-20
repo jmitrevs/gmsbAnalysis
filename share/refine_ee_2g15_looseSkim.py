@@ -40,7 +40,7 @@ topSequence += D2PDElectronSelector( "DiElectronSelector",
                                      clusterEMCaloLayer   = 2,
                                      )
 
-topSequence += D2PDElectronSelector( "HighPtPhotonSelector",
+topSequence += D2PDElectronSelector( "HighPtElectronSelector",
                                      OutputLevel                      = INFO,
                                      inputCollection                  = 'SelectedDiElectronLinkCollection',
                                      outputLinkCollection             = 'SelectedHighPtLinkCollection',
@@ -73,9 +73,7 @@ SimpleGMSBStream = MSMgr.NewPoolStream( streamName, fileName )
 # Only events that pass the filters listed below are written out
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
-SimpleGMSBStream.AcceptAlgs( ["DiElectronSelector", "HighPtPhotonSelector"] )
-SimpleGMSBStream.RequireAlgs( ["D2PDTriggerFilterGMSB"] )
-
+SimpleGMSBStream.RequireAlgs( ["DiElectronSelector", "HighPtElectronSelector", "D2PDTriggerFilterGMSB"] )
 
 #---------------------------------------------------
 # Add the containers to the output stream
