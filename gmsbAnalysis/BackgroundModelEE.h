@@ -14,6 +14,9 @@ public:
 
 private:
 
+  /** run number to use for OQ: -1 means use event run number */
+  int m_OQRunNum;
+
   /** Electron selection */
   std::string m_ElectronContainerName;
   int m_electronIsEM;
@@ -26,6 +29,8 @@ private:
   std::string m_METContainerName;
 
   std::string m_JetContainerName;
+
+  double m_minPtForCrack;
 
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;
