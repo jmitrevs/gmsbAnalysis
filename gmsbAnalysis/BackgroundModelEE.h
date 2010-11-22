@@ -4,8 +4,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "UserAnalysisUtils/UserAnalysisPreparationTool.h"
-#include "UserAnalysisUtils/UserAnalysisOverlapRemovalTool.h"
+#include "gmsbTools/gmsbPreparationTool.h"
+#include "gmsbTools/gmsbOverlapRemovalTool.h"
 
 class Jet;
 
@@ -38,10 +38,10 @@ private:
   // tools for selection
 
   /** get a handle on the user tool for pre-selection and overlap removal */
-  ToolHandle<UserAnalysisPreparationTool>     m_analysisPreparationTool;
-  ToolHandle<UserAnalysisPreparationTool>     m_analysisCrackPreparationTool;
-  ToolHandle<UserAnalysisOverlapRemovalTool>  m_analysisOverlapRemovalTool1;
-  ToolHandle<UserAnalysisOverlapRemovalTool>  m_analysisOverlapRemovalTool2;
+  ToolHandle<gmsbPreparationTool>     m_PreparationTool;
+  ToolHandle<gmsbPreparationTool>     m_CrackPreparationTool;
+  ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
+  ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
 
   
 };

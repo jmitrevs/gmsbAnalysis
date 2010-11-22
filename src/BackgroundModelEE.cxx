@@ -31,10 +31,10 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
  
-  declareProperty("AnalysisPreparationTool",     m_analysisPreparationTool);
-  declareProperty("AnalysisCrackPreparationTool", m_analysisCrackPreparationTool);
-  declareProperty("AnalysisOverlapRemovalTool1",  m_analysisOverlapRemovalTool1);
-  declareProperty("AnalysisOverlapRemovalTool2",  m_analysisOverlapRemovalTool2);
+  declareProperty("PreparationTool",     m_PreparationTool);
+  declareProperty("CrackPreparationTool", m_CrackPreparationTool);
+  declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
+  declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -42,25 +42,25 @@ StatusCode BackgroundModelEE::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
  
-  StatusCode sc = m_analysisPreparationTool.retrieve();
+  StatusCode sc = m_PreparationTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on analysis preparation tool");
     return sc;
   }
 
-  sc = m_analysisCrackPreparationTool.retrieve();
+  sc = m_CrackPreparationTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on crack preparation tool");
     return sc;
   }
 
-  sc = m_analysisOverlapRemovalTool1.retrieve();
+  sc = m_OverlapRemovalTool1.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on first analysis overlap removal tool");
     return sc;
   }
 
-  sc = m_analysisOverlapRemovalTool2.retrieve();
+  sc = m_OverlapRemovalTool2.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on secnd analysis overlap removal tool");
     return sc;
@@ -139,37 +139,37 @@ StatusCode BackgroundModelEE::execute()
   }
 
   // do the selecton and overlap removal
-  sc = m_analysisPreparationTool->execute();
+  sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("AnalysisPreparation Failed - selection ");
+    ATH_MSG_ERROR("Preparation Failed - selection ");
     return sc;
   }
 
   // do the selecton and overlap removal
-  sc = m_analysisCrackPreparationTool->execute();
+  sc = m_CrackPreparationTool->execute();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("AnalysisPreparation Failed - crack selection ");
+    ATH_MSG_ERROR("Preparation Failed - crack selection ");
     return sc;
   }
 
-  sc = m_analysisOverlapRemovalTool1->execute();
+  sc = m_OverlapRemovalTool1->execute();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("AnalysisOverlaPremval 1 Failed");
+    ATH_MSG_ERROR("OverlaPremval 1 Failed");
     return sc;
   }
 
-  sc = m_analysisOverlapRemovalTool2->execute();
+  sc = m_OverlapRemovalTool2->execute();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("AnalysisOverlaPremval 1 Failed");
+    ATH_MSG_ERROR("OverlaPremval 1 Failed");
     return sc;
   }
 
-  const PhotonContainer *photons = m_analysisOverlapRemovalTool2->finalStatePhotons();
-  const PhotonContainer *crackPhotons = m_analysisCrackPreparationTool->selectedPhotons();
-  const ElectronContainer *electrons = m_analysisOverlapRemovalTool2->finalStateElectrons();
-  const ElectronContainer *crackElectrons = m_analysisCrackPreparationTool->selectedElectrons();
+  const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
+  const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
+  const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
+  const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
-  const JetCollection *jets = m_analysisOverlapRemovalTool2->finalStateJets();
+  const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 
   bool rejectEvent = false;
 
