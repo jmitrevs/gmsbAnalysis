@@ -20,8 +20,8 @@ InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.20101120.82.mc09_7TeV.10
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
-#athenaCommonFlags.EvtMax=-1
-athenaCommonFlags.EvtMax=100
+athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=100
 
 
 # # use closest DB replica

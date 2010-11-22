@@ -138,6 +138,28 @@ StatusCode BackgroundModelEE::execute()
     m_OQRunNum = runNum;
   }
 
+  // rewiegh for the Z sample
+  switch (runNum) {
+  case 107650:
+    weight = 661.9/304216.0;
+    break;
+  case 107651:
+    weight = 133.3/63440.0;
+    break;
+  case 107652:
+    weight = 40.3/19497.0;
+    break;
+  case 107653:
+    weight = 11.2/5499.0;
+    break;
+  case 107654:
+    weight = 2.7/1499.0;
+    break;
+  case 107655:
+    weight = 0.8/500.0;
+    break;
+  }
+
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
