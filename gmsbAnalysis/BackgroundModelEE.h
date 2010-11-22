@@ -7,6 +7,8 @@
 #include "UserAnalysisUtils/UserAnalysisPreparationTool.h"
 #include "UserAnalysisUtils/UserAnalysisOverlapRemovalTool.h"
 
+class Jet;
+
 /////////////////////////////////////////////////////////////////////////////
 class BackgroundModelEE:public AthAlgorithm {
 public:
@@ -17,23 +19,15 @@ public:
 
 private:
 
+  bool isBad(const Jet *) const;
+
   /** run number to use for OQ: -1 means use event run number */
   int m_OQRunNum;
-
-  /** Electron selection */
-  std::string m_ElectronContainerName;
-  int m_electronIsEM;
-
-  /** Photon selection */
-  std::string m_PhotonContainerName;
-  int m_photonIsEM;
 
   /** MET selecton */
   std::string m_METContainerName;
 
-  std::string m_JetContainerName;
-
-  double m_minPtForCrack;
+  double m_leadElPtCut;
 
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;

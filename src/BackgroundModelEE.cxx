@@ -1,5 +1,6 @@
 #include "gmsbAnalysis/BackgroundModelEE.h"
 #include "gmsbAnalysis/checkOQ.h"
+#include "gmsbAnalysis/JetID.h"
 
 #include "TH1.h"
 
@@ -13,6 +14,8 @@
 #include "egammaEvent/egammaPIDdefs.h"
 
 #include "JetEvent/JetCollection.h"
+#include "JetUtils/JetCaloHelper.h"
+#include "JetUtils/JetCaloQualityUtils.h"
 
 #include "MissingETEvent/MissingET.h"
 
@@ -22,20 +25,12 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
 {
   declareProperty("HistFileName", m_histFileName = "BackgroundModelEE");
 
-  /** Electron selection */
-  declareProperty("ElectronContainerName", m_ElectronContainerName = "ElectronAODCollection");
-  declareProperty("ElectronIsEM", m_electronIsEM = egammaPID::ElectronMedium_WithTrackMatch);
-
-  declareProperty("PhotonContainerName", m_PhotonContainerName = "PhotonAODCollection");
-  declareProperty("PhotonIsEM", m_photonIsEM = egammaPID::PhotonTight);
-
-  declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
-  declareProperty("JetContainerName", m_JetContainerName = "AntiKt4TopoJets");
-
   declareProperty("OQRunNum", m_OQRunNum = -1);
 
-  declareProperty("MinPtCrack", m_minPtForCrack = 10.0*GeV);
+  declareProperty("LeadingElPtCut", m_leadElPtCut = 30.0*GeV);
 
+  declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
+ 
   declareProperty("AnalysisPreparationTool",     m_analysisPreparationTool);
   declareProperty("AnalysisCrackPreparationTool", m_analysisCrackPreparationTool);
   declareProperty("AnalysisOverlapRemovalTool1",  m_analysisOverlapRemovalTool1);
@@ -53,7 +48,7 @@ StatusCode BackgroundModelEE::initialize(){
     return sc;
   }
 
-  StatusCode sc = m_analysisCrackPreparationTool.retrieve();
+  sc = m_analysisCrackPreparationTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on crack preparation tool");
     return sc;
@@ -72,7 +67,7 @@ StatusCode BackgroundModelEE::initialize(){
   }
  
   /// histogram location
-  StatusCode sc = service("THistSvc", m_thistSvc);
+  sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
     return sc;
@@ -121,37 +116,14 @@ StatusCode BackgroundModelEE::execute()
 
   double weight = 1.0;
 
-  const ElectronContainer* electrons;
-  StatusCode sc=evtStore()->retrieve( electrons, m_ElectronContainerName);
-  if( sc.isFailure()  ||  !electrons ) {
-    ATH_MSG_ERROR("No continer "<< m_ElectronContainerName <<" container found in TDS");
-    return StatusCode::FAILURE;
-  }
-
-  // ATH_MSG_DEBUG("Photon container name: " << m_PhotonContainerName);
-
-  const PhotonContainer* photons;
-  sc=evtStore()->retrieve( photons, m_PhotonContainerName);
-  if( sc.isFailure()  ||  !photons ) {
-    ATH_MSG_ERROR("No continer "<< m_PhotonContainerName <<" container found in TDS");
-    return StatusCode::RECOVERABLE;
-  }
-
   // The missing ET object
   const MissingET* met(0);
-  sc = evtStore()->retrieve( met, m_METContainerName );
+  StatusCode sc = evtStore()->retrieve( met, m_METContainerName );
   if( sc.isFailure()  ||  !met ) {
     ATH_MSG_ERROR("No continer "<< m_METContainerName <<" container found in TDS");
     return StatusCode::RECOVERABLE;
   }
-  
-  const JetCollection* jets = 0;
-  sc = evtStore()->retrieve( jets, m_JetContainerName);
-  if( sc.isFailure()  ||  !jets ) {
-    ATH_MSG_ERROR("No Jet Collection  "<< m_JetContainerName);
-    return StatusCode::RECOVERABLE;
-  }
-  
+
   const EventInfo*  evtInfo = 0;
   sc = evtStore()->retrieve(evtInfo);
   if(sc.isFailure() || !evtInfo) {
@@ -166,6 +138,39 @@ StatusCode BackgroundModelEE::execute()
     m_OQRunNum = runNum;
   }
 
+  // do the selecton and overlap removal
+  sc = m_analysisPreparationTool->execute();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("AnalysisPreparation Failed - selection ");
+    return sc;
+  }
+
+  // do the selecton and overlap removal
+  sc = m_analysisCrackPreparationTool->execute();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("AnalysisPreparation Failed - crack selection ");
+    return sc;
+  }
+
+  sc = m_analysisOverlapRemovalTool1->execute();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("AnalysisOverlaPremval 1 Failed");
+    return sc;
+  }
+
+  sc = m_analysisOverlapRemovalTool2->execute();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("AnalysisOverlaPremval 1 Failed");
+    return sc;
+  }
+
+  const PhotonContainer *photons = m_analysisOverlapRemovalTool2->finalStatePhotons();
+  const PhotonContainer *crackPhotons = m_analysisCrackPreparationTool->selectedPhotons();
+  const ElectronContainer *electrons = m_analysisOverlapRemovalTool2->finalStateElectrons();
+  const ElectronContainer *crackElectrons = m_analysisCrackPreparationTool->selectedElectrons();
+
+  const JetCollection *jets = m_analysisOverlapRemovalTool2->finalStateJets();
+
   bool rejectEvent = false;
 
 
@@ -175,23 +180,37 @@ StatusCode BackgroundModelEE::execute()
   for (PhotonContainer::const_iterator ph  = photons->begin();
        ph != photons->end();
        ph++) {
+    
+  
+    const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+    if (!badOQ) {
+      rejectEvent = true;
+      break;
+    }
+  }
 
-    if ((*ph)->isPhoton(egammaPID::PhotonTight)) {
-      const double pt = (*ph)->pt();
+  // loop over crack photons
+  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
+       ph != crackPhotons->end();
+       ph++) {
+    
+    const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+    if (!badOQ) {
+      rejectEvent = true;
+      break;
+    }
+  }
 
-      if (pt > 20*GeV) {
-	rejectEvent = true;
-	break;
-      }
-      const double absClusEta = fabs((*ph)->cluster()->eta());
-
-      const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-      const bool isCrack = absClusEta > 1.37 && absClusEta < 1.52; 
-      if (pt > m_minPtForCrack && isCrack && !badOQ) {
-	rejectEvent = true;
-	break;
-      }
-    }      
+  // loop over crack electrons
+  for (ElectronContainer::const_iterator ph = crackElectrons->begin();
+       ph != crackElectrons->end();
+       ph++) {
+    
+    const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+    if (!badOQ) {
+      rejectEvent = true;
+      break;
+    }
   }
 
   if (rejectEvent) return StatusCode::SUCCESS;
@@ -209,21 +228,14 @@ StatusCode BackgroundModelEE::execute()
        el != electrons->end();
        el++) {
 
-    if ((*el)->author(egammaParameters::AuthorElectron) && (*el)->isElectron(egammaPID::ElectronMedium_WithTrackMatch)) {
-      numElPass++;
       
-      const double pt = (*el)->pt();
-      const double absClusEta = fabs((*el)->cluster()->eta());
+    const double pt = (*el)->pt();
+    
+    const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
 
-      const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
-      const bool isCrack = absClusEta > 1.37 && absClusEta < 1.52; 
-
-      if (pt > m_minPtForCrack && isCrack && !badOQ) {
-	rejectEvent = true;
-	break;
-      }
-
-      if (pt > leadingElPt) {
+    if (!badOQ) {
+      numElPass++;
+      if (pt > leadingElPt ) {
 	secondEl = leadingEl;
 	leadingEl = *el;
 	secondElPt = leadingElPt;
@@ -232,12 +244,65 @@ StatusCode BackgroundModelEE::execute()
 	secondEl = *el;
 	secondElPt = pt;
       }
+    }
+    
+  }
+  
+  if (numElPass < 2 || leadingElPt < m_leadElPtCut) {
+    return StatusCode::SUCCESS;
+  }
 
+  int numJets = 0;
 
+  // loop over crack photons
+  for (JetCollection::const_iterator jet = jets->begin();
+       jet != jets->end();
+       jet++) {
+
+    if (isBad(*jet)) {
+      rejectEvent = true;
+      break;
+    }
+    if ((*jet)->eta() < 2.5) {
+      numJets++;
     }
   }
 
   if (rejectEvent) return StatusCode::SUCCESS;
+
+  // event accepted, so let's make plots
+
+  m_histograms["eta1"]->Fill(leadingEl->eta(), weight);
+  m_histograms["pt1"]->Fill(leadingElPt, weight);
+  m_histograms["eta2"]->Fill(secondEl->eta(), weight);
+  m_histograms["pt2"]->Fill(secondElPt, weight);
+  m_histograms["numEl"]->Fill(numElPass, weight);
+
+  const double minv = P4Helpers::invMass(leadingEl, secondEl);
+  m_histograms["minv"]->Fill(minv);
+  
+  if (minv > 72*GeV && minv < 112*GeV) {
+    m_histograms["numJets"]->Fill(numJets, weight);
+    m_histograms["met"]->Fill(met->et());
+    switch(numJets) {
+    case 0:
+      m_histograms["met0J"]->Fill(met->et());
+      break;
+    case 1:
+      m_histograms["met1J"]->Fill(met->et());
+      break;
+    case 2:
+      m_histograms["met2J"]->Fill(met->et());
+      break;
+    case 3:
+      m_histograms["met3J"]->Fill(met->et());
+      break;
+    default:
+      m_histograms["met4J"]->Fill(met->et());
+      break;
+    }
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -248,4 +313,12 @@ StatusCode BackgroundModelEE::finalize() {
     ATH_MSG_INFO ("finalize()");
     
     return StatusCode::SUCCESS;
+}
+
+
+bool BackgroundModelEE::isBad(const Jet* jet) const {
+  int SamplingMax=CaloSampling::Unknown;
+  return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
+		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),
+		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta());
 }
