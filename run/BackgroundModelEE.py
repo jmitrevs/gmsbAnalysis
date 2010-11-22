@@ -14,7 +14,7 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc09_7TeV.108085.PythiaPhotonJet_Unbinned7.recon.ESD.e534_s765_s767_r1305_tid137093_00/ESD.137093._000011.pool.root.1')
 #InputList = glob('/data3/jmitrevs/dataskims/ee/*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/sps8/D2AOD_GMSBgg2.pool.root')
-InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.20101120.82.mc09_7TeV.107650.AlpgenJimmyZeeNp0_pt20*/*pool.root*')
+InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
