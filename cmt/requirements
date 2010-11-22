@@ -6,6 +6,7 @@ author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
 use AtlasPolicy	       AtlasPolicy-*
 use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
+use UserAnalysisUtils  UserAnalysisUtils-*      PhysicsAnalysis/AnalysisCommon
 
 private
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma

@@ -4,6 +4,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 
+#include "UserAnalysisUtils/UserAnalysisPreparationTool.h"
+#include "UserAnalysisUtils/UserAnalysisOverlapRemovalTool.h"
+
 /////////////////////////////////////////////////////////////////////////////
 class BackgroundModelEE:public AthAlgorithm {
 public:
@@ -37,6 +40,15 @@ private:
   std::string m_histFileName;
 
   std::map<std::string, TH1*> m_histograms;
+
+  // tools for selection
+
+  /** get a handle on the user tool for pre-selection and overlap removal */
+  ToolHandle<UserAnalysisPreparationTool>     m_analysisPreparationTool;
+  ToolHandle<UserAnalysisPreparationTool>     m_analysisCrackPreparationTool;
+  ToolHandle<UserAnalysisOverlapRemovalTool>  m_analysisOverlapRemovalTool1;
+  ToolHandle<UserAnalysisOverlapRemovalTool>  m_analysisOverlapRemovalTool2;
+
   
 };
 

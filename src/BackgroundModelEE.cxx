@@ -35,12 +35,42 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
   declareProperty("OQRunNum", m_OQRunNum = -1);
 
   declareProperty("MinPtCrack", m_minPtForCrack = 10.0*GeV);
+
+  declareProperty("AnalysisPreparationTool",     m_analysisPreparationTool);
+  declareProperty("AnalysisCrackPreparationTool", m_analysisCrackPreparationTool);
+  declareProperty("AnalysisOverlapRemovalTool1",  m_analysisOverlapRemovalTool1);
+  declareProperty("AnalysisOverlapRemovalTool2",  m_analysisOverlapRemovalTool2);
+
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode BackgroundModelEE::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
-  
+ 
+  StatusCode sc = m_analysisPreparationTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Can't get handle on analysis preparation tool");
+    return sc;
+  }
+
+  StatusCode sc = m_analysisCrackPreparationTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Can't get handle on crack preparation tool");
+    return sc;
+  }
+
+  sc = m_analysisOverlapRemovalTool1.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Can't get handle on first analysis overlap removal tool");
+    return sc;
+  }
+
+  sc = m_analysisOverlapRemovalTool2.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Can't get handle on secnd analysis overlap removal tool");
+    return sc;
+  }
+ 
   /// histogram location
   StatusCode sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -138,6 +168,35 @@ StatusCode BackgroundModelEE::execute()
 
   bool rejectEvent = false;
 
+
+  // veto events if they have a tight photon
+
+  // loop over photons
+  for (PhotonContainer::const_iterator ph  = photons->begin();
+       ph != photons->end();
+       ph++) {
+
+    if ((*ph)->isPhoton(egammaPID::PhotonTight)) {
+      const double pt = (*ph)->pt();
+
+      if (pt > 20*GeV) {
+	rejectEvent = true;
+	break;
+      }
+      const double absClusEta = fabs((*ph)->cluster()->eta());
+
+      const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+      const bool isCrack = absClusEta > 1.37 && absClusEta < 1.52; 
+      if (pt > m_minPtForCrack && isCrack && !badOQ) {
+	rejectEvent = true;
+	break;
+      }
+    }      
+  }
+
+  if (rejectEvent) return StatusCode::SUCCESS;
+
+  // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
   Analysis::Electron *leadingEl = 0;
   Analysis::Electron *secondEl = 0;
