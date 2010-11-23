@@ -333,7 +333,7 @@ StatusCode SignalGammaGamma::execute()
     }
   }
 
-  //ATH_MSG_DEBUG("finished jets");
+  ATH_MSG_DEBUG("finished jets");
 
   if (rejectEvent) return StatusCode::SUCCESS;
 
@@ -344,7 +344,8 @@ StatusCode SignalGammaGamma::execute()
   m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
   m_histograms["ph_pt2"]->Fill(secondPhPt, weight);
   m_histograms["numPh"]->Fill(numPhPass, weight);
-
+  
+  // ATH_MSG_DEBUG("filled photon plots");
   if (leadingEl) {
     m_histograms["el_eta1"]->Fill(leadingEl->eta(), weight);
     m_histograms["el_pt1"]->Fill(leadingElPt, weight);
@@ -354,10 +355,14 @@ StatusCode SignalGammaGamma::execute()
     m_histograms["el_pt2"]->Fill(secondElPt, weight);
   }
   m_histograms["numEl"]->Fill(numElPass, weight);
+  //ATH_MSG_DEBUG("filled electron plots");
 
-  const double minv = P4Helpers::invMass(leadingEl, secondEl);
-  m_histograms["el_minv"]->Fill(minv);
-  
+
+  if (numElPass >= 2) {
+    const double minv = P4Helpers::invMass(leadingEl, secondEl);
+    m_histograms["el_minv"]->Fill(minv);
+  }
+
   m_histograms["numJets"]->Fill(numJets, weight);
   m_histograms["met"]->Fill(met->et());
   switch(numJets) {
