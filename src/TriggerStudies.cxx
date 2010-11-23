@@ -1,4 +1,4 @@
-#include "gmsbAnalysis/SignalGammaGamma.h"
+#include "gmsbAnalysis/TriggerStudies.h"
 #include "gmsbAnalysis/checkOQ.h"
 #include "gmsbAnalysis/JetID.h"
 
@@ -20,14 +20,13 @@
 #include "MissingETEvent/MissingET.h"
 
 /////////////////////////////////////////////////////////////////////////////
-SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLocator) :
+TriggerStudies::TriggerStudies(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("HistFileName", m_histFileName = "SignalGammaGamma");
+  declareProperty("HistFileName", m_histFileName = "TriggerStudies");
 
+  declareProperty("DoOQ", m_doOQ = false);
   declareProperty("OQRunNum", m_OQRunNum = -1);
-
-  declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 30.0*GeV);
 
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
  
@@ -37,8 +36,9 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
 
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode SignalGammaGamma::initialize(){
+StatusCode TriggerStudies::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
  
@@ -73,15 +73,21 @@ StatusCode SignalGammaGamma::initialize(){
     return sc;
   }
 
+  m_numEvents = 0;
+
+  m_histograms["ph_cut"] = new TH1F("ph_cut", 
+				    "Number of events with single selected photon with p_{T} > cut;p_{T} cut [MeV]", 
+				    120, 0, 120*GeV);
+
   m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
   m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transvers momentum of the leading photons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
   m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transvers momentum of the second photons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transvers momentum of the second photons;p_{T} [MeV]", 100, 0*GeV, 250*GeV);
 
   m_histograms["el_eta1"] = new TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt1"] = new TH1F("el_pt1","Transvers momentum of the leading electrons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["el_pt1"] = new TH1F("el_pt1","Transvers momentum of the leading electrons;p_{T} [MeV]", 100, 0*GeV, 250*GeV);
   m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt2"] = new TH1F("el_pt2","Transvers momentum of the second electrons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["el_pt2"] = new TH1F("el_pt2","Transvers momentum of the second electrons;p_{T} [MeV]", 100, 0*GeV, 250*GeV);
 
   m_histograms["el_minv"] = new TH1F("el_minv", "The invariante mass of the two leading electrons;M_{inv} [MeV]", 120, 0*GeV, 120*GeV);
 
@@ -97,6 +103,15 @@ StatusCode SignalGammaGamma::initialize(){
   m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
   m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
 
+
+  // set up errors
+  for (std::map<std::string, TH1*>::iterator it = m_histograms.begin();
+       it != m_histograms.end();
+       it++) {
+    it->second->Sumw2();
+  }
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/PassCutPt" , m_histograms["ph_cut"]).ignore();
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
@@ -121,7 +136,7 @@ StatusCode SignalGammaGamma::initialize(){
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode SignalGammaGamma::execute() 
+StatusCode TriggerStudies::execute() 
 {
   ATH_MSG_DEBUG("execute");
 
@@ -172,6 +187,9 @@ StatusCode SignalGammaGamma::execute()
     break;
   }
 
+
+  m_numEvents += weight;
+  
   ATH_MSG_DEBUG("About to prepare selection");
 
   // do the selecton and overlap removal
@@ -202,20 +220,16 @@ StatusCode SignalGammaGamma::execute()
 
   ATH_MSG_DEBUG("Done preparing selection");
 
-  const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
+  // note: I changed it so that there's only one overlap removal
+  const PhotonContainer *photons = m_OverlapRemovalTool1->finalStatePhotons();
   const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
-  const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
+  const ElectronContainer *electrons = m_OverlapRemovalTool1->finalStateElectrons();
   const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 
 
   ATH_MSG_DEBUG("Got the containers");
-
-  bool rejectEvent = false;
-
-
-  // veto events if they have a tight photon
 
   // loop over photons
   int numPhPass = 0; // this is per event
@@ -231,7 +245,7 @@ StatusCode SignalGammaGamma::execute()
     const double pt = (*ph)->pt();
 
     const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
+    if (!badOQ || !m_doOQ) {
       numPhPass++;
       if (pt > leadingPhPt ) {
 	secondPh = leadingPh;
@@ -242,44 +256,39 @@ StatusCode SignalGammaGamma::execute()
 	secondPh = *ph;
 	secondPhPt = pt;
       }
+
     }
   }
 
-  if (numPhPass < 2 || leadingPhPt < m_leadPhotonPtCut) {
-    return StatusCode::SUCCESS;
-  }
-
-  //ATH_MSG_DEBUG("finished photon");
-
-  // loop over crack photons
-  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
-       ph != crackPhotons->end();
-       ph++) {
+  // // loop over crack photons
+  // for (PhotonContainer::const_iterator ph = crackPhotons->begin();
+  //      ph != crackPhotons->end();
+  //      ph++) {
     
-    const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      rejectEvent = true;
-      break;
-    }
-  }
+  //   const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+  //   if (!badOQ) {
+  //     rejectEvent = true;
+  //     break;
+  //   }
+  // }
 
-  //ATH_MSG_DEBUG("finished crack photon");
+  // //ATH_MSG_DEBUG("finished crack photon");
 
-  // loop over crack electrons
-  for (ElectronContainer::const_iterator ph = crackElectrons->begin();
-       ph != crackElectrons->end();
-       ph++) {
+  // // loop over crack electrons
+  // for (ElectronContainer::const_iterator ph = crackElectrons->begin();
+  //      ph != crackElectrons->end();
+  //      ph++) {
     
-    const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      rejectEvent = true;
-      break;
-    }
-  }
+  //   const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+  //   if (!badOQ) {
+  //     rejectEvent = true;
+  //     break;
+  //   }
+  // }
 
-  //ATH_MSG_DEBUG("finished crack electron");
+  // //ATH_MSG_DEBUG("finished crack electron");
 
-  if (rejectEvent) return StatusCode::SUCCESS;
+  // if (rejectEvent) return StatusCode::SUCCESS;
 
   // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
@@ -299,7 +308,7 @@ StatusCode SignalGammaGamma::execute()
     
     const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
 
-    if (!badOQ) {
+    if (!badOQ || !m_doOQ) {
       numElPass++;
       if (pt > leadingElPt ) {
 	secondEl = leadingEl;
@@ -324,10 +333,10 @@ StatusCode SignalGammaGamma::execute()
        jet != jets->end();
        jet++) {
 
-    if (isBad(*jet)) {
-      rejectEvent = true;
-      break;
-    }
+    // if (isBad(*jet)) {
+    //   rejectEvent = true;
+    //   break;
+    // }
     if ((*jet)->eta() < 2.5) {
       numJets++;
     }
@@ -335,9 +344,16 @@ StatusCode SignalGammaGamma::execute()
 
   ATH_MSG_DEBUG("finished jets");
 
-  if (rejectEvent) return StatusCode::SUCCESS;
+  // if (rejectEvent) return StatusCode::SUCCESS;
 
   // event accepted, so let's make plots
+
+  for (double i = 0; i < 120*GeV; i++) {
+    if (leadingPhPt > i) {
+      m_histograms["ph_cut"]->Fill(i, weight);
+    }
+  }
+
 
   m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
   m_histograms["ph_pt1"]->Fill(leadingPhPt, weight);
@@ -388,15 +404,17 @@ StatusCode SignalGammaGamma::execute()
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode SignalGammaGamma::finalize() {
+StatusCode TriggerStudies::finalize() {
     
     ATH_MSG_INFO ("finalize()");
     
+
+    m_histograms["ph_cut"]->Scale(1.0/m_numEvents);
     return StatusCode::SUCCESS;
 }
 
 
-bool SignalGammaGamma::isBad(const Jet* jet) const {
+bool TriggerStudies::isBad(const Jet* jet) const {
   int SamplingMax=CaloSampling::Unknown;
   return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
 		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),

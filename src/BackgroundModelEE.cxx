@@ -301,26 +301,26 @@ StatusCode BackgroundModelEE::execute()
   m_histograms["numEl"]->Fill(numElPass, weight);
 
   const double minv = P4Helpers::invMass(leadingEl, secondEl);
-  m_histograms["minv"]->Fill(minv);
+  m_histograms["minv"]->Fill(minv, weight);
   
   if (minv > 72*GeV && minv < 112*GeV) {
     m_histograms["numJets"]->Fill(numJets, weight);
-    m_histograms["met"]->Fill(met->et());
+    m_histograms["met"]->Fill(met->et(), weight);
     switch(numJets) {
     case 0:
-      m_histograms["met0J"]->Fill(met->et());
+      m_histograms["met0J"]->Fill(met->et(), weight);
       break;
     case 1:
-      m_histograms["met1J"]->Fill(met->et());
+      m_histograms["met1J"]->Fill(met->et(), weight);
       break;
     case 2:
-      m_histograms["met2J"]->Fill(met->et());
+      m_histograms["met2J"]->Fill(met->et(), weight);
       break;
     case 3:
-      m_histograms["met3J"]->Fill(met->et());
+      m_histograms["met3J"]->Fill(met->et(), weight);
       break;
     default:
-      m_histograms["met4J"]->Fill(met->et());
+      m_histograms["met4J"]->Fill(met->et(), weight);
       break;
     }
   }
