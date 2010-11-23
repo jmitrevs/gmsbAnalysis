@@ -172,6 +172,8 @@ StatusCode SignalGammaGamma::execute()
     break;
   }
 
+  ATH_MSG_DEBUG("About to prepare selection");
+
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
@@ -198,12 +200,17 @@ StatusCode SignalGammaGamma::execute()
     return sc;
   }
 
+  ATH_MSG_DEBUG("Done preparing selection");
+
   const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
   const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
+
+
+  ATH_MSG_DEBUG("Got the containers");
 
   bool rejectEvent = false;
 
@@ -242,6 +249,8 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS;
   }
 
+  //ATH_MSG_DEBUG("finished photon");
+
   // loop over crack photons
   for (PhotonContainer::const_iterator ph = crackPhotons->begin();
        ph != crackPhotons->end();
@@ -254,6 +263,8 @@ StatusCode SignalGammaGamma::execute()
     }
   }
 
+  //ATH_MSG_DEBUG("finished crack photon");
+
   // loop over crack electrons
   for (ElectronContainer::const_iterator ph = crackElectrons->begin();
        ph != crackElectrons->end();
@@ -265,6 +276,8 @@ StatusCode SignalGammaGamma::execute()
       break;
     }
   }
+
+  //ATH_MSG_DEBUG("finished crack electron");
 
   if (rejectEvent) return StatusCode::SUCCESS;
 
@@ -301,6 +314,9 @@ StatusCode SignalGammaGamma::execute()
     
   }
   
+
+  //ATH_MSG_DEBUG("finished electron");
+
   int numJets = 0;
 
   // loop over crack photons
@@ -317,6 +333,8 @@ StatusCode SignalGammaGamma::execute()
     }
   }
 
+  //ATH_MSG_DEBUG("finished jets");
+
   if (rejectEvent) return StatusCode::SUCCESS;
 
   // event accepted, so let's make plots
@@ -327,10 +345,14 @@ StatusCode SignalGammaGamma::execute()
   m_histograms["ph_pt2"]->Fill(secondPhPt, weight);
   m_histograms["numPh"]->Fill(numPhPass, weight);
 
-  m_histograms["el_eta1"]->Fill(leadingEl->eta(), weight);
-  m_histograms["el_pt1"]->Fill(leadingElPt, weight);
-  m_histograms["el_eta2"]->Fill(secondEl->eta(), weight);
-  m_histograms["el_pt2"]->Fill(secondElPt, weight);
+  if (leadingEl) {
+    m_histograms["el_eta1"]->Fill(leadingEl->eta(), weight);
+    m_histograms["el_pt1"]->Fill(leadingElPt, weight);
+  }
+  if (secondEl) {
+    m_histograms["el_eta2"]->Fill(secondEl->eta(), weight);
+    m_histograms["el_pt2"]->Fill(secondElPt, weight);
+  }
   m_histograms["numEl"]->Fill(numElPass, weight);
 
   const double minv = P4Helpers::invMass(leadingEl, secondEl);
