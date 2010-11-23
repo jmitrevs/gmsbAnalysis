@@ -42,7 +42,7 @@ rec.doTrigger.set_Value_and_Lock(False)
 # ANALYSIS
 #--------------------------------------------------------------
 
-rec.UserAlgs.set_Value_and_Lock("TriggerStudes_simple.py")
+rec.UserAlgs.set_Value_and_Lock("TriggerStudies_simple.py")
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.PhotonisEMKey = 'PhotonTight'","ToolSvc.PhotonProcessingTool.ElectronisEMKey = 'ElectronTight'"]
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.excludeCrackRegion = False"]
 #UserExecsList = ["NtupleDumper.SUSY_ProductionVeto = True","NtupleDumper.SUSY_ProductionTypeAccepted = 2","NtupleDumper.isMC = True"]

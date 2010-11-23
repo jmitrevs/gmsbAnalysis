@@ -76,7 +76,7 @@ StatusCode TriggerStudies::initialize(){
   m_numEvents = 0;
 
   m_histograms["ph_cut"] = new TH1F("ph_cut", 
-				    "Number of events with single selected photon with p_{T} > cut;p_{T} cut [MeV]", 
+				    "Fraction of events with single selected photon with p_{T} > cut;p_{T} cut [MeV]", 
 				    120, 0, 120*GeV);
 
   m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
@@ -104,12 +104,12 @@ StatusCode TriggerStudies::initialize(){
   m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
 
 
-  // set up errors
-  for (std::map<std::string, TH1*>::iterator it = m_histograms.begin();
-       it != m_histograms.end();
-       it++) {
-    it->second->Sumw2();
-  }
+  // // set up errors
+  // for (std::map<std::string, TH1*>::iterator it = m_histograms.begin();
+  //      it != m_histograms.end();
+  //      it++) {
+  //   it->second->Sumw2();
+  // }
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/PassCutPt" , m_histograms["ph_cut"]).ignore();
 
@@ -348,17 +348,20 @@ StatusCode TriggerStudies::execute()
 
   // event accepted, so let's make plots
 
-  for (double i = 0; i < 120*GeV; i++) {
+  for (double i = 0; i < 120*GeV; i += GeV) {
     if (leadingPhPt > i) {
       m_histograms["ph_cut"]->Fill(i, weight);
     }
   }
 
-
-  m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
-  m_histograms["ph_pt1"]->Fill(leadingPhPt, weight);
-  m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
-  m_histograms["ph_pt2"]->Fill(secondPhPt, weight);
+  if (leadingPh) {
+    m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
+    m_histograms["ph_pt1"]->Fill(leadingPhPt, weight);
+  }
+  if (secondPh) {
+    m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
+    m_histograms["ph_pt2"]->Fill(secondPhPt, weight);
+  }
   m_histograms["numPh"]->Fill(numPhPass, weight);
   
   // ATH_MSG_DEBUG("filled photon plots");
@@ -408,6 +411,7 @@ StatusCode TriggerStudies::finalize() {
     
     ATH_MSG_INFO ("finalize()");
     
+    ATH_MSG_INFO("m_numEvents = " << m_numEvents);
 
     m_histograms["ph_cut"]->Scale(1.0/m_numEvents);
     return StatusCode::SUCCESS;

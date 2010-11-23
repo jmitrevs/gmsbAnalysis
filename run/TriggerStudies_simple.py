@@ -9,9 +9,13 @@ topSequence = AlgSequence()
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
+import PyCintex
+PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
-gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonLoose
-gmsbSelectionTool.ElectronPt = 0.0
+
+gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+gmsbSelectionTool.PhotonPt = 0.0
+gmsbSelectionTool.DoPhotonEtaWindowCut = False
 
 from gmsbAnalysis.gmsbAnalysisConf import TriggerStudies
 testAlg = TriggerStudies(name = "TriggerStudies",
