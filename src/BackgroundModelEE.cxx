@@ -303,7 +303,7 @@ StatusCode BackgroundModelEE::execute()
   const double minv = P4Helpers::invMass(leadingEl, secondEl);
   m_histograms["minv"]->Fill(minv, weight);
   
-  if (minv > 72*GeV && minv < 112*GeV) {
+  if (minv > 82*GeV && minv < 102*GeV) {
     m_histograms["numJets"]->Fill(numJets, weight);
     m_histograms["met"]->Fill(met->et(), weight);
     switch(numJets) {
