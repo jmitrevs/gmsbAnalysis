@@ -74,21 +74,21 @@ StatusCode BackgroundModelEE::initialize(){
   }
 
   m_histograms["eta1"] = new TH1F("eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["pt1"] = new TH1F("pt1","Transvers momentum of the leading electrons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["pt1"] = new TH1F("pt1","Transvers momentum of the leading electrons;#p_{T} [GeV]", 250, 0, 250);
   m_histograms["eta2"] = new TH1F("eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["pt2"] = new TH1F("pt2","Transvers momentum of the second electrons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["pt2"] = new TH1F("pt2","Transvers momentum of the second electrons;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["minv"] = new TH1F("minv", "The invariante mass of the two leading electrons;M_{inv} [MeV]", 120, 0*GeV, 120*GeV);
+  m_histograms["minv"] = new TH1F("minv", "The invariante mass of the two leading electrons;M_{inv} [GeV]", 120, 0, 120);
   m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
   m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
 
   // MET
-  m_histograms["met"] = new TH1F("met", "The MET distribution of Z events;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of Z events with zero jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of Z events with one jet;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of Z events with two jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of Z events with three jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of Z events with four jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["met"] = new TH1F("met", "The MET distribution of Z events;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of Z events with zero jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of Z events with one jet;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of Z events with two jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of Z events with three jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of Z events with four jets;Etmiss [GeV]", 250, 0, 250);
 
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta1" , m_histograms["eta1"]).ignore();
@@ -295,32 +295,32 @@ StatusCode BackgroundModelEE::execute()
   // event accepted, so let's make plots
 
   m_histograms["eta1"]->Fill(leadingEl->eta(), weight);
-  m_histograms["pt1"]->Fill(leadingElPt, weight);
+  m_histograms["pt1"]->Fill(leadingElPt/GeV, weight);
   m_histograms["eta2"]->Fill(secondEl->eta(), weight);
-  m_histograms["pt2"]->Fill(secondElPt, weight);
+  m_histograms["pt2"]->Fill(secondElPt/GeV, weight);
   m_histograms["numEl"]->Fill(numElPass, weight);
 
   const double minv = P4Helpers::invMass(leadingEl, secondEl);
-  m_histograms["minv"]->Fill(minv, weight);
+  m_histograms["minv"]->Fill(minv/GeV, weight);
   
   if (minv > 82*GeV && minv < 102*GeV) {
     m_histograms["numJets"]->Fill(numJets, weight);
-    m_histograms["met"]->Fill(met->et(), weight);
+    m_histograms["met"]->Fill(met->et()/GeV, weight);
     switch(numJets) {
     case 0:
-      m_histograms["met0J"]->Fill(met->et(), weight);
+      m_histograms["met0J"]->Fill(met->et()/GeV, weight);
       break;
     case 1:
-      m_histograms["met1J"]->Fill(met->et(), weight);
+      m_histograms["met1J"]->Fill(met->et()/GeV, weight);
       break;
     case 2:
-      m_histograms["met2J"]->Fill(met->et(), weight);
+      m_histograms["met2J"]->Fill(met->et()/GeV, weight);
       break;
     case 3:
-      m_histograms["met3J"]->Fill(met->et(), weight);
+      m_histograms["met3J"]->Fill(met->et()/GeV, weight);
       break;
     default:
-      m_histograms["met4J"]->Fill(met->et(), weight);
+      m_histograms["met4J"]->Fill(met->et()/GeV, weight);
       break;
     }
   }

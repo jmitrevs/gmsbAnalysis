@@ -74,28 +74,28 @@ StatusCode SignalGammaGamma::initialize(){
   }
 
   m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transvers momentum of the leading photons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transvers momentum of the leading photons;#p_{T} [GeV]", 250, 0, 250);
   m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transvers momentum of the second photons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transvers momentum of the second photons;#p_{T} [GeV]", 250, 0, 250);
 
   m_histograms["el_eta1"] = new TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt1"] = new TH1F("el_pt1","Transvers momentum of the leading electrons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["el_pt1"] = new TH1F("el_pt1","Transvers momentum of the leading electrons;#p_{T} [GeV]", 250, 0, 250);
   m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt2"] = new TH1F("el_pt2","Transvers momentum of the second electrons;#p_{T} [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["el_pt2"] = new TH1F("el_pt2","Transvers momentum of the second electrons;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["el_minv"] = new TH1F("el_minv", "The invariante mass of the two leading electrons;M_{inv} [MeV]", 120, 0*GeV, 120*GeV);
+  m_histograms["el_minv"] = new TH1F("el_minv", "The invariante mass of the two leading electrons;M_{inv} [GeV]", 120, 0, 120);
 
   m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
   m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
   m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
 
   // MET
-  m_histograms["met"] = new TH1F("met", "The MET distribution;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of events with one jet;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of events with two jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
-  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [MeV]", 100, 0*GeV, 250*GeV);
+  m_histograms["met"] = new TH1F("met", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
 
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
@@ -340,19 +340,19 @@ StatusCode SignalGammaGamma::execute()
   // event accepted, so let's make plots
 
   m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
-  m_histograms["ph_pt1"]->Fill(leadingPhPt, weight);
+  m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
   m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
-  m_histograms["ph_pt2"]->Fill(secondPhPt, weight);
+  m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, weight);
   m_histograms["numPh"]->Fill(numPhPass, weight);
   
   // ATH_MSG_DEBUG("filled photon plots");
   if (leadingEl) {
     m_histograms["el_eta1"]->Fill(leadingEl->eta(), weight);
-    m_histograms["el_pt1"]->Fill(leadingElPt, weight);
+    m_histograms["el_pt1"]->Fill(leadingElPt/GeV, weight);
   }
   if (secondEl) {
     m_histograms["el_eta2"]->Fill(secondEl->eta(), weight);
-    m_histograms["el_pt2"]->Fill(secondElPt, weight);
+    m_histograms["el_pt2"]->Fill(secondElPt/GeV, weight);
   }
   m_histograms["numEl"]->Fill(numElPass, weight);
   //ATH_MSG_DEBUG("filled electron plots");
@@ -360,26 +360,26 @@ StatusCode SignalGammaGamma::execute()
 
   if (numElPass >= 2) {
     const double minv = P4Helpers::invMass(leadingEl, secondEl);
-    m_histograms["el_minv"]->Fill(minv, weight);
+    m_histograms["el_minv"]->Fill(minv/GeV, weight);
   }
 
   m_histograms["numJets"]->Fill(numJets, weight);
-  m_histograms["met"]->Fill(met->et(), weight);
+  m_histograms["met"]->Fill(met->et()/GeV, weight);
   switch(numJets) {
   case 0:
-    m_histograms["met0J"]->Fill(met->et(), weight);
+    m_histograms["met0J"]->Fill(met->et()/GeV, weight);
     break;
   case 1:
-    m_histograms["met1J"]->Fill(met->et(), weight);
+    m_histograms["met1J"]->Fill(met->et()/GeV, weight);
     break;
   case 2:
-    m_histograms["met2J"]->Fill(met->et(), weight);
+    m_histograms["met2J"]->Fill(met->et()/GeV, weight);
     break;
   case 3:
-    m_histograms["met3J"]->Fill(met->et(), weight);
+    m_histograms["met3J"]->Fill(met->et()/GeV, weight);
     break;
   default:
-    m_histograms["met4J"]->Fill(met->et(), weight);
+    m_histograms["met4J"]->Fill(met->et()/GeV, weight);
     break;
   }
 
