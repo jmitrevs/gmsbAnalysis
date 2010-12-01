@@ -19,6 +19,8 @@
 
 #include "MissingETEvent/MissingET.h"
 
+#include "VxVertex/VxContainer.h"
+
 /////////////////////////////////////////////////////////////////////////////
 BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
@@ -31,6 +33,11 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
  
+  // Name of the primary vertex candidates
+  declareProperty("PrimaryVertexCandidates",
+		  m_vxCandidatesName="VxPrimaryCandidate",
+		  "Name of the primary vertex candidates");
+
   declareProperty("PreparationTool",     m_PreparationTool);
   declareProperty("CrackPreparationTool", m_CrackPreparationTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
@@ -124,6 +131,14 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::RECOVERABLE;
   }
 
+  // retrieve the container of Vertex
+  const VxContainer* vxContainer(0);
+  sc = evtStore()->retrieve(vxContainer, m_vxCandidatesName);
+  if (sc != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("no primary vertex container for this egamma, vxContainer: "<<vxContainer);
+    return StatusCode::RECOVERABLE;
+  }
+
   const EventInfo*  evtInfo = 0;
   sc = evtStore()->retrieve(evtInfo);
   if(sc.isFailure() || !evtInfo) {
@@ -193,8 +208,19 @@ StatusCode BackgroundModelEE::execute()
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 
-  bool rejectEvent = false;
 
+  // check the primary vertex
+  if (vxContainer->size() < 2) {
+    return StatusCode::SUCCESS; // reject event
+  }
+
+  const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
+    vxContainer->at(0)->vxTrackAtVertex();
+
+  if (vxtracks->size() <= 4) {
+    ATH_MSG_INFO("failed vx criteria");
+    return StatusCode::SUCCESS; // reject event
+  }    
 
   // veto events if they have a tight photon
 
@@ -206,8 +232,7 @@ StatusCode BackgroundModelEE::execute()
   
     const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
   }
 
@@ -218,8 +243,7 @@ StatusCode BackgroundModelEE::execute()
     
     const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
   }
 
@@ -230,12 +254,10 @@ StatusCode BackgroundModelEE::execute()
     
     const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
   }
 
-  if (rejectEvent) return StatusCode::SUCCESS;
 
   // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
@@ -271,7 +293,7 @@ StatusCode BackgroundModelEE::execute()
   }
   
   if (numElPass < 2 || leadingElPt < m_leadElPtCut) {
-    return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS; // reject event
   }
 
   int numJets = 0;
@@ -282,15 +304,12 @@ StatusCode BackgroundModelEE::execute()
        jet++) {
 
     if (isBad(*jet)) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
     if ((*jet)->eta() < 2.5) {
       numJets++;
     }
   }
-
-  if (rejectEvent) return StatusCode::SUCCESS;
 
   // event accepted, so let's make plots
 

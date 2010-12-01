@@ -19,6 +19,8 @@
 
 #include "MissingETEvent/MissingET.h"
 
+#include "VxVertex/VxContainer.h"
+
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
@@ -31,6 +33,11 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
 
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
  
+  // Name of the primary vertex candidates
+  declareProperty("PrimaryVertexCandidates",
+		  m_vxCandidatesName="VxPrimaryCandidate",
+		  "Name of the primary vertex candidates");
+
   declareProperty("PreparationTool",     m_PreparationTool);
   declareProperty("CrackPreparationTool", m_CrackPreparationTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
@@ -136,6 +143,14 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::RECOVERABLE;
   }
 
+  // retrieve the container of Vertex
+  const VxContainer* vxContainer(0);
+  sc = evtStore()->retrieve(vxContainer, m_vxCandidatesName);
+  if (sc != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("no primary vertex container for this egamma, vxContainer: "<<vxContainer);
+    return StatusCode::RECOVERABLE;
+  }
+
   const EventInfo*  evtInfo = 0;
   sc = evtStore()->retrieve(evtInfo);
   if(sc.isFailure() || !evtInfo) {
@@ -212,8 +227,18 @@ StatusCode SignalGammaGamma::execute()
 
   ATH_MSG_DEBUG("Got the containers");
 
-  bool rejectEvent = false;
+  // check the primary vertex
+  if (vxContainer->size() < 2) {
+    return StatusCode::SUCCESS; // reject event
+  }
 
+  const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
+    vxContainer->at(0)->vxTrackAtVertex();
+
+  if (vxtracks->size() <= 4) {
+    ATH_MSG_INFO("failed vx criteria");
+    return StatusCode::SUCCESS; // reject event
+  }
 
   // veto events if they have a tight photon
 
@@ -258,8 +283,7 @@ StatusCode SignalGammaGamma::execute()
     
     const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
   }
 
@@ -272,14 +296,11 @@ StatusCode SignalGammaGamma::execute()
     
     const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
   }
 
   //ATH_MSG_DEBUG("finished crack electron");
-
-  if (rejectEvent) return StatusCode::SUCCESS;
 
   // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
@@ -325,8 +346,7 @@ StatusCode SignalGammaGamma::execute()
        jet++) {
 
     if (isBad(*jet)) {
-      rejectEvent = true;
-      break;
+      return StatusCode::SUCCESS; // reject event
     }
     if ((*jet)->eta() < 2.5) {
       numJets++;
@@ -334,8 +354,6 @@ StatusCode SignalGammaGamma::execute()
   }
 
   ATH_MSG_DEBUG("finished jets");
-
-  if (rejectEvent) return StatusCode::SUCCESS;
 
   // event accepted, so let's make plots
 

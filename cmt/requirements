@@ -14,6 +14,7 @@ use egammaEvent	       egammaEvent-*		Reconstruction/egamma
 use MissingETEvent     MissingETEvent-*         Reconstruction
 use JetEvent           JetEvent-*               Reconstruction/Jet
 use JetUtils           JetUtils-*               Reconstruction/Jet
+use VxVertex           VxVertex-*               Tracking/TrkEvent
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

@@ -29,6 +29,9 @@ private:
 
   double m_leadPhotonPtCut;
 
+  /** primary vertex container */
+  std::string m_vxCandidatesName;
+
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;
   std::string m_histFileName;
