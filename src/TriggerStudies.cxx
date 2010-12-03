@@ -1,5 +1,4 @@
 #include "gmsbAnalysis/TriggerStudies.h"
-#include "gmsbAnalysis/checkOQ.h"
 #include "gmsbAnalysis/JetID.h"
 
 #include "TH1.h"
@@ -66,6 +65,9 @@ StatusCode TriggerStudies::initialize(){
     return sc;
   }
  
+  // initialize the OQ 
+  m_OQ.initialize();
+
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -244,7 +246,7 @@ StatusCode TriggerStudies::execute()
     
     const double pt = (*ph)->pt();
 
-    const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+    const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ || !m_doOQ) {
       numPhPass++;
       if (pt > leadingPhPt ) {
@@ -265,7 +267,7 @@ StatusCode TriggerStudies::execute()
   //      ph != crackPhotons->end();
   //      ph++) {
     
-  //   const bool badOQ = egammaOQ::checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+  //   const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
   //   if (!badOQ) {
   //     rejectEvent = true;
   //     break;
@@ -279,7 +281,7 @@ StatusCode TriggerStudies::execute()
   //      ph != crackElectrons->end();
   //      ph++) {
     
-  //   const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+  //   const bool badOQ = m_OQ.checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
   //   if (!badOQ) {
   //     rejectEvent = true;
   //     break;
@@ -306,7 +308,7 @@ StatusCode TriggerStudies::execute()
       
     const double pt = (*el)->pt();
     
-    const bool badOQ = egammaOQ::checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
+    const bool badOQ = m_OQ.checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
 
     if (!badOQ || !m_doOQ) {
       numElPass++;
