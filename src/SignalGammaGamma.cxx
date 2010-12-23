@@ -30,7 +30,8 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
 
   declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 30.0*GeV);
 
-  declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
+  //declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
+  declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
   // Name of the primary vertex candidates
   declareProperty("PrimaryVertexCandidates",
