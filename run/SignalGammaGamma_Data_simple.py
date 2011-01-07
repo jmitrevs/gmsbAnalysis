@@ -2,6 +2,10 @@
 #--------------------------------------------------------------
 # Define your Signal Selection Algorithm and Add Tools
 #--------------------------------------------------------------
+
+#from TriggerJobOpts.TriggerFlags import TriggerFlags
+#TriggerFlags.configurationSourceList = ['ds']
+
 #======================================================================================
 # L u m i B l o c k  j o b  o p t i o n s 
 #=========================================
@@ -22,7 +26,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy.xml' ]  # <<<<--- Edit this line!
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'susyH.26oct.xml' ]  # <<<<--- Edit this line!
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;
@@ -34,7 +38,9 @@ seq = AthSequencer("AthFilterSeq")
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
-seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']        
+seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g15_loose'
+
 #======================================================================================
 
 # Full job is a list of algorithms
