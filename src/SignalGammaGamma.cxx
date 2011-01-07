@@ -127,6 +127,11 @@ StatusCode SignalGammaGamma::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3J" , m_histograms["met3J"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4J" , m_histograms["met4J"]).ignore();
 
+  // initialize cut flow table
+  for (int i = 0; i < NUM_CUTS; i++) {
+    numEventsCut[i] = 0;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -162,6 +167,8 @@ StatusCode SignalGammaGamma::execute()
   }
 
   const unsigned runNum = evtInfo->event_ID()->run_number();
+  const unsigned lbNum = evtInfo->event_ID()->lumi_block();
+  const unsigned evNum = evtInfo->event_ID()->event_number();
 
 
   if (m_OQRunNum < 0) {
@@ -191,6 +198,8 @@ StatusCode SignalGammaGamma::execute()
   }
 
   ATH_MSG_DEBUG("About to prepare selection");
+
+  numEventsCut[0] += weight;
 
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
@@ -225,10 +234,24 @@ StatusCode SignalGammaGamma::execute()
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
+  const JetCollection *allJets =  m_PreparationTool->selectedJets();
+
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 
 
   ATH_MSG_DEBUG("Got the containers");
+
+  // jet cleaning
+  for (JetCollection::const_iterator jet = allJets->begin();
+       jet != allJets->end();
+       jet++) {
+
+    if (isBad(*jet)) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  numEventsCut[1] += weight;
 
   // check the primary vertex
   if (vxContainer->size() < 2) {
@@ -243,7 +266,7 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  // veto events if they have a tight photon
+  numEventsCut[2] += weight;
 
   // loop over photons
   int numPhPass = 0; // this is per event
@@ -277,6 +300,9 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS;
   }
 
+  numEventsCut[3] += weight;
+
+
   //ATH_MSG_DEBUG("finished photon");
 
   // loop over crack photons
@@ -290,6 +316,8 @@ StatusCode SignalGammaGamma::execute()
     }
   }
 
+  numEventsCut[4] += weight;
+
   //ATH_MSG_DEBUG("finished crack photon");
 
   // loop over crack electrons
@@ -302,6 +330,8 @@ StatusCode SignalGammaGamma::execute()
       return StatusCode::SUCCESS; // reject event
     }
   }
+
+  numEventsCut[5] += weight;
 
   //ATH_MSG_DEBUG("finished crack electron");
 
@@ -343,14 +373,11 @@ StatusCode SignalGammaGamma::execute()
 
   int numJets = 0;
 
-  // loop over crack photons
+  // Count number of jets
   for (JetCollection::const_iterator jet = jets->begin();
        jet != jets->end();
        jet++) {
 
-    if (isBad(*jet)) {
-      return StatusCode::SUCCESS; // reject event
-    }
     if ((*jet)->eta() < 2.5) {
       numJets++;
     }
@@ -359,6 +386,9 @@ StatusCode SignalGammaGamma::execute()
   ATH_MSG_DEBUG("finished jets");
 
   // event accepted, so let's make plots
+
+  // let's print out run, lb, and event numbers,...
+  ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " - " << met->et()/GeV);
 
   m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
   m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
@@ -412,7 +442,14 @@ StatusCode SignalGammaGamma::execute()
 StatusCode SignalGammaGamma::finalize() {
     
     ATH_MSG_INFO ("finalize()");
-    
+    // initialize cut flow table
+    ATH_MSG_INFO("Cut Flow Table");
+    ATH_MSG_INFO("--------------");
+
+    for (int i = 0; i < NUM_CUTS; i++) {
+      ATH_MSG_INFO("After cut " << i << ": " << numEventsCut[i] << " events");
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -421,5 +458,5 @@ bool SignalGammaGamma::isBad(const Jet* jet) const {
   int SamplingMax=CaloSampling::Unknown;
   return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
 		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),
-		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta());
+		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta(P4SignalState::JETEMSCALE));
 }

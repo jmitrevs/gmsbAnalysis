@@ -54,7 +54,7 @@ private:
   egammaOQ m_OQ;
 
   // for bookkeeping
-  unsigned int numEventsCut[NUM_CUTS];
+  double numEventsCut[NUM_CUTS];
   
 };
 
