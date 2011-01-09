@@ -35,6 +35,7 @@ from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
 seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']        
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_g10_loose'
 #======================================================================================
 
 # Full job is a list of algorithms
@@ -81,6 +82,8 @@ topSequence = AlgSequence()
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
+
+gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
 testAlg = BackgroundModelEE(name = "BackgroundModelEE",

@@ -115,6 +115,11 @@ StatusCode BackgroundModelEE::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3J" , m_histograms["met3J"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4J" , m_histograms["met4J"]).ignore();
 
+  // initialize cut flow table
+  for (int i = 0; i < NUM_CUTS; i++) {
+    numEventsCut[i] = 0;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -178,6 +183,10 @@ StatusCode BackgroundModelEE::execute()
     break;
   }
 
+  ATH_MSG_DEBUG("About to prepare selection");
+
+  numEventsCut[0] += weight;
+
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
@@ -209,8 +218,24 @@ StatusCode BackgroundModelEE::execute()
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
+  const JetCollection *allJets =  m_PreparationTool->selectedJets();
+
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 
+  ATH_MSG_DEBUG("Got the containers");
+
+  // jet cleaning
+  for (JetCollection::const_iterator jet = allJets->begin();
+       jet != allJets->end();
+       jet++) {
+
+    if (isBad(*jet)) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  numEventsCut[1] += weight;
+  ATH_MSG_DEBUG("Passed jet cleaning");
 
   // check the primary vertex
   if (vxContainer->size() < 2) {
@@ -225,8 +250,10 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }    
 
-  // veto events if they have a tight photon
+  numEventsCut[2] += weight;
+  ATH_MSG_DEBUG("Passed vertex");
 
+  // veto events if they have a tight photon
   // loop over photons
   for (PhotonContainer::const_iterator ph  = photons->begin();
        ph != photons->end();
@@ -239,6 +266,9 @@ StatusCode BackgroundModelEE::execute()
     }
   }
 
+  numEventsCut[3] += weight;
+  ATH_MSG_DEBUG("Passed photons");
+
   // loop over crack photons
   for (PhotonContainer::const_iterator ph = crackPhotons->begin();
        ph != crackPhotons->end();
@@ -249,6 +279,9 @@ StatusCode BackgroundModelEE::execute()
       return StatusCode::SUCCESS; // reject event
     }
   }
+
+  numEventsCut[4] += weight;
+  ATH_MSG_DEBUG("Passed crack photon");
 
   // loop over crack electrons
   for (ElectronContainer::const_iterator ph = crackElectrons->begin();
@@ -261,6 +294,8 @@ StatusCode BackgroundModelEE::execute()
     }
   }
 
+  numEventsCut[5] += weight;
+  ATH_MSG_DEBUG("Passed crack electron");
 
   // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
@@ -299,16 +334,16 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
+  numEventsCut[6] += weight;
+  ATH_MSG_DEBUG("Passed electrons");
+
   int numJets = 0;
 
-  // loop over crack photons
+  // calculate number of jets
   for (JetCollection::const_iterator jet = jets->begin();
        jet != jets->end();
        jet++) {
 
-    if (isBad(*jet)) {
-      return StatusCode::SUCCESS; // reject event
-    }
     if ((*jet)->eta() < 2.5) {
       numJets++;
     }
@@ -355,6 +390,13 @@ StatusCode BackgroundModelEE::execute()
 StatusCode BackgroundModelEE::finalize() {
     
     ATH_MSG_INFO ("finalize()");
+    // initialize cut flow table
+    ATH_MSG_INFO("Cut Flow Table");
+    ATH_MSG_INFO("--------------");
+
+    for (int i = 0; i < NUM_CUTS; i++) {
+      ATH_MSG_INFO("After cut " << i << ": " << numEventsCut[i] << " events");
+    }
     
     return StatusCode::SUCCESS;
 }
@@ -364,5 +406,5 @@ bool BackgroundModelEE::isBad(const Jet* jet) const {
   int SamplingMax=CaloSampling::Unknown;
   return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
 		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),
-		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta());
+		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta(P4SignalState::JETEMSCALE));
 }

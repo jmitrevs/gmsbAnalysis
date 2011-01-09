@@ -9,6 +9,7 @@ topSequence = AlgSequence()
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
+gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
 testAlg = BackgroundModelEE(name = "BackgroundModelEE",

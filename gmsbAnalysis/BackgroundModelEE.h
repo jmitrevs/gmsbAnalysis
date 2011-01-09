@@ -19,6 +19,8 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
+  enum NUM_CUTS_t {NUM_CUTS = 10};
+
 private:
 
   bool isBad(const Jet *) const;
@@ -50,6 +52,9 @@ private:
 
   // the OQ utility
   egammaOQ m_OQ;
+
+  // for bookkeeping
+  double numEventsCut[NUM_CUTS];
   
 };
 

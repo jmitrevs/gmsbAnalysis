@@ -252,6 +252,7 @@ StatusCode SignalGammaGamma::execute()
   }
 
   numEventsCut[1] += weight;
+  ATH_MSG_DEBUG("Passed jet cleaning");
 
   // check the primary vertex
   if (vxContainer->size() < 2) {
@@ -262,11 +263,12 @@ StatusCode SignalGammaGamma::execute()
     vxContainer->at(0)->vxTrackAtVertex();
 
   if (vxtracks->size() <= 4) {
-    ATH_MSG_INFO("failed vx criteria");
+    ATH_MSG_INFO("failed vx criteria: vx size = " << vxtracks->size());
     return StatusCode::SUCCESS; // reject event
   }
 
   numEventsCut[2] += weight;
+  ATH_MSG_DEBUG("Passed vertex");
 
   // loop over photons
   int numPhPass = 0; // this is per event
@@ -275,6 +277,9 @@ StatusCode SignalGammaGamma::execute()
   
   double leadingPhPt = 0;
   double secondPhPt = 0;
+
+  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
+
   for (PhotonContainer::const_iterator ph  = photons->begin();
        ph != photons->end();
        ph++) {
@@ -284,6 +289,8 @@ StatusCode SignalGammaGamma::execute()
     const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
     if (!badOQ) {
       numPhPass++;
+      ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
+
       if (pt > leadingPhPt ) {
 	secondPh = leadingPh;
 	leadingPh = *ph;
@@ -293,6 +300,8 @@ StatusCode SignalGammaGamma::execute()
 	secondPh = *ph;
 	secondPhPt = pt;
       }
+    } else {
+      ATH_MSG_DEBUG("Photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2) << " had bad OQ");
     }
   }
 
@@ -301,6 +310,7 @@ StatusCode SignalGammaGamma::execute()
   }
 
   numEventsCut[3] += weight;
+  ATH_MSG_DEBUG("Passed photons");
 
 
   //ATH_MSG_DEBUG("finished photon");
@@ -317,6 +327,7 @@ StatusCode SignalGammaGamma::execute()
   }
 
   numEventsCut[4] += weight;
+  ATH_MSG_DEBUG("Passed crack photon");
 
   //ATH_MSG_DEBUG("finished crack photon");
 
@@ -332,6 +343,7 @@ StatusCode SignalGammaGamma::execute()
   }
 
   numEventsCut[5] += weight;
+  ATH_MSG_DEBUG("Passed crack electron");
 
   //ATH_MSG_DEBUG("finished crack electron");
 
