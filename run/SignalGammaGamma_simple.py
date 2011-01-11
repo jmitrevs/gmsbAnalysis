@@ -16,7 +16,8 @@ testAlg = SignalGammaGamma(name = "SignalGammaGamma",
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2
+                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                            METContainerName = "MET_RefFinal"
                             )
 from AthenaCommon.AppMgr import ToolSvc
 testAlg.OutputLevel = DEBUG
