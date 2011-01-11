@@ -161,25 +161,43 @@ StatusCode BackgroundModelEE::execute()
     m_OQRunNum = runNum;
   }
 
-  // rewiegh for the Z sample
+  // rewiegh for the Z sample and W sample
   switch (runNum) {
   case 107650:
-    weight = 661.9/304216.0;
+    weight = 661.9/303405.0;
     break;
   case 107651:
-    weight = 133.3/63440.0;
+    weight = 133.3/63484.0;
     break;
   case 107652:
-    weight = 40.3/19497.0;
+    weight = 40.3/19496.0; 
     break;
   case 107653:
-    weight = 11.2/5499.0;
+    weight = 11.2/5500.0;
     break;
   case 107654:
-    weight = 2.7/1499.0;
+    weight = 2.7/1500.0;
     break;
   case 107655:
     weight = 0.8/500.0;
+    break;
+  case 107680:
+    weight = 6913.3/1382306.0;
+    break;
+  case 107681:
+    weight = 1293.0/641361.0;
+    break;
+  case 107682:
+    weight = 377.1/188956.0;
+    break;
+  case 107683:
+    weight = 100.9/50476.0;
+    break;
+  case 107684:
+    weight = 25.3/12990.0;
+    break;
+  case 107685:
+    weight = 6.9/3497.0;
     break;
   }
 

@@ -195,6 +195,24 @@ StatusCode SignalGammaGamma::execute()
   case 107655:
     weight = 0.8/500.0;
     break;
+  case 107680:
+    weight = 6913.3/1382306.0;
+    break;
+  case 107681:
+    weight = 1293.0/641361.0;
+    break;
+  case 107682:
+    weight = 377.1/188956.0;
+    break;
+  case 107683:
+    weight = 100.9/50476.0;
+    break;
+  case 107684:
+    weight = 25.3/12990.0;
+    break;
+  case 107685:
+    weight = 6.9/3497.0;
+    break;
   }
 
   ATH_MSG_DEBUG("About to prepare selection");
