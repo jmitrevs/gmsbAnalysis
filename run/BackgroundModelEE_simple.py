@@ -9,6 +9,7 @@ topSequence = AlgSequence()
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
+
 gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
@@ -17,7 +18,8 @@ testAlg = BackgroundModelEE(name = "BackgroundModelEE",
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2
+                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                            METContainerName = "MET_RefFinal"
                             )
 from AthenaCommon.AppMgr import ToolSvc
 testAlg.OutputLevel = DEBUG
