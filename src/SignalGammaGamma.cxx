@@ -20,9 +20,12 @@
 
 #include "VxVertex/VxContainer.h"
 
+#include "ITrackToVertex/ITrackToVertex.h"
+
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_trackToVertexTool("Reco::TrackToVertex")
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaGamma");
 
@@ -42,6 +45,11 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("CrackPreparationTool", m_CrackPreparationTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
+
+  // Tool for track extrapolation to vertex
+  declareProperty("trackToVertexTool", m_trackToVertexTool,
+		  "Tool for track extrapolation to vertex");
+
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -70,6 +78,13 @@ StatusCode SignalGammaGamma::initialize(){
   sc = m_OverlapRemovalTool2.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on secnd analysis overlap removal tool");
+    return sc;
+  }
+
+  // retrieving TrackToVertex:
+  sc = m_trackToVertexTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
     return sc;
   }
 
@@ -393,6 +408,11 @@ StatusCode SignalGammaGamma::execute()
        el != electrons->end();
        el++) {
 
+    // just for testing
+    const Trk::MeasuredPerigee* newMeasPerigee =
+      m_trackToVertexTool->perigeeAtVertex(*((*el)->trackParticle()), vxContainer->at(0)->recVertex().position());
+    ATH_MSG_DEBUG("dZ = " << newMeasPerigee->parameters()[Trk::z0]);
+
       
     const double pt = (*el)->pt();
     
@@ -429,6 +449,8 @@ StatusCode SignalGammaGamma::execute()
   }
 
   ATH_MSG_DEBUG("finished jets");
+
+
 
   // event accepted, so let's make plots
 

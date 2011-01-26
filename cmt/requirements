@@ -15,6 +15,7 @@ use MissingETEvent     MissingETEvent-*         Reconstruction
 use JetEvent           JetEvent-*               Reconstruction/Jet
 use JetUtils           JetUtils-*               Reconstruction/Jet
 use VxVertex           VxVertex-*               Tracking/TrkEvent
+use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

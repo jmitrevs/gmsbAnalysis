@@ -14,7 +14,7 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc09_7TeV.108085.PythiaPhotonJet_Unbinned7.recon.ESD.e534_s765_s767_r1305_tid137093_00/ESD.137093._000011.pool.root.1')
 #InputList = glob('/data3/jmitrevs/dataskims/ee/*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10*Znunugammagamma*/*pool.root*')
-InputList = glob('/data3/jmitrevs/mcskims/mc10*Wplushadgammagamma*/*pool.root*')
+InputList = glob('/data3/jmitrevs/mcskims/mc10*Wpluslepgammagamma*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/sps8/D2AOD_GMSBgg2.pool.root')
 #InputList = glob('/data3/jmitrevs/mcskims/rel_15/user.jmitrevs.20101120.76.mc09_7TeV.115038.Pythia_photos_diphotons25.ANALY_RALPP/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
