@@ -8,6 +8,7 @@
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
 
 class Jet;
+namespace Reco  { class ITrackToVertex; }
 
 /////////////////////////////////////////////////////////////////////////////
 class BackgroundModelEE:public AthAlgorithm {
@@ -22,9 +23,6 @@ public:
 private:
 
   bool isBad(const Jet *) const;
-
-  /** run number to use for OQ: -1 means use event run number */
-  int m_OQRunNum;
 
   /** MET selecton */
   std::string m_METContainerName;
@@ -48,6 +46,9 @@ private:
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
 
+  /** @brief Tool handle for track extrapolation to vertex */
+  ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+  
   // for bookkeeping
   double numEventsCut[NUM_CUTS];
   

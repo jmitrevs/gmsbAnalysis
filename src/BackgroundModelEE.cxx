@@ -12,6 +12,8 @@
 #include "egammaEvent/Photon.h"
 #include "egammaEvent/egammaPIDdefs.h"
 
+#include "muonEvent/MuonContainer.h"
+
 #include "JetEvent/JetCollection.h"
 #include "JetUtils/JetCaloHelper.h"
 #include "JetUtils/JetCaloQualityUtils.h"
@@ -20,9 +22,12 @@
 
 #include "VxVertex/VxContainer.h"
 
+#include "ITrackToVertex/ITrackToVertex.h"
+
 /////////////////////////////////////////////////////////////////////////////
 BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_trackToVertexTool("Reco::TrackToVertex")
 {
   declareProperty("HistFileName", m_histFileName = "BackgroundModelEE");
 
@@ -40,6 +45,11 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
   declareProperty("CrackPreparationTool", m_CrackPreparationTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
+
+  // Tool for track extrapolation to vertex
+  declareProperty("trackToVertexTool", m_trackToVertexTool,
+		  "Tool for track extrapolation to vertex");
+
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -70,7 +80,14 @@ StatusCode BackgroundModelEE::initialize(){
     ATH_MSG_ERROR("Can't get handle on secnd analysis overlap removal tool");
     return sc;
   }
- 
+
+  // retrieving TrackToVertex:
+  sc = m_trackToVertexTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
+    return sc;
+  }
+
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -150,6 +167,8 @@ StatusCode BackgroundModelEE::execute()
   }
 
   const unsigned runNum = evtInfo->event_ID()->run_number();
+  const unsigned lbNum = evtInfo->event_ID()->lumi_block();
+  const unsigned evNum = evtInfo->event_ID()->event_number();
 
 
   // rewiegh for the Z sample and W sample
@@ -190,6 +209,21 @@ StatusCode BackgroundModelEE::execute()
   case 107685:
     weight = 6.9/3497.0;
     break;
+  case 118619:
+    weight = 1.4597e-2/9998 * 35;
+    break;
+  case 118618:
+    weight = 4.0558e-2/9998 * 35;
+    break;
+  case 118617:
+    weight = 3.9128e-2/9999 * 35;
+    break;
+  case 118616:
+    weight = 2.9366e-2/9998 * 35;
+    break;
+  case 118615:
+    weight = 3.9201e-2/9994 * 35;
+    break;
   }
 
   ATH_MSG_DEBUG("About to prepare selection");
@@ -222,14 +256,19 @@ StatusCode BackgroundModelEE::execute()
     return sc;
   }
 
+  ATH_MSG_DEBUG("Done preparing selection");
+
   const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
   const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
+  const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
+
   const JetCollection *allJets =  m_PreparationTool->selectedJets();
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
+
 
   ATH_MSG_DEBUG("Got the containers");
 
@@ -251,14 +290,21 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
-    vxContainer->at(0)->vxTrackAtVertex();
+  bool foundVx = false;
+  for (VxContainer::const_iterator vx = vxContainer->begin();
+       vx != vxContainer->end();
+       vx++) {
+    const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
+      (*vx)->vxTrackAtVertex();
 
-  if (vxtracks->size() <= 4) {
-    ATH_MSG_INFO("failed vx criteria");
+    if (vxtracks->size() > 4) {
+      foundVx = true;
+      break;
+    }
+  }
+  if (!foundVx) {
     return StatusCode::SUCCESS; // reject event
-  }    
-
+  }
   numEventsCut[2] += weight;
   ATH_MSG_DEBUG("Passed vertex");
 
@@ -274,17 +320,6 @@ StatusCode BackgroundModelEE::execute()
   numEventsCut[3] += weight;
   ATH_MSG_DEBUG("Passed photons");
 
-  // loop over crack photons
-  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
-       ph != crackPhotons->end();
-       ph++) {
-    
-    return StatusCode::SUCCESS; // reject event
-  }
-
-  numEventsCut[4] += weight;
-  ATH_MSG_DEBUG("Passed crack photon");
-
   // loop over crack electrons
   for (ElectronContainer::const_iterator ph = crackElectrons->begin();
        ph != crackElectrons->end();
@@ -293,8 +328,34 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[5] += weight;
+  numEventsCut[4] += weight;
   ATH_MSG_DEBUG("Passed crack electron");
+
+  // loop over crack photons
+  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
+       ph != crackPhotons->end();
+       ph++) {
+    
+    return StatusCode::SUCCESS; // reject event
+  }
+
+  numEventsCut[5] += weight;
+  ATH_MSG_DEBUG("Passed crack photon");
+
+  for (Analysis::MuonContainer::const_iterator mu = muons->begin();
+       mu != muons->end();
+       mu++) {
+    
+    const Trk::MeasuredPerigee* newMeasPerigee =
+      m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
+    const double dz = newMeasPerigee->parameters()[Trk::z0];
+    ATH_MSG_DEBUG("dZ = " << dz);
+    if (dz >= 10.0) {
+      return StatusCode::SUCCESS; // reject event
+    }      
+  }
+  numEventsCut[6] += weight;
+  ATH_MSG_DEBUG("Passed muon rejection");
 
   // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
@@ -329,7 +390,7 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[6] += weight;
+  numEventsCut[7] += weight;
   ATH_MSG_DEBUG("Passed electrons");
 
   int numJets = 0;

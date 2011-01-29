@@ -182,22 +182,23 @@ StatusCode SignalGammaGamma::execute()
   const unsigned lbNum = evtInfo->event_ID()->lumi_block();
   const unsigned evNum = evtInfo->event_ID()->event_number();
 
-  // rewiegh for the Z sample
+
+  // rewiegh for the Z sample and W sample
   switch (runNum) {
   case 107650:
-    weight = 661.9/304216.0;
+    weight = 661.9/303405.0;
     break;
   case 107651:
-    weight = 133.3/63440.0;
+    weight = 133.3/63484.0;
     break;
   case 107652:
-    weight = 40.3/19497.0;
+    weight = 40.3/19496.0; 
     break;
   case 107653:
-    weight = 11.2/5499.0;
+    weight = 11.2/5500.0;
     break;
   case 107654:
-    weight = 2.7/1499.0;
+    weight = 2.7/1500.0;
     break;
   case 107655:
     weight = 0.8/500.0;
@@ -350,7 +351,6 @@ StatusCode SignalGammaGamma::execute()
        mu != muons->end();
        mu++) {
     
-    // just for testing
     const Trk::MeasuredPerigee* newMeasPerigee =
       m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
     const double dz = newMeasPerigee->parameters()[Trk::z0];

@@ -22,7 +22,8 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy.xml' ]  # <<<<--- Edit this line!
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_E3toI.xml' ]
+#GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_AtoE2.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;
@@ -88,7 +89,6 @@ gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
 testAlg = BackgroundModelEE(name = "BackgroundModelEE",
-                            OQRunNum = -1,
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,

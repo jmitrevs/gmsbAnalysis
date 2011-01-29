@@ -26,7 +26,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'susyH.26oct.xml' ]  # <<<<--- Edit this line!
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'GRL/data10_7TeV.periodH.166466-166964_LBSUMM_DetStatus-v03-repro05-01_susy_7TeV.xml' ]  # <<<<--- Edit this line!
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;
@@ -90,7 +90,6 @@ include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma
 testAlg = SignalGammaGamma(name = "SignalGammaGamma",
-                            OQRunNum = -1,
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
