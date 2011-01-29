@@ -7,8 +7,6 @@
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
 
-#include "egammaOQUtils/checkOQ.h"
-
 class Jet;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -49,9 +47,6 @@ private:
   ToolHandle<gmsbPreparationTool>     m_CrackPreparationTool;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
-
-  // the OQ utility
-  egammaOQ m_OQ;
 
   // for bookkeeping
   double numEventsCut[NUM_CUTS];

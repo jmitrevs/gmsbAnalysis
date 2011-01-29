@@ -12,7 +12,6 @@ include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma
 testAlg = SignalGammaGamma(name = "SignalGammaGamma",
-                            OQRunNum = 167521,
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,

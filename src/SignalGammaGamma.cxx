@@ -12,6 +12,8 @@
 #include "egammaEvent/Photon.h"
 #include "egammaEvent/egammaPIDdefs.h"
 
+#include "muonEvent/MuonContainer.h"
+
 #include "JetEvent/JetCollection.h"
 #include "JetUtils/JetCaloHelper.h"
 #include "JetUtils/JetCaloQualityUtils.h"
@@ -28,8 +30,6 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
   m_trackToVertexTool("Reco::TrackToVertex")
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaGamma");
-
-  declareProperty("OQRunNum", m_OQRunNum = -1);
 
   declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 30.0*GeV);
 
@@ -87,9 +87,6 @@ StatusCode SignalGammaGamma::initialize(){
     ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
     return sc;
   }
-
-  // initialize the OQ 
-  m_OQ.initialize();
 
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
@@ -185,11 +182,6 @@ StatusCode SignalGammaGamma::execute()
   const unsigned lbNum = evtInfo->event_ID()->lumi_block();
   const unsigned evNum = evtInfo->event_ID()->event_number();
 
-
-  if (m_OQRunNum < 0) {
-    m_OQRunNum = runNum;
-  }
-
   // rewiegh for the Z sample
   switch (runNum) {
   case 107650:
@@ -282,6 +274,8 @@ StatusCode SignalGammaGamma::execute()
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
+  const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
+
   const JetCollection *allJets =  m_PreparationTool->selectedJets();
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
@@ -307,16 +301,67 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
-    vxContainer->at(0)->vxTrackAtVertex();
+  bool foundVx = false;
+  for (VxContainer::const_iterator vx = vxContainer->begin();
+       vx != vxContainer->end();
+       vx++) {
+    const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
+      (*vx)->vxTrackAtVertex();
 
-  if (vxtracks->size() <= 4) {
-    ATH_MSG_INFO("failed vx criteria: vx size = " << vxtracks->size());
+    if (vxtracks->size() > 4) {
+      foundVx = true;
+      break;
+    }
+  }
+  if (!foundVx) {
+    return StatusCode::SUCCESS; // reject event
+  }
+  numEventsCut[2] += weight;
+  ATH_MSG_DEBUG("Passed vertex");
+
+
+  // loop over crack electrons
+  for (ElectronContainer::const_iterator ph = crackElectrons->begin();
+       ph != crackElectrons->end();
+       ph++) {
+    
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[2] += weight;
-  ATH_MSG_DEBUG("Passed vertex");
+  numEventsCut[3] += weight;
+  ATH_MSG_DEBUG("Passed crack electron");
+
+  //ATH_MSG_DEBUG("finished crack electron");
+
+  // loop over crack photons
+  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
+       ph != crackPhotons->end();
+       ph++) {
+    
+    return StatusCode::SUCCESS; // reject event
+  }
+
+  numEventsCut[4] += weight;
+  ATH_MSG_DEBUG("Passed crack photon");
+
+  //ATH_MSG_DEBUG("finished crack photon");
+  
+  for (Analysis::MuonContainer::const_iterator mu = muons->begin();
+       mu != muons->end();
+       mu++) {
+    
+    // just for testing
+    const Trk::MeasuredPerigee* newMeasPerigee =
+      m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
+    const double dz = newMeasPerigee->parameters()[Trk::z0];
+    ATH_MSG_DEBUG("dZ = " << dz);
+    if (dz >= 10.0) {
+      return StatusCode::SUCCESS; // reject event
+    }      
+  }
+  numEventsCut[5] += weight;
+  ATH_MSG_DEBUG("Passed muon rejection");
+
 
   // loop over photons
   int numPhPass = 0; // this is per event
@@ -334,22 +379,18 @@ StatusCode SignalGammaGamma::execute()
     
     const double pt = (*ph)->pt();
 
-    const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      numPhPass++;
-      ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
-
-      if (pt > leadingPhPt ) {
-	secondPh = leadingPh;
-	leadingPh = *ph;
-	secondPhPt = leadingPhPt;
-	leadingPhPt = pt;
-      } else if (pt > secondPhPt) {
-	secondPh = *ph;
-	secondPhPt = pt;
-      }
-    } else {
-      ATH_MSG_DEBUG("Photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2) << " had bad OQ");
+    
+    numPhPass++;
+    ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
+    
+    if (pt > leadingPhPt ) {
+      secondPh = leadingPh;
+      leadingPh = *ph;
+      secondPhPt = leadingPhPt;
+      leadingPhPt = pt;
+    } else if (pt > secondPhPt) {
+      secondPh = *ph;
+      secondPhPt = pt;
     }
   }
 
@@ -357,43 +398,12 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS;
   }
 
-  numEventsCut[3] += weight;
+  numEventsCut[6] += weight;
   ATH_MSG_DEBUG("Passed photons");
 
 
   //ATH_MSG_DEBUG("finished photon");
 
-  // loop over crack photons
-  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
-       ph != crackPhotons->end();
-       ph++) {
-    
-    const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      return StatusCode::SUCCESS; // reject event
-    }
-  }
-
-  numEventsCut[4] += weight;
-  ATH_MSG_DEBUG("Passed crack photon");
-
-  //ATH_MSG_DEBUG("finished crack photon");
-
-  // loop over crack electrons
-  for (ElectronContainer::const_iterator ph = crackElectrons->begin();
-       ph != crackElectrons->end();
-       ph++) {
-    
-    const bool badOQ = m_OQ.checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      return StatusCode::SUCCESS; // reject event
-    }
-  }
-
-  numEventsCut[5] += weight;
-  ATH_MSG_DEBUG("Passed crack electron");
-
-  //ATH_MSG_DEBUG("finished crack electron");
 
   // DEAL WITH ELECTRONS
   int numElPass = 0; // this is per event
@@ -408,27 +418,17 @@ StatusCode SignalGammaGamma::execute()
        el != electrons->end();
        el++) {
 
-    // just for testing
-    const Trk::MeasuredPerigee* newMeasPerigee =
-      m_trackToVertexTool->perigeeAtVertex(*((*el)->trackParticle()), vxContainer->at(0)->recVertex().position());
-    ATH_MSG_DEBUG("dZ = " << newMeasPerigee->parameters()[Trk::z0]);
-
-      
     const double pt = (*el)->pt();
     
-    const bool badOQ = m_OQ.checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
-
-    if (!badOQ) {
-      numElPass++;
-      if (pt > leadingElPt ) {
-	secondEl = leadingEl;
-	leadingEl = *el;
-	secondElPt = leadingElPt;
-	leadingElPt = pt;
-      } else if (pt > secondElPt) {
-	secondEl = *el;
-	secondElPt = pt;
-      }
+    numElPass++;
+    if (pt > leadingElPt ) {
+      secondEl = leadingEl;
+      leadingEl = *el;
+      secondElPt = leadingElPt;
+      leadingElPt = pt;
+    } else if (pt > secondElPt) {
+      secondEl = *el;
+      secondElPt = pt;
     }
     
   }

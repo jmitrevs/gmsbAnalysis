@@ -26,8 +26,6 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
 {
   declareProperty("HistFileName", m_histFileName = "BackgroundModelEE");
 
-  declareProperty("OQRunNum", m_OQRunNum = -1);
-
   declareProperty("LeadingElPtCut", m_leadElPtCut = 30.0*GeV);
 
   //declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -73,9 +71,6 @@ StatusCode BackgroundModelEE::initialize(){
     return sc;
   }
  
-  // initialize the OQ 
-  m_OQ.initialize();
-
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -156,10 +151,6 @@ StatusCode BackgroundModelEE::execute()
 
   const unsigned runNum = evtInfo->event_ID()->run_number();
 
-
-  if (m_OQRunNum < 0) {
-    m_OQRunNum = runNum;
-  }
 
   // rewiegh for the Z sample and W sample
   switch (runNum) {
@@ -276,12 +267,8 @@ StatusCode BackgroundModelEE::execute()
   for (PhotonContainer::const_iterator ph  = photons->begin();
        ph != photons->end();
        ph++) {
-    
-  
-    const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      return StatusCode::SUCCESS; // reject event
-    }
+
+    return StatusCode::SUCCESS; // reject event
   }
 
   numEventsCut[3] += weight;
@@ -292,10 +279,7 @@ StatusCode BackgroundModelEE::execute()
        ph != crackPhotons->end();
        ph++) {
     
-    const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      return StatusCode::SUCCESS; // reject event
-    }
+    return StatusCode::SUCCESS; // reject event
   }
 
   numEventsCut[4] += weight;
@@ -306,10 +290,7 @@ StatusCode BackgroundModelEE::execute()
        ph != crackElectrons->end();
        ph++) {
     
-    const bool badOQ = m_OQ.checkOQClusterElectron(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
-    if (!badOQ) {
-      return StatusCode::SUCCESS; // reject event
-    }
+    return StatusCode::SUCCESS; // reject event
   }
 
   numEventsCut[5] += weight;
@@ -331,19 +312,15 @@ StatusCode BackgroundModelEE::execute()
       
     const double pt = (*el)->pt();
     
-    const bool badOQ = m_OQ.checkOQClusterElectron(m_OQRunNum, (*el)->cluster()->eta(), (*el)->cluster()->phi())==3;
-
-    if (!badOQ) {
-      numElPass++;
-      if (pt > leadingElPt ) {
-	secondEl = leadingEl;
-	leadingEl = *el;
-	secondElPt = leadingElPt;
-	leadingElPt = pt;
-      } else if (pt > secondElPt) {
-	secondEl = *el;
-	secondElPt = pt;
-      }
+    numElPass++;
+    if (pt > leadingElPt ) {
+      secondEl = leadingEl;
+      leadingEl = *el;
+      secondElPt = leadingElPt;
+      leadingElPt = pt;
+    } else if (pt > secondElPt) {
+      secondEl = *el;
+      secondElPt = pt;
     }
     
   }

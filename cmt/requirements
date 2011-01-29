@@ -7,11 +7,11 @@ use AtlasPolicy	       AtlasPolicy-*
 use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
 use gmsbTools          gmsbTools-*
-use egammaOQUtils      egammaOQUtils-*          Reconstruction/egamma/egammaAnalysis
 
 private
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma
 use MissingETEvent     MissingETEvent-*         Reconstruction
+use muonEvent	       muonEvent-*              Reconstruction/MuonIdentification
 use JetEvent           JetEvent-*               Reconstruction/Jet
 use JetUtils           JetUtils-*               Reconstruction/Jet
 use VxVertex           VxVertex-*               Tracking/TrkEvent

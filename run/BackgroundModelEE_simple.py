@@ -14,7 +14,6 @@ gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
 testAlg = BackgroundModelEE(name = "BackgroundModelEE",
-                            OQRunNum = 167521,
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
