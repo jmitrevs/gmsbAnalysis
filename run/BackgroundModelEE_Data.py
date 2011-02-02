@@ -15,10 +15,12 @@ from glob import glob
 
 #// the onle below is for period G
 #InputList = glob('/data3/jmitrevs/dataskims/ee_AODFix/user.jmitrevs.*periodG*/*.pool.root*')
-#InputList = glob('/data3/jmitrevs/dataskims/ee2_early/user.jmitrevs.*/*.pool.root*')
+
+#// for 2a, debug
+#InputList = glob('/data3/jmitrevs/dataskims/ee2_rel02a/user.jmitrevs.*periodE*/*.pool.root*')
 
 #// the one below is for all other periods
-InputList = glob('/data3/jmitrevs/dataskims/ee_merge/user.jmitrevs.*periodF*/*.pool.root*')
+InputList = glob('/data3/jmitrevs/dataskims/ee_merge/user.jmitrevs.*periodA*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/sps8/D2AOD_GMSBgg2.pool.root')
 #InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')

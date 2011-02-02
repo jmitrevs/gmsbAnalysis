@@ -22,8 +22,8 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_E3toI.xml' ]
-#GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_AtoE2.xml' ]
+#GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_E3toI.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_AtoE2.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;
@@ -36,8 +36,8 @@ from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
 seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']        
-#seq.GRLTriggerAlg1.TriggerSelection = 'EF_g10_loose'
-seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g15_loose'
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_g10_loose'
+#seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g15_loose'
 #======================================================================================
 
 # Full job is a list of algorithms
