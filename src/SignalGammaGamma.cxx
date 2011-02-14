@@ -27,14 +27,16 @@
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_trackToVertexTool("Reco::TrackToVertex")
+  m_trackToVertexTool("Reco::TrackToVertex"),
+  m_userdatasvc("UserDataSvc", name)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaGamma");
 
   declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 30.0*GeV);
 
-  //declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
-  declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
+  // this is effectively hardcoded it probably won't work otherwse
+  declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
+  //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
   // Name of the primary vertex candidates
   declareProperty("PrimaryVertexCandidates",
@@ -88,6 +90,11 @@ StatusCode SignalGammaGamma::initialize(){
     return sc;
   }
 
+  if ( !m_userdatasvc.retrieve().isSuccess() ) {
+    ATH_MSG_ERROR("Unable to retrieve pointer to UserDataSvc");
+    return StatusCode::FAILURE;
+  }
+
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -112,14 +119,23 @@ StatusCode SignalGammaGamma::initialize(){
   m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
 
   // MET
-  m_histograms["met"] = new TH1F("met", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["metWoMuonCorr"] = new TH1F("metWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met0JWoMuonCorr"] = new TH1F("met0JWoMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met1JWoMuonCorr"] = new TH1F("met1JWoMuonCorr", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met2JWoMuonCorr"] = new TH1F("met2JWoMuonCorr", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met3JWoMuonCorr"] = new TH1F("met3WoMuonCorrJ", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met4JWoMuonCorr"] = new TH1F("met4JWoMuonCorr", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
 
-  m_histograms["metExtended"] = new TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+  m_histograms["metExtendedWoMuonCorr"] = new TH1F("metExtendedWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+
+  m_histograms["metWMuonCorr"] = new TH1F("metWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met0JWMuonCorr"] = new TH1F("met0JWMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met1JWMuonCorr"] = new TH1F("met1JWMuonCorr", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met2JWMuonCorr"] = new TH1F("met2JWMuonCorr", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met3JWMuonCorr"] = new TH1F("met3WMuonCorrJ", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met4JWMuonCorr"] = new TH1F("met4JWMuonCorr", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+
+  m_histograms["metExtendedWMuonCorr"] = new TH1F("metExtendedWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
 
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
@@ -134,13 +150,20 @@ StatusCode SignalGammaGamma::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/minv" , m_histograms["el_minv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met" , m_histograms["met"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0J" , m_histograms["met0J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1J" , m_histograms["met1J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2J" , m_histograms["met2J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3J" , m_histograms["met3J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4J" , m_histograms["met4J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtended" , m_histograms["metExtended"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWoMuonCorr" , m_histograms["metWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0JWoMuonCorr" , m_histograms["met0JWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1JWoMuonCorr" , m_histograms["met1JWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2JWoMuonCorr" , m_histograms["met2JWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3JWoMuonCorr" , m_histograms["met3JWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4JWoMuonCorr" , m_histograms["met4JWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtendedWoMuonCorr" , m_histograms["metExtendedWoMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWMuonCorr" , m_histograms["metWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0JWMuonCorr" , m_histograms["met0JWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1JWMuonCorr" , m_histograms["met1JWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2JWMuonCorr" , m_histograms["met2JWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3JWMuonCorr" , m_histograms["met3JWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4JWMuonCorr" , m_histograms["met4JWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtendedWMuonCorr" , m_histograms["metExtendedWMuonCorr"]).ignore();
 
   // initialize cut flow table
   for (int i = 0; i < NUM_CUTS; i++) {
@@ -162,7 +185,21 @@ StatusCode SignalGammaGamma::execute()
   const MissingET* met(0);
   StatusCode sc = evtStore()->retrieve( met, m_METContainerName );
   if( sc.isFailure()  ||  !met ) {
-    ATH_MSG_ERROR("No continer "<< m_METContainerName <<" container found in TDS");
+    ATH_MSG_ERROR("No "<< m_METContainerName <<" container found in TDS");
+    return StatusCode::RECOVERABLE;
+  }
+
+  const MissingET* met_muonboyContainer =0;
+  sc = evtStore()->retrieve(met_muonboyContainer , "MET_MuonBoy" );
+  if( sc.isFailure()  ||  !met_muonboyContainer ) {
+    ATH_MSG_ERROR("No MET_MuonBoy container found in TDS");
+    return StatusCode::RECOVERABLE;
+  }
+
+  const MissingET* met_refmuontrackContainer =0;
+  sc = evtStore()->retrieve( met_refmuontrackContainer, "MET_RefMuon_Track" );
+  if( sc.isFailure()  ||  !met_refmuontrackContainer ) {
+    ATH_MSG_ERROR("No MET_RefMuon_Track container found in TDS");
     return StatusCode::RECOVERABLE;
   }
 
@@ -383,7 +420,16 @@ StatusCode SignalGammaGamma::execute()
        ph != photons->end();
        ph++) {
     
-    const double pt = (*ph)->pt();
+    double pt = 0;
+
+    // get the user data
+    if (m_userdatasvc->getElementDecoration(**ph, std::string("corrPt"), pt)
+	!= StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error in geting photon decoration");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
 
     
     numPhPass++;
@@ -424,7 +470,15 @@ StatusCode SignalGammaGamma::execute()
        el != electrons->end();
        el++) {
 
-    const double pt = (*el)->pt();
+    double pt;
+    // get the user data
+    if (m_userdatasvc->getElementDecoration(**el, std::string("corrPt"), pt)
+	!= StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error in geting photon decoration");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
     
     numElPass++;
     if (pt > leadingElPt ) {
@@ -456,14 +510,53 @@ StatusCode SignalGammaGamma::execute()
 
   ATH_MSG_DEBUG("finished jets");
 
-  if (met->et() > 125*GeV) {
+  // lets correct the MET
+  double met_eta4p5=0;
+  double etMiss_eta4p5_etx=0;
+  double etMiss_eta4p5_ety=0;
+  //Regions for lochad topo
+  const MissingEtRegions* caloReg = met->getRegions();
+  if ( caloReg != 0 ) {
+    double etMiss_topo_lochad_central_etx = caloReg->exReg(MissingEtRegions::Central);
+    double etMiss_topo_lochad_central_ety = caloReg->eyReg(MissingEtRegions::Central);
+    double etMiss_topo_lochad_endcap_etx = caloReg->exReg(MissingEtRegions::EndCap);
+    double etMiss_topo_lochad_endcap_ety = caloReg->eyReg(MissingEtRegions::EndCap);  
+    double etMiss_topo_lochad_forward_etx = caloReg->exReg(MissingEtRegions::Forward);
+    double etMiss_topo_lochad_forward_ety = caloReg->eyReg(MissingEtRegions::Forward);
+
+    etMiss_eta4p5_etx = etMiss_topo_lochad_central_etx + etMiss_topo_lochad_endcap_etx + etMiss_topo_lochad_forward_etx;
+    etMiss_eta4p5_ety = etMiss_topo_lochad_central_ety + etMiss_topo_lochad_endcap_ety + etMiss_topo_lochad_forward_ety;
+    met_eta4p5=hypot(etMiss_eta4p5_etx, etMiss_eta4p5_ety);
+  } else {
+    ATH_MSG_ERROR("caloReg does not exist");
+    return StatusCode::FAILURE;
+  }
+  
+  double etMiss_eta4p5_etx_muon =  etMiss_eta4p5_etx; //from above
+  double etMiss_eta4p5_ety_muon =  etMiss_eta4p5_ety; // from above
+
+  etMiss_eta4p5_etx_muon+= met_muonboyContainer->etx();
+  etMiss_eta4p5_ety_muon+= met_muonboyContainer->ety();
+  etMiss_eta4p5_etx_muon-= met_refmuontrackContainer->etx();
+  etMiss_eta4p5_ety_muon-= met_refmuontrackContainer->ety();
+  
+  const double met_eta4p5_muon = hypot(etMiss_eta4p5_etx_muon, etMiss_eta4p5_ety_muon);
+
+
+
+  if (met_eta4p5 > 125*GeV) {
     numEventsCut[7] += weight;
+  }
+
+  if (met_eta4p5_muon > 125*GeV) {
+    numEventsCut[8] += weight;
   }
 
   // event accepted, so let's make plots
 
   // let's print out run, lb, and event numbers,...
-  ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " - " << met->et()/GeV);
+  ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " " 
+	       << muons->size() << " " << met_eta4p5_muon/GeV);
 
   m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
   m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
@@ -490,23 +583,45 @@ StatusCode SignalGammaGamma::execute()
   }
 
   m_histograms["numJets"]->Fill(numJets, weight);
-  m_histograms["met"]->Fill(met->et()/GeV, weight);
-  m_histograms["metExtended"]->Fill(met->et()/GeV, weight);
+
+
+  m_histograms["metWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
+  m_histograms["metExtendedWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
   switch(numJets) {
   case 0:
-    m_histograms["met0J"]->Fill(met->et()/GeV, weight);
+    m_histograms["met0JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
     break;
   case 1:
-    m_histograms["met1J"]->Fill(met->et()/GeV, weight);
+    m_histograms["met1JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
     break;
   case 2:
-    m_histograms["met2J"]->Fill(met->et()/GeV, weight);
+    m_histograms["met2JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
     break;
   case 3:
-    m_histograms["met3J"]->Fill(met->et()/GeV, weight);
+    m_histograms["met3JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
     break;
   default:
-    m_histograms["met4J"]->Fill(met->et()/GeV, weight);
+    m_histograms["met4JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
+    break;
+  }
+
+  m_histograms["metWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+  m_histograms["metExtendedWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+  switch(numJets) {
+  case 0:
+    m_histograms["met0JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    break;
+  case 1:
+    m_histograms["met1JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    break;
+  case 2:
+    m_histograms["met2JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    break;
+  case 3:
+    m_histograms["met3JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    break;
+  default:
+    m_histograms["met4JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
     break;
   }
 

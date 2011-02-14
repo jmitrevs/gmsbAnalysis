@@ -17,8 +17,7 @@ testAlg = BackgroundModelEE(name = "BackgroundModelEE",
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
-                            METContainerName = "MET_RefFinal"
+                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2
                             )
 from AthenaCommon.AppMgr import ToolSvc
 testAlg.OutputLevel = DEBUG
