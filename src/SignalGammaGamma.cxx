@@ -423,7 +423,7 @@ StatusCode SignalGammaGamma::execute()
     double pt = 0;
 
     // get the user data
-    if (m_userdatasvc->getElementDecoration(**ph, std::string("corrPt"), pt)
+    if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
 	!= StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Error in geting photon decoration");
       return StatusCode::FAILURE;
@@ -472,7 +472,7 @@ StatusCode SignalGammaGamma::execute()
 
     double pt;
     // get the user data
-    if (m_userdatasvc->getElementDecoration(**el, std::string("corrPt"), pt)
+    if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
 	!= StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Error in geting photon decoration");
       return StatusCode::FAILURE;

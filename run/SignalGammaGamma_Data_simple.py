@@ -3,8 +3,23 @@
 # Define your Signal Selection Algorithm and Add Tools
 #--------------------------------------------------------------
 
-#from TriggerJobOpts.TriggerFlags import TriggerFlags
-#TriggerFlags.configurationSourceList = ['ds']
+# #---------------------------------------------------------------
+# # Pool Persistency
+# #---------------------------------------------------------------
+# from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+# outStream = AthenaPoolOutputStream("Stream1")
+# outStream.ItemList  = [ "EventInfo#*"]
+# outStream.ItemList += [ "UDAthExParticles#*" ]
+# # Output File Name
+# outStream.OutputFile = "data_01.pool.root"
+
+#---------------------------------------------------------------
+# UserDataSvc
+#---------------------------------------------------------------
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataSvc")
+#svcMgr.UserDataSvc.OutputStream=outStream
+
 
 #======================================================================================
 # L u m i B l o c k  j o b  o p t i o n s 
