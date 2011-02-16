@@ -3,6 +3,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "AthenaKernel/IUserDataSvc.h"
 
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
@@ -49,6 +50,9 @@ private:
   /** @brief Tool handle for track extrapolation to vertex */
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
   
+  // user data
+  ServiceHandle<IUserDataSvc> m_userdatasvc;
+
   // for bookkeeping
   double numEventsCut[NUM_CUTS];
   

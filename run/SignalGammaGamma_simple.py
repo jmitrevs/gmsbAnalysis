@@ -3,6 +3,13 @@
 # Define your Signal Selection Algorithm and Add Tools
 #--------------------------------------------------------------
 
+#---------------------------------------------------------------
+# UserDataSvc
+#---------------------------------------------------------------
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataSvc")
+#svcMgr.UserDataSvc.OutputStream=outStream
+
 #======================================================================================
 # L u m i B l o c k  j o b  o p t i o n s 
 #=========================================
@@ -43,12 +50,23 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 # add the fudge factors
-include ( "gmsbTools/gmsbFudgeFactors.py" )
+include ( "gmsbFudgeFactors/gmsbFudgeFactors.py" )
 topSequence += theGmsbFudgeFactors
 
 # add the selection
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
+import PyCintex
+PyCintex.loadDictionary('egammaEnumsDict')
+from ROOT import egammaPID
+
+gmsbSelectionTool.IsMC = True
+gmsbSelectionTool.SmearMC = True
+#gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+
+gmsbCrackSelectionTool.IsMC = True
+gmsbCrackSelectionTool.SmearMC = True
+#gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma
 testAlg = SignalGammaGamma(name = "SignalGammaGamma",

@@ -38,7 +38,7 @@ athenaCommonFlags.EvtMax=-1
 
 from RecExConfig.RecFlags import rec
 
-rec.doTrigger.set_Value_and_Lock(False)
+rec.doTrigger.set_Value_and_Lock(True)
 
 #--------------------------------------------------------------
 # ANALYSIS

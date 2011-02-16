@@ -3,16 +3,6 @@
 # Define your Signal Selection Algorithm and Add Tools
 #--------------------------------------------------------------
 
-# #---------------------------------------------------------------
-# # Pool Persistency
-# #---------------------------------------------------------------
-# from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-# outStream = AthenaPoolOutputStream("Stream1")
-# outStream.ItemList  = [ "EventInfo#*"]
-# outStream.ItemList += [ "UDAthExParticles#*" ]
-# # Output File Name
-# outStream.OutputFile = "data_01.pool.root"
-
 #---------------------------------------------------------------
 # UserDataSvc
 #---------------------------------------------------------------
