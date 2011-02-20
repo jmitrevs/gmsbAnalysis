@@ -27,7 +27,7 @@ inDS_full = [
 for i,inDS in enumerate(inDS_full):
    
    
-    command = "pathena --nGBPerJob=MAX --excludedSite=ANALY_TAIWAN,ANALY_TOKYO --inDS %s/ --outDS user.jmitrevs.BackgroundModelEE_110111.%s SignalGammaGamma.py " % (inDS, inDS)
+    command = "pathena --nGBPerJob=MAX --excludedSite=ANALY_RAL,ANALY_LONG_BNL_ATLAS --inDS %s/ --outDS user.jmitrevs.SignalModel_170211_v3.%s SignalGammaGamma.py " % (inDS, inDS)
     
     print command
     os.system(command)
