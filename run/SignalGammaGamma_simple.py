@@ -69,7 +69,7 @@ gmsbSelectionTool.RandomSeed = RANDSEED
 
 gmsbCrackSelectionTool.IsMC = True
 gmsbCrackSelectionTool.SmearMC = True
-gmsbSelectionTool.RandomSeed = RANDSEED+1
+gmsbCrackSelectionTool.RandomSeed = RANDSEED+1
 #gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma
