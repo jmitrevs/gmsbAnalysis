@@ -22,7 +22,7 @@ inDS_diphoton = [
     ]
 
 inDS_grid = [
-    'mc10_7TeV.118441.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700'
+    'mc10_7TeV.118441.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700',
     'mc10_7TeV.118437.Pythia_GGM_Bino500_400.merge.AOD.e640_s933_s946_r1831_r1700',
     'mc10_7TeV.118449.Pythia_GGM_Bino700_500.merge.AOD.e640_s933_s946_r1831_r1700',
     'mc10_7TeV.118440.Pythia_GGM_Bino600_200.merge.AOD.e640_s933_s946_r1831_r1700',
@@ -54,10 +54,10 @@ inDS_grid = [
 for i,inDS in enumerate(inDS_grid):
    
     number = inDS[10:16]
-    print number
+    #print number
 
-    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --excludedSite=ANALY_RAL,ANALY_LONG_BNL_ATLAS --inDS %s/ --outDS user.jmitrevs.SignalModel_170211_v3.%s SignalGammaGamma.py " % (number, inDS, inDS)
+    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_210211.%s SignalGammaGamma.py " % (number, inDS, inDS)
     
     print command
-    #os.system(command)
+    os.system(command)
     

@@ -11,6 +11,7 @@
 #include "egammaEvent/PhotonContainer.h"
 #include "egammaEvent/Photon.h"
 #include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/EMShower.h"
 
 #include "muonEvent/MuonContainer.h"
 
@@ -23,6 +24,7 @@
 #include "VxVertex/VxContainer.h"
 
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "TH2.h"
 
 /////////////////////////////////////////////////////////////////////////////
 BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -47,6 +49,9 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
   declareProperty("CrackPreparationTool", m_CrackPreparationTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
+
+  declareProperty("WindowLow", m_windowLow = 80*GeV);
+  declareProperty("WindowHigh", m_windowHigh = 100*GeV);
 
   // Tool for track extrapolation to vertex
   declareProperty("trackToVertexTool", m_trackToVertexTool,
@@ -103,15 +108,17 @@ StatusCode BackgroundModelEE::initialize(){
   }
 
   m_histograms["eta1"] = new TH1F("eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["pt1"] = new TH1F("pt1","Transvers momentum of the leading electrons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["pt1"] = new TH1F("pt1","Transvers momentum of the leading electrons;p_{T} [GeV]", 250, 0, 250);
   m_histograms["eta2"] = new TH1F("eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["pt2"] = new TH1F("pt2","Transvers momentum of the second electrons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["pt2"] = new TH1F("pt2","Transvers momentum of the second electrons;p_{T} [GeV]", 250, 0, 250);
 
   m_histograms["minv"] = new TH1F("minv", "The invariante mass of the two leading electrons;M_{inv} [GeV]", 120, 0, 120);
   m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
   m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
 
-  // MET
+  m_histograms["etcone20"] = new TH1F("etcone20", "etcone20;E_{T}^{leak} [GeV]", 100, 0, 20);
+  m_histograms["etcone20vspt"] = new TH2F("etcone20vspt", "etcone20 vs object p_{T};E_{T}^{leak} [GeV];p_{T} [GeV]", 100, 0, 20, 50, 0, 250);
+
   // MET
   m_histograms["metWoMuonCorr"] = new TH1F("metWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
   m_histograms["met0JWoMuonCorr"] = new TH1F("met0JWoMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
@@ -137,6 +144,8 @@ StatusCode BackgroundModelEE::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt2" , m_histograms["pt2"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/minv" , m_histograms["minv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/etcone20" , m_histograms["etcone20"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/etcone20vspt" , m_histograms["etcone20vspt"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWoMuonCorr" , m_histograms["metWoMuonCorr"]).ignore();
@@ -508,7 +517,24 @@ StatusCode BackgroundModelEE::execute()
   const double minv = P4Helpers::invMass(leadingEl, secondEl);
   m_histograms["minv"]->Fill(minv/GeV, weight);
   
-  if (minv > 82*GeV && minv < 102*GeV) {
+  if (minv > m_windowLow && minv < m_windowHigh) {
+
+    // let's do the leakage
+    const EMShower* leadingShower = leadingEl->detail<EMShower>();
+    if(leadingShower) {
+      m_histograms["etcone20"]->Fill(leadingShower->etcone20()/GeV, weight);
+      TH2F *etconevspt = (TH2F *) m_histograms["etcone20vspt"];
+      etconevspt->Fill(leadingShower->etcone20()/GeV, leadingElPt/GeV, weight);
+    }
+
+    // let's do the leakage
+    const EMShower* secondShower = secondEl->detail<EMShower>();
+    if(secondShower) {
+      m_histograms["etcone20"]->Fill(secondShower->etcone20()/GeV, weight);
+      TH2F *etconevspt = (TH2F *) m_histograms["etcone20vspt"];
+      etconevspt->Fill(secondShower->etcone20()/GeV, secondElPt/GeV, weight);
+    }
+
     m_histograms["numJets"]->Fill(numJets, weight);
 
     m_histograms["metWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);

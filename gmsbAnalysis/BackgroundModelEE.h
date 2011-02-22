@@ -55,6 +55,10 @@ private:
 
   // for bookkeeping
   double numEventsCut[NUM_CUTS];
+
+  // mee (Z) window cut
+  double m_windowLow;
+  double m_windowHigh;
   
 };
 
