@@ -60,12 +60,16 @@ import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
+print "random seed", RANDSEED
+
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
+gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbCrackSelectionTool.IsMC = True
 gmsbCrackSelectionTool.SmearMC = True
+gmsbSelectionTool.RandomSeed = RANDSEED+1
 #gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma

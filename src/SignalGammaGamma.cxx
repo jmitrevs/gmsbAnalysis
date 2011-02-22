@@ -103,14 +103,21 @@ StatusCode SignalGammaGamma::initialize(){
   }
 
   m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transvers momentum of the leading photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transverse momentum of the leading photons;#p_{T} [GeV]", 250, 0, 250);
   m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transvers momentum of the second photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transverse momentum of the second photons;#p_{T} [GeV]", 250, 0, 250);
+
+  m_histograms["ph_ptB_unconv"] = new TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_ptEC_unconv"] = new TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;#p_{T} [GeV]", 250, 0, 250);
+
+  m_histograms["ph_ptB_conv"] = new TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_ptEC_conv"] = new TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;#p_{T} [GeV]", 250, 0, 250);
+
 
   m_histograms["el_eta1"] = new TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt1"] = new TH1F("el_pt1","Transvers momentum of the leading electrons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["el_pt1"] = new TH1F("el_pt1","Transverse momentum of the leading electrons;#p_{T} [GeV]", 100, 0, 500);
   m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt2"] = new TH1F("el_pt2","Transvers momentum of the second electrons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["el_pt2"] = new TH1F("el_pt2","Transverse momentum of the second electrons;#p_{T} [GeV]", 100, 0, 500);
 
   m_histograms["el_minv"] = new TH1F("el_minv", "The invariante mass of the two leading electrons;M_{inv} [GeV]", 120, 0, 120);
 
@@ -142,6 +149,10 @@ StatusCode SignalGammaGamma::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta2" , m_histograms["ph_eta2"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt2" , m_histograms["ph_pt2"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_unconv" , m_histograms["ph_ptB_unconv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_unconv" , m_histograms["ph_ptEC_unconv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_conv" , m_histograms["ph_ptB_conv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_conv" , m_histograms["ph_ptEC_conv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numPh" , m_histograms["numPh"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta1" , m_histograms["el_eta1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt1" , m_histograms["el_pt1"]).ignore();
@@ -560,9 +571,48 @@ StatusCode SignalGammaGamma::execute()
 
   m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
   m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
+
+  if (fabs(leadingPh->cluster()->eta()) < 1.45) {
+    if (leadingPh->conversion()) {
+      m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, weight);
+      accUnc.AddObject(leadingPhPt, true, true, weight);
+    } else {
+      m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, weight);
+      accUnc.AddObject(leadingPhPt, true, false, weight);
+    }
+  } else {
+    if (leadingPh->conversion()) {
+      m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, weight);
+      accUnc.AddObject(leadingPhPt, false, true, weight);
+    } else {
+      m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, weight);
+      accUnc.AddObject(leadingPhPt, false, false, weight);
+    }
+  }    
+
   m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
   m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, weight);
+
+  if (fabs(secondPh->cluster()->eta()) < 1.45) {
+    if (secondPh->conversion()) {
+      m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, weight);
+      accUnc.AddObject(secondPhPt, true, true, weight);
+    } else {
+      m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, weight);
+      accUnc.AddObject(secondPhPt, true, false, weight);
+    }
+  } else {
+    if (secondPh->conversion()) {
+      m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, weight);
+      accUnc.AddObject(secondPhPt, false, true, weight);
+    } else {
+      m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, weight);
+      accUnc.AddObject(secondPhPt, false, false, weight);
+    }
+  }    
+
   m_histograms["numPh"]->Fill(numPhPass, weight);
+
   
   // ATH_MSG_DEBUG("filled photon plots");
   if (leadingEl) {
@@ -640,6 +690,8 @@ StatusCode SignalGammaGamma::finalize() {
     for (int i = 0; i < NUM_CUTS; i++) {
       ATH_MSG_INFO("After cut " << i << ": " << numEventsCut[i] << " events");
     }
+    ATH_MSG_INFO("--------------");
+    ATH_MSG_INFO("Average material error: " << accUnc.Uncert());
 
     return StatusCode::SUCCESS;
 }

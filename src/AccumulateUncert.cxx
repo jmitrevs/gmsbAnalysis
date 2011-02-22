@@ -1,6 +1,6 @@
 #include "gmsbAnalysis/AccumulateUncert.h"
 
-AcculateUncert::AddObject(double pt, bool isBarrel, bool isConv, double weight)
+void AccumulateUncert::AddObject(double pt, bool isBarrel, bool isConv, double weight)
 {
   m_denom += weight;
   if (isConv) {
