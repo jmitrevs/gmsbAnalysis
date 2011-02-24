@@ -56,7 +56,18 @@ for i,inDS in enumerate(inDS_grid):
     number = inDS[10:16]
     #print number
 
-    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_210211.%s SignalGammaGamma.py " % (number, inDS, inDS)
+    #command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_220211a.%s SignalGammaGamma.py " % (number, inDS, inDS)
+    #command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_220211_looseffa.%s SignalGammaGamma_looseFF.py " % (number, inDS, inDS)
+
+    #print command
+    #os.system(command)
+
+    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_240211_su.%s SignalGammaGamma_ShiftUp.py " % (number, inDS, inDS)
+
+    print command
+    os.system(command)
+
+    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_240211_sd.%s SignalGammaGamma_ShiftDown.py " % (number, inDS, inDS)
     
     print command
     os.system(command)

@@ -60,6 +60,9 @@ import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
+if not 'RANDSEED' in dir():
+    RANDSEED = 0
+
 print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
@@ -80,7 +83,7 @@ testAlg = SignalGammaGamma(name = "SignalGammaGamma",
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2
                             )
 from AthenaCommon.AppMgr import ToolSvc
-testAlg.OutputLevel = DEBUG
+#testAlg.OutputLevel = DEBUG
 
 # Add example to Reader
 topSequence += testAlg

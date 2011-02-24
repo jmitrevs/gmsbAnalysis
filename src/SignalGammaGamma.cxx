@@ -565,6 +565,7 @@ StatusCode SignalGammaGamma::execute()
 
   // event accepted, so let's make plots
 
+  // if (met_eta4p5 > 125*GeV) {
   // let's print out run, lb, and event numbers,...
   ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " " 
 	       << muons->size() << " " << met_eta4p5_muon/GeV);
@@ -634,7 +635,7 @@ StatusCode SignalGammaGamma::execute()
 
   m_histograms["numJets"]->Fill(numJets, weight);
 
-
+  // } // end of if on MET
   m_histograms["metWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
   m_histograms["metExtendedWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
   switch(numJets) {
