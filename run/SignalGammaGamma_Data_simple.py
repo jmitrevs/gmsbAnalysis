@@ -101,7 +101,7 @@ testAlg = SignalGammaGamma(name = "SignalGammaGamma",
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2
                             )
 from AthenaCommon.AppMgr import ToolSvc
-#testAlg.OutputLevel = DEBUG
+testAlg.OutputLevel = DEBUG
 
 # Add example to Reader
 topSequence += testAlg

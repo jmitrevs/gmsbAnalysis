@@ -17,7 +17,7 @@ inDS_test = [
 
 inDS_full = [
   
-    'mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700'
+    'mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r2040'
 
     ]
 #how to automatically configure GRL ?
@@ -27,7 +27,7 @@ inDS_full = [
 for i,inDS in enumerate(inDS_full):
    
    
-    command = "pathena --nGBPerJob=MAX --excludedSite=ANALY_RAL,ANALY_LONG_BNL_ATLAS --inDS %s/ --outDS user.jmitrevs.SignalModel_170211_v3.%s SignalGammaGamma.py " % (inDS, inDS)
+    command = "pathena --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_090311.%s SignalGammaGamma.py " % (inDS, inDS)
     
     print command
     os.system(command)

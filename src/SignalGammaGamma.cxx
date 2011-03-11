@@ -563,6 +563,30 @@ StatusCode SignalGammaGamma::execute()
     numEventsCut[8] += weight;
   }
 
+  if (met_eta4p5 > 100*GeV) {
+    numEventsCut[9] += weight;
+  }
+
+  if (met_eta4p5_muon > 100*GeV) {
+    numEventsCut[10] += weight;
+  }
+
+  if (met_eta4p5 > 75*GeV) {
+    numEventsCut[11] += weight;
+  }
+
+  if (met_eta4p5_muon > 75*GeV) {
+    numEventsCut[12] += weight;
+  }
+
+  if (met_eta4p5 > 150*GeV) {
+    numEventsCut[13] += weight;
+  }
+
+  if (met_eta4p5_muon > 150*GeV) {
+    numEventsCut[14] += weight;
+  }
+
   // event accepted, so let's make plots
 
   // if (met_eta4p5 > 125*GeV) {

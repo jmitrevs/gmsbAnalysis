@@ -20,8 +20,8 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/dataskims/ee2_rel02a/user.jmitrevs.*periodE*/*.pool.root*')
 
 #// the one below is for all other periods
-#InputList = glob('/data3/jmitrevs/dataskims/ee_uncombined/ee_merged/user.jmitrevs.*periodH*/*.pool.root*')
-InputList = glob('/data3/jmitrevs/dataskims/ee_uncombined/ee_unmerged/user.jmitrevs.*periodE*/*.pool.root*')
+#InputList = glob('/data3/jmitrevs/dataskims/ee_uncombined/ee_merged/user.jmitrevs.*periodI*/*.pool.root*')
+InputList = glob('/data3/jmitrevs/dataskims/ee_uncombined/ee_unmerged/user.jmitrevs.*periodG*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/sps8/D2AOD_GMSBgg2.pool.root')
 #InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')

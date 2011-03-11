@@ -95,13 +95,16 @@ include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
 
 gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
+gmsbSelectionTool.ElectronEta = 1.81
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
 testAlg = BackgroundModelEE(name = "BackgroundModelEE",
                             PreparationTool = gmsbPreparationTool,
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2
+                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                            WindowLow = 70*GeV,
+                            WindowHigh = 110*GeV
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

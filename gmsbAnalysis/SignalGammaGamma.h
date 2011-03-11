@@ -20,7 +20,7 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
-  enum NUM_CUTS_t {NUM_CUTS = 10};
+  enum NUM_CUTS_t {NUM_CUTS = 20};
 
 private:
 

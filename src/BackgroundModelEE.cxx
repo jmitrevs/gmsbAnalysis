@@ -223,14 +223,36 @@ StatusCode BackgroundModelEE::execute()
 
   // rewiegh for the Z sample and W sample
   switch (runNum) {
+
+  //   // Z r1831_r1700 
+  // case 107650:
+  //   weight = 661.9/303405.0;
+  //   break;
+  // case 107651:
+  //   weight = 133.3/63484.0;
+  //   break;
+  // case 107652:
+  //   weight = 40.3/19496.0; 
+  //   break;
+  // case 107653:
+  //   weight = 11.2/5500.0;
+  //   break;
+  // case 107654:
+  //   weight = 2.7/1500.0;
+  //   break;
+  // case 107655:
+  //   weight = 0.8/500.0;
+  //   break;
+
+    // Z r1831_r2040
   case 107650:
-    weight = 661.9/303405.0;
+    weight = 661.9/303348.0;
     break;
   case 107651:
-    weight = 133.3/63484.0;
+    weight = 133.3/63447.0;
     break;
   case 107652:
-    weight = 40.3/19496.0; 
+    weight = 40.3/19480.0; 
     break;
   case 107653:
     weight = 11.2/5500.0;
@@ -241,6 +263,48 @@ StatusCode BackgroundModelEE::execute()
   case 107655:
     weight = 0.8/500.0;
     break;
+
+  //   // Z r1652_r1700 
+  // case 107650:
+  //   weight = 661.9/29992.0;
+  //   break;
+  // case 107651:
+  //   weight = 133.3/19995.0;
+  //   break;
+  // case 107652:
+  //   weight = 40.3/19496.0; 
+  //   break;
+  // case 107653:
+  //   weight = 11.2/5500.0;
+  //   break;
+  // case 107654:
+  //   weight = 2.7/1500.0;
+  //   break;
+  // case 107655:
+  //   weight = 0.8/500.0;
+  //   break;
+
+  //   // Z r1659_r2040 
+  // case 107650:
+  //   weight = 661.9/302914.0;
+  //   break;
+  // case 107651:
+  //   weight = 133.3/269957.0;
+  //   break;
+  // case 107652:
+  //   weight = 40.3/19280.0; 
+  //   break;
+  // case 107653:
+  //   weight = 11.2/5500.0;
+  //   break;
+  // case 107654:
+  //   weight = 2.7/21276.0;
+  //   break;
+  // case 107655:
+  //   weight = 0.8/7996.0;
+  //   break;
+
+
   case 107680:
     weight = 6913.3/1382306.0;
     break;
@@ -505,6 +569,31 @@ StatusCode BackgroundModelEE::execute()
   if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[9] += weight;
   }
+
+  if (met_eta4p5 > 100*GeV) {
+    numEventsCut[10] += weight;
+  }
+
+  if (met_eta4p5_muon > 100*GeV) {
+    numEventsCut[11] += weight;
+  }
+
+  if (met_eta4p5 > 75*GeV) {
+    numEventsCut[12] += weight;
+  }
+
+  if (met_eta4p5_muon > 75*GeV) {
+    numEventsCut[13] += weight;
+  }
+
+  if (met_eta4p5 > 150*GeV) {
+    numEventsCut[14] += weight;
+  }
+
+  if (met_eta4p5_muon > 150*GeV) {
+    numEventsCut[15] += weight;
+  }
+
 
   // event accepted, so let's make plots
 
