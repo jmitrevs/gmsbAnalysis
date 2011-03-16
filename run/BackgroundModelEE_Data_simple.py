@@ -95,7 +95,7 @@ include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
 
 #gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
-gmsbSelectionTool.ElectronEta = 1.81
+#gmsbSelectionTool.ElectronEta = 1.81
 
 from gmsbAnalysis.gmsbAnalysisConf import BackgroundModelEE
 testAlg = BackgroundModelEE(name = "BackgroundModelEE",

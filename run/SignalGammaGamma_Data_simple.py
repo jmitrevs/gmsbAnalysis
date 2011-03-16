@@ -92,6 +92,7 @@ topSequence = AlgSequence()
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
+gmsbCrackSelectionTool.OutputLevel = DEBUG
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma
 testAlg = SignalGammaGamma(name = "SignalGammaGamma",

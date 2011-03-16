@@ -597,6 +597,8 @@ StatusCode SignalGammaGamma::execute()
   m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
   m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
 
+  accFFUnc.AddObject(leadingPhPt, leadingPh->cluster()->etaBE(2), leadingPh->conversion(), weight);
+
   if (fabs(leadingPh->cluster()->eta()) < 1.45) {
     if (leadingPh->conversion()) {
       m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, weight);
@@ -717,6 +719,9 @@ StatusCode SignalGammaGamma::finalize() {
     }
     ATH_MSG_INFO("--------------");
     ATH_MSG_INFO("Average material error: " << accUnc.Uncert());
+    ATH_MSG_INFO("Average material error using sum of squares: " << accUnc.Uncert2());
+    ATH_MSG_INFO("Average FF error: " << accFFUnc.Uncert());
+    ATH_MSG_INFO("Average FF error using sum of squares: " << accFFUnc.Uncert2());
 
     return StatusCode::SUCCESS;
 }

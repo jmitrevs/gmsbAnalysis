@@ -8,6 +8,7 @@
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
 #include "gmsbAnalysis/AccumulateUncert.h"
+#include "gmsbAnalysis/AccumulateFFUncert.h"
 
 class Jet;
 namespace Reco  { class ITrackToVertex; }
@@ -58,6 +59,7 @@ private:
   double numEventsCut[NUM_CUTS];
 
   AccumulateUncert accUnc;
+  AccumulateFFUncert accFFUnc;
 };
 
 #endif // GMSBANALYSIS_SIGNALGAMMAGAMMA_H
