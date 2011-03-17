@@ -17,6 +17,7 @@ use JetEvent           JetEvent-*               Reconstruction/Jet
 use JetUtils           JetUtils-*               Reconstruction/Jet
 use VxVertex           VxVertex-*               Tracking/TrkEvent
 use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
+#use MCTruthClassifier  MCTruthClassifier-*      PhysicsAnalysis
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx
