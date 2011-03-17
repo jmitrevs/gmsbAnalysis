@@ -47,13 +47,13 @@ inDS_grid_old = [
     ]
 
 inDS_grid = [
-    'mc10_7TeV.118973.Pythia_GGM_Bino800_200.merge.AOD.e715_s933_s946_r1831_r2040',
-    'mc10_7TeV.118976.Pythia_GGM_Bino800_500.merge.AOD.e715_s933_s946_r1831_r2040',
-    'mc10_7TeV.118435.Pythia_GGM_Bino500_200.merge.AOD.e640_s933_s946_r1831_r2040',
+    #'mc10_7TeV.118973.Pythia_GGM_Bino800_200.merge.AOD.e715_s933_s946_r1831_r2040',
+    #'mc10_7TeV.118976.Pythia_GGM_Bino800_500.merge.AOD.e715_s933_s946_r1831_r2040',
+    #'mc10_7TeV.118435.Pythia_GGM_Bino500_200.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118970.Pythia_GGM_Bino650_500.merge.AOD.e715_s933_s946_r1831_r2040',
     'mc10_7TeV.118968.Pythia_GGM_Bino650_300.merge.AOD.e715_s933_s946_r1831_r2040',
     'mc10_7TeV.118445.Pythia_GGM_Bino700_150.merge.AOD.e640_s933_s946_r1831_r2040',
-    'mc10_7TeV.118430.Pythia_GGM_Bino400_150.merge.AOD.e640_s933_s946_r1831_r2040',
+    #'mc10_7TeV.118430.Pythia_GGM_Bino400_150.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118434.Pythia_GGM_Bino500_150.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118446.Pythia_GGM_Bino700_200.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118447.Pythia_GGM_Bino700_300.merge.AOD.e640_s933_s946_r1831_r2040',
@@ -80,7 +80,7 @@ inDS_grid = [
     'mc10_7TeV.118432.Pythia_GGM_Bino400_300.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118443.Pythia_GGM_Bino600_500.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118441.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r2040',
-    'mc10_7TeV.118442.Pythia_GGM_Bino600_400.merge.AOD.e640_s933_s946_r1831_r2040',
+    #'mc10_7TeV.118442.Pythia_GGM_Bino600_400.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118436.Pythia_GGM_Bino500_300.merge.AOD.e640_s933_s946_r1831_r2040',
     'mc10_7TeV.118974.Pythia_GGM_Bino800_300.merge.AOD.e715_s933_s946_r1831_r2040',
 
@@ -171,7 +171,7 @@ for i,inDS in enumerate(inDS_grid):
     number = inDS[10:16]
     #print number
 
-    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_170311.%s SignalGammaGamma.py " % (number, inDS, inDS)
+    command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_170311_v2.%s SignalGammaGamma.py " % (number, inDS, inDS)
 
     #command = "pathena -c 'RANDSEED=%s' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_140311_looseff.%s SignalGammaGamma_looseFF.py " % (number, inDS, inDS)
 
