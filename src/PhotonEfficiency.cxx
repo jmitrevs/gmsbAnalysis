@@ -12,14 +12,19 @@
 #include "egammaEvent/egammaPIDdefs.h"
 
 #include "McParticleEvent/TruthParticleContainer.h"
+#include "FourMomUtils/P4Helpers.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
 PhotonEfficiency::PhotonEfficiency(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
+  declareProperty("McParticleContainer", m_truthParticleContainerName = "SpclMC");
+  declareProperty("PhotonContainerName", m_photonContainerName = "PhotonAODCollection");
   declareProperty("HistFileName", m_histFileName = "PhotonEfficiency");
+  declareProperty("PrintDecayTree", m_printDecayTree = true);
 
+  declareProperty("DeltaR", m_deltaR = 0.4);
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -29,85 +34,90 @@ StatusCode PhotonEfficiency::initialize(){
  
 
   /// histogram location
-  sc = service("THistSvc", m_thistSvc);
+  StatusCode sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
     return sc;
   }
 
-  m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transverse momentum of the leading photons;#p_{T} [GeV]", 250, 0, 250);
-  m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transverse momentum of the second photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_truth"] = new TH1F("ph_eta_truth","Psuedorapidity of the truth photons;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_truth"] = new TH1F("ph_pt_truth","Transverse momentum of the truth photons;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["ph_ptB_unconv"] = new TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;#p_{T} [GeV]", 250, 0, 250);
-  m_histograms["ph_ptEC_unconv"] = new TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont"] = new TH1F("ph_eta_cont","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_cont"] = new TH1F("ph_pt_cont","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["ph_ptB_conv"] = new TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;#p_{T} [GeV]", 250, 0, 250);
-  m_histograms["ph_ptEC_conv"] = new TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont_unconv"] = new TH1F("ph_eta_cont_unconv","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_cont_unconv"] = new TH1F("ph_pt_cont_unconv","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
+  m_histograms["ph_eta_cont_conv1"] = new TH1F("ph_eta_cont_conv1","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_cont_conv1"] = new TH1F("ph_pt_cont_conv1","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["el_eta1"] = new TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt1"] = new TH1F("el_pt1","Transverse momentum of the leading electrons;#p_{T} [GeV]", 100, 0, 500);
-  m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt2"] = new TH1F("el_pt2","Transverse momentum of the second electrons;#p_{T} [GeV]", 100, 0, 500);
+  m_histograms["ph_eta_cont_conv2"] = new TH1F("ph_eta_cont_conv2","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_cont_conv2"] = new TH1F("ph_pt_cont_conv2","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["el_minv"] = new TH1F("el_minv", "The invariante mass of the two leading electrons;M_{inv} [GeV]", 120, 0, 120);
+  m_histograms["ph_eta_loose"] = new TH1F("ph_eta_loose","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_loose"] = new TH1F("ph_pt_loose","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
-  m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
-  m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
+  m_histograms["ph_eta_loose_unconv"] = new TH1F("ph_eta_loose_unconv","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_loose_unconv"] = new TH1F("ph_pt_loose_unconv","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  // MET
-  m_histograms["metWoMuonCorr"] = new TH1F("metWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met0JWoMuonCorr"] = new TH1F("met0JWoMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met1JWoMuonCorr"] = new TH1F("met1JWoMuonCorr", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met2JWoMuonCorr"] = new TH1F("met2JWoMuonCorr", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met3JWoMuonCorr"] = new TH1F("met3WoMuonCorrJ", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met4JWoMuonCorr"] = new TH1F("met4JWoMuonCorr", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_loose_conv1"] = new TH1F("ph_eta_loose_conv1","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_loose_conv1"] = new TH1F("ph_pt_loose_conv1","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["metExtendedWoMuonCorr"] = new TH1F("metExtendedWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+  m_histograms["ph_eta_loose_conv2"] = new TH1F("ph_eta_loose_conv2","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_loose_conv2"] = new TH1F("ph_pt_loose_conv2","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["metWMuonCorr"] = new TH1F("metWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met0JWMuonCorr"] = new TH1F("met0JWMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met1JWMuonCorr"] = new TH1F("met1JWMuonCorr", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met2JWMuonCorr"] = new TH1F("met2JWMuonCorr", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met3JWMuonCorr"] = new TH1F("met3WMuonCorrJ", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met4JWMuonCorr"] = new TH1F("met4JWMuonCorr", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_tight"] = new TH1F("ph_eta_tight","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_tight"] = new TH1F("ph_pt_tight","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_histograms["metExtendedWMuonCorr"] = new TH1F("metExtendedWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+  m_histograms["ph_eta_tight_unconv"] = new TH1F("ph_eta_tight_unconv","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_tight_unconv"] = new TH1F("ph_pt_tight_unconv","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
+  m_histograms["ph_eta_tight_conv1"] = new TH1F("ph_eta_tight_conv1","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_tight_conv1"] = new TH1F("ph_pt_tight_conv1","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
 
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta2" , m_histograms["ph_eta2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt2" , m_histograms["ph_pt2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_unconv" , m_histograms["ph_ptB_unconv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_unconv" , m_histograms["ph_ptEC_unconv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_conv" , m_histograms["ph_ptB_conv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_conv" , m_histograms["ph_ptEC_conv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numPh" , m_histograms["numPh"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta1" , m_histograms["el_eta1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt1" , m_histograms["el_pt1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta2" , m_histograms["el_eta2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt2" , m_histograms["el_pt2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/minv" , m_histograms["el_minv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWoMuonCorr" , m_histograms["metWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0JWoMuonCorr" , m_histograms["met0JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1JWoMuonCorr" , m_histograms["met1JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2JWoMuonCorr" , m_histograms["met2JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3JWoMuonCorr" , m_histograms["met3JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4JWoMuonCorr" , m_histograms["met4JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtendedWoMuonCorr" , m_histograms["metExtendedWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWMuonCorr" , m_histograms["metWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0JWMuonCorr" , m_histograms["met0JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1JWMuonCorr" , m_histograms["met1JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2JWMuonCorr" , m_histograms["met2JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3JWMuonCorr" , m_histograms["met3JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4JWMuonCorr" , m_histograms["met4JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtendedWMuonCorr" , m_histograms["metExtendedWMuonCorr"]).ignore();
+  m_histograms["ph_eta_tight_conv2"] = new TH1F("ph_eta_tight_conv2","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
+  m_histograms["ph_pt_tight_conv2"] = new TH1F("ph_pt_tight_conv2","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_truth" , m_histograms["ph_eta_truth"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_truth" , m_histograms["ph_pt_truth"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont" , m_histograms["ph_eta_cont"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont" , m_histograms["ph_pt_cont"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont_unconv" , m_histograms["ph_eta_cont_unconv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont_unconv" , m_histograms["ph_pt_cont_unconv"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont_conv1" , m_histograms["ph_eta_cont_conv1"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont_conv1" , m_histograms["ph_pt_cont_conv1"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont_conv2" , m_histograms["ph_eta_cont_conv2"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont_conv2" , m_histograms["ph_pt_cont_conv2"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose" , m_histograms["ph_eta_loose"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose" , m_histograms["ph_pt_loose"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose_unconv" , m_histograms["ph_eta_loose_unconv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose_unconv" , m_histograms["ph_pt_loose_unconv"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose_conv1" , m_histograms["ph_eta_loose_conv1"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose_conv1" , m_histograms["ph_pt_loose_conv1"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose_conv2" , m_histograms["ph_eta_loose_conv2"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose_conv2" , m_histograms["ph_pt_loose_conv2"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight" , m_histograms["ph_eta_tight"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight" , m_histograms["ph_pt_tight"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight_unconv" , m_histograms["ph_eta_tight_unconv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight_unconv" , m_histograms["ph_pt_tight_unconv"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight_conv1" , m_histograms["ph_eta_tight_conv1"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight_conv1" , m_histograms["ph_pt_tight_conv1"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight_conv2" , m_histograms["ph_eta_tight_conv2"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight_conv2" , m_histograms["ph_pt_tight_conv2"]).ignore();
+
 
   return StatusCode::SUCCESS;
 }
@@ -118,14 +128,22 @@ StatusCode PhotonEfficiency::execute()
   ATH_MSG_DEBUG("execute");
 
 
-  double weight = 1.0;
+  m_weight = 1.0;
 
 
   /** get the MC truth particle AOD container from StoreGate */
   const TruthParticleContainer*  mcpartTES = 0;
-  StatusCode sc=m_storeGate->retrieve( mcpartTES, m_truthParticleContainerName);
+  StatusCode sc=evtStore()->retrieve( mcpartTES, m_truthParticleContainerName);
   if( sc.isFailure()  ||  !mcpartTES ) {
     ATH_MSG_ERROR("could not retrieve MC truth container");
+    return StatusCode::RECOVERABLE;
+  }
+
+  /** get the MC truth particle AOD container from StoreGate */
+  m_photons = 0;
+  sc=evtStore()->retrieve( m_photons, m_photonContainerName);
+  if( sc.isFailure()  ||  !m_photons ) {
+    ATH_MSG_ERROR("could not retrieve photons container");
     return StatusCode::RECOVERABLE;
   }
 
@@ -137,62 +155,62 @@ StatusCode PhotonEfficiency::execute()
   }
 
   const unsigned runNum = evtInfo->event_ID()->run_number();
-  const unsigned lbNum = evtInfo->event_ID()->lumi_block();
-  const unsigned evNum = evtInfo->event_ID()->event_number();
+  //const unsigned lbNum = evtInfo->event_ID()->lumi_block();
+  //const unsigned evNum = evtInfo->event_ID()->event_number();
 
 
   // rewiegh for the Z sample and W sample
   switch (runNum) {
   case 107650:
-    weight = 661.9/303405.0;
+    m_weight = 661.9/303405.0;
     break;
   case 107651:
-    weight = 133.3/63484.0;
+    m_weight = 133.3/63484.0;
     break;
   case 107652:
-    weight = 40.3/19496.0; 
+    m_weight = 40.3/19496.0; 
     break;
   case 107653:
-    weight = 11.2/5500.0;
+    m_weight = 11.2/5500.0;
     break;
   case 107654:
-    weight = 2.7/1500.0;
+    m_weight = 2.7/1500.0;
     break;
   case 107655:
-    weight = 0.8/500.0;
+    m_weight = 0.8/500.0;
     break;
   case 107680:
-    weight = 6913.3/1382306.0;
+    m_weight = 6913.3/1382306.0;
     break;
   case 107681:
-    weight = 1293.0/641361.0;
+    m_weight = 1293.0/641361.0;
     break;
   case 107682:
-    weight = 377.1/188956.0;
+    m_weight = 377.1/188956.0;
     break;
   case 107683:
-    weight = 100.9/50476.0;
+    m_weight = 100.9/50476.0;
     break;
   case 107684:
-    weight = 25.3/12990.0;
+    m_weight = 25.3/12990.0;
     break;
   case 107685:
-    weight = 6.9/3497.0;
+    m_weight = 6.9/3497.0;
     break;
   case 118619:
-    weight = 1.4597e-2/9998 * 35;
+    m_weight = 1.4597e-2/9998 * 35;
     break;
   case 118618:
-    weight = 4.0558e-2/9998 * 35;
+    m_weight = 4.0558e-2/9998 * 35;
     break;
   case 118617:
-    weight = 3.9128e-2/9999 * 35;
+    m_weight = 3.9128e-2/9999 * 35;
     break;
   case 118616:
-    weight = 2.9366e-2/9998 * 35;
+    m_weight = 2.9366e-2/9998 * 35;
     break;
   case 118615:
-    weight = 3.9201e-2/9994 * 35;
+    m_weight = 3.9201e-2/9994 * 35;
     break;
   }
 
@@ -210,22 +228,23 @@ StatusCode PhotonEfficiency::execute()
       pvtx = getMCHardInteraction(ge);
       // mLog <<MSG::DEBUG << "pvtx from getMCHardInteraction = " << (unsigned int) pvtx << endreq;
     }
-
+    
     if (pvtx) {
-      for (HepMC::GenVertex::particles_in_const_iterator init = pvtx->particles_in_const_begin();
-	   init != pvtx->particles_in_const_end();
-	   init++) {
-	mLog << MSG::INFO;
-	mLog << std::setw(7) << std::left <<  m_pdg->GetParticle((*init)->pdg_id())->GetName();
+      if (m_printDecayTree) {
+	for (HepMC::GenVertex::particles_in_const_iterator init = pvtx->particles_in_const_begin();
+	     init != pvtx->particles_in_const_end();
+	     init++) {
+	  msg(MSG::INFO) << std::setw(7) << std::left <<  m_pdg.GetParticle((*init)->pdg_id())->GetName();
+	}
+	msg(MSG::INFO) << " ->\t";
+	
+	
+	PrintDecayTree(pvtx);
       }
-      mLog << " ->\t";
-      
-      
-      PrintDecayTreeAnnotated(mLog, pvtx);
     }
-
+    
   }
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -235,3 +254,203 @@ StatusCode PhotonEfficiency::finalize() {
     ATH_MSG_DEBUG ("finalize()");
     return StatusCode::SUCCESS;
 }
+
+// This is how the hard interaction is gotten
+// for now it's a heuristic and probably doesn't work in most cases
+HepMC::GenVertex* PhotonEfficiency::getMCHardInteraction(const HepMC::GenEvent *const ge) const
+{
+  for (int i = -1; i > -20; --i) {
+    HepMC::GenVertex* vtx = ge->barcode_to_vertex(i);
+    if (vtx && vtx->particles_in_size() == 2) {
+      return vtx;
+    }
+  }
+  return NULL;
+}
+
+// used recursively
+// prints the decay products of one vertex, calling itself to to
+// further decay of SUSY particles, t, W, Z, higgses, (gamma? not now).
+// Doesn't continue into Geant particles 
+void PhotonEfficiency::PrintDecayTree(const HepMC::GenVertex *vtx, int extraSpaces)
+{
+  std::vector<const HepMC::GenVertex *> decayVertices;
+
+  for (HepMC::GenVertex::particles_in_const_iterator outit = vtx->particles_out_const_begin();
+       outit != vtx->particles_out_const_end();
+       outit++) {
+    if (StatusGood((*outit)->status())) {
+      msg(MSG::INFO) << std::setw(11) << std::left << m_pdg.GetParticle((*outit)->pdg_id())->GetName();
+      const HepMC::GenVertex *nextVertex = FindNextVertex(*outit);
+      if (nextVertex) {
+	decayVertices.push_back(FindNextVertex(*outit));
+      } else if ((*outit)->pdg_id() == 22) {
+	CalcPhotonEfficiency((*outit)->momentum());
+      }
+    }
+  }
+  msg(MSG::INFO) << endreq;
+  for (int i = decayVertices.size(); i > 0; --i) {
+    int index = i-1;
+    if (decayVertices.at(index) != NULL) {
+      msg(MSG::INFO) << "                 \t";
+      for (int j = 0; j < index+extraSpaces; j++) {
+	msg(MSG::INFO) << "           ";
+      }
+      PrintDecayTree(decayVertices.at(index), index+extraSpaces);
+    }
+  }
+}
+
+// used recursively
+// prints the decay products of one vertex, calling itself to to
+// further decay of SUSY particles, t, W, Z, higgses, (gamma? not now).
+// Doesn't continue into Geant particles 
+void PhotonEfficiency::PrintDecayTreeAnnotated(const HepMC::GenVertex *vtx, int extraSpaces)
+{
+  std::vector<const HepMC::GenVertex *> decayVertices;
+  
+  //std::cout << "Working on vertex with barcode: " << vtx->barcode() << std::endl;
+
+  for (HepMC::GenVertex::particles_in_const_iterator outit = vtx->particles_out_const_begin();
+       outit != vtx->particles_out_const_end();
+       outit++) {
+    if (StatusGood((*outit)->status())) {
+
+      HepMC::FourVector p = (*outit)->momentum();
+      msg(MSG::INFO) << std::setw(4) << std::right << round(p.perp()/GeV) << " ";
+      msg(MSG::INFO) << std::setw(11) << std::left << m_pdg.GetParticle((*outit)->pdg_id())->GetName();
+      decayVertices.push_back(FindNextVertex(*outit));
+    }
+  }
+  // msg(MSG::INFO) << "\t vertex = " << vtx->barcode();
+  msg(MSG::INFO) << endreq;
+  for (int i = decayVertices.size(); i > 0; --i) {
+    int index = i-1;
+    if (decayVertices.at(index) != NULL) {
+      msg(MSG::INFO) << "                 \t";
+      for (int j = 0; j < index+extraSpaces; j++) {
+	msg(MSG::INFO) << "                ";
+      }
+      PrintDecayTreeAnnotated(decayVertices.at(index), index+extraSpaces);
+    }
+  }
+}
+
+const HepMC::GenVertex *PhotonEfficiency::FindNextVertex(const HepMC::GenParticle *pcl) const
+{
+  if (pcl->barcode() > 200000) return NULL;
+
+  int pid = abs(pcl->pdg_id());
+
+  if ((pid > 22 && pid < 38) || 
+      (pid == 6) ||
+      (pid > 1000000 && pid < 1000040) || 
+      (pid > 2000000 && pid < 2000016)) { 
+
+    // only show decay products of SUSY and massive guage particles and top
+
+    const HepMC::GenVertex *nextVtx = pcl->end_vertex();
+    while (nextVtx != NULL && nextVtx->particles_out_size() == 1) {
+      const HepMC::GenParticle *np = *(nextVtx->particles_out_const_begin());
+      if (np->barcode() > 200000) return NULL;
+      nextVtx = np->end_vertex();
+    }
+    if (nextVtx && nextVtx->barcode() < -200000) return NULL;
+    return nextVtx;
+  } else {
+    return NULL;
+  }
+}
+
+void PhotonEfficiency::CalcPhotonEfficiency(const HepMC::FourVector &p)
+{
+  
+  ATH_MSG_DEBUG("In CalcPhotonEfficiency");
+
+  m_histograms["ph_eta_truth"]->Fill(p.eta(), m_weight);
+  m_histograms["ph_pt_truth"]->Fill(p.perp()/GeV, m_weight);
+
+  double deltaR;
+  std::size_t indx = 0;
+
+  ATH_MSG_DEBUG("before closestDeltaR, m_photons = " << m_photons);
+
+  if (P4Helpers::closestDeltaR(p.eta(), p.phi(), *m_photons, indx, deltaR)) {
+    if (deltaR < m_deltaR) {
+
+      ATH_MSG_DEBUG("Found match");
+
+
+      const double abseta = fabs(p.eta());
+
+      // cut 0.05 more around crack that default since this is phys eta
+      const bool isFiducial = abseta < 1.32 || (abseta > 1.57 && abseta < 1.81);
+
+      m_histograms["ph_eta_cont"]->Fill(p.eta(), m_weight);
+      if (isFiducial) m_histograms["ph_pt_cont"]->Fill(p.perp()/GeV, m_weight);
+      
+      const Analysis::Photon *photon = m_photons->at(indx);
+
+      if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
+	m_histograms["ph_eta_loose"]->Fill(p.eta(), m_weight);
+	if (isFiducial) m_histograms["ph_pt_loose"]->Fill(p.perp()/GeV, m_weight);
+	
+	if (photon->isPhoton(egammaPID::PhotonTightAR)) {
+	  m_histograms["ph_eta_tight"]->Fill(p.eta(), m_weight);
+	  if (isFiducial) m_histograms["ph_pt_tight"]->Fill(p.perp()/GeV, m_weight);
+	}
+      }
+
+
+      const Trk::VxCandidate*  convVtx = photon->conversion();
+      if (convVtx) {
+	const std::vector<Trk::VxTrackAtVertex*> *trkAtVxPtr = convVtx->vxTrackAtVertex();
+	if (trkAtVxPtr->size() == 1) {
+	  m_histograms["ph_eta_cont_conv1"]->Fill(p.eta(), m_weight);
+	  if (isFiducial) m_histograms["ph_pt_cont_conv1"]->Fill(p.perp()/GeV, m_weight);
+
+	  if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
+	    m_histograms["ph_eta_loose_conv1"]->Fill(p.eta(), m_weight);
+	    if (isFiducial) m_histograms["ph_pt_loose_conv1"]->Fill(p.perp()/GeV, m_weight);
+
+	    if (photon->isPhoton(egammaPID::PhotonTightAR)) {
+	      m_histograms["ph_eta_tight_conv1"]->Fill(p.eta(), m_weight);
+	      if (isFiducial) m_histograms["ph_pt_tight_conv1"]->Fill(p.perp()/GeV, m_weight);
+	    }
+	  }
+
+	} else {
+	  m_histograms["ph_eta_cont_conv2"]->Fill(p.eta(), m_weight);
+	  if (isFiducial) m_histograms["ph_pt_cont_conv2"]->Fill(p.perp()/GeV, m_weight);
+
+	  if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
+	    m_histograms["ph_eta_loose_conv2"]->Fill(p.eta(), m_weight);
+	    if (isFiducial) m_histograms["ph_pt_loose_conv2"]->Fill(p.perp()/GeV, m_weight);
+
+	    if (photon->isPhoton(egammaPID::PhotonTightAR)) {
+	      m_histograms["ph_eta_tight_conv2"]->Fill(p.eta(), m_weight);
+	      if (isFiducial) m_histograms["ph_pt_tight_conv2"]->Fill(p.perp()/GeV, m_weight);
+	    }
+	  }
+
+	}
+      } else {
+	m_histograms["ph_eta_cont_unconv"]->Fill(p.eta(), m_weight);
+	if (isFiducial) m_histograms["ph_pt_cont_unconv"]->Fill(p.perp()/GeV, m_weight);
+
+	if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
+	  m_histograms["ph_eta_loose_unconv"]->Fill(p.eta(), m_weight);
+	  if (isFiducial) m_histograms["ph_pt_loose_unconv"]->Fill(p.perp()/GeV, m_weight);
+	  
+	  if (photon->isPhoton(egammaPID::PhotonTightAR)) {
+	    m_histograms["ph_eta_tight_unconv"]->Fill(p.eta(), m_weight);
+	    if (isFiducial) m_histograms["ph_pt_tight_unconv"]->Fill(p.perp()/GeV, m_weight);
+	  }
+	}
+	
+      }
+    }
+  }
+}
+

@@ -21,6 +21,16 @@ use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
 apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
+
+macro gmsbAnalysis_linkopts "-lEG"
+
 #################################################
