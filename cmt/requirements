@@ -8,6 +8,7 @@ use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
 use AthenaKernel       AthenaKernel-*           Control
 use gmsbTools          gmsbTools-*
+use egammaOQUtils               egammaOQUtils-*                 Reconstruction/egamma/egammaAnalysis
 
 private
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma
@@ -18,6 +19,7 @@ use JetUtils           JetUtils-*               Reconstruction/Jet
 use VxVertex           VxVertex-*               Tracking/TrkEvent
 use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 #use MCTruthClassifier  MCTruthClassifier-*      PhysicsAnalysis
+use PhotonAnalysisUtils        PhotonAnalysisUtils-*           PhysicsAnalysis/StandardModelPhys
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

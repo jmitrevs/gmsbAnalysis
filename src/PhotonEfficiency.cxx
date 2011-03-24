@@ -10,14 +10,17 @@
 #include "egammaEvent/PhotonContainer.h"
 #include "egammaEvent/Photon.h"
 #include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/EMShower.h"
 
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "FourMomUtils/P4Helpers.h"
 
+#include "PhotonAnalysisUtils/IPAUcaloIsolationTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 PhotonEfficiency::PhotonEfficiency(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_PAUcaloIsolationTool(0)
 {
   declareProperty("McParticleContainer", m_truthParticleContainerName = "SpclMC");
   declareProperty("PhotonContainerName", m_photonContainerName = "PhotonAODCollection");
@@ -26,12 +29,20 @@ PhotonEfficiency::PhotonEfficiency(const std::string& name, ISvcLocator* pSvcLoc
 
   declareProperty("DeltaR", m_deltaR = 0.4);
 
+  declareProperty("pT", m_pT = 20*GeV);
+
+  // for the OQ
+  declareProperty("OQRunNum", m_OQRunNum = 161730);
+  declareProperty("PAUcaloIsolationTool", m_PAUcaloIsolationTool);
+
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode PhotonEfficiency::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
  
+  // initialize the OQ 
+  m_OQ.initialize();
 
   /// histogram location
   StatusCode sc = service("THistSvc", m_thistSvc);
@@ -40,50 +51,81 @@ StatusCode PhotonEfficiency::initialize(){
     return sc;
   }
 
-  m_histograms["ph_eta_truth"] = new TH1F("ph_eta_truth","Psuedorapidity of the truth photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_truth"] = new TH1F("ph_pt_truth","Transverse momentum of the truth photons;#p_{T} [GeV]", 250, 0, 250);
+  if(!m_PAUcaloIsolationTool.empty()) {
+    if(m_PAUcaloIsolationTool.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Failed to retrieve " << m_PAUcaloIsolationTool);
+      return StatusCode::FAILURE; // why success?
+    }
+    else {
+      ATH_MSG_DEBUG("Retrieved PAUcaloIsolationTool " << m_PAUcaloIsolationTool); 
+    }
+  }
+  m_histograms["ph_eta_truth"] = new TH1F("ph_eta_truth","Psuedorapidity of the truth photons;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_truth"] = new TH1F("ph_pt_truth","Transverse momentum of the truth photons;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_cont"] = new TH1F("ph_eta_cont","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_cont"] = new TH1F("ph_pt_cont","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont"] = new TH1F("ph_eta_cont","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_cont"] = new TH1F("ph_pt_cont","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_cont_unconv"] = new TH1F("ph_eta_cont_unconv","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_cont_unconv"] = new TH1F("ph_pt_cont_unconv","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont_iso"] = new TH1F("ph_eta_cont_iso","Psuedorapidity of the cont photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_cont_iso"] = new TH1F("ph_pt_cont_iso","Transverse momentum of the cont photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_cont_conv1"] = new TH1F("ph_eta_cont_conv1","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_cont_conv1"] = new TH1F("ph_pt_cont_conv1","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont_isodp"] = new TH1F("ph_eta_cont_isodp","Psuedorapidity of the cont photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_cont_isodp"] = new TH1F("ph_pt_cont_isodp","Transverse momentum of the cont photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_cont_conv2"] = new TH1F("ph_eta_cont_conv2","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_cont_conv2"] = new TH1F("ph_pt_cont_conv2","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont_unconv"] = new TH1F("ph_eta_cont_unconv","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_cont_unconv"] = new TH1F("ph_pt_cont_unconv","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_loose"] = new TH1F("ph_eta_loose","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_loose"] = new TH1F("ph_pt_loose","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont_conv1"] = new TH1F("ph_eta_cont_conv1","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_cont_conv1"] = new TH1F("ph_pt_cont_conv1","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_loose_unconv"] = new TH1F("ph_eta_loose_unconv","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_loose_unconv"] = new TH1F("ph_pt_loose_unconv","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_cont_conv2"] = new TH1F("ph_eta_cont_conv2","Psuedorapidity of the container photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_cont_conv2"] = new TH1F("ph_pt_cont_conv2","Transverse momentum of the container photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_loose_conv1"] = new TH1F("ph_eta_loose_conv1","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_loose_conv1"] = new TH1F("ph_pt_loose_conv1","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_loose"] = new TH1F("ph_eta_loose","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_loose"] = new TH1F("ph_pt_loose","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_loose_conv2"] = new TH1F("ph_eta_loose_conv2","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_loose_conv2"] = new TH1F("ph_pt_loose_conv2","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_loose_iso"] = new TH1F("ph_eta_loose_iso","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_loose_iso"] = new TH1F("ph_pt_loose_iso","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_tight"] = new TH1F("ph_eta_tight","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_tight"] = new TH1F("ph_pt_tight","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_loose_isodp"] = new TH1F("ph_eta_loose_isodp","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_loose_isodp"] = new TH1F("ph_pt_loose_isodp","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
+  m_histograms["ph_eta_loose_unconv"] = new TH1F("ph_eta_loose_unconv","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_loose_unconv"] = new TH1F("ph_pt_loose_unconv","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_tight_unconv"] = new TH1F("ph_eta_tight_unconv","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_tight_unconv"] = new TH1F("ph_pt_tight_unconv","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_loose_conv1"] = new TH1F("ph_eta_loose_conv1","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_loose_conv1"] = new TH1F("ph_pt_loose_conv1","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_tight_conv1"] = new TH1F("ph_eta_tight_conv1","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_tight_conv1"] = new TH1F("ph_pt_tight_conv1","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_loose_conv2"] = new TH1F("ph_eta_loose_conv2","Psuedorapidity of the loose photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_loose_conv2"] = new TH1F("ph_pt_loose_conv2","Transverse momentum of the loose photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
-  m_histograms["ph_eta_tight_conv2"] = new TH1F("ph_eta_tight_conv2","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt_tight_conv2"] = new TH1F("ph_pt_tight_conv2","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 250, 0, 250);
+  m_histograms["ph_eta_tight"] = new TH1F("ph_eta_tight","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_tight"] = new TH1F("ph_pt_tight","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
+
+  m_histograms["ph_eta_tight_iso"] = new TH1F("ph_eta_tight_iso","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_tight_iso"] = new TH1F("ph_pt_tight_iso","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
+
+  m_histograms["ph_eta_tight_isodp"] = new TH1F("ph_eta_tight_isodp","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_tight_isodp"] = new TH1F("ph_pt_tight_isodp","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
+
+  m_histograms["ph_eta_tight_unconv"] = new TH1F("ph_eta_tight_unconv","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_tight_unconv"] = new TH1F("ph_pt_tight_unconv","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
+
+  m_histograms["ph_eta_tight_conv1"] = new TH1F("ph_eta_tight_conv1","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_tight_conv1"] = new TH1F("ph_pt_tight_conv1","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
+
+  m_histograms["ph_eta_tight_conv2"] = new TH1F("ph_eta_tight_conv2","Psuedorapidity of the tight photons matched to truth;#eta_{reco}", 120, -3, 3);
+  m_histograms["ph_pt_tight_conv2"] = new TH1F("ph_pt_tight_conv2","Transverse momentum of the tight photons matched to truth;#p_{T} [GeV]", 1000, 0, 1000);
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_truth" , m_histograms["ph_eta_truth"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_truth" , m_histograms["ph_pt_truth"]).ignore();
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont" , m_histograms["ph_eta_cont"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont" , m_histograms["ph_pt_cont"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont_iso" , m_histograms["ph_eta_cont_iso"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont_iso" , m_histograms["ph_pt_cont_iso"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont_isodp" , m_histograms["ph_eta_cont_isodp"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont_isodp" , m_histograms["ph_pt_cont_isodp"]).ignore();
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_cont_unconv" , m_histograms["ph_eta_cont_unconv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_cont_unconv" , m_histograms["ph_pt_cont_unconv"]).ignore();
@@ -97,6 +139,11 @@ StatusCode PhotonEfficiency::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose" , m_histograms["ph_eta_loose"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose" , m_histograms["ph_pt_loose"]).ignore();
 
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose_iso" , m_histograms["ph_eta_loose_iso"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose_iso" , m_histograms["ph_pt_loose_iso"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose_isodp" , m_histograms["ph_eta_loose_isodp"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose_isodp" , m_histograms["ph_pt_loose_isodp"]).ignore();
+
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_loose_unconv" , m_histograms["ph_eta_loose_unconv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_loose_unconv" , m_histograms["ph_pt_loose_unconv"]).ignore();
 
@@ -108,6 +155,11 @@ StatusCode PhotonEfficiency::initialize(){
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight" , m_histograms["ph_eta_tight"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight" , m_histograms["ph_pt_tight"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight_iso" , m_histograms["ph_eta_tight_iso"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight_iso" , m_histograms["ph_pt_tight_iso"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight_isodp" , m_histograms["ph_eta_tight_isodp"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight_isodp" , m_histograms["ph_pt_tight_isodp"]).ignore();
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta_tight_unconv" , m_histograms["ph_eta_tight_unconv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_tight_unconv" , m_histograms["ph_pt_tight_unconv"]).ignore();
@@ -368,37 +420,103 @@ void PhotonEfficiency::CalcPhotonEfficiency(const HepMC::FourVector &p)
   
   ATH_MSG_DEBUG("In CalcPhotonEfficiency");
 
-  m_histograms["ph_eta_truth"]->Fill(p.eta(), m_weight);
+  if (p.perp() < m_pT) return;
+
+  // check OQ
+  const double eta = p.eta();
+  const double phi = p.phi();
+  const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, eta, phi)==3 || 
+    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta-0.1, phi)==3 || 
+    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta-0.2, phi)==3 || 
+    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta+0.1, phi)==3 || 
+    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta+0.2, phi)==3;
+  
+  if (badOQ) return;
+
   m_histograms["ph_pt_truth"]->Fill(p.perp()/GeV, m_weight);
+  m_histograms["ph_eta_truth"]->Fill(eta, m_weight);
+
 
   double deltaR;
   std::size_t indx = 0;
 
   ATH_MSG_DEBUG("before closestDeltaR, m_photons = " << m_photons);
 
-  if (P4Helpers::closestDeltaR(p.eta(), p.phi(), *m_photons, indx, deltaR)) {
+  if (P4Helpers::closestDeltaR(eta, phi, *m_photons, indx, deltaR)) {
     if (deltaR < m_deltaR) {
 
       ATH_MSG_DEBUG("Found match");
 
+      const Analysis::Photon *photon = m_photons->at(indx);
 
-      const double abseta = fabs(p.eta());
+      const EMShower *shower = photon->detail<EMShower>();
+      const double etcone20 = shower->etcone20();
+
+      const bool passIso = (etcone20/photon->et() < 0.1);
+
+      double pt_correction_40 = 0;
+      double ED_correction_40 = 0;
+      double etcone40_corrected = 100*GeV;
+
+      if (!m_PAUcaloIsolationTool.empty()) {
+	pt_correction_40 = m_PAUcaloIsolationTool->EtConeCorrectionPt(photon, .40) ;
+	ED_correction_40 = m_PAUcaloIsolationTool->EtConeCorrectionJetAreas(photon, .40, 0);
+
+	etcone40_corrected = shower->etcone40() 
+	  - pt_correction_40 
+	  - ED_correction_40;
+      }
+      
+      const bool passIsoDP = (etcone40_corrected < 3*GeV);
+
+      const double abseta = fabs(eta);
 
       // cut 0.05 more around crack that default since this is phys eta
       const bool isFiducial = abseta < 1.32 || (abseta > 1.57 && abseta < 1.81);
 
-      m_histograms["ph_eta_cont"]->Fill(p.eta(), m_weight);
+      m_histograms["ph_eta_cont"]->Fill(eta, m_weight);
       if (isFiducial) m_histograms["ph_pt_cont"]->Fill(p.perp()/GeV, m_weight);
-      
-      const Analysis::Photon *photon = m_photons->at(indx);
 
+      if (passIso) {
+	m_histograms["ph_eta_cont_iso"]->Fill(eta, m_weight);
+	if (isFiducial) m_histograms["ph_pt_cont_iso"]->Fill(p.perp()/GeV, m_weight);
+      }
+
+      if (passIsoDP) {
+	m_histograms["ph_eta_cont_isodp"]->Fill(eta, m_weight);
+	if (isFiducial) m_histograms["ph_pt_cont_isodp"]->Fill(p.perp()/GeV, m_weight);
+      }
+      
       if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
-	m_histograms["ph_eta_loose"]->Fill(p.eta(), m_weight);
+
+	m_histograms["ph_eta_loose"]->Fill(eta, m_weight);
 	if (isFiducial) m_histograms["ph_pt_loose"]->Fill(p.perp()/GeV, m_weight);
+
+	if (passIso) {
+	  m_histograms["ph_eta_loose_iso"]->Fill(eta, m_weight);
+	  if (isFiducial) m_histograms["ph_pt_loose_iso"]->Fill(p.perp()/GeV, m_weight);
+	}
+
+	if (passIsoDP) {
+	  m_histograms["ph_eta_loose_isodp"]->Fill(eta, m_weight);
+	  if (isFiducial) m_histograms["ph_pt_loose_isodp"]->Fill(p.perp()/GeV, m_weight);
+	}
 	
 	if (photon->isPhoton(egammaPID::PhotonTightAR)) {
-	  m_histograms["ph_eta_tight"]->Fill(p.eta(), m_weight);
+
+	  m_histograms["ph_eta_tight"]->Fill(eta, m_weight);
 	  if (isFiducial) m_histograms["ph_pt_tight"]->Fill(p.perp()/GeV, m_weight);
+
+	  if (passIso) {
+	    m_histograms["ph_eta_tight_iso"]->Fill(eta, m_weight);
+	    if (isFiducial) m_histograms["ph_pt_tight_iso"]->Fill(p.perp()/GeV, m_weight);
+	  }
+	  
+	  if (passIsoDP) {
+	    m_histograms["ph_eta_tight_isodp"]->Fill(eta, m_weight);
+	    if (isFiducial) m_histograms["ph_pt_tight_isodp"]->Fill(p.perp()/GeV, m_weight);
+	  }
+
 	}
       }
 
@@ -407,44 +525,44 @@ void PhotonEfficiency::CalcPhotonEfficiency(const HepMC::FourVector &p)
       if (convVtx) {
 	const std::vector<Trk::VxTrackAtVertex*> *trkAtVxPtr = convVtx->vxTrackAtVertex();
 	if (trkAtVxPtr->size() == 1) {
-	  m_histograms["ph_eta_cont_conv1"]->Fill(p.eta(), m_weight);
+	  m_histograms["ph_eta_cont_conv1"]->Fill(eta, m_weight);
 	  if (isFiducial) m_histograms["ph_pt_cont_conv1"]->Fill(p.perp()/GeV, m_weight);
 
 	  if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
-	    m_histograms["ph_eta_loose_conv1"]->Fill(p.eta(), m_weight);
+	    m_histograms["ph_eta_loose_conv1"]->Fill(eta, m_weight);
 	    if (isFiducial) m_histograms["ph_pt_loose_conv1"]->Fill(p.perp()/GeV, m_weight);
 
 	    if (photon->isPhoton(egammaPID::PhotonTightAR)) {
-	      m_histograms["ph_eta_tight_conv1"]->Fill(p.eta(), m_weight);
+	      m_histograms["ph_eta_tight_conv1"]->Fill(eta, m_weight);
 	      if (isFiducial) m_histograms["ph_pt_tight_conv1"]->Fill(p.perp()/GeV, m_weight);
 	    }
 	  }
 
 	} else {
-	  m_histograms["ph_eta_cont_conv2"]->Fill(p.eta(), m_weight);
+	  m_histograms["ph_eta_cont_conv2"]->Fill(eta, m_weight);
 	  if (isFiducial) m_histograms["ph_pt_cont_conv2"]->Fill(p.perp()/GeV, m_weight);
 
 	  if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
-	    m_histograms["ph_eta_loose_conv2"]->Fill(p.eta(), m_weight);
+	    m_histograms["ph_eta_loose_conv2"]->Fill(eta, m_weight);
 	    if (isFiducial) m_histograms["ph_pt_loose_conv2"]->Fill(p.perp()/GeV, m_weight);
 
 	    if (photon->isPhoton(egammaPID::PhotonTightAR)) {
-	      m_histograms["ph_eta_tight_conv2"]->Fill(p.eta(), m_weight);
+	      m_histograms["ph_eta_tight_conv2"]->Fill(eta, m_weight);
 	      if (isFiducial) m_histograms["ph_pt_tight_conv2"]->Fill(p.perp()/GeV, m_weight);
 	    }
 	  }
 
 	}
       } else {
-	m_histograms["ph_eta_cont_unconv"]->Fill(p.eta(), m_weight);
+	m_histograms["ph_eta_cont_unconv"]->Fill(eta, m_weight);
 	if (isFiducial) m_histograms["ph_pt_cont_unconv"]->Fill(p.perp()/GeV, m_weight);
 
 	if (photon->isPhoton(egammaPID::PhotonLooseAR)) {
-	  m_histograms["ph_eta_loose_unconv"]->Fill(p.eta(), m_weight);
+	  m_histograms["ph_eta_loose_unconv"]->Fill(eta, m_weight);
 	  if (isFiducial) m_histograms["ph_pt_loose_unconv"]->Fill(p.perp()/GeV, m_weight);
 	  
 	  if (photon->isPhoton(egammaPID::PhotonTightAR)) {
-	    m_histograms["ph_eta_tight_unconv"]->Fill(p.eta(), m_weight);
+	    m_histograms["ph_eta_tight_unconv"]->Fill(eta, m_weight);
 	    if (isFiducial) m_histograms["ph_pt_tight_unconv"]->Fill(p.perp()/GeV, m_weight);
 	  }
 	}

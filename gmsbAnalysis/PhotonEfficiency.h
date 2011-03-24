@@ -3,6 +3,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "egammaOQUtils/checkOQ.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "TDatabasePDG.h"
 
@@ -17,6 +19,7 @@ namespace HepMC {
 }
 
 class PhotonContainer;
+class IPAUcaloIsolationTool;
 
 /////////////////////////////////////////////////////////////////////////////
 class PhotonEfficiency:public AthAlgorithm {
@@ -62,7 +65,16 @@ private:
   double m_deltaR;
   double m_weight;
 
+  double m_pT; 			// pt cut for plots (other than pt)
+
   bool m_printDecayTree;
+
+  // the OQ utility
+  mutable egammaOQ m_OQ;
+
+  int m_OQRunNum;
+
+  ToolHandle<IPAUcaloIsolationTool> m_PAUcaloIsolationTool;
 
 };
 

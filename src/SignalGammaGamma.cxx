@@ -374,26 +374,26 @@ StatusCode SignalGammaGamma::execute()
   ATH_MSG_DEBUG("Passed vertex");
 
 
-  // loop over crack electrons
-  for (ElectronContainer::const_iterator ph = crackElectrons->begin();
-       ph != crackElectrons->end();
-       ph++) {
+  // // loop over crack electrons
+  // for (ElectronContainer::const_iterator ph = crackElectrons->begin();
+  //      ph != crackElectrons->end();
+  //      ph++) {
     
-    return StatusCode::SUCCESS; // reject event
-  }
+  //   return StatusCode::SUCCESS; // reject event
+  // }
 
   numEventsCut[3] += weight;
   ATH_MSG_DEBUG("Passed crack electron");
 
   //ATH_MSG_DEBUG("finished crack electron");
 
-  // loop over crack photons
-  for (PhotonContainer::const_iterator ph = crackPhotons->begin();
-       ph != crackPhotons->end();
-       ph++) {
+  // // loop over crack photons
+  // for (PhotonContainer::const_iterator ph = crackPhotons->begin();
+  //      ph != crackPhotons->end();
+  //      ph++) {
     
-    return StatusCode::SUCCESS; // reject event
-  }
+  //   return StatusCode::SUCCESS; // reject event
+  // }
 
   numEventsCut[4] += weight;
   ATH_MSG_DEBUG("Passed crack photon");
