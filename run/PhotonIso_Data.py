@@ -19,7 +19,7 @@ from glob import glob
 #InputList = ['root://castoratlas//castor/cern.ch/user/d/ddamiani/GGM_grid/rel_16/bino_400_200_UEplus/AOD/AOD.merged.bino_400_200_UEplus._000001.pool.root.1']
 #InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*1.pool.root.8')
-InputList = glob('/data3/jmitrevs/dataskims/gg_uncombined/user.*periodI*/*.pool.root*')
+InputList = glob('/data3/jmitrevs/dataskims/gg_uncombined/user.*periodI*/*00337*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10*Wpluslepgammagamma*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/sps8/D2AOD_GMSBgg2.pool.root')
 #InputList = glob('/data3/jmitrevs/mcskims/rel_15/user.jmitrevs.20101120.76.mc09_7TeV.115038.Pythia_photos_diphotons25.ANALY_RALPP/*pool.root*')

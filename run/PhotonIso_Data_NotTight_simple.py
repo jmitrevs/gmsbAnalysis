@@ -67,7 +67,7 @@ testAlg = PhotonIso(name = "PhotonIso",
                     isEMVeto = egammaPID.PhotonTightAR,
                     PAUcaloIsolationTool = None)
 from AthenaCommon.AppMgr import ToolSvc
-testAlg.OutputLevel = DEBUG
+#testAlg.OutputLevel = DEBUG
 
 # Add example to Reader
 topSequence += testAlg

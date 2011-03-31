@@ -57,7 +57,7 @@ from gmsbAnalysis.gmsbAnalysisConf import PhotonIso
 testAlg = PhotonIso(name = "PhotonIso",
                     PAUcaloIsolationTool = None)
 from AthenaCommon.AppMgr import ToolSvc
-testAlg.OutputLevel = DEBUG
+#testAlg.OutputLevel = DEBUG
 
 # Add example to Reader
 topSequence += testAlg

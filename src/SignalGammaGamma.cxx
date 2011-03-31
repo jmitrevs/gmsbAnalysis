@@ -102,6 +102,8 @@ StatusCode SignalGammaGamma::initialize(){
     return sc;
   }
 
+  m_histograms["ph_numConv"] = new TH1F("ph_numConv","Number of converted photons;number converted photons", 4, -0.5, 3.5);
+
   m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
   m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transverse momentum of the leading photons;#p_{T} [GeV]", 250, 0, 250);
   m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
@@ -145,6 +147,7 @@ StatusCode SignalGammaGamma::initialize(){
   m_histograms["metExtendedWMuonCorr"] = new TH1F("metExtendedWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
 
 
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta2" , m_histograms["ph_eta2"]).ignore();
@@ -418,6 +421,7 @@ StatusCode SignalGammaGamma::execute()
 
   // loop over photons
   int numPhPass = 0; // this is per event
+  int numConvPhPass = 0; // this is per event
   Analysis::Photon *leadingPh = 0;
   Analysis::Photon *secondPh = 0;
   
@@ -444,6 +448,7 @@ StatusCode SignalGammaGamma::execute()
 
     
     numPhPass++;
+    if ((*ph)->conversion()) numConvPhPass++;
     ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
     
     if (pt > leadingPhPt ) {
@@ -639,6 +644,7 @@ StatusCode SignalGammaGamma::execute()
   }    
 
   m_histograms["numPh"]->Fill(numPhPass, weight);
+  m_histograms["ph_numConv"]->Fill(numConvPhPass, weight);
 
   
   // ATH_MSG_DEBUG("filled photon plots");

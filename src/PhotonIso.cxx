@@ -120,6 +120,15 @@ StatusCode PhotonIso::initEvent()
 {
   ATH_MSG_DEBUG("initEvent");
 
+
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+StatusCode PhotonIso::execute() 
+{
+  ATH_MSG_DEBUG("execute");
+
   m_photon_conv->clear(); // 0 unconv, or num tracks
 
   m_photon_et->clear(); // redundant, but easier
@@ -134,15 +143,6 @@ StatusCode PhotonIso::initEvent()
   // only filled in if tool passed.
   m_photon_etcone20_corrected->clear();
   m_photon_etcone40_corrected->clear();
-
-  return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode PhotonIso::execute() 
-{
-  ATH_MSG_DEBUG("execute");
-
 
   m_weight = 1.0;
 

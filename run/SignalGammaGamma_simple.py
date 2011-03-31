@@ -53,6 +53,8 @@ topSequence = AlgSequence()
 include ( "gmsbFudgeFactors/gmsbFudgeFactors.py" )
 topSequence += theGmsbFudgeFactors
 
+#theGmsbFudgeFactors.WhichFudgeFactors = 200
+
 # add the selection
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
