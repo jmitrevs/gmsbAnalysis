@@ -433,6 +433,13 @@ void PhotonEfficiency::CalcPhotonEfficiency(const HepMC::FourVector &p)
   
   if (badOQ) return;
 
+  const double abseta = fabs(eta);
+
+  // cut 0.05 more around crack that default since this is phys eta
+  const bool isFiducial = abseta < 1.32 || (abseta > 1.57 && abseta < 1.81);
+
+  if (!isFiducial) return;
+
   m_histograms["ph_pt_truth"]->Fill(p.perp()/GeV, m_weight);
   m_histograms["ph_eta_truth"]->Fill(eta, m_weight);
 
@@ -468,11 +475,6 @@ void PhotonEfficiency::CalcPhotonEfficiency(const HepMC::FourVector &p)
       }
       
       const bool passIsoDP = (etcone40_corrected < 3*GeV);
-
-      const double abseta = fabs(eta);
-
-      // cut 0.05 more around crack that default since this is phys eta
-      const bool isFiducial = abseta < 1.32 || (abseta > 1.57 && abseta < 1.81);
 
       m_histograms["ph_eta_cont"]->Fill(eta, m_weight);
       if (isFiducial) m_histograms["ph_pt_cont"]->Fill(p.perp()/GeV, m_weight);
