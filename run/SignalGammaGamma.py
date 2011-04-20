@@ -14,8 +14,8 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc09_7TeV.108085.PythiaPhotonJet_Unbinned7.recon.ESD.e534_s765_s767_r1305_tid137093_00/ESD.137093._000011.pool.root.1')
 #InputList = glob('/data3/jmitrevs/dataskims/ee/*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10*Znunugammagamma*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700*/*pool.root*')
-InputList = glob('/data3/jmitrevs/bino_600_50/AOD/AOD.merged.bino_600_50._000001.pool.root.1')
+InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/bino_600_50/AOD/AOD.merged.bino_600_50._000001.pool.root.1')
 #InputList = ['root://castoratlas//castor/cern.ch/user/d/ddamiani/GGM_grid/rel_16/bino_400_200_UEplus/AOD/AOD.merged.bino_400_200_UEplus._000001.pool.root.1']
 #InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*1.pool.root.8')

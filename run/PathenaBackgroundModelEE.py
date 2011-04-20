@@ -17,7 +17,7 @@ inDS_test = [
 
 inDS_full = [
     #'mc10_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.AOD.e600_s933_s946_r1831_r2040',
-    #'mc10_7TeV.107651.AlpgenJimmyZeeNp1_pt20.merge.AOD.e600_s933_s946_r1831_r2040',
+    'mc10_7TeV.107651.AlpgenJimmyZeeNp1_pt20.merge.AOD.e600_s933_s946_r1831_r2040',
     #'mc10_7TeV.107652.AlpgenJimmyZeeNp2_pt20.merge.AOD.e600_s933_s946_r1831_r2040',
     #'mc10_7TeV.107653.AlpgenJimmyZeeNp3_pt20.merge.AOD.e600_s933_s946_r1831_r2040',
     'mc10_7TeV.107654.AlpgenJimmyZeeNp4_pt20.merge.AOD.e600_s933_s946_r1831_r2040',
@@ -48,7 +48,7 @@ inDS_full = [
 for i,inDS in enumerate(inDS_full):
    
    
-    command = "pathena --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.BackgroundModelEE_160311.%s BackgroundModelEE.py " % (inDS, inDS)
+    command = "pathena --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.BackgroundModelEE_180411.%s BackgroundModelEE.py " % (inDS, inDS)
     
     print command
     os.system(command)
