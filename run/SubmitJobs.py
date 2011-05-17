@@ -8,7 +8,7 @@ Dates=os.system(sfg)
 # Put the list of datasets you want to run over here, without user.jmitrevs, and remove the '/' from the end. 
 
 inDS_ee = [
-    'eeSkim_090511.data11_7TeV.PeriodB2.physics_Egamma.PhysCont.AOD.repro08_v01,'
+    'eeSkim_090511.data11_7TeV.PeriodB2.physics_Egamma.PhysCont.AOD.repro08_v01',
     'eeSkim_090511.data11_7TeV.periodD.physics_Egamma.PhysCont.AOD.t0pro08_v01'
     ]
 
