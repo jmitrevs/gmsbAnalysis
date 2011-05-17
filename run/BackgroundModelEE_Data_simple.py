@@ -31,7 +31,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_E3toI.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_HEAD_All_Good.xml' ]
 #GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_AtoE2.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
@@ -46,7 +46,7 @@ seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
 seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']        
 #seq.GRLTriggerAlg1.TriggerSelection = 'EF_g10_loose'
-seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g15_loose'
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 #======================================================================================
 
 # Full job is a list of algorithms
