@@ -3,14 +3,18 @@ package gmsbAnalysis
 
 author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
 
+use AtlasROOT                   AtlasROOT-*                     External
 use AtlasPolicy	       AtlasPolicy-*
 use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
 use AthenaKernel       AthenaKernel-*           Control
+use SUSYPhotonJetCleaningTool         SUSYPhotonJetCleaningTool-*
+use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
 use gmsbTools          gmsbTools-*
-use egammaOQUtils               egammaOQUtils-*                 Reconstruction/egamma/egammaAnalysis
 
 private
+use FourMomUtils		FourMomUtils-*			Event
+use EventInfo                   EventInfo-*                     Event
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma
 use MissingETEvent     MissingETEvent-*         Reconstruction
 use muonEvent	       muonEvent-*              Reconstruction/MuonIdentification
@@ -20,6 +24,7 @@ use VxVertex           VxVertex-*               Tracking/TrkEvent
 use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 #use MCTruthClassifier  MCTruthClassifier-*      PhysicsAnalysis
 use PhotonAnalysisUtils        PhotonAnalysisUtils-*           PhysicsAnalysis/StandardModelPhys
+use McParticleEvent    McParticleEvent-*        PhysicsAnalysis/TruthParticleID
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

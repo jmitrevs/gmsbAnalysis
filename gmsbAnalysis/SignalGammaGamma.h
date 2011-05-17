@@ -12,6 +12,7 @@
 
 class Jet;
 namespace Reco  { class ITrackToVertex; }
+class ISUSYPhotonJetCleaningTool;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaGamma:public AthAlgorithm {
@@ -24,8 +25,6 @@ public:
   enum NUM_CUTS_t {NUM_CUTS = 20};
 
 private:
-
-  bool isBad(const Jet *) const;
 
   /** MET selecton */
   std::string m_METContainerName;
@@ -51,7 +50,10 @@ private:
 
   /** @brief Tool handle for track extrapolation to vertex */
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
-  
+
+  /** @breif Tool handle for jet cleaning */  
+  ToolHandle<ISUSYPhotonJetCleaningTool>  m_JetCleaningTool;
+
   // user data
   ServiceHandle<IUserDataSvc> m_userdatasvc;
 

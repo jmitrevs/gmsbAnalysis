@@ -41,7 +41,7 @@ StatusCode PhotonIso::initialize(){
   ATH_MSG_DEBUG("initialize()");
  
   // initialize the OQ 
-  m_OQ.initialize();
+  //m_OQ.initialize();
 
   ATH_MSG_DEBUG("here");
   /// histogram location
@@ -229,8 +229,7 @@ StatusCode PhotonIso::execute()
 	fabs((*ph)->cluster()->etaBE(2)) < m_etaCut &&
 	(*ph)->isPhoton(m_isEMReq) &&
 	(!m_applyVeto || !(*ph)->isPhoton(m_isEMVeto)) &&
-	!(m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), 
-				    (*ph)->cluster()->phi()) == 3)) {
+	((*ph)->isgoodoq(egammaPID::BADCLUSPHOTON) == 0)) {
       m_numPhotons++;
       
       m_photon_e->push_back((*ph)->e());

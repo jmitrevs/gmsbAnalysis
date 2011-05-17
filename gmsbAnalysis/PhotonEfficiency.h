@@ -3,7 +3,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "egammaOQUtils/checkOQ.h"
+#include "egammaAnalysisUtils/checkOQ.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TDatabasePDG.h"

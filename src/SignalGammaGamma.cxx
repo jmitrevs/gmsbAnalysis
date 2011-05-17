@@ -1,5 +1,5 @@
 #include "gmsbAnalysis/SignalGammaGamma.h"
-#include "gmsbAnalysis/JetID.h"
+#include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
 
 #include "TH1.h"
 
@@ -32,7 +32,7 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaGamma");
 
-  declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 30.0*GeV);
+  declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 25.0*GeV);
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -47,6 +47,8 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("CrackPreparationTool", m_CrackPreparationTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
+
+  declareProperty("JetCleaningTool", m_JetCleaningTool);
 
   // Tool for track extrapolation to vertex
   declareProperty("trackToVertexTool", m_trackToVertexTool,
@@ -87,6 +89,13 @@ StatusCode SignalGammaGamma::initialize(){
   sc = m_trackToVertexTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
+    return sc;
+  }
+
+  // retrieving jet cleaning tool
+  sc = m_JetCleaningTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_JetCleaningTool);
     return sc;
   }
 
@@ -312,13 +321,13 @@ StatusCode SignalGammaGamma::execute()
 
   sc = m_OverlapRemovalTool1->execute();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("OverlaPremval 1 Failed");
+    ATH_MSG_ERROR("OverlapRemoval 1 Failed");
     return sc;
   }
 
   sc = m_OverlapRemovalTool2->execute();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("OverlaPremval 1 Failed");
+    ATH_MSG_ERROR("OverlapRemoval 2 Failed");
     return sc;
   }
 
@@ -345,7 +354,7 @@ StatusCode SignalGammaGamma::execute()
        jet++) {
 
     ATH_MSG_DEBUG("Looking at jet with pt = " << (*jet)->pt() << ", eta = " << (*jet)->eta() << ", phi = " << (*jet)->phi());
-    if (isBad(*jet)) {
+    if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -730,12 +739,4 @@ StatusCode SignalGammaGamma::finalize() {
     ATH_MSG_INFO("Average FF error using sum of squares: " << accFFUnc.Uncert2());
 
     return StatusCode::SUCCESS;
-}
-
-
-bool SignalGammaGamma::isBad(const Jet* jet) const {
-  int SamplingMax=CaloSampling::Unknown;
-  return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
-		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),
-		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta(P4SignalState::JETEMSCALE));
 }

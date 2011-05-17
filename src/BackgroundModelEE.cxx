@@ -1,5 +1,5 @@
 #include "gmsbAnalysis/BackgroundModelEE.h"
-#include "gmsbAnalysis/JetID.h"
+#include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
 
 #include "TH1.h"
 
@@ -50,6 +50,8 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
 
+  declareProperty("JetCleaningTool", m_JetCleaningTool);
+
   declareProperty("WindowLow", m_windowLow = 80*GeV);
   declareProperty("WindowHigh", m_windowHigh = 100*GeV);
 
@@ -92,6 +94,13 @@ StatusCode BackgroundModelEE::initialize(){
   sc = m_trackToVertexTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
+    return sc;
+  }
+
+  // retrieving jet cleaning tool
+  sc = m_JetCleaningTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_JetCleaningTool);
     return sc;
   }
 
@@ -391,7 +400,7 @@ StatusCode BackgroundModelEE::execute()
        jet != allJets->end();
        jet++) {
 
-    if (isBad(*jet)) {
+    if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -685,12 +694,4 @@ StatusCode BackgroundModelEE::finalize() {
     }
     
     return StatusCode::SUCCESS;
-}
-
-
-bool BackgroundModelEE::isBad(const Jet* jet) const {
-  int SamplingMax=CaloSampling::Unknown;
-  return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
-		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),
-		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta(P4SignalState::JETEMSCALE));
 }

@@ -7,7 +7,7 @@
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
 
-#include "egammaOQUtils/checkOQ.h"
+#include "egammaAnalysisUtils/checkOQ.h"
 
 class Jet;
 

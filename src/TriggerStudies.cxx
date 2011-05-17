@@ -1,5 +1,4 @@
 #include "gmsbAnalysis/TriggerStudies.h"
-#include "gmsbAnalysis/JetID.h"
 
 #include "TH1.h"
 
@@ -65,9 +64,6 @@ StatusCode TriggerStudies::initialize(){
     return sc;
   }
  
-  // initialize the OQ 
-  m_OQ.initialize();
-
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -246,7 +242,7 @@ StatusCode TriggerStudies::execute()
     
     const double pt = (*ph)->pt();
 
-    const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, (*ph)->cluster()->eta(), (*ph)->cluster()->phi())==3;
+    const bool badOQ = (*ph)->isgoodoq(egammaPID::BADCLUSPHOTON); // 0 == good
     if (!badOQ || !m_doOQ) {
       numPhPass++;
       if (pt > leadingPhPt ) {
@@ -335,10 +331,6 @@ StatusCode TriggerStudies::execute()
        jet != jets->end();
        jet++) {
 
-    // if (isBad(*jet)) {
-    //   rejectEvent = true;
-    //   break;
-    // }
     if ((*jet)->eta() < 2.5) {
       numJets++;
     }
@@ -417,12 +409,4 @@ StatusCode TriggerStudies::finalize() {
 
     m_histograms["ph_cut"]->Scale(1.0/m_numEvents);
     return StatusCode::SUCCESS;
-}
-
-
-bool TriggerStudies::isBad(const Jet* jet) const {
-  int SamplingMax=CaloSampling::Unknown;
-  return JetID::isBad(JetID::LooseBad,jet->getMoment("LArQuality"),jet->getMoment("n90"),
-		      JetCaloHelper::jetEMFraction(jet),JetCaloQualityUtils::hecF(jet),jet->getMoment("Timing"),
-		      JetCaloQualityUtils::fracSamplingMax(jet,SamplingMax),jet->eta());
 }

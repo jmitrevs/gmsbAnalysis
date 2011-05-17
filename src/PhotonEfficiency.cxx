@@ -41,9 +41,6 @@ StatusCode PhotonEfficiency::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
  
-  // initialize the OQ 
-  m_OQ.initialize();
-
   /// histogram location
   StatusCode sc = service("THistSvc", m_thistSvc);
   if(sc.isFailure()) {
@@ -425,13 +422,13 @@ void PhotonEfficiency::CalcPhotonEfficiency(const HepMC::FourVector &p)
   // check OQ
   const double eta = p.eta();
   const double phi = p.phi();
-  const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, eta, phi)==3 || 
-    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta-0.1, phi)==3 || 
-    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta-0.2, phi)==3 || 
-    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta+0.1, phi)==3 || 
-    m_OQ.checkOQClusterPhoton(m_OQRunNum, eta+0.2, phi)==3;
+  // const bool badOQ = m_OQ.checkOQClusterPhoton(m_OQRunNum, eta, phi)==3 || 
+  //   m_OQ.checkOQClusterPhoton(m_OQRunNum, eta-0.1, phi)==3 || 
+  //   m_OQ.checkOQClusterPhoton(m_OQRunNum, eta-0.2, phi)==3 || 
+  //   m_OQ.checkOQClusterPhoton(m_OQRunNum, eta+0.1, phi)==3 || 
+  //   m_OQ.checkOQClusterPhoton(m_OQRunNum, eta+0.2, phi)==3;
   
-  if (badOQ) return;
+  //if (badOQ) return;
 
   const double abseta = fabs(eta);
 
