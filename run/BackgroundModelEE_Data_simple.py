@@ -31,7 +31,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_HEAD_All_Good.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_DetStatus-v18-pro08-04_CoolRunQuery-00-03-98_Susy_ph_met.xml' ]
 #GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_AtoE2.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
@@ -44,7 +44,7 @@ seq = AthSequencer("AthFilterSeq")
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
-seq.GRLTriggerAlg1.GoodRunsListArray = ['All_Good']        
+seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy_ph_met']        
 #seq.GRLTriggerAlg1.TriggerSelection = 'EF_g10_loose'
 seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 #======================================================================================
