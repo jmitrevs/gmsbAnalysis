@@ -44,7 +44,7 @@ seq = AthSequencer("AthFilterSeq")
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
-seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']        
+seq.GRLTriggerAlg1.GoodRunsListArray = ['All_Good']        
 #seq.GRLTriggerAlg1.TriggerSelection = 'EF_g10_loose'
 seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 #======================================================================================
@@ -92,7 +92,7 @@ topSequence = AlgSequence()
 #         return l[:-3] +l[-2:-1]+ [getJetCalibrationTool( calibSeq, "OriginCorr",True)]
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
-
+include ( "SUSYPhotonJetCleaningTool/SUSYPhotonJetCleaningTool_jobOptions.py" )
 
 #gmsbSelectionTool.ElectronEtcone20ovEt = 0.1
 #gmsbSelectionTool.ElectronEta = 1.81
@@ -103,6 +103,7 @@ testAlg = BackgroundModelEE(name = "BackgroundModelEE",
                             CrackPreparationTool = gmsbCrackPreparationTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                            JetCleaningTool = myJetCleaningTool,
                             WindowLow = 70*GeV,
                             WindowHigh = 110*GeV
                             )

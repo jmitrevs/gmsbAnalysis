@@ -31,7 +31,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_E3toI.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_HEAD_All_Good.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;
@@ -43,8 +43,8 @@ seq = AthSequencer("AthFilterSeq")
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
-seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']
-seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g15_loose'
+seq.GRLTriggerAlg1.GoodRunsListArray = ['All_Good']
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 
 #======================================================================================
 
@@ -91,16 +91,18 @@ topSequence = AlgSequence()
 #         return l[:-3] +l[-2:-1]+ [getJetCalibrationTool( calibSeq, "OriginCorr",True)]
 
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
+include ( "SUSYPhotonJetCleaningTool/SUSYPhotonJetCleaningTool_jobOptions.py" )
 
 gmsbCrackSelectionTool.OutputLevel = DEBUG
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaGamma
 testAlg = SignalGammaGamma(name = "SignalGammaGamma",
-                            PreparationTool = gmsbPreparationTool,
-                            CrackPreparationTool = gmsbCrackPreparationTool,
-                            OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2
-                            )
+                           PreparationTool = gmsbPreparationTool,
+                           CrackPreparationTool = gmsbCrackPreparationTool,
+                           OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
+                           OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                           JetCleaningTool = myJetCleaningTool
+                           )
 from AthenaCommon.AppMgr import ToolSvc
 testAlg.OutputLevel = DEBUG
 
