@@ -229,6 +229,7 @@ StatusCode BackgroundModelEE::execute()
   const unsigned lbNum = evtInfo->event_ID()->lumi_block();
   const unsigned evNum = evtInfo->event_ID()->event_number();
 
+  const EventInfo::EventFlagErrorState larError = evtInfo->errorState(EventInfo::LAr);
 
   // rewiegh for the Z sample and W sample
   switch (runNum) {
@@ -353,6 +354,13 @@ StatusCode BackgroundModelEE::execute()
 
   numEventsCut[0] += weight;
 
+  if (larError) {
+    return StatusCode::SUCCESS; // reject event
+  }
+    
+  ATH_MSG_DEBUG("Passed larError");
+
+  numEventsCut[1] += weight;
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
@@ -405,7 +413,7 @@ StatusCode BackgroundModelEE::execute()
     }
   }
 
-  numEventsCut[1] += weight;
+  numEventsCut[2] += weight;
   ATH_MSG_DEBUG("Passed jet cleaning");
 
   // check the primary vertex
@@ -428,7 +436,7 @@ StatusCode BackgroundModelEE::execute()
   if (!foundVx) {
     return StatusCode::SUCCESS; // reject event
   }
-  numEventsCut[2] += weight;
+  numEventsCut[3] += weight;
   ATH_MSG_DEBUG("Passed vertex");
 
   // veto events if they have a tight photon
@@ -440,7 +448,7 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[3] += weight;
+  numEventsCut[4] += weight;
   ATH_MSG_DEBUG("Passed photons");
 
   // // loop over crack electrons
@@ -451,7 +459,7 @@ StatusCode BackgroundModelEE::execute()
   //   return StatusCode::SUCCESS; // reject event
   // }
 
-  numEventsCut[4] += weight;
+  numEventsCut[5] += weight;
   ATH_MSG_DEBUG("Passed crack electron");
 
   // // loop over crack photons
@@ -462,7 +470,7 @@ StatusCode BackgroundModelEE::execute()
   //   return StatusCode::SUCCESS; // reject event
   // }
 
-  numEventsCut[5] += weight;
+  numEventsCut[6] += weight;
   ATH_MSG_DEBUG("Passed crack photon");
 
   for (Analysis::MuonContainer::const_iterator mu = muons->begin();
@@ -477,7 +485,7 @@ StatusCode BackgroundModelEE::execute()
       return StatusCode::SUCCESS; // reject event
     }      
   }
-  numEventsCut[6] += weight;
+  numEventsCut[7] += weight;
   ATH_MSG_DEBUG("Passed muon rejection");
 
   // DEAL WITH ELECTRONS
@@ -520,7 +528,7 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[7] += weight;
+  numEventsCut[8] += weight;
   ATH_MSG_DEBUG("Passed electrons");
 
   int numJets = 0;
@@ -572,35 +580,35 @@ StatusCode BackgroundModelEE::execute()
 
 
   if (met_eta4p5 > 125*GeV) {
-    numEventsCut[8] += weight;
-  }
-
-  if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[9] += weight;
   }
 
-  if (met_eta4p5 > 100*GeV) {
+  if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[10] += weight;
   }
 
-  if (met_eta4p5_muon > 100*GeV) {
+  if (met_eta4p5 > 100*GeV) {
     numEventsCut[11] += weight;
   }
 
-  if (met_eta4p5 > 75*GeV) {
+  if (met_eta4p5_muon > 100*GeV) {
     numEventsCut[12] += weight;
   }
 
-  if (met_eta4p5_muon > 75*GeV) {
+  if (met_eta4p5 > 75*GeV) {
     numEventsCut[13] += weight;
   }
 
-  if (met_eta4p5 > 150*GeV) {
+  if (met_eta4p5_muon > 75*GeV) {
     numEventsCut[14] += weight;
   }
 
-  if (met_eta4p5_muon > 150*GeV) {
+  if (met_eta4p5 > 150*GeV) {
     numEventsCut[15] += weight;
+  }
+
+  if (met_eta4p5_muon > 150*GeV) {
+    numEventsCut[16] += weight;
   }
 
 

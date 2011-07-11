@@ -245,6 +245,7 @@ StatusCode SignalGammaGamma::execute()
   const unsigned lbNum = evtInfo->event_ID()->lumi_block();
   const unsigned evNum = evtInfo->event_ID()->event_number();
 
+  const EventInfo::EventFlagErrorState larError = evtInfo->errorState(EventInfo::LAr);
 
   // rewiegh for the Z sample and W sample
   switch (runNum) {
@@ -305,6 +306,13 @@ StatusCode SignalGammaGamma::execute()
 
   numEventsCut[0] += weight;
 
+  if (larError) {
+    return StatusCode::SUCCESS; // reject event
+  }
+    
+  ATH_MSG_DEBUG("Passed larError");
+  numEventsCut[1] += weight;
+
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
@@ -359,7 +367,7 @@ StatusCode SignalGammaGamma::execute()
     }
   }
 
-  numEventsCut[1] += weight;
+  numEventsCut[2] += weight;
   ATH_MSG_DEBUG("Passed jet cleaning");
 
   // check the primary vertex
@@ -382,7 +390,7 @@ StatusCode SignalGammaGamma::execute()
   if (!foundVx) {
     return StatusCode::SUCCESS; // reject event
   }
-  numEventsCut[2] += weight;
+  numEventsCut[3] += weight;
   ATH_MSG_DEBUG("Passed vertex");
 
 
@@ -394,7 +402,7 @@ StatusCode SignalGammaGamma::execute()
   //   return StatusCode::SUCCESS; // reject event
   // }
 
-  numEventsCut[3] += weight;
+  numEventsCut[4] += weight;
   ATH_MSG_DEBUG("Passed crack electron");
 
   //ATH_MSG_DEBUG("finished crack electron");
@@ -407,7 +415,7 @@ StatusCode SignalGammaGamma::execute()
   //   return StatusCode::SUCCESS; // reject event
   // }
 
-  numEventsCut[4] += weight;
+  numEventsCut[5] += weight;
   ATH_MSG_DEBUG("Passed crack photon");
 
   //ATH_MSG_DEBUG("finished crack photon");
@@ -424,7 +432,7 @@ StatusCode SignalGammaGamma::execute()
       return StatusCode::SUCCESS; // reject event
     }      
   }
-  numEventsCut[5] += weight;
+  numEventsCut[6] += weight;
   ATH_MSG_DEBUG("Passed muon rejection");
 
 
@@ -475,7 +483,7 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS;
   }
 
-  numEventsCut[6] += weight;
+  numEventsCut[7] += weight;
   ATH_MSG_DEBUG("Passed photons");
 
 
@@ -570,35 +578,35 @@ StatusCode SignalGammaGamma::execute()
 
 
   if (met_eta4p5 > 125*GeV) {
-    numEventsCut[7] += weight;
-  }
-
-  if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[8] += weight;
   }
 
-  if (met_eta4p5 > 100*GeV) {
+  if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[9] += weight;
   }
 
-  if (met_eta4p5_muon > 100*GeV) {
+  if (met_eta4p5 > 100*GeV) {
     numEventsCut[10] += weight;
   }
 
-  if (met_eta4p5 > 75*GeV) {
+  if (met_eta4p5_muon > 100*GeV) {
     numEventsCut[11] += weight;
   }
 
-  if (met_eta4p5_muon > 75*GeV) {
+  if (met_eta4p5 > 75*GeV) {
     numEventsCut[12] += weight;
   }
 
-  if (met_eta4p5 > 150*GeV) {
+  if (met_eta4p5_muon > 75*GeV) {
     numEventsCut[13] += weight;
   }
 
-  if (met_eta4p5_muon > 150*GeV) {
+  if (met_eta4p5 > 150*GeV) {
     numEventsCut[14] += weight;
+  }
+
+  if (met_eta4p5_muon > 150*GeV) {
+    numEventsCut[15] += weight;
   }
 
   // event accepted, so let's make plots
