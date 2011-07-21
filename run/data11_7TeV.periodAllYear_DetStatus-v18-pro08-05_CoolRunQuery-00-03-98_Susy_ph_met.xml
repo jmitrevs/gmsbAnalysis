@@ -1,27 +1,27 @@
 <?xml version="1.0" ?>
 <!DOCTYPE LumiRangeCollection
   SYSTEM 'http://atlas-runquery.cern.ch/LumiRangeCollection.dtd'>
-<!-- Good-runs-list created by AtlRunQuery.py on 2011-07-11 01:07:48.095722 -->
+<!-- Good-runs-list created by AtlRunQuery.py on 2011-07-21 01:07:37.775787 -->
 <LumiRangeCollection>
    <NamedLumiRange>
       <Name>Susy_ph_met</Name>
       <Version>2.1</Version>
-      <Metadata Name="Query">find run data11_7TeV.periodAllYear and partition ATLAS and db DATA and dq global_status DEFECTS#DetStatus-v18-pro08-04 g and dq atlsol DEFECTS#DetStatus-v18-pro08-04 g and dq atltor DEFECTS#DetStatus-v18-pro08-04 g and dq cp_mu_mmuidcb DEFECTS#DetStatus-v18-pro08-04 g and dq cp_mu_mstaco DEFECTS#DetStatus-v18-pro08-04 g and dq trig_gam DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_photon_barrel DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_photon_crack DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_photon_endcap DEFECTS#DetStatus-v18-pro08-04 g and dq trig_ele DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_electron_barrel DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_electron_crack DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_electron_endcap DEFECTS#DetStatus-v18-pro08-04 g and dq cp_eg_electron_forward DEFECTS#DetStatus-v18-pro08-04 g and dq cp_jet_jetb DEFECTS#DetStatus-v18-pro08-04 g and dq cp_jet_jetea DEFECTS#DetStatus-v18-pro08-04 g and dq cp_jet_jetec DEFECTS#DetStatus-v18-pro08-04 g and dq cp_jet_jetfa DEFECTS#DetStatus-v18-pro08-04 g and dq cp_jet_jetfc DEFECTS#DetStatus-v18-pro08-04 g and dq cp_met DEFECTS#DetStatus-v18-pro08-04 g and dq pix0 DEFECTS#DetStatus-v18-pro08-04 g and dq cp_tracking DEFECTS#DetStatus-v18-pro08-04 g and dq idvx DEFECTS#DetStatus-v18-pro08-04 g and dq idbs DEFECTS#DetStatus-v18-pro08-04 g and dq lumi DEFECTS#DetStatus-v18-pro08-04 g  </Metadata>
+      <Metadata Name="Query">find run data11_7TeV.periodAllYear and partition ATLAS and db DATA and ptag data11_7TeV and dq global_status DEFECTS#DetStatus-v18-pro08-05 g and dq atlsol DEFECTS#DetStatus-v18-pro08-05 g and dq atltor DEFECTS#DetStatus-v18-pro08-05 g and dq cp_mu_mmuidcb DEFECTS#DetStatus-v18-pro08-05 g and dq cp_mu_mstaco DEFECTS#DetStatus-v18-pro08-05 g and dq trig_gam DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_photon_barrel DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_photon_crack DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_photon_endcap DEFECTS#DetStatus-v18-pro08-05 g and dq trig_ele DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_electron_barrel DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_electron_crack DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_electron_endcap DEFECTS#DetStatus-v18-pro08-05 g and dq cp_eg_electron_forward DEFECTS#DetStatus-v18-pro08-05 g and dq cp_jet_jetb DEFECTS#DetStatus-v18-pro08-05 g and dq cp_jet_jetea DEFECTS#DetStatus-v18-pro08-05 g and dq cp_jet_jetec DEFECTS#DetStatus-v18-pro08-05 g and dq cp_jet_jetfa DEFECTS#DetStatus-v18-pro08-05 g and dq cp_jet_jetfc DEFECTS#DetStatus-v18-pro08-05 g and dq cp_met DEFECTS#DetStatus-v18-pro08-05 g and dq pix0 DEFECTS#DetStatus-v18-pro08-05 g and dq cp_tracking DEFECTS#DetStatus-v18-pro08-05 g and dq idvx DEFECTS#DetStatus-v18-pro08-05 g and dq idbs DEFECTS#DetStatus-v18-pro08-05 g and dq lumi DEFECTS#DetStatus-v18-pro08-05 g  </Metadata>
       <Metadata Name="RunList">184169,184130,184088,184074,184072,184066,184022,183963,183780,183602,183581,183580,183544,183462,183426,183412,183407,183391,183347,183286,183272,183216,183130,183129,183127,183081,183079,183078,183054,183045,183038,183021,183003,182997,182886,182879,182796,182787,182766,182747,182726,182519,182518,182516,182486,182456,182455,182454,182450,182449,182424,182372,182346,182284,182161,182013,180776,180710,180664,180636,180614,180481,180448,180400,180309,180242,180241,180225,180212,180164,180153,180149,180144,180139,180124,180122,179940,179939,179938,179804,179771,179739,179725,179710,178109,178047,178044</Metadata>
       <Metadata Name="RQTSVNVersion">CoolRunQuery-00-03-98</Metadata>
       <Metadata Name="StreamListInfo">
-         <Stream Name="physics_Background" TotalNumOfEvents="9295896" NumOfSelectedEvents="7799273"/>
-         <Stream Name="physics_CosmicCalo" TotalNumOfEvents="26393727" NumOfSelectedEvents="8955026"/>
-         <Stream Name="physics_CosmicMuons" TotalNumOfEvents="5042559" NumOfSelectedEvents="4181747"/>
-         <Stream Name="physics_Egamma" TotalNumOfEvents="152192619" NumOfSelectedEvents="131484418"/>
+         <Stream Name="physics_Background" TotalNumOfEvents="9295896" NumOfSelectedEvents="7798211"/>
+         <Stream Name="physics_CosmicCalo" TotalNumOfEvents="26393727" NumOfSelectedEvents="8951934"/>
+         <Stream Name="physics_CosmicMuons" TotalNumOfEvents="5042559" NumOfSelectedEvents="4181641"/>
+         <Stream Name="physics_Egamma" TotalNumOfEvents="152192619" NumOfSelectedEvents="131475177"/>
          <Stream Name="physics_EnhancedBias" TotalNumOfEvents="3036533" NumOfSelectedEvents="2614743"/>
-         <Stream Name="physics_IDCosmic" TotalNumOfEvents="143935" NumOfSelectedEvents="123369"/>
-         <Stream Name="physics_JetTauEtmiss" TotalNumOfEvents="193899617" NumOfSelectedEvents="167472315"/>
+         <Stream Name="physics_IDCosmic" TotalNumOfEvents="143935" NumOfSelectedEvents="123372"/>
+         <Stream Name="physics_JetTauEtmiss" TotalNumOfEvents="193899617" NumOfSelectedEvents="167452953"/>
          <Stream Name="physics_L1Calo" TotalNumOfEvents="2393310" NumOfSelectedEvents="2096595"/>
-         <Stream Name="physics_MinBias" TotalNumOfEvents="26870299" NumOfSelectedEvents="20352313"/>
-         <Stream Name="physics_Muons" TotalNumOfEvents="136685828" NumOfSelectedEvents="118498436"/>
+         <Stream Name="physics_MinBias" TotalNumOfEvents="26870299" NumOfSelectedEvents="20351321"/>
+         <Stream Name="physics_Muons" TotalNumOfEvents="136685828" NumOfSelectedEvents="118489189"/>
          <Stream Name="physics_Standby" TotalNumOfEvents="768455" NumOfSelectedEvents="0"/>
-         <Stream Name="physics_ZeroBias" TotalNumOfEvents="2569964" NumOfSelectedEvents="2222979"/>
+         <Stream Name="physics_ZeroBias" TotalNumOfEvents="2569964" NumOfSelectedEvents="2222829"/>
       </Metadata>
       <LumiBlockCollection>
          <Run PrescaleRD0="8" PrescaleRD1="8">184169</Run>
@@ -160,11 +160,12 @@
          <LBRange Start="319" End="331"/>
          <LBRange Start="333" End="345"/>
          <LBRange Start="350" End="350"/>
-         <LBRange Start="352" End="429"/>
+         <LBRange Start="352" End="401"/>
+         <LBRange Start="406" End="429"/>
          <LBRange Start="431" End="442"/>
          <LBRange Start="444" End="448"/>
          <LBRange Start="450" End="464"/>
-         <LBRange Start="486" End="493"/>
+         <LBRange Start="484" End="493"/>
          <LBRange Start="495" End="515"/>
          <LBRange Start="517" End="562"/>
          <LBRange Start="564" End="588"/>

@@ -59,6 +59,8 @@ BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcL
   declareProperty("trackToVertexTool", m_trackToVertexTool,
 		  "Tool for track extrapolation to vertex");
 
+  declareProperty("isMC", m_isMC = false);
+
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -390,13 +392,13 @@ StatusCode BackgroundModelEE::execute()
   ATH_MSG_DEBUG("Done preparing selection");
 
   const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
-  const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
+  // const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
-  const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
+  // const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
   const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
 
-  const JetCollection *allJets =  m_PreparationTool->selectedJets();
+  // const JetCollection *allJets =  m_PreparationTool->selectedJets();
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 
@@ -404,17 +406,75 @@ StatusCode BackgroundModelEE::execute()
   ATH_MSG_DEBUG("Got the containers");
 
   // jet cleaning
-  for (JetCollection::const_iterator jet = allJets->begin();
-       jet != allJets->end();
-       jet++) {
-
-    if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
-      return StatusCode::SUCCESS; // reject event
+  if (!m_isMC) { 
+    for (JetCollection::const_iterator jet = jets->begin();
+	 jet != jets->end();
+	 jet++) {
+      
+      if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
+	return StatusCode::SUCCESS; // reject event
+      }
     }
   }
 
   numEventsCut[2] += weight;
   ATH_MSG_DEBUG("Passed jet cleaning");
+
+  // define some bitmasks
+  const unsigned int LArCleaning = 1 << egammaPID::LArQCleaning;
+  const unsigned int LArTiming = 1 << egammaPID::OutTime;
+
+  // photon cleaning
+ 
+  for (PhotonContainer::const_iterator ph = photons->begin();
+       ph != photons->end();
+       ph++) {
+    if ((*ph)->isgoodoq(LArTiming)) {
+      // fails timing if nonzero
+      return StatusCode::SUCCESS; // reject event
+    }
+
+    const EMShower *shower = (*ph)->detail<EMShower>();
+    const double e233   = shower->e233(); 
+    const double e237   = shower->e237(); 
+    const double e277   = shower->e277(); 
+    const double Reta37 = fabs(e277)>0. ? e237/e277 : 0.;
+    const double Rphi33 = fabs(e237)>0. ? e233/e237 : 0.;
+    
+
+    if ((*ph)->isgoodoq(LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
+      return StatusCode::SUCCESS; // reject event
+    }      
+  }
+ 
+  numEventsCut[3] += weight;
+  ATH_MSG_DEBUG("Passed photon cleaning");
+
+  // electron cleaning
+  for (ElectronContainer::const_iterator el = electrons->begin();
+       el != electrons->end();
+       el++) {
+    if ((*el)->isgoodoq(LArTiming)) {
+      // fails timing if nonzero
+      return StatusCode::SUCCESS; // reject event
+    }
+
+    // const EMShower *shower = el->detail<EMShower>();
+    // const double e233   = shower->e233(); 
+    // const double e237   = shower->e237(); 
+    // const double e277   = shower->e277(); 
+    // const double Reta37 = fabs(e277)>0. ? e237/e277 : 0.;
+    // const double Rphi33 = fabs(e237)>0. ? e233/e237 : 0.;
+    
+
+    // if (el->isgoodoq(LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
+    //   return StatusCode::SUCCESS; // reject event
+    // }      
+  }
+
+  numEventsCut[4] += weight;
+  ATH_MSG_DEBUG("Passed electron cleaning");
+
 
   // check the primary vertex
   if (vxContainer->size() < 2) {
@@ -436,7 +496,7 @@ StatusCode BackgroundModelEE::execute()
   if (!foundVx) {
     return StatusCode::SUCCESS; // reject event
   }
-  numEventsCut[3] += weight;
+  numEventsCut[5] += weight;
   ATH_MSG_DEBUG("Passed vertex");
 
   // veto events if they have a tight photon
@@ -448,30 +508,8 @@ StatusCode BackgroundModelEE::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[4] += weight;
-  ATH_MSG_DEBUG("Passed photons");
-
-  // // loop over crack electrons
-  // for (ElectronContainer::const_iterator ph = crackElectrons->begin();
-  //      ph != crackElectrons->end();
-  //      ph++) {
-    
-  //   return StatusCode::SUCCESS; // reject event
-  // }
-
-  numEventsCut[5] += weight;
-  ATH_MSG_DEBUG("Passed crack electron");
-
-  // // loop over crack photons
-  // for (PhotonContainer::const_iterator ph = crackPhotons->begin();
-  //      ph != crackPhotons->end();
-  //      ph++) {
-    
-  //   return StatusCode::SUCCESS; // reject event
-  // }
-
   numEventsCut[6] += weight;
-  ATH_MSG_DEBUG("Passed crack photon");
+  ATH_MSG_DEBUG("Passed photons");
 
   for (Analysis::MuonContainer::const_iterator mu = muons->begin();
        mu != muons->end();
@@ -480,8 +518,9 @@ StatusCode BackgroundModelEE::execute()
     const Trk::MeasuredPerigee* newMeasPerigee =
       m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
     const double dz = newMeasPerigee->parameters()[Trk::z0];
-    ATH_MSG_DEBUG("dZ = " << dz);
-    if (dz >= 10.0) {
+    const double dd = newMeasPerigee->parameters()[Trk::d0];
+    ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
+    if (dz >= 1.0 || dd >= 0.2) {
       return StatusCode::SUCCESS; // reject event
     }      
   }

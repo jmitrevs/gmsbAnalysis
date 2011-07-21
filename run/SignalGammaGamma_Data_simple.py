@@ -31,7 +31,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_DetStatus-v18-pro08-04_CoolRunQuery-00-03-98_Susy_ph_met.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_DetStatus-v18-pro08-05_CoolRunQuery-00-03-98_Susy_ph_met.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;

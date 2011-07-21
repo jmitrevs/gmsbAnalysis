@@ -14,7 +14,7 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc09_7TeV.108085.PythiaPhotonJet_Unbinned7.recon.ESD.e534_s765_s767_r1305_tid137093_00/ESD.137093._000011.pool.root.1')
 #InputList = glob('/data3/jmitrevs/dataskims/ee/*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10*Znunugammagamma*/*pool.root*')
-InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/bino_600_50/AOD/AOD.merged.bino_600_50._000001.pool.root.1')
 #InputList = ['root://castoratlas//castor/cern.ch/user/d/ddamiani/GGM_grid/rel_16/bino_400_200_UEplus/AOD/AOD.merged.bino_400_200_UEplus._000001.pool.root.1']
 #InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*pool.root*')
@@ -25,6 +25,8 @@ InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.mer
 #InputList = glob('/data3/jmitrevs/mcskims/rel_15/user.jmitrevs.20101120.76.mc09_7TeV.115038.Pythia_photos_diphotons25.ANALY_RALPP/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc10_7TeV.139433.SPS8_160_herwigpp_susy.merge.AOD.e818_s933_s946_r2302_r2300_tid422579_00/*pool.root*')
+InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino_1000_300*_r2300*/*pool.root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList

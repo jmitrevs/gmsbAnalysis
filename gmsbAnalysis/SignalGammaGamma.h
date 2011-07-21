@@ -29,6 +29,7 @@ private:
   /** MET selecton */
   std::string m_METContainerName;
 
+  bool m_isMC;
   double m_leadPhotonPtCut;
 
   /** primary vertex container */

@@ -26,6 +26,8 @@ private:
 
   bool isBad(const Jet *) const;
 
+  bool m_isMC;
+
   /** MET selecton */
   std::string m_METContainerName;
 
