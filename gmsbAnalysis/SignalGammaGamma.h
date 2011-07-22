@@ -10,9 +10,15 @@
 #include "gmsbAnalysis/AccumulateUncert.h"
 #include "gmsbAnalysis/AccumulateFFUncert.h"
 
+#include "gmsbAnalysis/FakeMetEstimator.h"
+
+#include "TRandom3.h"
+
+
 class Jet;
 namespace Reco  { class ITrackToVertex; }
 class ISUSYPhotonJetCleaningTool;
+namespace Trig  { class TrigDecisionTool; }
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaGamma:public AthAlgorithm {
@@ -31,6 +37,11 @@ private:
 
   bool m_isMC;
   double m_leadPhotonPtCut;
+
+  bool m_applyTriggers; //only really meant for MC
+  std::string m_triggers;
+
+  bool m_doSmartVeto;
 
   /** primary vertex container */
   std::string m_vxCandidatesName;
@@ -52,8 +63,14 @@ private:
   /** @brief Tool handle for track extrapolation to vertex */
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
-  /** @breif Tool handle for jet cleaning */  
+  /** @brief Tool handle for jet cleaning */  
   ToolHandle<ISUSYPhotonJetCleaningTool>  m_JetCleaningTool;
+
+  /** @brief trigger decision tool */    
+  ToolHandle< Trig::TrigDecisionTool > m_trigDec;
+
+  FakeMetEstimator m_fakeMetEstimator;
+  FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
 
   // user data
   ServiceHandle<IUserDataSvc> m_userdatasvc;
@@ -63,6 +80,8 @@ private:
 
   AccumulateUncert accUnc;
   AccumulateFFUncert accFFUnc;
+
+  mutable TRandom3 m_rand3;
 };
 
 #endif // GMSBANALYSIS_SIGNALGAMMAGAMMA_H

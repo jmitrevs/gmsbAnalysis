@@ -23,12 +23,17 @@
 
 #include "VxVertex/VxContainer.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 #include "ITrackToVertex/ITrackToVertex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_trackToVertexTool("Reco::TrackToVertex"),
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_fakeMetEstimator("fest_periodF_v1.root"),
+  m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
   m_userdatasvc("UserDataSvc", name)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaGamma");
@@ -56,6 +61,11 @@ SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLoc
 		  "Tool for track extrapolation to vertex");
 
   declareProperty("isMC", m_isMC = false);
+  declareProperty("trigDecisionTool", m_trigDec);
+  declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
+  declareProperty("triggers", m_triggers = "EF_2g20_loose");
+
+  declareProperty("doSmartVeto", m_doSmartVeto = true);
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -99,6 +109,14 @@ StatusCode SignalGammaGamma::initialize(){
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Failed to retrieve tool " << m_JetCleaningTool);
     return sc;
+  }
+
+  if (m_applyTriggers) {
+    sc = m_trigDec.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool " << m_trigDec);
+      return sc;
+    }
   }
 
   if ( !m_userdatasvc.retrieve().isSuccess() ) {
@@ -325,12 +343,21 @@ StatusCode SignalGammaGamma::execute()
 
   numEventsCut[0] += weight;
 
+  if (m_applyTriggers) {
+    if (! m_trigDec->isPassed(m_triggers)) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  ATH_MSG_DEBUG("Passed trig");
+  numEventsCut[1] += weight;
+
   if (larError) {
     return StatusCode::SUCCESS; // reject event
   }
     
   ATH_MSG_DEBUG("Passed larError");
-  numEventsCut[1] += weight;
+  numEventsCut[2] += weight;
 
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute();
@@ -387,7 +414,7 @@ StatusCode SignalGammaGamma::execute()
       }
     }
   }
-  numEventsCut[2] += weight;
+  numEventsCut[3] += weight;
   ATH_MSG_DEBUG("Passed jet cleaning");
 
   // define some bitmasks
@@ -417,7 +444,7 @@ StatusCode SignalGammaGamma::execute()
     }      
   }
  
-  numEventsCut[3] += weight;
+  numEventsCut[4] += weight;
   ATH_MSG_DEBUG("Passed photon cleaning");
 
   // electron cleaning
@@ -442,7 +469,7 @@ StatusCode SignalGammaGamma::execute()
     // }      
   }
 
-  numEventsCut[4] += weight;
+  numEventsCut[5] += weight;
   ATH_MSG_DEBUG("Passed electron cleaning");
 
 
@@ -466,7 +493,7 @@ StatusCode SignalGammaGamma::execute()
   if (!foundVx) {
     return StatusCode::SUCCESS; // reject event
   }
-  numEventsCut[5] += weight;
+  numEventsCut[6] += weight;
   ATH_MSG_DEBUG("Passed vertex");
 
 
@@ -484,7 +511,7 @@ StatusCode SignalGammaGamma::execute()
       return StatusCode::SUCCESS; // reject event
     }      
   }
-  numEventsCut[6] += weight;
+  numEventsCut[7] += weight;
   ATH_MSG_DEBUG("Passed muon rejection");
 
 
@@ -535,7 +562,7 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS;
   }
 
-  numEventsCut[7] += weight;
+  numEventsCut[8] += weight;
   ATH_MSG_DEBUG("Passed photons");
 
 
@@ -579,22 +606,6 @@ StatusCode SignalGammaGamma::execute()
   }
   
 
-  //ATH_MSG_DEBUG("finished electron");
-
-  int numJets = 0;
-
-  // Count number of jets
-  for (JetCollection::const_iterator jet = jets->begin();
-       jet != jets->end();
-       jet++) {
-
-    if ((*jet)->eta() < 2.5) {
-      numJets++;
-    }
-  }
-
-  ATH_MSG_DEBUG("finished jets");
-
   // lets correct the MET
   double met_eta4p5=0;
   double etMiss_eta4p5_etx=0;
@@ -627,38 +638,92 @@ StatusCode SignalGammaGamma::execute()
   
   const double met_eta4p5_muon = hypot(etMiss_eta4p5_etx_muon, etMiss_eta4p5_ety_muon);
 
+  // now do LAr hole veto
+  const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
+  const unsigned feb_hole_run_number = 180614;
+  bool hasFEBHole = runNum >= feb_hole_run_number;
+  
+  if(m_isMC) {
+    m_rand3.SetSeed((atan2(etMiss_eta4p5_ety_muon,etMiss_eta4p5_etx_muon) + 5) * 1e8);
+    const double roll_result = m_rand3.Rndm();
+    hasFEBHole = roll_result >= feb_lumi_fraction;
+  }
 
+  int numJets = 0;
+
+  // Count number of jets
+  for (JetCollection::const_iterator jet = jets->begin();
+       jet != jets->end();
+       jet++) {
+
+    if ((*jet)->eta() < 2.5) {
+      numJets++;
+    }
+
+    if (m_doSmartVeto) {
+      bool eventFails = false;
+      if(m_isMC) {
+	if (hasFEBHole) {
+	  eventFails = m_fakeMetEstimator.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
+						    etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
+						    (*jet)->getMoment("BCH_CORR_JET"),
+						    (*jet)->getMoment("BCH_CORR_CELL"),
+						    (*jet)->getMoment("BCH_CORR_DOTX"));
+	} else {
+	  eventFails = m_fakeMetEstimatorEmulNoHole.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
+							      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
+							      (*jet)->getMoment("BCH_CORR_JET"),
+							      (*jet)->getMoment("BCH_CORR_CELL"),
+							      (*jet)->getMoment("BCH_CORR_DOTX"));
+	}
+      } else {
+	eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
+					      (*jet)->getMoment("BCH_CORR_CELL"),
+					      (*jet)->getMoment("BCH_CORR_DOTX"),
+					      (*jet)->phi(),
+					      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
+      }
+      if (eventFails) {
+	return StatusCode::SUCCESS;
+      }
+      
+    }
+
+  }
+
+  ATH_MSG_DEBUG("Passed smart veto");
+  numEventsCut[9] += weight;
 
   if (met_eta4p5 > 125*GeV) {
-    numEventsCut[8] += weight;
-  }
-
-  if (met_eta4p5_muon > 125*GeV) {
-    numEventsCut[9] += weight;
-  }
-
-  if (met_eta4p5 > 100*GeV) {
     numEventsCut[10] += weight;
   }
 
-  if (met_eta4p5_muon > 100*GeV) {
+  if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[11] += weight;
   }
 
-  if (met_eta4p5 > 75*GeV) {
+  if (met_eta4p5 > 100*GeV) {
     numEventsCut[12] += weight;
   }
 
-  if (met_eta4p5_muon > 75*GeV) {
+  if (met_eta4p5_muon > 100*GeV) {
     numEventsCut[13] += weight;
   }
 
-  if (met_eta4p5 > 150*GeV) {
+  if (met_eta4p5 > 75*GeV) {
     numEventsCut[14] += weight;
   }
 
-  if (met_eta4p5_muon > 150*GeV) {
+  if (met_eta4p5_muon > 75*GeV) {
     numEventsCut[15] += weight;
+  }
+
+  if (met_eta4p5 > 150*GeV) {
+    numEventsCut[16] += weight;
+  }
+
+  if (met_eta4p5_muon > 150*GeV) {
+    numEventsCut[17] += weight;
   }
 
   // event accepted, so let's make plots

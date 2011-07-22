@@ -25,6 +25,7 @@ use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 #use MCTruthClassifier  MCTruthClassifier-*      PhysicsAnalysis
 use PhotonAnalysisUtils        PhotonAnalysisUtils-*           PhysicsAnalysis/StandardModelPhys
 use McParticleEvent    McParticleEvent-*        PhysicsAnalysis/TruthParticleID
+use TrigDecisionTool   TrigDecisionTool-*       Trigger/TrigAnalysis
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

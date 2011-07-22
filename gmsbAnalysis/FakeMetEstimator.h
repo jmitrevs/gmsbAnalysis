@@ -60,6 +60,7 @@
 // v2.0 ( 6/ 6/2011) ... in the emulation mode, the shift of MET by the estimated fake is considered
 // v3.0 (10/ 6/2011) ... in the emulation mode, the shift of jet pT by dead cells is considered
 //
+#include "PathResolver/PathResolver.h"
 
 #include <TFile.h>
 #include <TFolder.h>
@@ -130,9 +131,13 @@ class EmulFakeMet {
   // get folder fcor or fjet
   TFolder* getFolder(FType itype){
     if(cache_ftype[itype]) return cache_ftype[itype];
-    TFile tf(m_rootname.c_str());
+
+
+    std::string filename = PathResolver::find_file(m_rootname, "DATAPATH");
+    
+    TFile tf(filename.c_str());
     if(!tf.IsOpen()){
-      std::cout << "file " << m_rootname << " not opened" << std::endl;
+      std::cout << "file " << filename << " not opened" << std::endl;
       abort();
     }
     cache_ftype[itype] = (TFolder*)tf.Get(m_fname[itype].c_str());
