@@ -38,6 +38,7 @@ apply_tag  ROOTTableLibs
 
 apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime files="*.root"
 
 macro gmsbAnalysis_linkopts "-lEG"
 

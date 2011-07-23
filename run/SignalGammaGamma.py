@@ -26,7 +26,8 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc10_7TeV.139433.SPS8_160_herwigpp_susy.merge.AOD.e818_s933_s946_r2302_r2300_tid422579_00/*pool.root*')
-InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino_1000_300*_r2300*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino_1000_300*_r2300*/*pool.root*')
+InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino800_400*_r2300*/*pool.root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList

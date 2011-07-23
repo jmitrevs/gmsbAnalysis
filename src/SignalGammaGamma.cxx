@@ -478,21 +478,13 @@ StatusCode SignalGammaGamma::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  bool foundVx = false;
-  for (VxContainer::const_iterator vx = vxContainer->begin();
-       vx != vxContainer->end();
-       vx++) {
-    const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
-      (*vx)->vxTrackAtVertex();
+  const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
+    vxContainer->at(0)->vxTrackAtVertex();
 
-    if (vxtracks->size() > 4) {
-      foundVx = true;
-      break;
-    }
-  }
-  if (!foundVx) {
+  if (vxtracks->size() <= 4) {
     return StatusCode::SUCCESS; // reject event
   }
+
   numEventsCut[6] += weight;
   ATH_MSG_DEBUG("Passed vertex");
 

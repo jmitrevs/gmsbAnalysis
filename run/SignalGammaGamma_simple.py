@@ -78,20 +78,20 @@ import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
-if not 'RANDSEED' in dir():
-    RANDSEED = 0
+#if not 'RANDSEED' in dir():
+#    RANDSEED = 0
 
-print "random seed", RANDSEED
+#print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
-gmsbSelectionTool.RandomSeed = RANDSEED
+#gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbCrackSelectionTool.IsMC = True
 gmsbCrackSelectionTool.SmearMC = True
-gmsbCrackSelectionTool.RandomSeed = RANDSEED+1
+#gmsbCrackSelectionTool.RandomSeed = RANDSEED+1
 #gmsbCrackSelectionTool.MCEtconeShift = 0.0;
 #gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
@@ -102,7 +102,8 @@ testAlg = SignalGammaGamma(name = "SignalGammaGamma",
                            CrackPreparationTool = gmsbCrackPreparationTool,
                            OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
-                           JetCleaningTool = myJetCleaningTool
+                           JetCleaningTool = myJetCleaningTool,
+                           applyTrigger = True
                            )
 from AthenaCommon.AppMgr import ToolSvc
 testAlg.OutputLevel = DEBUG
