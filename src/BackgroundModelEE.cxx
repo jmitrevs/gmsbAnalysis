@@ -26,6 +26,9 @@
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TH2.h"
 
+const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
+const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
+
 /////////////////////////////////////////////////////////////////////////////
 BackgroundModelEE::BackgroundModelEE(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -362,16 +365,30 @@ StatusCode BackgroundModelEE::execute()
     
   ATH_MSG_DEBUG("Passed larError");
 
+
+  // now chose a run number for the LAr hole veto
+  const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
+  bool hasFEBHole = runNum > LAST_RUN_BEFORE_HOLE;
+  
+  unsigned int pretendRunNum = runNum;
+
+  if(m_isMC) {
+    m_rand3.SetSeed(runNum + evNum);
+    const double roll_result = m_rand3.Rndm();
+    hasFEBHole = roll_result >= feb_lumi_fraction;
+    pretendRunNum = (hasFEBHole) ? FIRST_RUN_AFTER_HOLE : LAST_RUN_BEFORE_HOLE; 
+  }
+
   numEventsCut[1] += weight;
   // do the selecton and overlap removal
-  sc = m_PreparationTool->execute();
+  sc = m_PreparationTool->execute(pretendRunNum);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Preparation Failed - selection ");
     return sc;
   }
 
   // do the selecton and overlap removal
-  sc = m_CrackPreparationTool->execute();
+  sc = m_CrackPreparationTool->execute(pretendRunNum);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Preparation Failed - crack selection ");
     return sc;

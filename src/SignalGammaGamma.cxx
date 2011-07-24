@@ -27,6 +27,9 @@
 
 #include "ITrackToVertex/ITrackToVertex.h"
 
+const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
+const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
+
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaGamma::SignalGammaGamma(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -359,19 +362,34 @@ StatusCode SignalGammaGamma::execute()
   ATH_MSG_DEBUG("Passed larError");
   numEventsCut[2] += weight;
 
+
+  // now chose a run number for the LAr hole veto
+  const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
+  bool hasFEBHole = runNum > LAST_RUN_BEFORE_HOLE;
+  
+  unsigned int pretendRunNum = runNum;
+
+  if(m_isMC) {
+    m_rand3.SetSeed(runNum + evNum);
+    const double roll_result = m_rand3.Rndm();
+    hasFEBHole = roll_result >= feb_lumi_fraction;
+    pretendRunNum = (hasFEBHole) ? FIRST_RUN_AFTER_HOLE : LAST_RUN_BEFORE_HOLE; 
+  }
+
+
   // do the selecton and overlap removal
-  sc = m_PreparationTool->execute();
+  sc = m_PreparationTool->execute(pretendRunNum);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Preparation Failed - selection ");
     return sc;
   }
 
-  // do the selecton and overlap removal
-  sc = m_CrackPreparationTool->execute();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Preparation Failed - crack selection ");
-    return sc;
-  }
+  // // do the selecton and overlap removal
+  // sc = m_CrackPreparationTool->execute(pretendRunNum);
+  // if ( sc.isFailure() ) {
+  //   ATH_MSG_ERROR("Preparation Failed - crack selection ");
+  //   return sc;
+  // }
 
   sc = m_OverlapRemovalTool1->execute();
   if ( sc.isFailure() ) {
@@ -630,16 +648,6 @@ StatusCode SignalGammaGamma::execute()
   
   const double met_eta4p5_muon = hypot(etMiss_eta4p5_etx_muon, etMiss_eta4p5_ety_muon);
 
-  // now do LAr hole veto
-  const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
-  const unsigned feb_hole_run_number = 180614;
-  bool hasFEBHole = runNum >= feb_hole_run_number;
-  
-  if(m_isMC) {
-    m_rand3.SetSeed((atan2(etMiss_eta4p5_ety_muon,etMiss_eta4p5_etx_muon) + 5) * 1e8);
-    const double roll_result = m_rand3.Rndm();
-    hasFEBHole = roll_result >= feb_lumi_fraction;
-  }
 
   int numJets = 0;
 
@@ -686,36 +694,20 @@ StatusCode SignalGammaGamma::execute()
   ATH_MSG_DEBUG("Passed smart veto");
   numEventsCut[9] += weight;
 
-  if (met_eta4p5 > 125*GeV) {
+  if (met_eta4p5_muon > 125*GeV) {
     numEventsCut[10] += weight;
   }
 
-  if (met_eta4p5_muon > 125*GeV) {
+  if (met_eta4p5_muon > 100*GeV) {
     numEventsCut[11] += weight;
   }
 
-  if (met_eta4p5 > 100*GeV) {
+  if (met_eta4p5_muon > 75*GeV) {
     numEventsCut[12] += weight;
   }
 
-  if (met_eta4p5_muon > 100*GeV) {
-    numEventsCut[13] += weight;
-  }
-
-  if (met_eta4p5 > 75*GeV) {
-    numEventsCut[14] += weight;
-  }
-
-  if (met_eta4p5_muon > 75*GeV) {
-    numEventsCut[15] += weight;
-  }
-
-  if (met_eta4p5 > 150*GeV) {
-    numEventsCut[16] += weight;
-  }
-
   if (met_eta4p5_muon > 150*GeV) {
-    numEventsCut[17] += weight;
+    numEventsCut[13] += weight;
   }
 
   // event accepted, so let's make plots

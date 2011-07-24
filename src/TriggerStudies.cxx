@@ -191,18 +191,18 @@ StatusCode TriggerStudies::execute()
   ATH_MSG_DEBUG("About to prepare selection");
 
   // do the selecton and overlap removal
-  sc = m_PreparationTool->execute();
+  sc = m_PreparationTool->execute(0);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Preparation Failed - selection ");
     return sc;
   }
 
-  // do the selecton and overlap removal
-  sc = m_CrackPreparationTool->execute();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Preparation Failed - crack selection ");
-    return sc;
-  }
+  // // do the selecton and overlap removal
+  // sc = m_CrackPreparationTool->execute();
+  // if ( sc.isFailure() ) {
+  //   ATH_MSG_ERROR("Preparation Failed - crack selection ");
+  //   return sc;
+  // }
 
   sc = m_OverlapRemovalTool1->execute();
   if ( sc.isFailure() ) {
@@ -220,9 +220,9 @@ StatusCode TriggerStudies::execute()
 
   // note: I changed it so that there's only one overlap removal
   const PhotonContainer *photons = m_OverlapRemovalTool1->finalStatePhotons();
-  const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
+  // const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
   const ElectronContainer *electrons = m_OverlapRemovalTool1->finalStateElectrons();
-  const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
+  // const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
   const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
 

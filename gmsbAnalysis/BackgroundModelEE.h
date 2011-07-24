@@ -8,6 +8,8 @@
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
 
+#include "TRandom3.h"
+
 class Jet;
 namespace Reco  { class ITrackToVertex; }
 class ISUSYPhotonJetCleaningTool;
@@ -66,6 +68,7 @@ private:
   double m_windowLow;
   double m_windowHigh;
   
+  mutable TRandom3 m_rand3;
 };
 
 #endif // GMSBANALYSIS_BACKGROUNDMODELEE_H
