@@ -11,6 +11,7 @@ use AthenaKernel       AthenaKernel-*           Control
 use SUSYPhotonJetCleaningTool         SUSYPhotonJetCleaningTool-*
 use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
 use gmsbTools          gmsbTools-*
+use PathResolver       PathResolver-* Tools
 
 private
 use FourMomUtils		FourMomUtils-*			Event
