@@ -88,15 +88,9 @@ for i,inDS in enumerate(inDS_grid):
     ######number = inDS[21:27]
     #print number
 
-    command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_250711_v2.%s SignalGammaGamma.py " % (number, inDS, inDS)
+    #command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_250711_v2.%s SignalGammaGamma.py " % (number, inDS, inDS)
 
-    #print command
-    #os.system(command)
-
-    #command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_120411_altiso.%s SignalGammaGamma_altiso.py " % (number, inDS, inDS)
-
-
-    #command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_110411_looseFF.%s SignalGammaGamma_looseFF.py " % (number, inDS, inDS)
+    command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_250711_oldFF.%s SignalGammaGamma_oldFF.py " % (number, inDS, inDS)
 
 
     # command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_140411_isoShiftDown.%s SignalGammaGamma_isoShiftDown.py " % (number, inDS, inDS)

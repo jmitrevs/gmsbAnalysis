@@ -375,7 +375,7 @@ StatusCode BackgroundModelEE::execute()
   if(m_isMC) {
     m_rand3.SetSeed(runNum + evNum);
     const double roll_result = m_rand3.Rndm();
-    hasFEBHole = roll_result >= feb_lumi_fraction;
+    hasFEBHole = roll_result < feb_lumi_fraction;
     pretendRunNum = (hasFEBHole) ? FIRST_RUN_AFTER_HOLE : LAST_RUN_BEFORE_HOLE; 
   }
 

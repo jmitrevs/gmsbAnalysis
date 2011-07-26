@@ -372,10 +372,13 @@ StatusCode SignalGammaGamma::execute()
   if(m_isMC) {
     m_rand3.SetSeed(runNum + evNum);
     const double roll_result = m_rand3.Rndm();
-    hasFEBHole = roll_result >= feb_lumi_fraction;
+    hasFEBHole = roll_result < feb_lumi_fraction;
     pretendRunNum = (hasFEBHole) ? FIRST_RUN_AFTER_HOLE : LAST_RUN_BEFORE_HOLE; 
   }
 
+  // // overwrite it 
+  // hasFEBHole = false;
+  // pretendRunNum = LAST_RUN_BEFORE_HOLE; 
 
   // do the selecton and overlap removal
   sc = m_PreparationTool->execute(pretendRunNum);
@@ -411,7 +414,7 @@ StatusCode SignalGammaGamma::execute()
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   // const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
-  const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
+  const Analysis::MuonContainer *muons = m_OverlapRemovalTool2->finalStateMuons();
 
   // const JetCollection *allJets =  m_PreparationTool->selectedJets();
 
@@ -516,8 +519,9 @@ StatusCode SignalGammaGamma::execute()
       m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
     const double dz = newMeasPerigee->parameters()[Trk::z0];
     const double dd = newMeasPerigee->parameters()[Trk::d0];
+    delete newMeasPerigee;
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
-    if (dz >= 1.0 || dd >= 0.2) {
+    if (fabs(dz) >= 1.0 || fabs(dd) >= 0.2) {
       return StatusCode::SUCCESS; // reject event
     }      
   }
@@ -684,7 +688,7 @@ StatusCode SignalGammaGamma::execute()
 					      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
       }
       if (eventFails) {
-	return StatusCode::SUCCESS;
+      	return StatusCode::SUCCESS;
       }
       
     }
