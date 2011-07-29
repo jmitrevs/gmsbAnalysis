@@ -4,87 +4,107 @@ void AccumulateUncert::AddObject(double pt, bool isBarrel, bool isConv, double w
 {
   m_denom += weight;
 
+  double num = Uncertainty(pt, isBarrel, isConv);
+
+  m_num += weight*num;
+  m_num2 += weight*num*num;
+
+}
+
+void AccumulateUncert::AddObjects(double pt1, bool isBarrel1, bool isConv1,
+				  double pt2, bool isBarrel2, bool isConv2, double weight)
+{
+  m_denom += weight;
+
+  double num1 = Uncertainty(pt1, isBarrel1, isConv1);
+  double num2 = Uncertainty(pt2, isBarrel2, isConv2);
+
+  m_num += weight*(num1+num2);
+  m_num2 += weight*hypot(num1,num2);
+
+}
+		 
+double AccumulateUncert::Uncertainty(double pt, bool isBarrel, bool isConv) const
+{
   double num = 0.0;
 
   if (isConv) {
     if (isBarrel) {
       if (pt < 20000) {
-	num = weight * 7.7;
+	num = 7.7;
       } else if (pt < 25000) {
-	num = weight * 5.4;
+	num = 5.4;
       } else if (pt < 30000) {
-	num = weight * 4.7;
+	num = 4.7;
       } else if (pt < 35000) {
-	num = weight * 4.0;
+	num = 4.0;
       } else if (pt < 40000) {
-	num = weight * 4.3;
+	num = 4.3;
       } else if (pt < 50000) {
-	num = weight * 3.6;
+	num = 3.6;
       } else if (pt < 60000) {
-	num = weight * 1;
+	num = 1;
       } else {
-	num = weight * 3;
+	num = 3;
       }
     } else {
       if (pt < 20000) {
-	num = weight * 7.6;
+	num = 7.6;
       } else if (pt < 25000) {
-	num = weight * 8.1;
+	num = 8.1;
       } else if (pt < 30000) {
-	num = weight * 6.9;
+	num = 6.9;
       } else if (pt < 35000) {
-	num = weight * 6.0;
+	num = 6.0;
       } else if (pt < 40000) {
-	num = weight * 5.5;
+	num = 5.5;
       } else if (pt < 50000) {
-	num = weight * 5.3;
+	num = 5.3;
       } else if (pt < 60000) {
-	num = weight * 4;
+	num = 4;
       } else {
-	num = weight * 5;
+	num = 5;
       }
     }
   } else {
     if (isBarrel) {
       if (pt < 20000) {
-	num = weight * 4.1;
+	num = 4.1;
       } else if (pt < 25000) {
-	num = weight * 3.6;
+	num = 3.6;
       } else if (pt < 30000) {
-	num = weight * 2.7;
+	num = 2.7;
       } else if (pt < 35000) {
-	num = weight * 2.0;
+	num = 2.0;
       } else if (pt < 40000) {
-	num = weight * 1.7;
+	num = 1.7;
       } else if (pt < 50000) {
-	num = weight * 1.3;
+	num = 1.3;
       } else if (pt < 60000) {
-	num = weight * 0.3;
+	num = 0.3;
       } else {
-	num = weight * 0.6;
+	num = 0.6;
       }
     } else {
       if (pt < 20000) {
-	num = weight * 3.9;
+	num = 3.9;
       } else if (pt < 25000) {
-	num = weight * 2.6;
+	num = 2.6;
       } else if (pt < 30000) {
-	num = weight * 1.5;
+	num = 1.5;
       } else if (pt < 35000) {
-	num = weight * 1.2;
+	num = 1.2;
       } else if (pt < 40000) {
-	num = weight * 0;
+	num = 0;
       } else if (pt < 50000) {
-	num = weight * 0.6;
+	num = 0.6;
       } else if (pt < 60000) {
-	num = weight * 2;
+	num = 2;
       } else {
-	num = weight * 0;
+	num = 0;
       }
     }
   }
-  m_num += num;
-  m_num2 += num*num;
 
+  return num;
 }
-		 

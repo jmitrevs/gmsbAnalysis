@@ -14,6 +14,10 @@ inDS_diphoton = [
     ]
 
 inDS_grid = [
+    'mc10_7TeV.118430.Pythia_GGM_Bino400_150.merge.AOD.e640_s933_s946_r2302_r2300',
+    'mc10_7TeV.118431.Pythia_GGM_Bino400_200.merge.AOD.e640_s933_s946_r2302_r2300',
+    'mc10_7TeV.118432.Pythia_GGM_Bino400_300.merge.AOD.e640_s933_s946_r2302_r2300',
+    'mc10_7TeV.118433.Pythia_GGM_Bino400_380.merge.AOD.e640_s933_s946_r2302_r2300',
     'mc10_7TeV.118434.Pythia_GGM_Bino500_150.merge.AOD.e640_s933_s946_r2302_r2300',
     'mc10_7TeV.118435.Pythia_GGM_Bino500_200.merge.AOD.e640_s933_s946_r2302_r2300',
     'mc10_7TeV.118436.Pythia_GGM_Bino500_300.merge.AOD.e640_s933_s946_r2302_r2300',
@@ -40,6 +44,10 @@ inDS_grid = [
     'mc10_7TeV.118977.Pythia_GGM_Bino800_600.merge.AOD.e715_s933_s946_r2302_r2300',
     'mc10_7TeV.118978.Pythia_GGM_Bino800_700.merge.AOD.e715_s933_s946_r2302_r2300',
     'mc10_7TeV.118979.Pythia_GGM_Bino800_780.merge.AOD.e715_s933_s946_r2302_r2300',
+    'mc10_7TeV.123078.Pythia_GGM_Bino_400_50.merge.AOD.e756_s933_s946_r2302_r2300',
+    'mc10_7TeV.123079.Pythia_GGM_Bino_400_75.merge.AOD.e756_s933_s946_r2302_r2300',
+    'mc10_7TeV.123080.Pythia_GGM_Bino_400_100.merge.AOD.e756_s933_s946_r2302_r2300',
+    'mc10_7TeV.123081.Pythia_GGM_Bino_400_125.merge.AOD.e756_s933_s946_r2302_r2300',
     'mc10_7TeV.123082.Pythia_GGM_Bino_500_50.merge.AOD.e756_s933_s946_r2302_r2300',
     'mc10_7TeV.123083.Pythia_GGM_Bino_500_75.merge.AOD.e756_s933_s946_r2302_r2300',
     'mc10_7TeV.123084.Pythia_GGM_Bino_500_100.merge.AOD.e756_s933_s946_r2302_r2300',
@@ -79,6 +87,33 @@ inDS_grid = [
     'mc10_7TeV.138588.Pythia_GGM_Bino_1000_800.merge.AOD.e804_s933_s946_r2302_r2300',
     'mc10_7TeV.138589.Pythia_GGM_Bino_1000_900.merge.AOD.e804_s933_s946_r2302_r2300',
     'mc10_7TeV.138590.Pythia_GGM_Bino_1000_980.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138591.Pythia_GGM_Bino_1100_50.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138592.Pythia_GGM_Bino_1100_100.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138593.Pythia_GGM_Bino_1100_150.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138594.Pythia_GGM_Bino_1100_200.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138595.Pythia_GGM_Bino_1100_300.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138596.Pythia_GGM_Bino_1100_400.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138597.Pythia_GGM_Bino_1100_500.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138598.Pythia_GGM_Bino_1100_600.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138599.Pythia_GGM_Bino_1100_700.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138600.Pythia_GGM_Bino_1100_800.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138601.Pythia_GGM_Bino_1100_900.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138602.Pythia_GGM_Bino_1100_1000.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138603.Pythia_GGM_Bino_1100_1080.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138604.Pythia_GGM_Bino_1200_50.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138605.Pythia_GGM_Bino_1200_100.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138606.Pythia_GGM_Bino_1200_150.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138607.Pythia_GGM_Bino_1200_200.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138608.Pythia_GGM_Bino_1200_300.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138609.Pythia_GGM_Bino_1200_400.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138610.Pythia_GGM_Bino_1200_500.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138611.Pythia_GGM_Bino_1200_600.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138612.Pythia_GGM_Bino_1200_700.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138613.Pythia_GGM_Bino_1200_800.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138614.Pythia_GGM_Bino_1200_900.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138615.Pythia_GGM_Bino_1200_1000.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138616.Pythia_GGM_Bino_1200_1100.merge.AOD.e804_s933_s946_r2302_r2300',
+    'mc10_7TeV.138617.Pythia_GGM_Bino_1200_1180.merge.AOD.e804_s933_s946_r2302_r2300',
 
     ]
 
@@ -88,9 +123,9 @@ for i,inDS in enumerate(inDS_grid):
     ######number = inDS[21:27]
     #print number
 
-    #command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_250711_v2.%s SignalGammaGamma.py " % (number, inDS, inDS)
+    command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_290711.%s SignalGammaGamma.py " % (number, inDS, inDS)
 
-    command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_250711_oldFF.%s SignalGammaGamma_oldFF.py " % (number, inDS, inDS)
+    #command = "pathena -c 'FFSet=6' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_260711_FFSet6.%s SignalGammaGamma_altFF.py " % (inDS, inDS)
 
 
     # command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_140411_isoShiftDown.%s SignalGammaGamma_isoShiftDown.py " % (number, inDS, inDS)
@@ -111,11 +146,11 @@ for i,inDS in enumerate(inDS_grid):
     #command = "pathena -c 'RANDSEED=%s' '--extFile=ilumicalc_histograms_EF_2g20_loose_178044-184169.root,mu_mc10b.root' --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.SignalModel_140411_sd.%s SignalGammaGamma_ShiftDown.py " % (number, inDS, inDS)
 
     if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission.tar"
+        command += " --outTarBall=/data3/jmitrevs/submission_29.tar"
         print command
         os.system(command)
     else:
-        command += " --inTarBall=/data3/jmitrevs/submission.tar"
+        command += " --inTarBall=/data3/jmitrevs/submission_29.tar"
         print command
         os.system(command)
     

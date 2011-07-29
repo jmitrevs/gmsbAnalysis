@@ -78,8 +78,10 @@ private:
   // for bookkeeping
   double numEventsCut[NUM_CUTS];
 
-  AccumulateUncert accUnc;
+  AccumulateUncert accUnc;  // for leading photon
   AccumulateFFUncert accFFUnc;
+  AccumulateUncert accUnc2; // for second photon
+  AccumulateFFUncert accFFUnc2;
 
   mutable TRandom3 m_rand3;
 };

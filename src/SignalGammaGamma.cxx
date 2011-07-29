@@ -721,53 +721,55 @@ StatusCode SignalGammaGamma::execute()
   ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " " 
 	       << muons->size() << " " << met_eta4p5_muon/GeV);
 
-  m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
-  m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
+  if (met_eta4p5_muon > 125*GeV) {
 
-  accFFUnc.AddObject(leadingPhPt, leadingPh->cluster()->etaBE(2), leadingPh->conversion(), weight);
+    m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
+    m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
+    
+    accFFUnc.AddObjects(leadingPhPt, leadingPh->cluster()->etaBE(2), leadingPh->conversion(), 
+			secondPhPt, secondPh->cluster()->etaBE(2), secondPh->conversion(), weight);
 
-  if (fabs(leadingPh->cluster()->eta()) < 1.45) {
-    if (leadingPh->conversion()) {
-      m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, weight);
-      accUnc.AddObject(leadingPhPt, true, true, weight);
+    bool isBarrel1 = fabs(leadingPh->cluster()->eta()) < 1.45;
+    bool isBarrel2 = fabs(secondPh->cluster()->eta()) < 1.45;
+
+    accUnc.AddObjects(leadingPhPt, isBarrel1, leadingPh->conversion(),
+		      secondPhPt, isBarrel2, secondPh->conversion(), weight);
+
+    if (fabs(leadingPh->cluster()->eta()) < 1.45) {
+      if (leadingPh->conversion()) {
+	m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, weight);
+      } else {
+	m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, weight);
+      }
     } else {
-      m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, weight);
-      accUnc.AddObject(leadingPhPt, true, false, weight);
-    }
-  } else {
-    if (leadingPh->conversion()) {
-      m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, weight);
-      accUnc.AddObject(leadingPhPt, false, true, weight);
+      if (leadingPh->conversion()) {
+	m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, weight);
+      } else {
+	m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, weight);
+      }
+    }    
+    
+    m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
+    m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, weight);
+    
+    
+    if (fabs(secondPh->cluster()->eta()) < 1.45) {
+      if (secondPh->conversion()) {
+	m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, weight);
+      } else {
+	m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, weight);
+      }
     } else {
-      m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, weight);
-      accUnc.AddObject(leadingPhPt, false, false, weight);
-    }
-  }    
-
-  m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
-  m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, weight);
-
-  if (fabs(secondPh->cluster()->eta()) < 1.45) {
-    if (secondPh->conversion()) {
-      m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, weight);
-      accUnc.AddObject(secondPhPt, true, true, weight);
-    } else {
-      m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, weight);
-      accUnc.AddObject(secondPhPt, true, false, weight);
-    }
-  } else {
-    if (secondPh->conversion()) {
-      m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, weight);
-      accUnc.AddObject(secondPhPt, false, true, weight);
-    } else {
-      m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, weight);
-      accUnc.AddObject(secondPhPt, false, false, weight);
-    }
-  }    
-
-  m_histograms["numPh"]->Fill(numPhPass, weight);
-  m_histograms["ph_numConv"]->Fill(numConvPhPass, weight);
-
+      if (secondPh->conversion()) {
+	m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, weight);
+      } else {
+	m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, weight);
+      }
+    }    
+    
+    m_histograms["numPh"]->Fill(numPhPass, weight);
+    m_histograms["ph_numConv"]->Fill(numConvPhPass, weight);
+  }
   
   // ATH_MSG_DEBUG("filled photon plots");
   if (leadingEl) {
@@ -848,8 +850,12 @@ StatusCode SignalGammaGamma::finalize() {
     ATH_MSG_INFO("--------------");
     ATH_MSG_INFO("Average material error: " << accUnc.Uncert());
     ATH_MSG_INFO("Average material error using sum of squares: " << accUnc.Uncert2());
+    ATH_MSG_INFO("Average material second photon error: " << accUnc2.Uncert());
+    ATH_MSG_INFO("Average material second photon error using sum of squares: " << accUnc2.Uncert2());
     ATH_MSG_INFO("Average FF error: " << accFFUnc.Uncert());
     ATH_MSG_INFO("Average FF error using sum of squares: " << accFFUnc.Uncert2());
+    ATH_MSG_INFO("Average FF error second photon: " << accFFUnc2.Uncert());
+    ATH_MSG_INFO("Average FF error second photon using sum of squares: " << accFFUnc2.Uncert2());
 
     return StatusCode::SUCCESS;
 }
