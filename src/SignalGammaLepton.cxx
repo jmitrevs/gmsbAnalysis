@@ -41,7 +41,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
 
-  declareProperty("LeadingPhotonPtCut", m_leadPhotonPtCut = 25.0*GeV);
+  declareProperty("NumPhotons", m_numPhotons = 1);
+  declareProperty("NumLeptons", m_numLeptons = 1);
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -153,31 +154,34 @@ StatusCode SignalGammaLepton::initialize(){
   m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
   m_histograms["el_pt2"] = new TH1F("el_pt2","Transverse momentum of the second electrons;#p_{T} [GeV]", 100, 0, 500);
 
-  m_histograms["el_minv"] = new TH1F("el_minv", "The invariante mass of the two leading electrons;M_{inv} [GeV]", 120, 0, 120);
+  m_histograms["ph_el_minv"] = new TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 120, 0, 120);
+  m_histograms["ph_mu_minv"] = new TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 120, 0, 120);
 
   m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
   m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
   m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
 
   // MET
-  m_histograms["metWoMuonCorr"] = new TH1F("metWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met0JWoMuonCorr"] = new TH1F("met0JWoMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met1JWoMuonCorr"] = new TH1F("met1JWoMuonCorr", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met2JWoMuonCorr"] = new TH1F("met2JWoMuonCorr", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met3JWoMuonCorr"] = new TH1F("met3WoMuonCorrJ", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met4JWoMuonCorr"] = new TH1F("met4JWoMuonCorr", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met"] = new TH1F("met", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
 
-  m_histograms["metExtendedWoMuonCorr"] = new TH1F("metExtendedWoMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+  m_histograms["metExtended"] = new TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
 
-  m_histograms["metWMuonCorr"] = new TH1F("metWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met0JWMuonCorr"] = new TH1F("met0JWMuonCorr", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met1JWMuonCorr"] = new TH1F("met1JWMuonCorr", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met2JWMuonCorr"] = new TH1F("met2JWMuonCorr", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met3JWMuonCorr"] = new TH1F("met3WMuonCorrJ", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met4JWMuonCorr"] = new TH1F("met4JWMuonCorr", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+  m_histograms["deltaPhiPhMETvsMET"] = new TH2F("deltaPhiPhMETvsMET", 
+						"The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						100, 0, M_PI, 250, 0, 250);
 
-  m_histograms["metExtendedWMuonCorr"] = new TH1F("metExtendedWMuonCorr", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+  m_histograms["deltaPhiElMETvsMET"] = new TH2F("deltaPhiElMETvsMET", 
+						"The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						100, 0, M_PI, 250, 0, 250);
 
+  m_histograms["deltaPhiMuMETvsMET"] = new TH2F("deltaPhiMuMETvsMET", 
+						"The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						100, 0, M_PI, 250, 0, 250);
 
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
@@ -193,23 +197,20 @@ StatusCode SignalGammaLepton::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt1" , m_histograms["el_pt1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta2" , m_histograms["el_eta2"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt2" , m_histograms["el_pt2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/minv" , m_histograms["el_minv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ph_el_minv" , m_histograms["ph_el_minv"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ph_mu_minv" , m_histograms["ph_mu_minv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWoMuonCorr" , m_histograms["metWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0JWoMuonCorr" , m_histograms["met0JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1JWoMuonCorr" , m_histograms["met1JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2JWoMuonCorr" , m_histograms["met2JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3JWoMuonCorr" , m_histograms["met3JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4JWoMuonCorr" , m_histograms["met4JWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtendedWoMuonCorr" , m_histograms["metExtendedWoMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metWMuonCorr" , m_histograms["metWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0JWMuonCorr" , m_histograms["met0JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1JWMuonCorr" , m_histograms["met1JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2JWMuonCorr" , m_histograms["met2JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3JWMuonCorr" , m_histograms["met3JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4JWMuonCorr" , m_histograms["met4JWMuonCorr"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtendedWMuonCorr" , m_histograms["metExtendedWMuonCorr"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met" , m_histograms["met"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0J" , m_histograms["met0J"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1J" , m_histograms["met1J"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2J" , m_histograms["met2J"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3J" , m_histograms["met3J"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4J" , m_histograms["met4J"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtended" , m_histograms["metExtended"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiPhMETvsMET" , m_histograms["deltaPhiPhMETvsMET"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiElMETvsMET" , m_histograms["deltaPhiElMETvsMET"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiMuMETvsMET" , m_histograms["deltaPhiMuMETvsMET"]).ignore();
 
   // initialize cut flow table
   for (int i = 0; i < NUM_CUTS; i++) {
@@ -530,8 +531,8 @@ StatusCode SignalGammaLepton::execute()
 
 
   // loop over photons
-  int numPhPass = 0; // this is per event
-  int numConvPhPass = 0; // this is per event
+  unsigned int numPhPass = 0; // this is per event
+  unsigned int numConvPhPass = 0; // this is per event
   Analysis::Photon *leadingPh = 0;
   Analysis::Photon *secondPh = 0;
   
@@ -572,7 +573,7 @@ StatusCode SignalGammaLepton::execute()
     }
   }
 
-  if (numPhPass < 1) {
+  if (photons->size() < m_numPhotons) {
     return StatusCode::SUCCESS;
   }
 
@@ -584,7 +585,7 @@ StatusCode SignalGammaLepton::execute()
 
 
   // DEAL WITH ELECTRONS
-  int numElPass = 0; // this is per event
+  unsigned int numElPass = 0; // this is per event
   Analysis::Electron *leadingEl = 0;
   Analysis::Electron *secondEl = 0;
   
@@ -619,7 +620,10 @@ StatusCode SignalGammaLepton::execute()
     
   }
   
-  if (numElPass + muons->size() < 1) {
+  unsigned int numMuPass = muons->size();
+  const Analysis::Muon *leadingMu = (numMuPass) ? muons->at(0) : 0;
+
+  if (electrons->size() + muons->size() < m_numLeptons) {
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Passed lepton");
@@ -657,7 +661,8 @@ StatusCode SignalGammaLepton::execute()
   etMiss_eta4p5_ety_muon-= met_refmuontrackContainer->ety();
   
   const double met_eta4p5_muon = hypot(etMiss_eta4p5_etx_muon, etMiss_eta4p5_ety_muon);
-
+  const double metPhi = (etMiss_eta4p5_ety_muon == 0.0 && etMiss_eta4p5_etx_muon == 0.0) 
+    ? 0.0 : atan2(etMiss_eta4p5_ety_muon, etMiss_eta4p5_etx_muon);
 
   int numJets = 0;
 
@@ -727,7 +732,8 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " " 
 	       << muons->size() << " " << met_eta4p5_muon/GeV);
 
-  if (met_eta4p5_muon > 125*GeV) {
+  //if (met_eta4p5_muon > 125*GeV) {
+  {
 
     if (leadingPh) {
       m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
@@ -795,51 +801,52 @@ StatusCode SignalGammaLepton::execute()
   //ATH_MSG_DEBUG("filled electron plots");
 
 
-  if (numElPass >= 2) {
-    const double minv = P4Helpers::invMass(leadingEl, secondEl);
-    m_histograms["el_minv"]->Fill(minv/GeV, weight);
+
+  if (numElPass >= 1 && numPhPass >= 1) {
+    const double minv = P4Helpers::invMass(leadingPh, leadingEl);
+    m_histograms["ph_el_minv"]->Fill(minv/GeV, weight);
+  }
+  if (numMuPass >= 1 && numPhPass >= 1) {
+    const double minv = P4Helpers::invMass(leadingPh, leadingMu);
+    m_histograms["ph_mu_minv"]->Fill(minv/GeV, weight);
+  }
+
+  if (numPhPass >= 1) {
+    const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingPh, metPhi));
+    static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
+  }
+
+  if (numElPass >= 1) {
+    const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingEl, metPhi));
+    static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
+  }
+
+  if (numMuPass >= 1) {
+    const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingMu, metPhi));
+    static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
   }
 
   m_histograms["numJets"]->Fill(numJets, weight);
 
   // } // end of if on MET
-  m_histograms["metWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-  m_histograms["metExtendedWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-  switch(numJets) {
-  case 0:
-    m_histograms["met0JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-    break;
-  case 1:
-    m_histograms["met1JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-    break;
-  case 2:
-    m_histograms["met2JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-    break;
-  case 3:
-    m_histograms["met3JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-    break;
-  default:
-    m_histograms["met4JWoMuonCorr"]->Fill(met_eta4p5/GeV, weight);
-    break;
-  }
 
-  m_histograms["metWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
-  m_histograms["metExtendedWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+  m_histograms["met"]->Fill(met_eta4p5_muon/GeV, weight);
+  m_histograms["metExtended"]->Fill(met_eta4p5_muon/GeV, weight);
   switch(numJets) {
   case 0:
-    m_histograms["met0JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    m_histograms["met0J"]->Fill(met_eta4p5_muon/GeV, weight);
     break;
   case 1:
-    m_histograms["met1JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    m_histograms["met1J"]->Fill(met_eta4p5_muon/GeV, weight);
     break;
   case 2:
-    m_histograms["met2JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    m_histograms["met2J"]->Fill(met_eta4p5_muon/GeV, weight);
     break;
   case 3:
-    m_histograms["met3JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    m_histograms["met3J"]->Fill(met_eta4p5_muon/GeV, weight);
     break;
   default:
-    m_histograms["met4JWMuonCorr"]->Fill(met_eta4p5_muon/GeV, weight);
+    m_histograms["met4J"]->Fill(met_eta4p5_muon/GeV, weight);
     break;
   }
 

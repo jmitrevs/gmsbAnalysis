@@ -98,16 +98,19 @@ gmsbCrackSelectionTool.SmearMC = False
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
-                           isMC = True,
-                           PreparationTool = gmsbPreparationTool,
-                           CrackPreparationTool = gmsbCrackPreparationTool,
-                           OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                           OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
-                           JetCleaningTool = myJetCleaningTool,
-                           applyTrigger = False
-                           )
+                            isMC = True,
+                            PreparationTool = gmsbPreparationTool,
+                            CrackPreparationTool = gmsbCrackPreparationTool,
+                            OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
+                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                            JetCleaningTool = myJetCleaningTool,
+                            applyTrigger = False,
+                            NumPhotons = 1,
+                            NumLeptons = 1
+                            )
 from AthenaCommon.AppMgr import ToolSvc
-testAlg.OutputLevel = DEBUG
+#testAlg.OutputLevel = DEBUG
+testAlg.OutputLevel = INFO
 
 # Add example to Reader
 topSequence += testAlg
@@ -131,5 +134,5 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 # save ROOT histograms and Tuple
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output = ["SignalGammaGamma DATAFILE='SignalGammaGamma.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output = ["SignalGammaLepton DATAFILE='SignalGammaLepton.root' OPT='RECREATE'"]
 

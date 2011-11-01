@@ -36,7 +36,8 @@ private:
   std::string m_METContainerName;
 
   bool m_isMC;
-  double m_leadPhotonPtCut;
+  unsigned int m_numPhotons;
+  unsigned int m_numLeptons;
 
   bool m_applyTriggers; //only really meant for MC
   std::string m_triggers;
