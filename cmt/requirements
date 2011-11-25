@@ -8,12 +8,12 @@ use AtlasPolicy	       AtlasPolicy-*
 use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
 use AthenaKernel       AthenaKernel-*           Control
-use SUSYPhotonJetCleaningTool         SUSYPhotonJetCleaningTool-*
 use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
-use gmsbTools          gmsbTools-*
 use PathResolver       PathResolver-* Tools
 
 private
+use SUSYPhotonJetCleaningTool         SUSYPhotonJetCleaningTool-*
+use gmsbTools          gmsbTools-*
 use FourMomUtils		FourMomUtils-*			Event
 use EventInfo                   EventInfo-*                     Event
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma
@@ -27,6 +27,9 @@ use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 use PhotonAnalysisUtils        PhotonAnalysisUtils-*           PhysicsAnalysis/StandardModelPhys
 use McParticleEvent    McParticleEvent-*        PhysicsAnalysis/TruthParticleID
 use TrigDecisionTool   TrigDecisionTool-*       Trigger/TrigAnalysis
+use AtlasHepMC         AtlasHepMC-*             External
+use GeneratorObjects   GeneratorObjects-*       Generators
+
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

@@ -86,6 +86,9 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.SmearMC = False
+gmsbSelectionTool.ElectronPt = 25*GeV
+gmsbSelectionTool.PhotonPt = 50*GeV
+gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -106,7 +109,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
                             NumPhotons = 1,
-                            NumLeptons = 1
+                            NumElectrons = 1
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG
@@ -114,6 +117,7 @@ testAlg.OutputLevel = INFO
 
 # Add example to Reader
 topSequence += testAlg
+print testAlg
 
 #--------------------------------------------------------------
 # Add Dictionary for writing out in PoolDPDs

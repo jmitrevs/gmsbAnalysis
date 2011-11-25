@@ -14,8 +14,9 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc10_7TeV.139433.SPS8_160_herwigpp_susy.merge.AOD.e818_s933_s946_r2302_r2300_tid422579_00/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino_1000_300*_r2300*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino800_400*_r2300*/*pool.root*')
-InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500/*pool.root*')
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_200/*pool.root*')
+InputList = glob('/data3/jmitrevs/mc11_7TeV.106046.PythiaZee_no_filter.merge.AOD.e815_s1272_s1274_r2730_r2700_tid519072_00/*pool.root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
@@ -40,7 +41,7 @@ rec.doTrigger.set_Value_and_Lock(False)
 # ANALYSIS
 #--------------------------------------------------------------
 
-rec.UserAlgs.set_Value_and_Lock("SignalGammaLepton_simple.py")
+rec.UserAlgs.set_Value_and_Lock("SignalGammaElectron_simple.py")
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.PhotonisEMKey = 'PhotonTight'","ToolSvc.PhotonProcessingTool.ElectronisEMKey = 'ElectronTight'"]
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.excludeCrackRegion = False"]
 #UserExecsList = ["NtupleDumper.SUSY_ProductionVeto = True","NtupleDumper.SUSY_ProductionTypeAccepted = 2","NtupleDumper.isMC = True"]

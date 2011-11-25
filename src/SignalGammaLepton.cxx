@@ -25,6 +25,9 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+#include "GeneratorObjects/McEventCollection.h"
+#include "HepMC/GenEvent.h"
+
 #include "ITrackToVertex/ITrackToVertex.h"
 
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
@@ -42,12 +45,18 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
 
   declareProperty("NumPhotons", m_numPhotons = 1);
-  declareProperty("NumLeptons", m_numLeptons = 1);
+  declareProperty("NumElectrons", m_numElectrons = 0);
+  declareProperty("NumMuons", m_numMuons = 0);
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
+  // Name of the McEventCollection Container
+  declareProperty("McEventContainerName",
+		  m_McEventContainerName="GEN_AOD",
+		  "Name of the McEventCollection container");
+
   // Name of the primary vertex candidates
   declareProperty("PrimaryVertexCandidates",
 		  m_vxCandidatesName="VxPrimaryCandidate",
@@ -183,6 +192,12 @@ StatusCode SignalGammaLepton::initialize(){
 						"The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
 						100, 0, M_PI, 250, 0, 250);
 
+  m_histograms["HT"] = new TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 250, 0, 250);
+  m_histograms["mT"] = new TH1F("mT", "The m_{T} distribution;m_{T} [GeV]", 250, 0, 250);
+  m_histograms["meff"] = new TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 250, 0, 250);
+
+  m_histograms["nOriginalEvents"] = new TH1D("nOriginalEvents", "nOriginalEvents", 1, 0, 1);
+
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
@@ -211,6 +226,11 @@ StatusCode SignalGammaLepton::initialize(){
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiPhMETvsMET" , m_histograms["deltaPhiPhMETvsMET"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiElMETvsMET" , m_histograms["deltaPhiElMETvsMET"]).ignore();
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiMuMETvsMET" , m_histograms["deltaPhiMuMETvsMET"]).ignore();
+
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/HT" , m_histograms["HT"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mT" , m_histograms["mT"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/meff" , m_histograms["meff"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/nOriginalEvents" , m_histograms["nOriginalEvents"]).ignore();
 
   // initialize cut flow table
   for (int i = 0; i < NUM_CUTS; i++) {
@@ -271,62 +291,23 @@ StatusCode SignalGammaLepton::execute()
 
   const EventInfo::EventFlagErrorState larError = evtInfo->errorState(EventInfo::LAr);
 
-  // // rewiegh for the Z sample and W sample
-  // switch (runNum) {
-  // case 107650:
-  //   weight = 661.9/303405.0;
-  //   break;
-  // case 107651:
-  //   weight = 133.3/63484.0;
-  //   break;
-  // case 107652:
-  //   weight = 40.3/19496.0; 
-  //   break;
-  // case 107653:
-  //   weight = 11.2/5500.0;
-  //   break;
-  // case 107654:
-  //   weight = 2.7/1500.0;
-  //   break;
-  // case 107655:
-  //   weight = 0.8/500.0;
-  //   break;
-  // case 107680:
-  //   weight = 6913.3/1382306.0;
-  //   break;
-  // case 107681:
-  //   weight = 1293.0/641361.0;
-  //   break;
-  // case 107682:
-  //   weight = 377.1/188956.0;
-  //   break;
-  // case 107683:
-  //   weight = 100.9/50476.0;
-  //   break;
-  // case 107684:
-  //   weight = 25.3/12990.0;
-  //   break;
-  // case 107685:
-  //   weight = 6.9/3497.0;
-  //   break;
-  // case 118619:
-  //   weight = 1.4597e-2/9998 * 35;
-  //   break;
-  // case 118618:
-  //   weight = 4.0558e-2/9998 * 35;
-  //   break;
-  // case 118617:
-  //   weight = 3.9128e-2/9999 * 35;
-  //   break;
-  // case 118616:
-  //   weight = 2.9366e-2/9998 * 35;
-  //   break;
-  // case 118615:
-  //   weight = 3.9201e-2/9994 * 35;
-  //   break;
-  // }
+  if (m_isMC) {
+    
+    const McEventCollection * aMcEventContainer;
+    sc = evtStore()->retrieve(aMcEventContainer, m_McEventContainerName);
+    
+    if(sc.isSuccess()) {
+      const HepMC::GenEvent * aGenEvent = *(aMcEventContainer->begin());
+      const HepMC::WeightContainer& weightContainer = aGenEvent->weights();
+      
+      unsigned int Size = weightContainer.size();
+      if(Size > 0) weight = weightContainer[0];
+    }
+  }
 
-  ATH_MSG_DEBUG("About to prepare selection: " << runNum << " " << lbNum << " " << evNum);
+  ATH_MSG_DEBUG("About to prepare selection: " << runNum << " " << lbNum << " " 
+		<< evNum << "; weight: " << weight);
+
 
   // // get the user data
   // if (m_isMC) {
@@ -345,7 +326,13 @@ StatusCode SignalGammaLepton::execute()
   //   weight *= pileupWeight;
   // }
 
+
+  double HT = 0.0;
+
   numEventsCut[0] += weight;
+
+  m_histograms["nOriginalEvents"]->Fill(0.0, weight);
+
 
   if (m_applyTriggers) {
     if (! m_trigDec->isPassed(m_triggers)) {
@@ -515,7 +502,9 @@ StatusCode SignalGammaLepton::execute()
   for (Analysis::MuonContainer::const_iterator mu = muons->begin();
        mu != muons->end();
        mu++) {
-    
+   
+    HT += (*mu)->pt();
+
     const Trk::MeasuredPerigee* newMeasPerigee =
       m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
     const double dz = newMeasPerigee->parameters()[Trk::z0];
@@ -557,7 +546,8 @@ StatusCode SignalGammaLepton::execute()
 
     ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
 
-    
+    HT += pt;
+
     numPhPass++;
     if ((*ph)->conversion()) numConvPhPass++;
     ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
@@ -607,6 +597,7 @@ StatusCode SignalGammaLepton::execute()
 
     ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
     
+    HT += pt;
     numElPass++;
     if (pt > leadingElPt ) {
       secondEl = leadingEl;
@@ -623,7 +614,7 @@ StatusCode SignalGammaLepton::execute()
   unsigned int numMuPass = muons->size();
   const Analysis::Muon *leadingMu = (numMuPass) ? muons->at(0) : 0;
 
-  if (electrons->size() + muons->size() < m_numLeptons) {
+  if (electrons->size() < m_numElectrons || muons->size() < m_numMuons) {
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Passed lepton");
@@ -672,6 +663,7 @@ StatusCode SignalGammaLepton::execute()
        jet++) {
 
     if ((*jet)->eta() < 2.5) {
+      HT += (*jet)->pt();
       numJets++;
     }
 
@@ -734,6 +726,9 @@ StatusCode SignalGammaLepton::execute()
 
   //if (met_eta4p5_muon > 125*GeV) {
   {
+
+    m_histograms["HT"]->Fill(HT/GeV, weight);
+    m_histograms["meff"]->Fill((HT+met_eta4p5_muon)/GeV, weight);
 
     if (leadingPh) {
       m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
@@ -819,11 +814,18 @@ StatusCode SignalGammaLepton::execute()
   if (numElPass >= 1) {
     const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingEl, metPhi));
     static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
+
+    const double mT = sqrt(2 * leadingElPt * met_eta4p5_muon * (1 - cos(absdeltaphi)));
+    m_histograms["mT"]->Fill(mT/GeV, weight);
   }
 
   if (numMuPass >= 1) {
     const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingMu, metPhi));
     static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
+
+    const double mT = sqrt(2 * leadingMu->pt() * met_eta4p5_muon * (1 - cos(absdeltaphi)));
+    m_histograms["mT"]->Fill(mT/GeV, weight);
+
   }
 
   m_histograms["numJets"]->Fill(numJets, weight);

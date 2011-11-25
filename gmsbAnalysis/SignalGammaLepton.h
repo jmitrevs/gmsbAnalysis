@@ -37,7 +37,8 @@ private:
 
   bool m_isMC;
   unsigned int m_numPhotons;
-  unsigned int m_numLeptons;
+  unsigned int m_numMuons;
+  unsigned int m_numElectrons;
 
   bool m_applyTriggers; //only really meant for MC
   std::string m_triggers;
@@ -46,6 +47,9 @@ private:
 
   /** primary vertex container */
   std::string m_vxCandidatesName;
+
+  /** truth container name **/
+  std::string m_McEventContainerName;
 
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;
