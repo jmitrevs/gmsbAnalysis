@@ -1,10 +1,13 @@
 
 #include <string>
+#include <iostream>
 
 #include "TH1.h"
 #include "TFile.h"
 #include "THStack.h"
 #include "TCanvas.h"
+
+#include <vector>
 
 void LepPhotonPlots() 
 
@@ -12,52 +15,6 @@ void LepPhotonPlots()
 
   const double Lumi = 5000.0;
 
-  // scale is lumi * xsec * kfact / numEvents
-
-  const double  Wenu_Np0_scale     =  Lumi  *  6921.60 * 1.20   / 3459283.;//
-  const double  Wenu_Np1_scale     =  Lumi  *  1304.30 * 1.20   / 2499654.;//
-  const double  Wenu_Np2_scale     =  Lumi  *   378.29 * 1.20   / 3764276.;//
-  const double  Wenu_Np3_scale     =  Lumi  *   101.43 * 1.20   / 1008947.;//
-  const double  Wenu_Np4_scale     =  Lumi  *    25.87 * 1.20   / 250000.;//
-  const double  Wenu_Np5_scale     =  Lumi  *     7.00 * 1.20   / 69999.;//
-
-  const double  Wmunu_Np0_scale     =  Lumi  *  6919.60 * 1.20   / 3461953.;//
-  const double  Wmunu_Np1_scale     =  Lumi  *  1304.20 * 1.20   / 2499593.;//
-  const double  Wmunu_Np2_scale     =  Lumi  *   377.83 * 1.20   / 3768148.;//
-  const double  Wmunu_Np3_scale     =  Lumi  *   101.88 * 1.20   / 1008857.;//
-  const double  Wmunu_Np4_scale     =  Lumi  *    25.75 * 1.20   / 254950.;//
-  const double  Wmunu_Np5_scale     =  Lumi  *     6.92 * 1.20   / 70000.;//
-
-  const double  Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / 3418296.;//
-  const double  Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20   / 2499194.;//
-  const double  Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20   / 3766986.;//
-  const double  Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20   / 1009946.;//
-  const double  Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20   / 249998.;//
-  const double  Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20   / 65000.;//
-
-  const double  ttbar_scale          =  Lumi  * 147.49  / 2994070. ;//
-
-  // photon pt > 10 GeV
-  const double  Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.45   / 1459648.;//
-  const double  Wgamma_Np1_scale     =  Lumi  *   52.238 * 1.45   / 529009.;//
-  const double  Wgamma_Np2_scale     =  Lumi  *   17.259 * 1.45   / 175000.;//
-  const double  Wgamma_Np3_scale     =  Lumi  *    5.3339 * 1.45   / 264999.;//
-  const double  Wgamma_Np4_scale     =  Lumi  *    1.3762 * 1.45   / 64999.;//
-  const double  Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.45   / 20000.;//
-
-  const double  Zeegamma_scale        =  Lumi  *  10.022 *  1.22   / 50000.;
-  const double  Zmumugamma_scale      =  Lumi  *  10.023 *  1.22   / 49950.;
-  const double  Ztautaugamma_scale    =  Lumi  *   9.7639 * 1.22   / 49949.;
-
-  const double  st_tchan_enu_scale   = Lumi * 6.8317 / 299998;
-  const double  st_tchan_munu_scale  = Lumi * 6.8233 / 299010;
-  const double  st_tchan_taunu_scale = Lumi * 6.8053 / 299999;
-
-  const double  st_schan_enu_scale   = Lumi * 0.46117 / 299948;
-  const double  st_schan_munu_scale  = Lumi * 0.46149 / 299998;
-  const double  st_schan_taunu_scale = Lumi * 0.46158 / 299899;
-
-  const double  st_Wt_scale = Lumi * 14.372 / 898605;
 
   /////////////////////////////////////
 
@@ -69,13 +26,6 @@ void LepPhotonPlots()
   const std::string WenuFileName_Np3 = path + "Wenu_Np3.root";
   const std::string WenuFileName_Np4 = path + "Wenu_Np4.root";
   const std::string WenuFileName_Np5 = path + "Wenu_Np5.root";
-
-  const std::string WmunuFileName_Np0 = path + "Wmunu_Np0.root";
-  const std::string WmunuFileName_Np1 = path + "Wmunu_Np1.root";
-  const std::string WmunuFileName_Np2 = path + "Wmunu_Np2.root";
-  const std::string WmunuFileName_Np3 = path + "Wmunu_Np3.root";
-  const std::string WmunuFileName_Np4 = path + "Wmunu_Np4.root";
-  const std::string WmunuFileName_Np5 = path + "Wmunu_Np5.root";
 
   const std::string WtaunuFileName_Np0 = path + "Wtaunu_Np0.root";
   const std::string WtaunuFileName_Np1 = path + "Wtaunu_Np1.root";
@@ -94,11 +44,9 @@ void LepPhotonPlots()
   const std::string ttbarFileName = path + "ttbar.root";
 
   const std::string st_tchan_enuFileName   = path + "st_tchan_enu.root";
-  const std::string st_tchan_munuFileName  = path + "st_tchan_munu.root";
   const std::string st_tchan_taunuFileName = path + "st_tchan_taunu.root";
 
   const std::string st_schan_enuFileName   = path + "st_schan_enu.root";
-  const std::string st_schan_munuFileName  = path + "st_schan_munu.root";
   const std::string st_schan_taunuFileName = path + "st_schan_taunu.root";
 
   const std::string st_WtFileName   = path + "st_Wt.root";
@@ -111,13 +59,6 @@ void LepPhotonPlots()
   const TFile *WenuFile_Np3 = new TFile(WenuFileName_Np3.c_str());
   const TFile *WenuFile_Np4 = new TFile(WenuFileName_Np4.c_str());
   const TFile *WenuFile_Np5 = new TFile(WenuFileName_Np5.c_str());
-
-  const TFile *WmunuFile_Np0 = new TFile(WmunuFileName_Np0.c_str());
-  const TFile *WmunuFile_Np1 = new TFile(WmunuFileName_Np1.c_str());
-  const TFile *WmunuFile_Np2 = new TFile(WmunuFileName_Np2.c_str());
-  const TFile *WmunuFile_Np3 = new TFile(WmunuFileName_Np3.c_str());
-  const TFile *WmunuFile_Np4 = new TFile(WmunuFileName_Np4.c_str());
-  const TFile *WmunuFile_Np5 = new TFile(WmunuFileName_Np5.c_str());
 
   const TFile *WtaunuFile_Np0 = new TFile(WtaunuFileName_Np0.c_str());
   const TFile *WtaunuFile_Np1 = new TFile(WtaunuFileName_Np1.c_str());
@@ -136,58 +77,164 @@ void LepPhotonPlots()
   const TFile *ttbarFile = new TFile(ttbarFileName.c_str());
 
   const TFile *st_tchan_enuFile   = new TFile(st_tchan_enuFileName.c_str());
-  const TFile *st_tchan_munuFile  = new TFile(st_tchan_munuFileName.c_str());
   const TFile *st_tchan_taunuFile = new TFile(st_tchan_taunuFileName.c_str());
 
   const TFile *st_schan_enuFile   = new TFile(st_schan_enuFileName.c_str());
-  const TFile *st_schan_munuFile  = new TFile(st_schan_munuFileName.c_str());
   const TFile *st_schan_taunuFile = new TFile(st_schan_taunuFileName.c_str());
   
   const TFile *st_WtFile   = new TFile(st_WtFileName.c_str());
 
   ///////////////////////////////////////////
 
-  TH1F *Wenu_Np0 = ((TH1F *) WenuFile_Np0->Get("MET/met"))->Clone();
-  TH1F *Wenu_Np1 = ((TH1F *) WenuFile_Np1->Get("MET/met"))->Clone();
-  TH1F *Wenu_Np2 = ((TH1F *) WenuFile_Np2->Get("MET/met"))->Clone();
-  TH1F *Wenu_Np3 = ((TH1F *) WenuFile_Np3->Get("MET/met"))->Clone();
-  TH1F *Wenu_Np4 = ((TH1F *) WenuFile_Np4->Get("MET/met"))->Clone();
-  TH1F *Wenu_Np5 = ((TH1F *) WenuFile_Np5->Get("MET/met"))->Clone();
+  TH1D *nOrigHistWenu_Np0 = ((TH1D *) WenuFile_Np0->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWenu_Np1 = ((TH1D *) WenuFile_Np1->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWenu_Np2 = ((TH1D *) WenuFile_Np2->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWenu_Np3 = ((TH1D *) WenuFile_Np3->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWenu_Np4 = ((TH1D *) WenuFile_Np4->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWenu_Np5 = ((TH1D *) WenuFile_Np5->Get("Global/nOriginalEvents"))->Clone();
 
-  TH1F *Wmunu_Np0 = ((TH1F *) WmunuFile_Np0->Get("MET/met"))->Clone();
-  TH1F *Wmunu_Np1 = ((TH1F *) WmunuFile_Np1->Get("MET/met"))->Clone();
-  TH1F *Wmunu_Np2 = ((TH1F *) WmunuFile_Np2->Get("MET/met"))->Clone();
-  TH1F *Wmunu_Np3 = ((TH1F *) WmunuFile_Np3->Get("MET/met"))->Clone();
-  TH1F *Wmunu_Np4 = ((TH1F *) WmunuFile_Np4->Get("MET/met"))->Clone();
-  TH1F *Wmunu_Np5 = ((TH1F *) WmunuFile_Np5->Get("MET/met"))->Clone();
+  TH1D *nOrigHistWtaunu_Np0 = ((TH1D *) WtaunuFile_Np0->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWtaunu_Np1 = ((TH1D *) WtaunuFile_Np1->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWtaunu_Np2 = ((TH1D *) WtaunuFile_Np2->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWtaunu_Np3 = ((TH1D *) WtaunuFile_Np3->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWtaunu_Np4 = ((TH1D *) WtaunuFile_Np4->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWtaunu_Np5 = ((TH1D *) WtaunuFile_Np5->Get("Global/nOriginalEvents"))->Clone();
 
-  TH1F *Wtaunu_Np0 = ((TH1F *) WtaunuFile_Np0->Get("MET/met"))->Clone();
-  TH1F *Wtaunu_Np1 = ((TH1F *) WtaunuFile_Np1->Get("MET/met"))->Clone();
-  TH1F *Wtaunu_Np2 = ((TH1F *) WtaunuFile_Np2->Get("MET/met"))->Clone();
-  TH1F *Wtaunu_Np3 = ((TH1F *) WtaunuFile_Np3->Get("MET/met"))->Clone();
-  TH1F *Wtaunu_Np4 = ((TH1F *) WtaunuFile_Np4->Get("MET/met"))->Clone();
-  TH1F *Wtaunu_Np5 = ((TH1F *) WtaunuFile_Np5->Get("MET/met"))->Clone();
+  TH1D *nOrigHistWgamma_Np0 = ((TH1D *) WgammaFile_Np0->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWgamma_Np1 = ((TH1D *) WgammaFile_Np1->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWgamma_Np2 = ((TH1D *) WgammaFile_Np2->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWgamma_Np3 = ((TH1D *) WgammaFile_Np3->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWgamma_Np4 = ((TH1D *) WgammaFile_Np4->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistWgamma_Np5 = ((TH1D *) WgammaFile_Np5->Get("Global/nOriginalEvents"))->Clone();
 
-  TH1F *Wgamma_Np0 = ((TH1F *) WgammaFile_Np0->Get("MET/met"))->Clone();
-  TH1F *Wgamma_Np1 = ((TH1F *) WgammaFile_Np1->Get("MET/met"))->Clone();
-  TH1F *Wgamma_Np2 = ((TH1F *) WgammaFile_Np2->Get("MET/met"))->Clone();
-  TH1F *Wgamma_Np3 = ((TH1F *) WgammaFile_Np3->Get("MET/met"))->Clone();
-  TH1F *Wgamma_Np4 = ((TH1F *) WgammaFile_Np4->Get("MET/met"))->Clone();
-  TH1F *Wgamma_Np5 = ((TH1F *) WgammaFile_Np5->Get("MET/met"))->Clone();
+  TH1D *nOrigHistttbar = ((TH1D *) ttbarFile->Get("Global/nOriginalEvents"))->Clone();
 
-  TH1F *ttbar = ((TH1F *) ttbarFile->Get("MET/met"))->Clone();
+  TH1D *nOrigHistst_tchan_enu = ((TH1D *) st_tchan_enuFile->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistst_tchan_taunu = ((TH1D *) st_tchan_taunuFile->Get("Global/nOriginalEvents"))->Clone();
 
-  TH1F *st_tchan_enu   = ((TH1F *) st_tchan_enuFile->Get("MET/met"))->Clone();
-  TH1F *st_tchan_munu  = ((TH1F *) st_tchan_munuFile->Get("MET/met"))->Clone();
-  TH1F *st_tchan_taunu = ((TH1F *) st_tchan_taunuFile->Get("MET/met"))->Clone();
+  TH1D *nOrigHistst_schan_enu = ((TH1D *) st_schan_enuFile->Get("Global/nOriginalEvents"))->Clone();
+  TH1D *nOrigHistst_schan_taunu = ((TH1D *) st_schan_taunuFile->Get("Global/nOriginalEvents"))->Clone();
 
-  TH1F *st_schan_enu   = ((TH1F *) st_schan_enuFile->Get("MET/met"))->Clone();
-  TH1F *st_schan_munu  = ((TH1F *) st_schan_munuFile->Get("MET/met"))->Clone();
-  TH1F *st_schan_taunu = ((TH1F *) st_schan_taunuFile->Get("MET/met"))->Clone();
-
-  TH1F *st_Wt   = ((TH1F *) st_WtFile->Get("MET/met"))->Clone();
+  TH1D *nOrigHistst_Wt   = ((TH1D *) st_WtFile->Get("Global/nOriginalEvents"))->Clone();
 
   ////////////////////////////////////////////////
+
+  const double nOrigWenu_Np0 = nOrigHistWenuFile_Np0->GetBinContent(1);
+  const double nOrigWenu_Np1 = nOrigHistWenuFile_Np1->GetBinContent(1);
+  const double nOrigWenu_Np2 = nOrigHistWenuFile_Np2->GetBinContent(1);
+  const double nOrigWenu_Np3 = nOrigHistWenuFile_Np3->GetBinContent(1);
+  const double nOrigWenu_Np4 = nOrigHistWenuFile_Np4->GetBinContent(1);
+  const double nOrigWenu_Np5 = nOrigHistWenuFile_Np5->GetBinContent(1);
+
+  const double nOrigWtaunu_Np0 = nOrigHistWtaunuFile_Np0->GetBinContent(1);
+  const double nOrigWtaunu_Np1 = nOrigHistWtaunuFile_Np1->GetBinContent(1);
+  const double nOrigWtaunu_Np2 = nOrigHistWtaunuFile_Np2->GetBinContent(1);
+  const double nOrigWtaunu_Np3 = nOrigHistWtaunuFile_Np3->GetBinContent(1);
+  const double nOrigWtaunu_Np4 = nOrigHistWtaunuFile_Np4->GetBinContent(1);
+  const double nOrigWtaunu_Np5 = nOrigHistWtaunuFile_Np5->GetBinContent(1);
+
+  const double nOrigWgamma_Np0 = nOrigHistWgammaFile_Np0->GetBinContent(1);
+  const double nOrigWgamma_Np1 = nOrigHistWgammaFile_Np1->GetBinContent(1);
+  const double nOrigWgamma_Np2 = nOrigHistWgammaFile_Np2->GetBinContent(1);
+  const double nOrigWgamma_Np3 = nOrigHistWgammaFile_Np3->GetBinContent(1);
+  const double nOrigWgamma_Np4 = nOrigHistWgammaFile_Np4->GetBinContent(1);
+  const double nOrigWgamma_Np5 = nOrigHistWgammaFile_Np5->GetBinContent(1);
+
+  const double nOrigttbar = nOrigHistttbarFile->GetBinContent(1);
+
+  const double nOrigst_tchan_enu = nOrigHistst_tchan_enuFile->GetBinContent(1);
+  const double nOrigst_tchan_taunu = nOrigHistst_tchan_taunuFile->GetBinContent(1);
+
+  const double nOrigst_schan_enu = nOrigHistst_schan_enuFile->GetBinContent(1);
+  const double nOrigst_schan_taunu = nOrigHistst_schan_taunuFile->GetBinContent(1);
+
+  const double nOrigst_Wt   = nOrigHistst_WtFile->GetBinContent(1);
+
+
+  // let's print out the number of events for debugging
+  std::cout << "Number of input events:\n";
+  std::cout << "\tnOrigWenu_Np0 = " << nOrigWenuFile_Np0 << std::endl;
+  std::cout << "\tnOrigWenu_Np1 = " << nOrigWenuFile_Np1 << std::endl;
+  std::cout << "\tnOrigWenu_Np2 = " << nOrigWenuFile_Np2 << std::endl;
+  std::cout << "\tnOrigWenu_Np3 = " << nOrigWenuFile_Np3 << std::endl;
+  std::cout << "\tnOrigWenu_Np4 = " << nOrigWenuFile_Np4 << std::endl;
+  std::cout << "\tnOrigWenu_Np5 = " << nOrigWenuFile_Np5 << std::endl;
+
+  std::cout << "\tnOrigWtaunu_Np0 = " << nOrigWtaunuFile_Np0 << std::endl;
+  std::cout << "\tnOrigWtaunu_Np1 = " << nOrigWtaunuFile_Np1 << std::endl;
+  std::cout << "\tnOrigWtaunu_Np2 = " << nOrigWtaunuFile_Np2 << std::endl;
+  std::cout << "\tnOrigWtaunu_Np3 = " << nOrigWtaunuFile_Np3 << std::endl;
+  std::cout << "\tnOrigWtaunu_Np4 = " << nOrigWtaunuFile_Np4 << std::endl;
+  std::cout << "\tnOrigWtaunu_Np5 = " << nOrigWtaunuFile_Np5 << std::endl;
+
+  std::cout << "\tnOrigWgamma_Np0 = " << nOrigWgammaFile_Np0 << std::endl;
+  std::cout << "\tnOrigWgamma_Np1 = " << nOrigWgammaFile_Np1 << std::endl;
+  std::cout << "\tnOrigWgamma_Np2 = " << nOrigWgammaFile_Np2 << std::endl;
+  std::cout << "\tnOrigWgamma_Np3 = " << nOrigWgammaFile_Np3 << std::endl;
+  std::cout << "\tnOrigWgamma_Np4 = " << nOrigWgammaFile_Np4 << std::endl;
+  std::cout << "\tnOrigWgamma_Np5 = " << nOrigWgammaFile_Np5 << std::endl;
+
+  std::cout << "\tnOrigttbar = " << nOrigttbarFile << std::endl;
+
+  std::cout << "\tnOrigst_tchan_enu = " << nOrigst_tchan_enuFile << std::endl;
+  std::cout << "\tnOrigst_tchan_taunu = " << nOrigst_tchan_taunuFile << std::endl;
+
+  std::cout << "\tnOrigst_schan_enu = " << nOrigst_schan_enuFile << std::endl;
+  std::cout << "\tnOrigst_schan_taunu = " << nOrigst_schan_taunuFile << std::endl;
+
+  std::cout << "\tnOrigst_Wt   = " << nOrigst_WtFile << std::endl;
+
+  // scale is lumi * xsec * kfact / numEvents
+
+  const double  Wenu_Np0_scale     =  Lumi  *  6921.60 * 1.20   / nOrigWenu_Np0;
+  const double  Wenu_Np1_scale     =  Lumi  *  1304.30 * 1.20   / nOrigWenu_Np1;
+  const double  Wenu_Np2_scale     =  Lumi  *   378.29 * 1.20   / nOrigWenu_Np2;
+  const double  Wenu_Np3_scale     =  Lumi  *   101.43 * 1.20   / nOrigWenu_Np3;
+  const double  Wenu_Np4_scale     =  Lumi  *    25.87 * 1.20   / nOrigWenu_Np4;
+  const double  Wenu_Np5_scale     =  Lumi  *     7.00 * 1.20   / nOrigWenu_Np5;
+
+  const double  Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / nOrigWtaunu_Np0;
+  const double  Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20   / nOrigWtaunu_Np1;
+  const double  Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20   / nOrigWtaunu_Np2;
+  const double  Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20   / nOrigWtaunu_Np3;
+  const double  Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20   / nOrigWtaunu_Np4;
+  const double  Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20   / nOrigWtaunu_Np5;
+
+  const double  ttbar_scale          =  Lumi  * 147.49  / nOrigttbar;
+
+  const double  Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.45   / nOrigWgamma_Np0;
+  const double  Wgamma_Np1_scale     =  Lumi  *   52.238 * 1.45   / nOrigWgamma_Np1;
+  const double  Wgamma_Np2_scale     =  Lumi  *   17.259 * 1.45   / nOrigWgamma_Np2;
+  const double  Wgamma_Np3_scale     =  Lumi  *    5.3339 * 1.45   / nOrigWgamma_Np3;
+  const double  Wgamma_Np4_scale     =  Lumi  *    1.3762 * 1.45   / nOrigWgamma_Np4;
+  const double  Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.45   / nOrigWgamma_Np5;
+
+  //const double  Zeegamma_scale        =  Lumi  *  10.022 *  1.22   / nOrigZeegamma;
+  //const double  Ztautaugamma_scale    =  Lumi  *   9.7639 * 1.22   / nOrigZtautaugamma;
+
+  const double  st_tchan_enu_scale   = Lumi * 6.8317 / nOrigst_tchan_enu;
+  const double  st_tchan_taunu_scale = Lumi * 6.8053 / nOrigst_tchan_taunu;
+
+  const double  st_schan_enu_scale   = Lumi * 0.46117 / nOrigst_schan_enu;
+  const double  st_schan_taunu_scale = Lumi * 0.46158 / nOrigst_schan_taunu;
+
+  const double  st_Wt_scale = Lumi * 14.372 / nOrigst_Wt;
+
+
+  ////////////////////////
+
+  // now make a list of histogram names
+  std::vector<std::string> histNames;
+
+  // take the ttbar as the input that defines what should be in every file
+  TKey *key;
+  TIter nextkey(ttbarFile->GetListOfKeys());
+  while (key = (TKey*) nextkey()) {
+    TObject* obj = key->ReadObj();
+    if ( obj->IsA()->InheritsFrom("TDirectory") ){
+    
+
+  ////////////////////////////
 
   Wenu_Np0->Scale(Wenu_Np0_scale);
   Wenu_Np1->Scale(Wenu_Np1_scale);

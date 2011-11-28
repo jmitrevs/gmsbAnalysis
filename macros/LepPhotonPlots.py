@@ -27,6 +27,8 @@ def LepPhotonPlots(lepton):
         WlepnuFileName_Np5 = path + "Wenu_Np5.root"
         st_tchan_lepnuFileName   = path + "st_tchan_enu.root"
         st_schan_lepnuFileName   = path + "st_schan_enu.root"
+        ZleplepgammaFileName = path + "Zeegamma.root"
+        
     elif lepton == MUON:
 
         print "Lepton is MUON."
@@ -40,9 +42,9 @@ def LepPhotonPlots(lepton):
         WlepnuFileName_Np5 = path + "Wmunu_Np5.root"
         st_tchan_lepnuFileName   = path + "st_tchan_munu.root"
         st_schan_lepnuFileName   = path + "st_schan_munu.root"
+        ZleplepgammaFileName = path + "Zeegamma.root"
     else:
-        print "Lepton has to be ELECTRON or MUON."
-        return
+        raise ValueError("Lepton has to be ELECTRON or MUON.")
 
     
     WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
@@ -64,7 +66,19 @@ def LepPhotonPlots(lepton):
     WgammaFileName_Np5 = path + "Wgamma_Np5.root"
     
     ttbarFileName = path + "ttbar.root"
-    
+
+    WWFileName = path + "WW.root"
+    WZFileName = path + "WZ.root"
+    ZZFileName = path + "ZZ.root"
+
+    ZtautaugammaFileName = path + "Ztautaugamma.root"
+
+    gammaFileName_Np1 = path + "gamma_Np1.root"
+    gammaFileName_Np2 = path + "gamma_Np2.root"
+    gammaFileName_Np3 = path + "gamma_Np3.root"
+    gammaFileName_Np4 = path + "gamma_Np4.root"
+    gammaFileName_Np5 = path + "gamma_Np5.root"
+
     
     ###########################################
 
@@ -98,7 +112,20 @@ def LepPhotonPlots(lepton):
     st_schan_taunuFile = ROOT.TFile(st_schan_taunuFileName)
     
     st_WtFile   = ROOT.TFile(st_WtFileName)
+
+    WWFile = ROOT.TFile(WWFileName)
+    WZFile = ROOT.TFile(WZFileName)
+    ZZFile = ROOT.TFile(ZZFileName)
     
+    ZleplepgammaFile = ROOT.TFile(ZleplepgammaFileName)
+    ZtautaugammaFile = ROOT.TFile(ZtautaugammaFileName)
+    
+    gammaFile_Np1 = ROOT.TFile(gammaFileName_Np1)
+    gammaFile_Np2 = ROOT.TFile(gammaFileName_Np2)
+    gammaFile_Np3 = ROOT.TFile(gammaFileName_Np3)
+    gammaFile_Np4 = ROOT.TFile(gammaFileName_Np4)
+    gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
+
     ##############################
 
     nOrigHistWlepnu_Np0 = WlepnuFile_Np0.Get("Global/nOriginalEvents")
@@ -132,6 +159,19 @@ def LepPhotonPlots(lepton):
 
     nOrigHistst_Wt   = st_WtFile.Get("Global/nOriginalEvents")
 
+    nOrigHistWW   = WWFile.Get("Global/nOriginalEvents")
+    nOrigHistWZ   = WZFile.Get("Global/nOriginalEvents")
+    nOrigHistZZ   = ZZFile.Get("Global/nOriginalEvents")
+
+    nOrigHistZleplepgamma = ZleplepgammaFile.Get("Global/nOriginalEvents")
+    nOrigHistZtautaugamma = ZtautaugammaFile.Get("Global/nOriginalEvents")
+
+    nOrigHistgamma_Np1 = gammaFile_Np1.Get("Global/nOriginalEvents")
+    nOrigHistgamma_Np2 = gammaFile_Np2.Get("Global/nOriginalEvents")
+    nOrigHistgamma_Np3 = gammaFile_Np3.Get("Global/nOriginalEvents")
+    nOrigHistgamma_Np4 = gammaFile_Np4.Get("Global/nOriginalEvents")
+    nOrigHistgamma_Np5 = gammaFile_Np5.Get("Global/nOriginalEvents")
+
     #########################################################
 
     nOrigWlepnu_Np0 = nOrigHistWlepnu_Np0.GetBinContent(1)
@@ -163,8 +203,22 @@ def LepPhotonPlots(lepton):
     nOrigst_schan_lepnu = nOrigHistst_schan_lepnu.GetBinContent(1)
     nOrigst_schan_taunu = nOrigHistst_schan_taunu.GetBinContent(1)
     
-    nOrigst_Wt   = nOrigHistst_Wt.GetBinContent(1)
+    nOrigst_Wt = nOrigHistst_Wt.GetBinContent(1)
+
+    nOrigWW = nOrigHistWW.GetBinContent(1)
+    nOrigWZ = nOrigHistWZ.GetBinContent(1)
+    nOrigZZ = nOrigHistZZ.GetBinContent(1)
     
+    nOrigZleplepgamma = nOrigHistZleplepgamma.GetBinContent(1)
+    nOrigZtautaugamma = nOrigHistZtautaugamma.GetBinContent(1)
+
+    nOriggamma_Np1 = nOrigHistgamma_Np1.GetBinContent(1)
+    nOriggamma_Np2 = nOrigHistgamma_Np2.GetBinContent(1)
+    nOriggamma_Np3 = nOrigHistgamma_Np3.GetBinContent(1)
+    nOriggamma_Np4 = nOrigHistgamma_Np4.GetBinContent(1)
+    nOriggamma_Np5 = nOrigHistgamma_Np5.GetBinContent(1)
+
+    ######################################################
 
     # let's print out the number of events for debugging
     print "Number of input events:"
@@ -197,44 +251,73 @@ def LepPhotonPlots(lepton):
     print "\tnOrigst_schan_lepnu = ", nOrigst_schan_lepnu
     print "\tnOrigst_schan_taunu = ", nOrigst_schan_taunu
     
-    print "\tnOrigst_Wt   = ", nOrigst_Wt
+    print "\tnOrigst_Wt = ", nOrigst_Wt
 
-#   // scale is lumi * xsec * kfact / numEvents
+    print "\tnOrigWW = ", nOrigWW
+    print "\tnOrigWZ = ", nOrigWZ
+    print "\tnOrigZZ = ", nOrigZZ
 
-#     Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20   / nOrigWlepnu_Np0
-#     Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20   / nOrigWlepnu_Np1
-#     Wlepnu_Np2_scale     =  Lumi  *   378.29 * 1.20   / nOrigWlepnu_Np2
-#     Wlepnu_Np3_scale     =  Lumi  *   101.43 * 1.20   / nOrigWlepnu_Np3
-#     Wlepnu_Np4_scale     =  Lumi  *    25.87 * 1.20   / nOrigWlepnu_Np4
-#     Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20   / nOrigWlepnu_Np5
+    print "\tnOrigZleplepgamma = ", nOrigZleplepgamma
+    print "\tnOrigZtautaugamma = ", nOrigZtautaugamma
 
-#     Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / nOrigWtaunu_Np0
-#     Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20   / nOrigWtaunu_Np1
-#     Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20   / nOrigWtaunu_Np2
-#     Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20   / nOrigWtaunu_Np3
-#     Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20   / nOrigWtaunu_Np4
-#     Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20   / nOrigWtaunu_Np5
+    print "\tnOriggamma_Np1 = ", nOriggamma_Np1
+    print "\tnOriggamma_Np2 = ", nOriggamma_Np2
+    print "\tnOriggamma_Np3 = ", nOriggamma_Np3
+    print "\tnOriggamma_Np4 = ", nOriggamma_Np4
+    print "\tnOriggamma_Np5 = ", nOriggamma_Np5
 
-#     ttbar_scale          =  Lumi  * 147.49  / nOrigttbar
 
-#     Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.45   / nOrigWgamma_Np0
-#     Wgamma_Np1_scale     =  Lumi  *   52.238 * 1.45   / nOrigWgamma_Np1
-#     Wgamma_Np2_scale     =  Lumi  *   17.259 * 1.45   / nOrigWgamma_Np2
-#     Wgamma_Np3_scale     =  Lumi  *    5.3339 * 1.45   / nOrigWgamma_Np3
-#     Wgamma_Np4_scale     =  Lumi  *    1.3762 * 1.45   / nOrigWgamma_Np4
-#     Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.45   / nOrigWgamma_Np5
+    ##############################################
+    #   scale is lumi * xsec * kfact / numEvents
 
-#   //  Zeegamma_scale        =  Lumi  *  10.022 *  1.22   / nOrigZeegamma
-#   //  Ztautaugamma_scale    =  Lumi  *   9.7639 * 1.22   / nOrigZtautaugamma
+    if lepton == ELECTRON:
 
-#     st_tchan_lepnu_scale   = Lumi * 6.8317 / nOrigst_tchan_lepnu
-#     st_tchan_taunu_scale = Lumi * 6.8053 / nOrigst_tchan_taunu
+        Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20   / nOrigWlepnu_Np0
+        Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20   / nOrigWlepnu_Np1
+        Wlepnu_Np2_scale     =  Lumi  *   378.29 * 1.20   / nOrigWlepnu_Np2
+        Wlepnu_Np3_scale     =  Lumi  *   101.43 * 1.20   / nOrigWlepnu_Np3
+        Wlepnu_Np4_scale     =  Lumi  *    25.87 * 1.20   / nOrigWlepnu_Np4
+        Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20   / nOrigWlepnu_Np
+        st_tchan_lepnu_scale = Lumi * 6.8317 / nOrigst_tchan_lepnu
+        st_schan_lepnu_scale = Lumi * 0.46117 / nOrigst_schan_lepnu
+        Zleplepgamma_scale   =  Lumi  *  10.022 *  1.22   / nOrigZleplepgamma
 
-#     st_schan_lepnu_scale   = Lumi * 0.46117 / nOrigst_schan_lepnu
-#     st_schan_taunu_scale = Lumi * 0.46158 / nOrigst_schan_taunu
+    else:  # muon
+        
+        Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20   / nOrigWlepnu_Np0
+        Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20   / nOrigWlepnu_Np1
+        Wlepnu_Np2_scale     =  Lumi  *   377.83 * 1.20   / nOrigWlepnu_Np2
+        Wlepnu_Np3_scale     =  Lumi  *   101.88 * 1.20   / nOrigWlepnu_Np3
+        Wlepnu_Np4_scale     =  Lumi  *    25.75 * 1.20   / nOrigWlepnu_Np4
+        Wlepnu_Np5_scale     =  Lumi  *     6.92 * 1.20   / nOrigWlepnu_Np5
+        st_tchan_lepnu_scale = Lumi * 6.8233 / nOrigst_tchan_lepnu
+        st_schan_lepnu_scale = Lumi * 0.46149 / nOrigst_schan_lepnu
+        Zleplepgamma_scale   =  Lumi  *  10.023 *  1.22   / nOrigZleplepgamma
 
-#     st_Wt_scale = Lumi * 14.372 / nOrigst_Wt
 
+    Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / nOrigWtaunu_Np0
+    Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20   / nOrigWtaunu_Np1
+    Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20   / nOrigWtaunu_Np2
+    Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20   / nOrigWtaunu_Np3
+    Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20   / nOrigWtaunu_Np4
+    Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20   / nOrigWtaunu_Np5
+
+    ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
+
+    Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.45   / nOrigWgamma_Np0
+    Wgamma_Np1_scale     =  Lumi  *   52.238 * 1.45   / nOrigWgamma_Np1
+    Wgamma_Np2_scale     =  Lumi  *   17.259 * 1.45   / nOrigWgamma_Np2
+    Wgamma_Np3_scale     =  Lumi  *    5.3339 * 1.45   / nOrigWgamma_Np3
+    Wgamma_Np4_scale     =  Lumi  *    1.3762 * 1.45   / nOrigWgamma_Np4
+    Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.45   / nOrigWgamma_Np5
+
+    Ztautaugamma_scale    =  Lumi  *   9.7639 * 1.22   / nOrigZtautaugamma
+
+    st_tchan_taunu_scale = Lumi * 6.8053 / nOrigst_tchan_taunu
+    st_schan_taunu_scale = Lumi * 0.46158 / nOrigst_schan_taunu
+    st_Wt_scale = Lumi * 14.372 / nOrigst_Wt
+
+    WW_scale = Lumi * 31.106 * 0.38947 / nOrigWW
 
 #   ////////////////////////
 
