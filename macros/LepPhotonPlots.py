@@ -9,6 +9,23 @@ ROOT.SetAtlasStyle()
 ELECTRON = 0
 MUON = 1
 
+def GetHistNames(inFile):
+    
+    histNames = []
+
+    for key in inFile.GetListOfKeys():
+        #dirItem = [key.ReadObj().ClassName(), key.GetName(), key.GetTitle()]
+        #print dirItem
+        if key.IsFolder():
+            newList = [key.GetName() + "/" + x for x in GetHistNames(key.ReadObj())]
+            #print newList
+            histNames.extend(newList)
+        else:
+            histNames.append(key.GetName())
+    return histNames
+
+
+
 def LepPhotonPlots(lepton):
 
     Lumi = 5000.0
@@ -277,10 +294,7 @@ def LepPhotonPlots(lepton):
         Wlepnu_Np2_scale     =  Lumi  *   378.29 * 1.20   / nOrigWlepnu_Np2
         Wlepnu_Np3_scale     =  Lumi  *   101.43 * 1.20   / nOrigWlepnu_Np3
         Wlepnu_Np4_scale     =  Lumi  *    25.87 * 1.20   / nOrigWlepnu_Np4
-        Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20   / nOrigWlepnu_Np
-        st_tchan_lepnu_scale = Lumi * 6.8317 / nOrigst_tchan_lepnu
-        st_schan_lepnu_scale = Lumi * 0.46117 / nOrigst_schan_lepnu
-        Zleplepgamma_scale   =  Lumi  *  10.022 *  1.22   / nOrigZleplepgamma
+        Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20   / nOrigWlepnu_Np5
 
     else:  # muon
         
@@ -290,9 +304,6 @@ def LepPhotonPlots(lepton):
         Wlepnu_Np3_scale     =  Lumi  *   101.88 * 1.20   / nOrigWlepnu_Np3
         Wlepnu_Np4_scale     =  Lumi  *    25.75 * 1.20   / nOrigWlepnu_Np4
         Wlepnu_Np5_scale     =  Lumi  *     6.92 * 1.20   / nOrigWlepnu_Np5
-        st_tchan_lepnu_scale = Lumi * 6.8233 / nOrigst_tchan_lepnu
-        st_schan_lepnu_scale = Lumi * 0.46149 / nOrigst_schan_lepnu
-        Zleplepgamma_scale   =  Lumi  *  10.023 *  1.22   / nOrigZleplepgamma
 
 
     Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / nOrigWtaunu_Np0
@@ -304,33 +315,48 @@ def LepPhotonPlots(lepton):
 
     ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
 
-    Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.45   / nOrigWgamma_Np0
-    Wgamma_Np1_scale     =  Lumi  *   52.238 * 1.45   / nOrigWgamma_Np1
-    Wgamma_Np2_scale     =  Lumi  *   17.259 * 1.45   / nOrigWgamma_Np2
-    Wgamma_Np3_scale     =  Lumi  *    5.3339 * 1.45   / nOrigWgamma_Np3
-    Wgamma_Np4_scale     =  Lumi  *    1.3762 * 1.45   / nOrigWgamma_Np4
-    Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.45   / nOrigWgamma_Np5
-
-    Ztautaugamma_scale    =  Lumi  *   9.7639 * 1.22   / nOrigZtautaugamma
-
-    st_tchan_taunu_scale = Lumi * 6.8053 / nOrigst_tchan_taunu
-    st_schan_taunu_scale = Lumi * 0.46158 / nOrigst_schan_taunu
-    st_Wt_scale = Lumi * 14.372 / nOrigst_Wt
-
-    WW_scale = Lumi * 31.106 * 0.38947 / nOrigWW
-
-#   ////////////////////////
-
-#   // now make a list of histogram names
-#   std::vector<std::string> histNames
-
-#   // take the ttbar as the input that defines what should be in every file
-#   TKey *key
-#   TIter nextkey(ttbarFile->GetListOfKeys())
-#   while (key = (TKey*) nextkey()) {
-#     TObject* obj = key->ReadObj()
-#     if ( obj->IsA()->InheritsFrom("TDirectory") ){
+    # if using gamma pt > 10 GeV samples
+    # Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.45   / nOrigWgamma_Np0
+    # Wgamma_Np1_scale     =  Lumi  *   52.238 * 1.45   / nOrigWgamma_Np1
+    # Wgamma_Np2_scale     =  Lumi  *   17.259 * 1.45   / nOrigWgamma_Np2
+    # Wgamma_Np3_scale     =  Lumi  *    5.3339 * 1.45   / nOrigWgamma_Np3
+    # Wgamma_Np4_scale     =  Lumi  *    1.3762 * 1.45   / nOrigWgamma_Np4
+    # Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.45   / nOrigWgamma_Np5
     
+    # if using gamma pt > 40 GeV sample
+    Wgamma_Np0_scale     =  Lumi  *  1.7837 * 1.45   / nOrigWgamma_Np0
+    Wgamma_Np1_scale     =  Lumi  *  4.3796 * 1.45   / nOrigWgamma_Np1
+    Wgamma_Np2_scale     =  Lumi  *  2.1381 * 1.45   / nOrigWgamma_Np2
+    Wgamma_Np3_scale     =  Lumi  *  0.87283 * 1.45   / nOrigWgamma_Np3
+    Wgamma_Np4_scale     =  Lumi  *  0.27846 * 1.45   / nOrigWgamma_Np4
+    Wgamma_Np5_scale     =  Lumi  *  0.08504 * 1.45   / nOrigWgamma_Np5
+
+    Zleplepgamma_scale   =  Lumi  *  9.63   / nOrigZleplepgamma
+    Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
+
+    st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
+    st_schan_lepnu_scale = Lumi * 0.47 / nOrigst_schan_lepnu
+    st_tchan_taunu_scale = Lumi * 7.10 / nOrigst_tchan_taunu
+    st_schan_taunu_scale = Lumi * 0.47 / nOrigst_schan_taunu
+    st_Wt_scale = Lumi * 14.59 / nOrigst_Wt
+
+    WW_scale = Lumi * 11.5003 * 1.48 / nOrigWW
+    WZ_scale = Lumi *  3.4641 * 1.60 / nOrigWZ
+    ZZ_scale = Lumi *  0.9722 * 1.30 / nOrigZZ
+
+    gamma_Np1_scale     =  Lumi  *  74235 * 1.0933E-01 / nOriggamma_Np1
+    gamma_Np2_scale     =  Lumi  *  21574 * 3.1052E-01 / nOriggamma_Np2
+    gamma_Np3_scale     =  Lumi  *  5861.9 * 4.6724E-01 / nOriggamma_Np3
+    gamma_Np4_scale     =  Lumi  *  1355.9 * 6.2450E-01 / nOriggamma_Np4
+    gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
+
+    ##########################################################
+    #   Now make a list of histogram names
+
+    #   Take the ttbar as the input that defines what should be in every file
+    histNames = GetHistNames(ttbarFile)
+    
+    print histNames
 
 #   ////////////////////////////
 
