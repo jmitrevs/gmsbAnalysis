@@ -9,9 +9,20 @@ Dates=os.system(sfg)
 
 # this is for testing
 inDS_test = [
-  
-    'data10_7TeV.periodG.physics_Egamma.PhysCont.AOD.repro05_v02'
-#    'data10_7TeV.periodB.physics_L1Calo.PhysCont.AOD.repro05_v02'
+   
+    'mc11_7TeV.107660.AlpgenJimmyZmumuNp0_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
+    'mc11_7TeV.107661.AlpgenJimmyZmumuNp1_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
+    'mc11_7TeV.107662.AlpgenJimmyZmumuNp2_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107663.AlpgenJimmyZmumuNp3_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107664.AlpgenJimmyZmumuNp4_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107665.AlpgenJimmyZmumuNp5_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+
+    'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
+    'mc11_7TeV.107671.AlpgenJimmyZtautauNp1_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107672.AlpgenJimmyZtautauNp2_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107673.AlpgenJimmyZtautauNp3_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107674.AlpgenJimmyZtautauNp4_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107675.AlpgenJimmyZtautauNp5_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700'
 
     ]
 
@@ -81,14 +92,29 @@ inDS_full = [
     #'mc11_7TeV.108343.st_schan_enu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r2730_r2700',
     'mc11_7TeV.108344.st_schan_munu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r2730_r2700',
     'mc11_7TeV.108345.st_schan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r2730_r2780',
-    'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r2730_r2780'
+    'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r2730_r2780',
+
+    'mc11_7TeV.107660.AlpgenJimmyZmumuNp0_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
+    'mc11_7TeV.107661.AlpgenJimmyZmumuNp1_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
+    'mc11_7TeV.107662.AlpgenJimmyZmumuNp2_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107663.AlpgenJimmyZmumuNp3_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107664.AlpgenJimmyZmumuNp4_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107665.AlpgenJimmyZmumuNp5_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+
+    'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
+    'mc11_7TeV.107671.AlpgenJimmyZtautauNp1_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107672.AlpgenJimmyZtautauNp2_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107673.AlpgenJimmyZtautauNp3_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107674.AlpgenJimmyZtautauNp4_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107675.AlpgenJimmyZtautauNp5_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700'
+
 
     ]
 #how to automatically configure GRL ?
 
 
     
-for i,inDS in enumerate(inDS_full):
+for i,inDS in enumerate(inDS_test):
    
    
     command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GammaMuon_241111.%s SignalGammaMuon.py " % (inDS, inDS)
