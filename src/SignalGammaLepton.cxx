@@ -44,9 +44,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
 
-  declareProperty("NumPhotons", m_numPhotons = 1);
-  declareProperty("NumElectrons", m_numElectrons = 0);
-  declareProperty("NumMuons", m_numMuons = 0);
+  declareProperty("NumPhotons", m_numPhotonsReq = 1);
+  declareProperty("NumElectrons", m_numElectronsReq = 0);
+  declareProperty("NumMuons", m_numMuonsReq = 0);
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -79,6 +79,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("triggers", m_triggers = "EF_2g20_loose");
 
   declareProperty("doSmartVeto", m_doSmartVeto = false);
+  declareProperty("outputHistograms", m_outputHistograms = true);
+  declareProperty("outputNtuple", m_outputNtuple = false);
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -144,97 +146,168 @@ StatusCode SignalGammaLepton::initialize(){
     return sc;
   }
 
-  m_histograms["ph_numConv"] = new TH1F("ph_numConv","Number of converted photons;number converted photons", 4, -0.5, 3.5);
+  // this gets created no matter what
+  m_histograms["CutFlow"] = new TH1D("CutFlow", "CutFlow", NUM_CUTS, 0, NUM_CUTS);
+  // always output the cutflow
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/CutFlow" , m_histograms["CutFlow"]).ignore();
 
-  m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transverse momentum of the leading photons;#p_{T} [GeV]", 250, 0, 250);
-  m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
-  m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transverse momentum of the second photons;#p_{T} [GeV]", 250, 0, 250);
+  if (m_outputHistograms) {
+    m_histograms["ph_numConv"] = new TH1F("ph_numConv","Number of converted photons;number converted photons", 4, -0.5, 3.5);
 
-  m_histograms["ph_ptB_unconv"] = new TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;#p_{T} [GeV]", 250, 0, 250);
-  m_histograms["ph_ptEC_unconv"] = new TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;#p_{T} [GeV]", 250, 0, 250);
+    m_histograms["ph_eta1"] = new TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3);
+    m_histograms["ph_pt1"] = new TH1F("ph_pt1","Transverse momentum of the leading photons;p_{T} [GeV]", 500, 0, 500);
+    m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
+    m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transverse momentum of the second photons;p_{T} [GeV]", 500, 0, 500);
 
-  m_histograms["ph_ptB_conv"] = new TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;#p_{T} [GeV]", 250, 0, 250);
-  m_histograms["ph_ptEC_conv"] = new TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;#p_{T} [GeV]", 250, 0, 250);
+    m_histograms["ph_ptB_unconv"] = new TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;p_{T} [GeV]", 500, 0, 500);
+    m_histograms["ph_ptEC_unconv"] = new TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;p_{T} [GeV]", 500, 0, 500);
+
+    m_histograms["ph_ptB_conv"] = new TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;p_{T} [GeV]", 500, 0, 500);
+    m_histograms["ph_ptEC_conv"] = new TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;p_{T} [GeV]", 500, 0, 500);
 
 
-  m_histograms["el_eta1"] = new TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt1"] = new TH1F("el_pt1","Transverse momentum of the leading electrons;#p_{T} [GeV]", 100, 0, 500);
-  m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
-  m_histograms["el_pt2"] = new TH1F("el_pt2","Transverse momentum of the second electrons;#p_{T} [GeV]", 100, 0, 500);
+    m_histograms["mu_eta1"] = new TH1F("mu_eta1","Psuedorapidity of the leading muons;#eta_{reco}", 100, -3,3);
+    m_histograms["mu_pt1"] = new TH1F("mu_pt1","Transverse momentum of the leading muons;p_{T} [GeV]", 100, 0, 500);
 
-  m_histograms["ph_el_minv"] = new TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 120, 0, 120);
-  m_histograms["ph_mu_minv"] = new TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 120, 0, 120);
+    m_histograms["el_eta1"] = new TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3);
+    m_histograms["el_pt1"] = new TH1F("el_pt1","Transverse momentum of the leading electrons;p_{T} [GeV]", 100, 0, 500);
+    m_histograms["el_eta2"] = new TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3);
+    m_histograms["el_pt2"] = new TH1F("el_pt2","Transverse momentum of the second electrons;p_{T} [GeV]", 100, 0, 500);
 
-  m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
-  m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
-  m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
+    m_histograms["ph_el_minv"] = new TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 120, 0, 120);
+    m_histograms["ph_mu_minv"] = new TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 120, 0, 120);
 
-  // MET
-  m_histograms["met"] = new TH1F("met", "The MET distribution;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 250, 0, 250);
-  m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 250, 0, 250);
+    m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
+    m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
+    m_histograms["numMu"] = new TH1F("numMu", "The number of muons that pass cuts;N_{muons}", 9, -0.5, 8.5);
+    m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
 
-  m_histograms["metExtended"] = new TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
+    // MET
+    m_histograms["met"] = new TH1F("met", "The MET distribution;Etmiss [GeV]", 500, 0, 500);
+    m_histograms["met0J"] = new TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 500, 0, 500);
+    m_histograms["met1J"] = new TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 500, 0, 500);
+    m_histograms["met2J"] = new TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 500, 0, 500);
+    m_histograms["met3J"] = new TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 500, 0, 500);
+    m_histograms["met4J"] = new TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 500, 0, 500);
 
-  m_histograms["deltaPhiPhMETvsMET"] = new TH2F("deltaPhiPhMETvsMET", 
-						"The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
-						100, 0, M_PI, 250, 0, 250);
+    m_histograms["metExtended"] = new TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250);
 
-  m_histograms["deltaPhiElMETvsMET"] = new TH2F("deltaPhiElMETvsMET", 
-						"The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
-						100, 0, M_PI, 250, 0, 250);
+    m_histograms["deltaPhiPhMETvsMET"] = new TH2F("deltaPhiPhMETvsMET", 
+						  "The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						  100, 0, M_PI, 250, 0, 250);
 
-  m_histograms["deltaPhiMuMETvsMET"] = new TH2F("deltaPhiMuMETvsMET", 
-						"The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
-						100, 0, M_PI, 250, 0, 250);
+    m_histograms["deltaPhiElMETvsMET"] = new TH2F("deltaPhiElMETvsMET", 
+						  "The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						  100, 0, M_PI, 250, 0, 250);
 
-  m_histograms["HT"] = new TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 250, 0, 250);
-  m_histograms["mT"] = new TH1F("mT", "The m_{T} distribution;m_{T} [GeV]", 250, 0, 250);
-  m_histograms["meff"] = new TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 250, 0, 250);
+    m_histograms["deltaPhiMuMETvsMET"] = new TH2F("deltaPhiMuMETvsMET", 
+						  "The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						  100, 0, M_PI, 250, 0, 250);
 
-  m_histograms["nOriginalEvents"] = new TH1D("nOriginalEvents", "nOriginalEvents", 1, 0, 1);
+    m_histograms["HT"] = new TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 300, 0, 1500);
+    m_histograms["mTel"] = new TH1F("mTel", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500);
+    m_histograms["mTmu"] = new TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500);
+    m_histograms["meff"] = new TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 300, 0, 1500);
 
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta2" , m_histograms["ph_eta2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt2" , m_histograms["ph_pt2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_unconv" , m_histograms["ph_ptB_unconv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_unconv" , m_histograms["ph_ptEC_unconv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_conv" , m_histograms["ph_ptB_conv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_conv" , m_histograms["ph_ptEC_conv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numPh" , m_histograms["numPh"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta1" , m_histograms["el_eta1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt1" , m_histograms["el_pt1"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta2" , m_histograms["el_eta2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt2" , m_histograms["el_pt2"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ph_el_minv" , m_histograms["ph_el_minv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ph_mu_minv" , m_histograms["ph_mu_minv"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met" , m_histograms["met"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0J" , m_histograms["met0J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1J" , m_histograms["met1J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2J" , m_histograms["met2J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3J" , m_histograms["met3J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4J" , m_histograms["met4J"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtended" , m_histograms["metExtended"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiPhMETvsMET" , m_histograms["deltaPhiPhMETvsMET"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiElMETvsMET" , m_histograms["deltaPhiElMETvsMET"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiMuMETvsMET" , m_histograms["deltaPhiMuMETvsMET"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta2" , m_histograms["ph_eta2"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt2" , m_histograms["ph_pt2"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_unconv" , m_histograms["ph_ptB_unconv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_unconv" , m_histograms["ph_ptEC_unconv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_conv" , m_histograms["ph_ptB_conv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_conv" , m_histograms["ph_ptEC_conv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numPh" , m_histograms["numPh"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Muon/eta1" , m_histograms["mu_eta1"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Muon/pt1" , m_histograms["mu_pt1"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta1" , m_histograms["el_eta1"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt1" , m_histograms["el_pt1"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta2" , m_histograms["el_eta2"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/pt2" , m_histograms["el_pt2"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ph_el_minv" , m_histograms["ph_el_minv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ph_mu_minv" , m_histograms["ph_mu_minv"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Muon/numMu" , m_histograms["numMu"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met" , m_histograms["met"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0J" , m_histograms["met0J"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1J" , m_histograms["met1J"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met2J" , m_histograms["met2J"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met3J" , m_histograms["met3J"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met4J" , m_histograms["met4J"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/metExtended" , m_histograms["metExtended"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiPhMETvsMET" , m_histograms["deltaPhiPhMETvsMET"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiElMETvsMET" , m_histograms["deltaPhiElMETvsMET"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiMuMETvsMET" , m_histograms["deltaPhiMuMETvsMET"]).ignore();
+    
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/HT" , m_histograms["HT"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTel" , m_histograms["mTel"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTmu" , m_histograms["mTmu"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/meff" , m_histograms["meff"]).ignore();
+  }
 
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/HT" , m_histograms["HT"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mT" , m_histograms["mT"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/meff" , m_histograms["meff"]).ignore();
-  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/nOriginalEvents" , m_histograms["nOriginalEvents"]).ignore();
 
-  // initialize cut flow table
-  for (int i = 0; i < NUM_CUTS; i++) {
-    numEventsCut[i] = 0;
+  if (m_outputNtuple) {
+
+    m_ph_pt = new std::vector<float>;
+    m_ph_eta = new std::vector<float>;
+    m_ph_phi = new std::vector<float>;
+
+    m_el_pt = new std::vector<float>;
+    m_el_eta = new std::vector<float>;
+    m_el_phi = new std::vector<float>;
+
+    m_mu_pt = new std::vector<float>;
+    m_mu_eta = new std::vector<float>;
+    m_mu_phi = new std::vector<float>;
+
+    // the TTree
+    m_tree = new TTree("GammaLepton","TTree for GammaLepton analysis");
+    sc = m_thistSvc->regTree(std::string("/")+m_histFileName+"/GammaLepton", m_tree);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Unable to register tree to THistSvc");
+      return sc;
+    }
+    // first add Event info stuff
+    m_tree->Branch("Run",  &m_runNumber,   "Run/i");    // run number
+    m_tree->Branch("Event",&m_eventNumber, "Event/i");  // event number
+    m_tree->Branch("LumiBlock", &m_lumiBlock,"LumiBlock/i"); // lum block num
+    m_tree->Branch("Weight", &m_weight, "Weight/F"); // weight
+
+    // now event (vs object) variables
+    m_tree->Branch("numPh",  &m_numPh, "numPh/i");
+    m_tree->Branch("numEl",  &m_numEl, "numEl/i");
+    m_tree->Branch("numMu",  &m_numMu, "numMu/i");
+    m_tree->Branch("numJets",  &m_numJets, "numJets/i");
+
+    m_tree->Branch("Metx", &m_metx, "Metx/F"); 
+    m_tree->Branch("Mety", &m_mety, "Mety/F"); 
+
+    m_tree->Branch("PhElMinv", &m_ph_el_minv, "Weight/F"); // invariant mass photon electron
+    m_tree->Branch("PhMuMinv", &m_ph_el_minv, "Weight/F"); // invariant mass photon electron
+    
+    m_tree->Branch("deltaPhiPhMET", &m_deltaPhiPhMET, "deltaPhiPhMET/F"); 
+    m_tree->Branch("deltaPhiElMET", &m_deltaPhiElMET, "deltaPhiPhMET/F"); 
+    m_tree->Branch("deltaPhiMuMET", &m_deltaPhiMuMET, "deltaPhiPhMET/F"); 
+
+    m_tree->Branch("HT", &m_HT, "HT/F"); 
+    m_tree->Branch("mTel", &m_mTel, "mTel/F"); 
+    m_tree->Branch("mTmu", &m_mTmu, "mTmu/F"); 
+    m_tree->Branch("meff", &m_meff, "meff/F"); 
+
+    // now now the arrays
+    m_tree->Branch("PhotonPt", &m_ph_pt);
+    m_tree->Branch("PhotonEta", &m_ph_eta);
+    m_tree->Branch("PhotonPhi", &m_ph_phi);
+
+    m_tree->Branch("ElectronPt", &m_el_pt);
+    m_tree->Branch("ElectronEta", &m_el_eta);
+    m_tree->Branch("ElectronPhi", &m_el_phi);
+
+    m_tree->Branch("MuonPt", &m_mu_pt);
+    m_tree->Branch("MuonEta", &m_mu_eta);
+    m_tree->Branch("MuonPhi", &m_mu_phi);
   }
 
   return StatusCode::SUCCESS;
@@ -246,7 +319,7 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("execute");
 
 
-  double weight = 1.0;
+  m_weight = 1.0;
 
   // The missing ET object
   const MissingET* met(0);
@@ -285,9 +358,9 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::RECOVERABLE;
   }
 
-  const unsigned runNum = evtInfo->event_ID()->run_number();
-  const unsigned lbNum = evtInfo->event_ID()->lumi_block();
-  const unsigned evNum = evtInfo->event_ID()->event_number();
+  m_runNumber = evtInfo->event_ID()->run_number();
+  m_lumiBlock = evtInfo->event_ID()->lumi_block();
+  m_eventNumber = evtInfo->event_ID()->event_number();
 
   const EventInfo::EventFlagErrorState larError = evtInfo->errorState(EventInfo::LAr);
 
@@ -301,12 +374,12 @@ StatusCode SignalGammaLepton::execute()
       const HepMC::WeightContainer& weightContainer = aGenEvent->weights();
       
       unsigned int Size = weightContainer.size();
-      if(Size > 0) weight = weightContainer[0];
+      if(Size > 0) m_weight = weightContainer[0];
     }
   }
 
-  ATH_MSG_DEBUG("About to prepare selection: " << runNum << " " << lbNum << " " 
-		<< evNum << "; weight: " << weight);
+  ATH_MSG_DEBUG("About to prepare selection: " << m_runNumber << " " << m_lumiBlock << " " 
+		<< m_eventNumber << "; weight: " << m_weight);
 
 
   // // get the user data
@@ -323,16 +396,13 @@ StatusCode SignalGammaLepton::execute()
   //     return StatusCode::FAILURE;
   //   }
     
-  //   weight *= pileupWeight;
+  //   m_weight *= pileupWeight;
   // }
 
 
-  double HT = 0.0;
+  m_HT = 0.0;
 
-  numEventsCut[0] += weight;
-
-  m_histograms["nOriginalEvents"]->Fill(0.0, weight);
-
+  m_histograms["CutFlow"]->Fill(0.0, m_weight);
 
   if (m_applyTriggers) {
     if (! m_trigDec->isPassed(m_triggers)) {
@@ -341,28 +411,28 @@ StatusCode SignalGammaLepton::execute()
   }
 
   ATH_MSG_DEBUG("Passed trig");
-  numEventsCut[1] += weight;
+  m_histograms["CutFlow"]->Fill(1.0, m_weight);
 
   if (larError) {
     return StatusCode::SUCCESS; // reject event
   }
     
   ATH_MSG_DEBUG("Passed larError");
-  numEventsCut[2] += weight;
+  m_histograms["CutFlow"]->Fill(2.0, m_weight);
 
 
   // now chose a run number for the LAr hole veto
-  const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
-  bool hasFEBHole = runNum > LAST_RUN_BEFORE_HOLE;
+  // const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
+  // bool hasFEBHole = runNum > LAST_RUN_BEFORE_HOLE;
   
-  unsigned int pretendRunNum = runNum;
+  unsigned int pretendRunNum = m_runNumber;
 
-  if(m_isMC) {
-    m_rand3.SetSeed(runNum + evNum);
-    const double roll_result = m_rand3.Rndm();
-    hasFEBHole = roll_result < feb_lumi_fraction;
-    pretendRunNum = (hasFEBHole) ? FIRST_RUN_AFTER_HOLE : LAST_RUN_BEFORE_HOLE; 
-  }
+  // if(m_isMC) {
+  //   m_rand3.SetSeed(m_runNumber + m_eventNumber);
+  //   const double roll_result = m_rand3.Rndm();
+  //   hasFEBHole = roll_result < feb_lumi_fraction;
+  //   pretendRunNum = (hasFEBHole) ? FIRST_RUN_AFTER_HOLE : LAST_RUN_BEFORE_HOLE; 
+  // }
 
   // // overwrite it 
   // hasFEBHole = false;
@@ -423,7 +493,7 @@ StatusCode SignalGammaLepton::execute()
       }
     }
   }
-  numEventsCut[3] += weight;
+  m_histograms["CutFlow"]->Fill(3.0, m_weight);
   ATH_MSG_DEBUG("Passed jet cleaning");
 
   // define some bitmasks
@@ -453,7 +523,7 @@ StatusCode SignalGammaLepton::execute()
     }      
   }
  
-  numEventsCut[4] += weight;
+  m_histograms["CutFlow"]->Fill(4.0, m_weight);
   ATH_MSG_DEBUG("Passed photon cleaning");
 
   // electron cleaning
@@ -478,7 +548,7 @@ StatusCode SignalGammaLepton::execute()
     // }      
   }
 
-  numEventsCut[5] += weight;
+  m_histograms["CutFlow"]->Fill(5.0, m_weight);
   ATH_MSG_DEBUG("Passed electron cleaning");
 
 
@@ -494,7 +564,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  numEventsCut[6] += weight;
+  m_histograms["CutFlow"]->Fill(6.0, m_weight);
   ATH_MSG_DEBUG("Passed vertex");
 
 
@@ -503,8 +573,6 @@ StatusCode SignalGammaLepton::execute()
        mu != muons->end();
        mu++) {
    
-    HT += (*mu)->pt();
-
     const Trk::MeasuredPerigee* newMeasPerigee =
       m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
     const double dz = newMeasPerigee->parameters()[Trk::z0];
@@ -515,111 +583,27 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::SUCCESS; // reject event
     }      
   }
-  numEventsCut[7] += weight;
+  m_histograms["CutFlow"]->Fill(7.0, m_weight);
   ATH_MSG_DEBUG("Passed muon rejection");
 
 
-  // loop over photons
-  unsigned int numPhPass = 0; // this is per event
-  unsigned int numConvPhPass = 0; // this is per event
-  Analysis::Photon *leadingPh = 0;
-  Analysis::Photon *secondPh = 0;
-  
-  double leadingPhPt = 0;
-  double secondPhPt = 0;
-
-  ATH_MSG_DEBUG("Before overlap removal photons size at input = " << photonsBeforeOverlapRemoval->size());
-  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
-
-  for (PhotonContainer::const_iterator ph  = photons->begin();
-       ph != photons->end();
-       ph++) {
-    
-    double pt = 0;
-
-    // get the user data
-    if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
-	!= StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Error in geting photon decoration");
-      return StatusCode::FAILURE;
-    }
-
-    ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
-
-    HT += pt;
-
-    numPhPass++;
-    if ((*ph)->conversion()) numConvPhPass++;
-    ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
-    
-    if (pt > leadingPhPt ) {
-      secondPh = leadingPh;
-      leadingPh = *ph;
-      secondPhPt = leadingPhPt;
-      leadingPhPt = pt;
-    } else if (pt > secondPhPt) {
-      secondPh = *ph;
-      secondPhPt = pt;
-    }
-  }
-
-  if (photons->size() < m_numPhotons) {
+  m_numPh = photons->size();
+  if (m_numPh < m_numPhotonsReq) {
     return StatusCode::SUCCESS;
   }
 
-  numEventsCut[8] += weight;
+  m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
 
+  m_numEl = electrons->size();
+  m_numMu = muons->size();
 
-  //ATH_MSG_DEBUG("finished photon");
-
-
-  // DEAL WITH ELECTRONS
-  unsigned int numElPass = 0; // this is per event
-  Analysis::Electron *leadingEl = 0;
-  Analysis::Electron *secondEl = 0;
-  
-  double leadingElPt = 0;
-  double secondElPt = 0;
-
-  // loop over electrons
-  for (ElectronContainer::const_iterator el  = electrons->begin();
-       el != electrons->end();
-       el++) {
-
-    double pt;
-    // get the user data
-    if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
-	!= StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Error in geting photon decoration");
-      return StatusCode::FAILURE;
-    }
-
-    ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
-    
-    HT += pt;
-    numElPass++;
-    if (pt > leadingElPt ) {
-      secondEl = leadingEl;
-      leadingEl = *el;
-      secondElPt = leadingElPt;
-      leadingElPt = pt;
-    } else if (pt > secondElPt) {
-      secondEl = *el;
-      secondElPt = pt;
-    }
-    
-  }
-  
-  unsigned int numMuPass = muons->size();
-  const Analysis::Muon *leadingMu = (numMuPass) ? muons->at(0) : 0;
-
-  if (electrons->size() < m_numElectrons || muons->size() < m_numMuons) {
+  if (m_numEl < m_numElectronsReq || m_numMu < m_numMuonsReq) {
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Passed lepton");
    
-  numEventsCut[9] += weight;
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
 
   // lets correct the MET
   double met_eta4p5=0;
@@ -651,11 +635,14 @@ StatusCode SignalGammaLepton::execute()
   etMiss_eta4p5_etx_muon-= met_refmuontrackContainer->etx();
   etMiss_eta4p5_ety_muon-= met_refmuontrackContainer->ety();
   
+  m_metx = etMiss_eta4p5_etx_muon;
+  m_mety = etMiss_eta4p5_ety_muon;
+
   const double met_eta4p5_muon = hypot(etMiss_eta4p5_etx_muon, etMiss_eta4p5_ety_muon);
   const double metPhi = (etMiss_eta4p5_ety_muon == 0.0 && etMiss_eta4p5_etx_muon == 0.0) 
     ? 0.0 : atan2(etMiss_eta4p5_ety_muon, etMiss_eta4p5_etx_muon);
 
-  int numJets = 0;
+  m_numJets = 0;
 
   // Count number of jets
   for (JetCollection::const_iterator jet = jets->begin();
@@ -663,195 +650,322 @@ StatusCode SignalGammaLepton::execute()
        jet++) {
 
     if ((*jet)->eta() < 2.5) {
-      HT += (*jet)->pt();
-      numJets++;
+      m_HT += (*jet)->pt();
+      m_numJets++;
     }
 
-    if (m_doSmartVeto) {
-      bool eventFails = false;
-      if(m_isMC) {
-	if (hasFEBHole) {
-	  eventFails = m_fakeMetEstimator.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
-						    etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
-						    (*jet)->getMoment("BCH_CORR_JET"),
-						    (*jet)->getMoment("BCH_CORR_CELL"),
-						    (*jet)->getMoment("BCH_CORR_DOTX"));
-	} else {
-	  eventFails = m_fakeMetEstimatorEmulNoHole.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
-							      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
-							      (*jet)->getMoment("BCH_CORR_JET"),
-							      (*jet)->getMoment("BCH_CORR_CELL"),
-							      (*jet)->getMoment("BCH_CORR_DOTX"));
-	}
-      } else {
-	eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
-					      (*jet)->getMoment("BCH_CORR_CELL"),
-					      (*jet)->getMoment("BCH_CORR_DOTX"),
-					      (*jet)->phi(),
-					      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
-      }
-      if (eventFails) {
-      	return StatusCode::SUCCESS;
-      }
+    // if (m_doSmartVeto) {
+    //   bool eventFails = false;
+    //   if(m_isMC) {
+    // 	if (hasFEBHole) {
+    // 	  eventFails = m_fakeMetEstimator.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
+    // 						    etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
+    // 						    (*jet)->getMoment("BCH_CORR_JET"),
+    // 						    (*jet)->getMoment("BCH_CORR_CELL"),
+    // 						    (*jet)->getMoment("BCH_CORR_DOTX"));
+    // 	} else {
+    // 	  eventFails = m_fakeMetEstimatorEmulNoHole.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
+    // 							      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
+    // 							      (*jet)->getMoment("BCH_CORR_JET"),
+    // 							      (*jet)->getMoment("BCH_CORR_CELL"),
+    // 							      (*jet)->getMoment("BCH_CORR_DOTX"));
+    // 	}
+    //   } else {
+    // 	eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
+    // 					      (*jet)->getMoment("BCH_CORR_CELL"),
+    // 					      (*jet)->getMoment("BCH_CORR_DOTX"),
+    // 					      (*jet)->phi(),
+    // 					      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
+    //   }
+    //   if (eventFails) {
+    //   	return StatusCode::SUCCESS;
+    //   }
       
-    }
+    // }
 
   }
 
   // ATH_MSG_DEBUG("Passed smart veto");
-  // numEventsCut[9] += weight;
+  // m_histograms["CutFlow"]->Fill(9.0, m_weight);
 
   if (met_eta4p5_muon > 75*GeV) {
-    numEventsCut[10] += weight;
+    m_histograms["CutFlow"]->Fill(10.0, m_weight);
   }
 
   if (met_eta4p5_muon > 100*GeV) {
-    numEventsCut[11] += weight;
+    m_histograms["CutFlow"]->Fill(11.0, m_weight);
   }
 
   if (met_eta4p5_muon > 125*GeV) {
-    numEventsCut[12] += weight;
+    m_histograms["CutFlow"]->Fill(12.0, m_weight);
   }
 
   if (met_eta4p5_muon > 150*GeV) {
-    numEventsCut[13] += weight;
+    m_histograms["CutFlow"]->Fill(13.0, m_weight);
   }
 
-  // event accepted, so let's make plots
+  /////////////////////////////////////////////////////
+  // event accepted, so let's make plots and ntuple
+  /////////////////////////////////////////////////////
 
-  // if (met_eta4p5 > 125*GeV) {
   // let's print out run, lb, and event numbers,...
-  ATH_MSG_INFO("Selected: " << runNum << " " << lbNum << " " << evNum << " " << numPhPass << " " << numElPass << " " 
-	       << muons->size() << " " << met_eta4p5_muon/GeV);
+  ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+	       << " " << m_numPh << " " << m_numEl << " " 
+	       << m_numMu << " " << met_eta4p5_muon/GeV);
 
-  //if (met_eta4p5_muon > 125*GeV) {
-  {
 
-    m_histograms["HT"]->Fill(HT/GeV, weight);
-    m_histograms["meff"]->Fill((HT+met_eta4p5_muon)/GeV, weight);
+  // loop over photons
+  unsigned int numConvPhPass = 0; // this is per event
+  Analysis::Photon *leadingPh = 0;
+  Analysis::Photon *secondPh = 0;
+  
+  double leadingPhPt = 0;
+  double secondPhPt = 0;
+
+  ATH_MSG_DEBUG("Before overlap removal photons size at input = " << photonsBeforeOverlapRemoval->size());
+  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
+
+  for (PhotonContainer::const_iterator ph  = photons->begin();
+       ph != photons->end();
+       ph++) {
+    
+    double pt = 0;
+
+    // get the user data
+    if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
+	!= StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error in geting photon decoration");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
+
+    m_HT += pt;
+
+    if (m_outputNtuple) {
+      m_ph_pt->push_back(pt);
+      m_ph_eta->push_back((*ph)->eta());
+      m_ph_phi->push_back((*ph)->phi());
+    }
+
+    if ((*ph)->conversion()) numConvPhPass++;
+    ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
+    
+    if (pt > leadingPhPt ) {
+      secondPh = leadingPh;
+      leadingPh = *ph;
+      secondPhPt = leadingPhPt;
+      leadingPhPt = pt;
+    } else if (pt > secondPhPt) {
+      secondPh = *ph;
+      secondPhPt = pt;
+    }
+  }
+
+  // DEAL WITH ELECTRONS
+  Analysis::Electron *leadingEl = 0;
+  Analysis::Electron *secondEl = 0;
+  
+  double leadingElPt = 0;
+  double secondElPt = 0;
+
+  // loop over electrons
+  for (ElectronContainer::const_iterator el  = electrons->begin();
+       el != electrons->end();
+       el++) {
+
+    double pt;
+    // get the user data
+    if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
+	!= StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error in geting photon decoration");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
+    
+    m_HT += pt;
+
+    if (m_outputNtuple) {
+      m_el_pt->push_back(pt);
+      m_el_eta->push_back((*el)->eta());
+      m_el_phi->push_back((*el)->phi());
+    }
+
+    if (pt > leadingElPt ) {
+      secondEl = leadingEl;
+      leadingEl = *el;
+      secondElPt = leadingElPt;
+      leadingElPt = pt;
+    } else if (pt > secondElPt) {
+      secondEl = *el;
+      secondElPt = pt;
+    }
+    
+  }
+
+  for (Analysis::MuonContainer::const_iterator mu = muons->begin();
+       mu != muons->end();
+       mu++) {
+   
+    m_HT += (*mu)->pt();
+    if (m_outputNtuple) {
+      m_mu_pt->push_back((*mu)->pt());
+      m_mu_eta->push_back((*mu)->eta());
+      m_mu_phi->push_back((*mu)->phi());
+    }
+
+  }
+  const Analysis::Muon *leadingMu = (m_numMu) ? muons->at(0) : 0;
+  const double leadingMuPt = (leadingMu) ? leadingMu->pt() : 0;
+
+  m_meff = m_HT+met_eta4p5_muon;
+  if (m_numEl >= 1 && m_numPh >= 1) {
+    m_ph_el_minv = P4Helpers::invMass(leadingPh, leadingEl);
+  }
+  if (m_numMu >= 1 && m_numPh >= 1) {
+    m_ph_mu_minv = P4Helpers::invMass(leadingPh, leadingMu);
+  }
+
+  m_mTel = -999;
+  m_mTmu = -999;
+  m_deltaPhiPhMET = -999;
+  m_deltaPhiElMET = -999;
+  m_deltaPhiMuMET = -999;
+
+  if (m_numPh >= 1) {
+    m_deltaPhiPhMET = P4Helpers::deltaPhi(*leadingPh, metPhi);
+  }
+  if (m_numEl >= 1) {
+    m_deltaPhiElMET = P4Helpers::deltaPhi(*leadingEl, metPhi);
+    m_mTel = sqrt(2 * leadingElPt * met_eta4p5_muon * (1 - cos(m_deltaPhiElMET)));
+  }
+  if (m_numMu >= 1) {
+    m_deltaPhiMuMET = P4Helpers::deltaPhi(*leadingMu, metPhi);
+    m_mTmu = sqrt(2 * leadingMu->pt() * met_eta4p5_muon * (1 - cos(m_deltaPhiMuMET)));    
+  }
+
+  if (m_outputHistograms) {
+
+    m_histograms["HT"]->Fill(m_HT/GeV, m_weight);
+    m_histograms["meff"]->Fill(m_meff/GeV, m_weight);
 
     if (leadingPh) {
-      m_histograms["ph_eta1"]->Fill(leadingPh->eta(), weight);
-      m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, weight);
+      m_histograms["ph_eta1"]->Fill(leadingPh->eta(), m_weight);
+      m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, m_weight);
       
       
       if (fabs(leadingPh->cluster()->eta()) < 1.45) {
 	if (leadingPh->conversion()) {
-	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, weight);
+	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, m_weight);
 	} else {
-	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, weight);
+	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, m_weight);
 	}
       } else {
 	if (leadingPh->conversion()) {
-	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, weight);
+	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, m_weight);
 	} else {
-	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, weight);
+	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, m_weight);
 	}
       }    
     
       if (secondPh) {
-	m_histograms["ph_eta2"]->Fill(secondPh->eta(), weight);
-	m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, weight);
+	m_histograms["ph_eta2"]->Fill(secondPh->eta(), m_weight);
+	m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, m_weight);
 	
 	accFFUnc.AddObjects(leadingPhPt, leadingPh->cluster()->etaBE(2), leadingPh->conversion(), 
-			    secondPhPt, secondPh->cluster()->etaBE(2), secondPh->conversion(), weight);
+			    secondPhPt, secondPh->cluster()->etaBE(2), secondPh->conversion(), m_weight);
 	
 	bool isBarrel1 = fabs(leadingPh->cluster()->eta()) < 1.45;
 	bool isBarrel2 = fabs(secondPh->cluster()->eta()) < 1.45;
 	
 	
 	accUnc.AddObjects(leadingPhPt, isBarrel1, leadingPh->conversion(),
-			  secondPhPt, isBarrel2, secondPh->conversion(), weight);
+			  secondPhPt, isBarrel2, secondPh->conversion(), m_weight);
 	
 	
 	if (fabs(secondPh->cluster()->eta()) < 1.45) {
 	  if (secondPh->conversion()) {
-	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, weight);
+	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, m_weight);
 	  } else {
-	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, weight);
+	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, m_weight);
 	  }
 	} else {
 	  if (secondPh->conversion()) {
-	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, weight);
+	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, m_weight);
 	  } else {
-	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, weight);
+	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, m_weight);
 	  }
 	}    
       }
     }
-    m_histograms["numPh"]->Fill(numPhPass, weight);
-    m_histograms["ph_numConv"]->Fill(numConvPhPass, weight);
-  }
+    m_histograms["numPh"]->Fill(m_numPh, m_weight);
+    m_histograms["ph_numConv"]->Fill(numConvPhPass, m_weight);
   
-  // ATH_MSG_DEBUG("filled photon plots");
-  if (leadingEl) {
-    m_histograms["el_eta1"]->Fill(leadingEl->eta(), weight);
-    m_histograms["el_pt1"]->Fill(leadingElPt/GeV, weight);
-  }
-  if (secondEl) {
-    m_histograms["el_eta2"]->Fill(secondEl->eta(), weight);
-    m_histograms["el_pt2"]->Fill(secondElPt/GeV, weight);
-  }
-  m_histograms["numEl"]->Fill(numElPass, weight);
-  //ATH_MSG_DEBUG("filled electron plots");
+    if (leadingEl) {
+      m_histograms["el_eta1"]->Fill(leadingEl->eta(), m_weight);
+      m_histograms["el_pt1"]->Fill(leadingElPt/GeV, m_weight);
+    }
+    if (secondEl) {
+      m_histograms["el_eta2"]->Fill(secondEl->eta(), m_weight);
+      m_histograms["el_pt2"]->Fill(secondElPt/GeV, m_weight);
+    }
+    m_histograms["numEl"]->Fill(m_numEl, m_weight);
+    m_histograms["numMu"]->Fill(m_numMu, m_weight);
+    if (leadingMu) {
+      m_histograms["mu_eta1"]->Fill(leadingMu->eta(), m_weight);
+      m_histograms["mu_pt1"]->Fill(leadingMuPt/GeV, m_weight);
+    }
+    
+    if (m_numEl >= 1 && m_numPh >= 1) {
+      m_histograms["ph_el_minv"]->Fill(m_ph_el_minv/GeV, m_weight);
+    }
+    if (m_numMu >= 1 && m_numPh >= 1) {
+      m_histograms["ph_mu_minv"]->Fill(m_ph_mu_minv/GeV, m_weight);
+    }
 
+    if (m_numPh >= 1) {
+      static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(fabs(m_deltaPhiPhMET), met_eta4p5_muon/GeV, m_weight);
+    }
+    
+    if (m_numEl >= 1) {
+      static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(fabs(m_deltaPhiElMET), met_eta4p5_muon/GeV, m_weight);
+      m_histograms["mTel"]->Fill(m_mTel/GeV, m_weight);
+    }
+    
+    if (m_numMu >= 1) {
+      static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(fabs(m_deltaPhiMuMET), met_eta4p5_muon/GeV, m_weight);
+      m_histograms["mTmu"]->Fill(m_mTmu/GeV, m_weight);
+    }
 
-
-  if (numElPass >= 1 && numPhPass >= 1) {
-    const double minv = P4Helpers::invMass(leadingPh, leadingEl);
-    m_histograms["ph_el_minv"]->Fill(minv/GeV, weight);
-  }
-  if (numMuPass >= 1 && numPhPass >= 1) {
-    const double minv = P4Helpers::invMass(leadingPh, leadingMu);
-    m_histograms["ph_mu_minv"]->Fill(minv/GeV, weight);
-  }
-
-  if (numPhPass >= 1) {
-    const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingPh, metPhi));
-    static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
-  }
-
-  if (numElPass >= 1) {
-    const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingEl, metPhi));
-    static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
-
-    const double mT = sqrt(2 * leadingElPt * met_eta4p5_muon * (1 - cos(absdeltaphi)));
-    m_histograms["mT"]->Fill(mT/GeV, weight);
-  }
-
-  if (numMuPass >= 1) {
-    const double absdeltaphi = fabs(P4Helpers::deltaPhi(*leadingMu, metPhi));
-    static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(absdeltaphi, met_eta4p5_muon/GeV, weight);
-
-    const double mT = sqrt(2 * leadingMu->pt() * met_eta4p5_muon * (1 - cos(absdeltaphi)));
-    m_histograms["mT"]->Fill(mT/GeV, weight);
-
-  }
-
-  m_histograms["numJets"]->Fill(numJets, weight);
-
-  // } // end of if on MET
-
-  m_histograms["met"]->Fill(met_eta4p5_muon/GeV, weight);
-  m_histograms["metExtended"]->Fill(met_eta4p5_muon/GeV, weight);
-  switch(numJets) {
-  case 0:
-    m_histograms["met0J"]->Fill(met_eta4p5_muon/GeV, weight);
-    break;
-  case 1:
-    m_histograms["met1J"]->Fill(met_eta4p5_muon/GeV, weight);
-    break;
-  case 2:
-    m_histograms["met2J"]->Fill(met_eta4p5_muon/GeV, weight);
-    break;
-  case 3:
-    m_histograms["met3J"]->Fill(met_eta4p5_muon/GeV, weight);
-    break;
-  default:
-    m_histograms["met4J"]->Fill(met_eta4p5_muon/GeV, weight);
-    break;
+    m_histograms["numJets"]->Fill(m_numJets, m_weight);
+    
+    // } // end of if on MET
+    
+    m_histograms["met"]->Fill(met_eta4p5_muon/GeV, m_weight);
+    m_histograms["metExtended"]->Fill(met_eta4p5_muon/GeV, m_weight);
+    switch(m_numJets) {
+    case 0:
+      m_histograms["met0J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      break;
+    case 1:
+      m_histograms["met1J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      break;
+    case 2:
+      m_histograms["met2J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      break;
+    case 3:
+      m_histograms["met3J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      break;
+    default:
+      m_histograms["met4J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      break;
+    }
   }
 
+  if (m_outputNtuple) {
+    m_tree->Fill();  
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -864,8 +978,8 @@ StatusCode SignalGammaLepton::finalize() {
     ATH_MSG_INFO("Cut Flow Table");
     ATH_MSG_INFO("--------------");
 
-    for (int i = 0; i < NUM_CUTS; i++) {
-      ATH_MSG_INFO("After cut " << i << ": " << numEventsCut[i] << " events");
+    for (int i = 1; i <= NUM_CUTS; i++) {
+      ATH_MSG_INFO("After cut " << i-1 << ": " << m_histograms["CutFlow"]->GetBinContent(i) << " events");
     }
     ATH_MSG_INFO("--------------");
     ATH_MSG_INFO("Average material error: " << accUnc.Uncert());

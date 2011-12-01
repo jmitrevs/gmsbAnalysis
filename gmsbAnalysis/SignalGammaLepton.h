@@ -13,7 +13,7 @@
 #include "gmsbAnalysis/FakeMetEstimator.h"
 
 #include "TRandom3.h"
-
+#include "TTree.h"
 
 class Jet;
 namespace Reco  { class ITrackToVertex; }
@@ -36,14 +36,19 @@ private:
   std::string m_METContainerName;
 
   bool m_isMC;
-  unsigned int m_numPhotons;
-  unsigned int m_numMuons;
-  unsigned int m_numElectrons;
+  unsigned int m_numPhotonsReq;
+  unsigned int m_numMuonsReq;
+  unsigned int m_numElectronsReq;
 
   bool m_applyTriggers; //only really meant for MC
   std::string m_triggers;
 
   bool m_doSmartVeto;
+
+  // whether to write out all the histograms. Cut flow always outputted
+  bool m_outputHistograms;
+  // whether to write out the ntuples
+  bool m_outputNtuple;
 
   /** primary vertex container */
   std::string m_vxCandidatesName;
@@ -80,15 +85,54 @@ private:
   // user data
   ServiceHandle<IUserDataSvc> m_userdatasvc;
 
-  // for bookkeeping
-  double numEventsCut[NUM_CUTS];
-
   AccumulateUncert accUnc;  // for leading photon
   AccumulateFFUncert accFFUnc;
   AccumulateUncert accUnc2; // for second photon
   AccumulateFFUncert accFFUnc2;
 
   mutable TRandom3 m_rand3;
+
+  // The variables if one outputs an ntuple
+  TTree* m_tree;
+  unsigned int m_runNumber;
+  unsigned int m_eventNumber;
+  unsigned int m_lumiBlock;
+  float m_weight;
+
+  std::vector<float>* m_ph_pt;
+  std::vector<float>* m_ph_eta;
+  std::vector<float>* m_ph_phi;
+
+  std::vector<float>* m_el_pt;
+  std::vector<float>* m_el_eta;
+  std::vector<float>* m_el_phi;
+
+  std::vector<float>* m_mu_pt;
+  std::vector<float>* m_mu_eta;
+  std::vector<float>* m_mu_phi;
+
+  unsigned int m_numPh;
+  unsigned int m_numEl;
+  unsigned int m_numMu;
+  unsigned int m_numJets;
+
+  // MET
+  float m_metx;
+  float m_mety;
+
+  float m_ph_el_minv;
+  float m_ph_mu_minv;
+
+  float m_deltaPhiPhMET;
+  float m_deltaPhiElMET;
+  float m_deltaPhiMuMET;
+
+  float m_HT;
+  float m_mTel;
+  float m_mTmu;
+  float m_meff;
+
+
 };
 
 #endif // GMSBANALYSIS_SIGNALGAMMALEPTON_H

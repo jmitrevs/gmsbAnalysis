@@ -109,7 +109,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
                             NumPhotons = 1,
-                            NumElectrons = 1
+                            NumElectrons = 1,
+                            outputNtuple = True
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG
