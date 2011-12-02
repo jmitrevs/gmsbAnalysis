@@ -114,9 +114,8 @@ inDS_full = [
 
 
     
-for i,inDS in enumerate(inDS_test):
-   
-   
+for i,inDS in enumerate(inDS_full):
+
     command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GammaElectron_301111.%s SignalGammaElectron.py " % (inDS, inDS)
     
     if i == 0:
