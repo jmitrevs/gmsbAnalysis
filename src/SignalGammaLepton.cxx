@@ -358,6 +358,20 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::RECOVERABLE;
   }
 
+  if (m_outputNtuple) {
+    m_ph_pt->clear();
+    m_ph_eta->clear();
+    m_ph_phi->clear();
+
+    m_el_pt->clear();
+    m_el_eta->clear();
+    m_el_phi->clear();
+
+    m_mu_pt->clear();
+    m_mu_eta->clear();
+    m_mu_phi->clear();
+  }
+  
   m_runNumber = evtInfo->event_ID()->run_number();
   m_lumiBlock = evtInfo->event_ID()->lumi_block();
   m_eventNumber = evtInfo->event_ID()->event_number();
