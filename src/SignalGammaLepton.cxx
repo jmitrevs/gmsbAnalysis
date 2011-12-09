@@ -177,7 +177,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_histograms["ph_el_minv"] = new TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 120, 0, 120);
     m_histograms["ph_mu_minv"] = new TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 120, 0, 120);
 
-    m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
+    m_histograms["numPh"] = new TH1F("numPh", "The number of photons that pass cuts;N_{photons}", 9, -0.5, 8.5);
     m_histograms["numEl"] = new TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5);
     m_histograms["numMu"] = new TH1F("numMu", "The number of muons that pass cuts;N_{muons}", 9, -0.5, 8.5);
     m_histograms["numJets"] = new TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5);
@@ -702,32 +702,27 @@ StatusCode SignalGammaLepton::execute()
   // ATH_MSG_DEBUG("Passed smart veto");
   // m_histograms["CutFlow"]->Fill(9.0, m_weight);
 
-  if (met_eta4p5_muon > 75*GeV) {
-    m_histograms["CutFlow"]->Fill(10.0, m_weight);
-  }
+  // if (met_eta4p5_muon > 75*GeV) {
+  //   m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  // }
 
-  if (met_eta4p5_muon > 100*GeV) {
-    m_histograms["CutFlow"]->Fill(11.0, m_weight);
-  }
+  // if (met_eta4p5_muon > 100*GeV) {
+  //   m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  // }
 
-  if (met_eta4p5_muon > 125*GeV) {
-    m_histograms["CutFlow"]->Fill(12.0, m_weight);
-  }
+  // if (met_eta4p5_muon > 125*GeV) {
+  //   m_histograms["CutFlow"]->Fill(12.0, m_weight);
+  // }
 
-  if (met_eta4p5_muon > 150*GeV) {
-    m_histograms["CutFlow"]->Fill(13.0, m_weight);
-  }
+  // if (met_eta4p5_muon > 150*GeV) {
+  //   m_histograms["CutFlow"]->Fill(13.0, m_weight);
+  // }
 
-  /////////////////////////////////////////////////////
-  // event accepted, so let's make plots and ntuple
-  /////////////////////////////////////////////////////
-
-  // let's print out run, lb, and event numbers,...
-  ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
-	       << " " << m_numPh << " " << m_numEl << " " 
-	       << m_numMu << " " << met_eta4p5_muon/GeV);
-
-
+  // if (met_eta4p5_muon < 140*GeV) {
+  //   return StatusCode::SUCCESS; // reject event
+  // }
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  
   // loop over photons
   unsigned int numConvPhPass = 0; // this is per event
   Analysis::Photon *leadingPh = 0;
@@ -858,6 +853,26 @@ StatusCode SignalGammaLepton::execute()
     m_deltaPhiMuMET = P4Helpers::deltaPhi(*leadingMu, metPhi);
     m_mTmu = sqrt(2 * leadingMu->pt() * met_eta4p5_muon * (1 - cos(m_deltaPhiMuMET)));    
   }
+
+  const float mT = (m_mTel > m_mTmu) ? m_mTel : m_mTmu;
+
+  // if (mT < 110*GeV) {
+  //   return StatusCode::SUCCESS; // reject event
+  // }
+  m_histograms["CutFlow"]->Fill(11.0, m_weight);
+
+
+  /////////////////////////////////////////////////////
+  // event accepted, so let's make plots and ntuple
+  /////////////////////////////////////////////////////
+
+  // let's print out run, lb, and event numbers,...
+  ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+	       << " " << m_numPh << " " << m_numEl << " " 
+	       << m_numMu << " " << met_eta4p5_muon/GeV);
+
+
+  
 
   if (m_outputHistograms) {
 

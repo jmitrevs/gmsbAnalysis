@@ -209,59 +209,59 @@ StatusCode PhotonEfficiency::execute()
 
 
   // rewiegh for the Z sample and W sample
-  switch (runNum) {
-  case 107650:
-    m_weight = 661.9/303405.0;
-    break;
-  case 107651:
-    m_weight = 133.3/63484.0;
-    break;
-  case 107652:
-    m_weight = 40.3/19496.0; 
-    break;
-  case 107653:
-    m_weight = 11.2/5500.0;
-    break;
-  case 107654:
-    m_weight = 2.7/1500.0;
-    break;
-  case 107655:
-    m_weight = 0.8/500.0;
-    break;
-  case 107680:
-    m_weight = 6913.3/1382306.0;
-    break;
-  case 107681:
-    m_weight = 1293.0/641361.0;
-    break;
-  case 107682:
-    m_weight = 377.1/188956.0;
-    break;
-  case 107683:
-    m_weight = 100.9/50476.0;
-    break;
-  case 107684:
-    m_weight = 25.3/12990.0;
-    break;
-  case 107685:
-    m_weight = 6.9/3497.0;
-    break;
-  case 118619:
-    m_weight = 1.4597e-2/9998 * 35;
-    break;
-  case 118618:
-    m_weight = 4.0558e-2/9998 * 35;
-    break;
-  case 118617:
-    m_weight = 3.9128e-2/9999 * 35;
-    break;
-  case 118616:
-    m_weight = 2.9366e-2/9998 * 35;
-    break;
-  case 118615:
-    m_weight = 3.9201e-2/9994 * 35;
-    break;
-  }
+  // switch (runNum) {
+  // case 107650:
+  //   m_weight = 661.9/303405.0;
+  //   break;
+  // case 107651:
+  //   m_weight = 133.3/63484.0;
+  //   break;
+  // case 107652:
+  //   m_weight = 40.3/19496.0; 
+  //   break;
+  // case 107653:
+  //   m_weight = 11.2/5500.0;
+  //   break;
+  // case 107654:
+  //   m_weight = 2.7/1500.0;
+  //   break;
+  // case 107655:
+  //   m_weight = 0.8/500.0;
+  //   break;
+  // case 107680:
+  //   m_weight = 6913.3/1382306.0;
+  //   break;
+  // case 107681:
+  //   m_weight = 1293.0/641361.0;
+  //   break;
+  // case 107682:
+  //   m_weight = 377.1/188956.0;
+  //   break;
+  // case 107683:
+  //   m_weight = 100.9/50476.0;
+  //   break;
+  // case 107684:
+  //   m_weight = 25.3/12990.0;
+  //   break;
+  // case 107685:
+  //   m_weight = 6.9/3497.0;
+  //   break;
+  // case 118619:
+  //   m_weight = 1.4597e-2/9998 * 35;
+  //   break;
+  // case 118618:
+  //   m_weight = 4.0558e-2/9998 * 35;
+  //   break;
+  // case 118617:
+  //   m_weight = 3.9128e-2/9999 * 35;
+  //   break;
+  // case 118616:
+  //   m_weight = 2.9366e-2/9998 * 35;
+  //   break;
+  // case 118615:
+  //   m_weight = 3.9201e-2/9994 * 35;
+  //   break;
+  // }
 
   const HepMC::GenEvent *ge=mcpartTES->genEvent();
 

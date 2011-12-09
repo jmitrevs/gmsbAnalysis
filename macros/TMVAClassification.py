@@ -52,7 +52,7 @@ def main():
     outfname    = DEFAULT_OUTFNAME
     methods     = DEFAULT_METHODS
     verbose     = False
-    signal      = "1000_200"
+    signal      = DEFAULT_SIGNAL
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -117,7 +117,7 @@ def main():
     if lepton == ELECTRON:
 
         print "Lepton is ELECTRON."
-        path = "/data3/jmitrevs/lepphoton/elphoton_ntuple/mergedFiles/"
+        path = "/data3/jmitrevs/lepphoton/elphoton_ntuple2/mergedFiles/"
 
         wino_600_200FileName = path + "wino_600_200_el.root"
         wino_600_500FileName = path + "wino_600_500_el.root"
@@ -446,12 +446,12 @@ def main():
     # note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
     # [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
     factory.AddVariable( "MET := sqrt(Metx*Metx+Mety*Mety)", 'F' )
-    factory.AddVariable( "HT", 'F' )
+    #factory.AddVariable( "HT", 'F' )
     factory.AddVariable( "PhotonPt[0]", 'F' )
-    factory.AddVariable( "ElectronPt[0]", 'F' )
+    #factory.AddVariable( "ElectronPt[0]", 'F' )
     factory.AddVariable( "mTel", 'F' )
-    factory.AddVariable( "abs(PhotonEta[0])", 'F' )
-    factory.AddVariable( "abs(ElectronEta[0])", 'F' )
+    #factory.AddVariable( "abs(PhotonEta[0])", 'F' )
+    #factory.AddVariable( "abs(ElectronEta[0])", 'F' )
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )

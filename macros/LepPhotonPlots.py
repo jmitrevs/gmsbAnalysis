@@ -36,7 +36,7 @@ def LepPhotonPlots(lepton):
     if lepton == ELECTRON:
 
         print "Lepton is ELECTRON."
-        path = "/data3/jmitrevs/lepphoton/elphoton_ntuple/mergedFiles/"
+        path = "/data3/jmitrevs/lepphoton/elphoton_ntuple2/mergedFiles/"
 
         wino_600_200FileName = path + "wino_600_200_el.root"
         wino_600_500FileName = path + "wino_600_500_el.root"
@@ -901,7 +901,7 @@ def LepPhotonPlots(lepton):
 
         hn = ttbar.GetName()
         c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
-        # c_paper.SetLogy()
+        c_paper.SetLogy()
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbar.GetXaxis().GetTitle()+";Events")
 
@@ -980,10 +980,10 @@ def LepPhotonPlots(lepton):
         legb.AddEntry(diboson,"WW, WZ, ZZ","f")
         legb.AddEntry(ttbar,"ttbar","f")
         legb.AddEntry(st,"singe top","f")
-        legb.AddEntry(wino_600_200,"wino 600, 200", "l");
-        legb.AddEntry(wino_600_500,"wino 600, 500","l");
-        legb.AddEntry(wino_1000_200,"wino 1000, 200", "l");
-        legb.AddEntry(wino_1500_400,"wino 1500, 400","l");
+        legb.AddEntry(wino_600_200,"wino (600, 200)", "l");
+        legb.AddEntry(wino_600_500,"wino (600, 500)","l");
+        legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
+        legb.AddEntry(wino_1500_400,"wino (1500, 400)","l");
 
         legb.Draw()
 

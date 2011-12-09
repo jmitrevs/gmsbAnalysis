@@ -41,84 +41,62 @@ svcMgr += TheUserDataSvc("UserDataSvc")
 
 # from GoodRunsListsUser.GoodRunsListsUserConf import *
 # seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-# ## In the next line, pick up correct name from inside xml file!
-# # seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']
-# seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
+## In the next line, pick up correct name from inside xml file!
+# seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']
+#seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g15_loose'
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-localDataFile = "ilumicalc_histograms_EF_2g20_loose_178044-184169.root"
-localMCFile = "mu_mc10b.root"
-
-# ====================================================================
-# Load the pileup reweighting algorithm
-# ====================================================================
-# from PileupReweighting.PileupReweightingConf import PileupReweightingAlg
-# topSequence += PileupReweightingAlg( "PileupStream_PileupReweightingAlg",
-#                                      OutputLevel      = DEBUG,
-#                                      dataROOTFileName = localDataFile,
-#                                      dataROOTHistName = "avgintperbx",
-#                                      mcROOTFileName   = localMCFile,
-#                                      mcROOTHistName   = "mu_mc10b"
-#                                      )
-
-# add the fudge factors
+## add the fudge factors
 #include ( "gmsbFudgeFactors/gmsbFudgeFactors.py" )
 #topSequence += theGmsbFudgeFactors
 
-#theGmsbFudgeFactors.WhichFudgeFactors = 200
+# do the corrected iso
 
-# add the selection
-include ( "gmsbTools/gmsbTools_jobOptions.py" )
-include ( "SUSYPhotonJetCleaningTool/SUSYPhotonJetCleaningTool_jobOptions.py" )
+#from PhotonAnalysisUtils.LowPtJetFinder import LowPtJetFinder
+#mygetter2 = LowPtJetFinder() # will insert the alg into the AlgSequence()
 
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
-from ROOT import egammaPID
+#from PhotonAnalysisUtils.PhotonAnalysisUtilsConf import PAUcaloIsolationTool
+#mycaloisolationtool = PAUcaloIsolationTool()
+#mycaloisolationtool.DoAreaCorrections = True
+#ToolSvc += mycaloisolationtool
 
-#if not 'RANDSEED' in dir():
-#    RANDSEED = 0
+# # add the selection
+# include ( "gmsbTools/gmsbTools_jobOptions.py" )
 
-#print "random seed", RANDSEED
+# import PyCintex
+# PyCintex.loadDictionary('egammaEnumsDict')
+# from ROOT import egammaPID
 
-gmsbSelectionTool.IsMC = True
-gmsbSelectionTool.SmearMC = False
-gmsbSelectionTool.SmearMC = False
-gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.PhotonPt = 25*GeV
-gmsbSelectionTool.MuonPt = 25*GeV
-#gmsbSelectionTool.RandomSeed = RANDSEED
-#gmsbSelectionTool.MCEtconeShift = 0.0;
-#gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+# if not 'RANDSEED' in dir():
+#     RANDSEED = 0
 
-gmsbCrackSelectionTool.IsMC = True
-gmsbCrackSelectionTool.SmearMC = False
-#gmsbCrackSelectionTool.RandomSeed = RANDSEED+1
-#gmsbCrackSelectionTool.MCEtconeShift = 0.0;
-#gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+# print "random seed", RANDSEED
 
-from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
-testAlg = SignalGammaLepton(name = "SignalGammaLepton",
-                            isMC = True,
-                            PreparationTool = gmsbPreparationTool,
-                            CrackPreparationTool = gmsbCrackPreparationTool,
-                            OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
-                            OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
-                            JetCleaningTool = myJetCleaningTool,
-                            applyTrigger = False,
-                            NumPhotons = 1,
-                            NumElectrons = 1,
-                            outputNtuple = True
-                            )
+# gmsbSelectionTool.IsMC = True
+# gmsbSelectionTool.SmearMC = True
+# gmsbSelectionTool.RandomSeed = RANDSEED
+# #gmsbSelectionTool.MCEtconeShift = 0.0;
+# #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+
+# gmsbCrackSelectionTool.IsMC = True
+# gmsbCrackSelectionTool.SmearMC = True
+# gmsbCrackSelectionTool.RandomSeed = RANDSEED+1
+# #gmsbCrackSelectionTool.MCEtconeShift = 0.0;
+# #gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+
+from gmsbAnalysis.gmsbAnalysisConf import PhotonEfficiency
+testAlg = PhotonEfficiency(name = "PhotonEfficiency",
+                           #PAUcaloIsolationTool = mycaloisolationtool
+                           PAUcaloIsolationTool = None
+                           )
 from AthenaCommon.AppMgr import ToolSvc
-#testAlg.OutputLevel = DEBUG
-testAlg.OutputLevel = INFO
+testAlg.OutputLevel = DEBUG
 
 # Add example to Reader
 topSequence += testAlg
-print testAlg
 
 #--------------------------------------------------------------
 # Add Dictionary for writing out in PoolDPDs
@@ -139,5 +117,5 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 # save ROOT histograms and Tuple
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output = ["SignalGammaLepton DATAFILE='SignalGammaLepton.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output = ["PhotonEfficiency DATAFILE='PhotonEfficiency.root' OPT='RECREATE'"]
 
