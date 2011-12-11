@@ -30,6 +30,7 @@
 
 #include "ITrackToVertex/ITrackToVertex.h"
 
+
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
 const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
 
@@ -384,12 +385,16 @@ StatusCode SignalGammaLepton::execute()
     sc = evtStore()->retrieve(aMcEventContainer, m_McEventContainerName);
     
     if(sc.isSuccess()) {
+      ATH_MSG_DEBUG("Found aMcEventContainer, m_McEventContainerName = " << m_McEventContainerName);
       const HepMC::GenEvent * aGenEvent = *(aMcEventContainer->begin());
       const HepMC::WeightContainer& weightContainer = aGenEvent->weights();
       
       unsigned int Size = weightContainer.size();
       if(Size > 0) m_weight = weightContainer[0];
+    } else {
+      ATH_MSG_WARNING("did not find aMcEventContainer, m_McEventContainerName = " << m_McEventContainerName);
     }
+
   }
 
   ATH_MSG_DEBUG("About to prepare selection: " << m_runNumber << " " << m_lumiBlock << " " 
@@ -600,8 +605,59 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(7.0, m_weight);
   ATH_MSG_DEBUG("Passed muon rejection");
 
+  // loop over photons
+  unsigned int numConvPhPass = 0; // this is per event
+  Analysis::Photon *leadingPh = 0;
+  Analysis::Photon *secondPh = 0;
+  
+  double leadingPhPt = 0;
+  double secondPhPt = 0;
 
-  m_numPh = photons->size();
+  ATH_MSG_DEBUG("Before overlap removal photons size at input = " << photonsBeforeOverlapRemoval->size());
+  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
+  
+  m_numPh = 0;
+  for (PhotonContainer::const_iterator ph  = photons->begin();
+       ph != photons->end();
+       ph++) {
+    
+    double pt = 0;
+
+    // get the user data
+    if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
+	!= StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error in geting photon decoration");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
+
+    // photon is OK
+    m_numPh++;
+
+    m_HT += pt;
+
+    if (m_outputNtuple) {
+      m_ph_pt->push_back(pt);
+      m_ph_eta->push_back((*ph)->eta());
+      m_ph_phi->push_back((*ph)->phi());
+    }
+
+    if ((*ph)->conversion()) numConvPhPass++;
+    ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
+    
+    if (pt > leadingPhPt ) {
+      secondPh = leadingPh;
+      leadingPh = *ph;
+      secondPhPt = leadingPhPt;
+      leadingPhPt = pt;
+    } else if (pt > secondPhPt) {
+      secondPh = *ph;
+      secondPhPt = pt;
+    }
+  }
+
+
   if (m_numPh < m_numPhotonsReq) {
     return StatusCode::SUCCESS;
   }
@@ -609,8 +665,70 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
 
-  m_numEl = electrons->size();
-  m_numMu = muons->size();
+
+  m_numEl = 0;
+  m_numMu = 0;
+
+  // DEAL WITH ELECTRONS
+  Analysis::Electron *leadingEl = 0;
+  Analysis::Electron *secondEl = 0;
+  
+  double leadingElPt = 0;
+  double secondElPt = 0;
+
+  // loop over electrons
+  for (ElectronContainer::const_iterator el  = electrons->begin();
+       el != electrons->end();
+       el++) {
+
+    double pt;
+    // get the user data
+    if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
+	!= StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error in geting photon decoration");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
+    
+    m_HT += pt;
+
+    m_numEl++;
+
+    if (m_outputNtuple) {
+      m_el_pt->push_back(pt);
+      m_el_eta->push_back((*el)->eta());
+      m_el_phi->push_back((*el)->phi());
+    }
+
+    if (pt > leadingElPt ) {
+      secondEl = leadingEl;
+      leadingEl = *el;
+      secondElPt = leadingElPt;
+      leadingElPt = pt;
+    } else if (pt > secondElPt) {
+      secondEl = *el;
+      secondElPt = pt;
+    }
+    
+  }
+
+  for (Analysis::MuonContainer::const_iterator mu = muons->begin();
+       mu != muons->end();
+       mu++) {
+
+    m_numMu++;
+   
+    m_HT += (*mu)->pt();
+    if (m_outputNtuple) {
+      m_mu_pt->push_back((*mu)->pt());
+      m_mu_eta->push_back((*mu)->eta());
+      m_mu_phi->push_back((*mu)->phi());
+    }
+
+  }
+  const Analysis::Muon *leadingMu = (m_numMu) ? muons->at(0) : 0;
+  const double leadingMuPt = (leadingMu) ? leadingMu->pt() : 0;
 
   if (m_numEl < m_numElectronsReq || m_numMu < m_numMuonsReq) {
     return StatusCode::SUCCESS;
@@ -723,110 +841,6 @@ StatusCode SignalGammaLepton::execute()
   // }
   m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
-  // loop over photons
-  unsigned int numConvPhPass = 0; // this is per event
-  Analysis::Photon *leadingPh = 0;
-  Analysis::Photon *secondPh = 0;
-  
-  double leadingPhPt = 0;
-  double secondPhPt = 0;
-
-  ATH_MSG_DEBUG("Before overlap removal photons size at input = " << photonsBeforeOverlapRemoval->size());
-  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
-
-  for (PhotonContainer::const_iterator ph  = photons->begin();
-       ph != photons->end();
-       ph++) {
-    
-    double pt = 0;
-
-    // get the user data
-    if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
-	!= StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Error in geting photon decoration");
-      return StatusCode::FAILURE;
-    }
-
-    ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
-
-    m_HT += pt;
-
-    if (m_outputNtuple) {
-      m_ph_pt->push_back(pt);
-      m_ph_eta->push_back((*ph)->eta());
-      m_ph_phi->push_back((*ph)->phi());
-    }
-
-    if ((*ph)->conversion()) numConvPhPass++;
-    ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
-    
-    if (pt > leadingPhPt ) {
-      secondPh = leadingPh;
-      leadingPh = *ph;
-      secondPhPt = leadingPhPt;
-      leadingPhPt = pt;
-    } else if (pt > secondPhPt) {
-      secondPh = *ph;
-      secondPhPt = pt;
-    }
-  }
-
-  // DEAL WITH ELECTRONS
-  Analysis::Electron *leadingEl = 0;
-  Analysis::Electron *secondEl = 0;
-  
-  double leadingElPt = 0;
-  double secondElPt = 0;
-
-  // loop over electrons
-  for (ElectronContainer::const_iterator el  = electrons->begin();
-       el != electrons->end();
-       el++) {
-
-    double pt;
-    // get the user data
-    if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
-	!= StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Error in geting photon decoration");
-      return StatusCode::FAILURE;
-    }
-
-    ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
-    
-    m_HT += pt;
-
-    if (m_outputNtuple) {
-      m_el_pt->push_back(pt);
-      m_el_eta->push_back((*el)->eta());
-      m_el_phi->push_back((*el)->phi());
-    }
-
-    if (pt > leadingElPt ) {
-      secondEl = leadingEl;
-      leadingEl = *el;
-      secondElPt = leadingElPt;
-      leadingElPt = pt;
-    } else if (pt > secondElPt) {
-      secondEl = *el;
-      secondElPt = pt;
-    }
-    
-  }
-
-  for (Analysis::MuonContainer::const_iterator mu = muons->begin();
-       mu != muons->end();
-       mu++) {
-   
-    m_HT += (*mu)->pt();
-    if (m_outputNtuple) {
-      m_mu_pt->push_back((*mu)->pt());
-      m_mu_eta->push_back((*mu)->eta());
-      m_mu_phi->push_back((*mu)->phi());
-    }
-
-  }
-  const Analysis::Muon *leadingMu = (m_numMu) ? muons->at(0) : 0;
-  const double leadingMuPt = (leadingMu) ? leadingMu->pt() : 0;
 
   m_meff = m_HT+met_eta4p5_muon;
   if (m_numEl >= 1 && m_numPh >= 1) {

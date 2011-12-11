@@ -57,6 +57,9 @@ private:
   /** name of the AOD truth particle container to retrieve from StoreGate */
   std::string m_truthParticleContainerName;
 
+  /** can alternately use the McEventCollection */
+  std::string m_mcEventCollectionName;
+
   /** name of the AOD truth particle container to retrieve from StoreGate */
   std::string m_photonContainerName;
   const PhotonContainer*  m_photons;
@@ -78,9 +81,14 @@ private:
 
 };
 
+// inline bool PhotonEfficiency::StatusGood(int status) const 
+// {
+//   return (status == 1 || status == 3);
+// } 
+
 inline bool PhotonEfficiency::StatusGood(int status) const 
 {
-  return (status == 1 || status == 3);
+  return (status != 120 && status != 141 && status != 142);
 } 
 
 

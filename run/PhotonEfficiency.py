@@ -14,7 +14,7 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc09_7TeV.108085.PythiaPhotonJet_Unbinned7.recon.ESD.e534_s765_s767_r1305_tid137093_00/ESD.137093._000011.pool.root.1')
 #InputList = glob('/data3/jmitrevs/dataskims/ee/*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10*Znunugammagamma*/*pool.root*')
-InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.merge.AOD.e640_s933_s946_r1831_r1700*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino800_700.merge.AOD.*_r1831_r2040*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/isostudy/mc_input/mc10_7TeV.108083.PythiaPhotonJet_Unbinned140.merge.AOD.e598_s933_s946_r1831_r2040_tid267269_00/*pool.root*')
 #InputList = ['root://castoratlas//castor/cern.ch/user/d/ddamiani/GGM_grid/rel_16/bino_400_200_UEplus/AOD/AOD.merged.bino_400_200_UEplus._000001.pool.root.1']
@@ -27,11 +27,19 @@ InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.*.Pythia_GGM_Bino600_300.mer
 #InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')
 
+### NOTE: these are actually ESDs, so the truth has to be modified.
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_1000_100/*pool.root*')
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_800_700/*pool.root*')
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500/*pool.root*')
+InputList = glob('/data3/jmitrevs/suspect_data/wino_600_200/*pool.root*')
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_1000_200/*pool.root*')
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_1500_400/*pool.root*')
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
 #athenaCommonFlags.EvtMax=-1
-athenaCommonFlags.EvtMax=10
+athenaCommonFlags.EvtMax=100
 
 
 # # use closest DB replica
@@ -80,6 +88,7 @@ rec.doJiveXML.set_Value_and_Lock(False)
 
 rec.doPerfMon.set_Value_and_Lock(False)
 
+
 #### jOs from Thijs for spacepoints from ESDs:
 #from AthenaCommon.BeamFlags import jobproperties
 #from InDetRecExample.InDetJobProperties import InDetFlags
@@ -89,3 +98,8 @@ rec.doPerfMon.set_Value_and_Lock(False)
 
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+if not hasattr(svcMgr, theApp.EventLoop):
+   svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
+evtloop = getattr(svcMgr, theApp.EventLoop)
+evtloop.EventPrintoutInterval = 1

@@ -19,16 +19,22 @@ inDS_test = [
 
     # 'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r2730_r2780',
     # 'mc11_7TeV.107671.AlpgenJimmyZtautauNp1_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
-    # 'mc11_7TeV.107672.AlpgenJimmyZtautauNp2_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    'mc11_7TeV.107672.AlpgenJimmyZtautauNp2_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
     # 'mc11_7TeV.107673.AlpgenJimmyZtautauNp3_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
     # 'mc11_7TeV.107674.AlpgenJimmyZtautauNp4_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
-    'mc11_7TeV.107675.AlpgenJimmyZtautauNp5_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
+    # 'mc11_7TeV.107675.AlpgenJimmyZtautauNp5_pt20.merge.AOD.e835_s1299_s1300_r2730_r2700',
 
     # 'mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r2730_r2780',
 
     # 'mc11_7TeV.105986.ZZ_Herwig.merge.AOD.e825_s1310_s1300_r2730_r2780',
 
+    # 'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r2730_r2780',
+
     'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r2730_r2780',
+    'mc11_7TeV.116391.AlpgenJimmyGamNp2_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r2730_r2780',
+    'mc11_7TeV.116392.AlpgenJimmyGamNp3_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r2730_r2780',
+    'mc11_7TeV.116393.AlpgenJimmyGamNp4_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r2730_r2780',
+    'mc11_7TeV.116394.AlpgenJimmyGamNp5_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r2730_r2700',
 
     ]
 
@@ -120,14 +126,16 @@ inDS_full = [
 
 
     
-for i,inDS in enumerate(inDS_full):
+for i,inDS in enumerate(inDS_test):
 
     command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GammaElectron_081211.%s SignalGammaElectron.py " % (inDS, inDS)
     
-    if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_081211.tar"
-    else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_081211.tar"
+    # if i == 0:
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_081211.tar"
+    # else:
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_081211.tar"
+
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_081211.tar"
 
     print command
     os.system(command)

@@ -70,6 +70,7 @@ private:
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
 
+
   /** @brief Tool handle for track extrapolation to vertex */
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 

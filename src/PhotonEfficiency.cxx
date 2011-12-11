@@ -14,6 +14,7 @@
 
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 #include "PhotonAnalysisUtils/IPAUcaloIsolationTool.h"
 
@@ -23,6 +24,7 @@ PhotonEfficiency::PhotonEfficiency(const std::string& name, ISvcLocator* pSvcLoc
   m_PAUcaloIsolationTool(0)
 {
   declareProperty("McParticleContainer", m_truthParticleContainerName = "SpclMC");
+  declareProperty("McEventCollection", m_mcEventCollectionName = "TruthEvent");
   declareProperty("PhotonContainerName", m_photonContainerName = "PhotonAODCollection");
   declareProperty("HistFileName", m_histFileName = "PhotonEfficiency");
   declareProperty("PrintDecayTree", m_printDecayTree = true);
@@ -179,14 +181,35 @@ StatusCode PhotonEfficiency::execute()
 
   m_weight = 1.0;
 
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  const HepMC::GenEvent *ge = 0;
 
-  /** get the MC truth particle AOD container from StoreGate */
-  const TruthParticleContainer*  mcpartTES = 0;
-  StatusCode sc=evtStore()->retrieve( mcpartTES, m_truthParticleContainerName);
-  if( sc.isFailure()  ||  !mcpartTES ) {
-    ATH_MSG_ERROR("could not retrieve MC truth container");
-    return StatusCode::RECOVERABLE;
+  /** get the MC truth particle AOD or ESD container from StoreGate */
+  const McEventCollection *mcEventCol = 0;
+  if (evtStore()->contains<McEventCollection>(m_mcEventCollectionName)) {
+    sc=evtStore()->retrieve( mcEventCol, m_mcEventCollectionName);
+    if( sc.isFailure()  ||  !mcEventCol) {
+      ATH_MSG_ERROR("could not retrieve MC event container");
+      return StatusCode::RECOVERABLE;
+    }
+    ATH_MSG_DEBUG("McEventCollection found with name " <<  m_mcEventCollectionName);
+    ge = mcEventCol->at(0);
   }
+  
+  if (!ge) {
+    const TruthParticleContainer*  mcpartTES = 0;
+    if (evtStore()->contains<TruthParticleContainer>(m_truthParticleContainerName)) {
+      sc=evtStore()->retrieve( mcpartTES, m_truthParticleContainerName);
+      if( sc.isFailure()  ||  !mcpartTES ) {
+	ATH_MSG_ERROR("could not retrieve MC truth container");
+	return StatusCode::RECOVERABLE;
+      }
+      ATH_MSG_DEBUG("McEventCollection found with name " <<  m_mcEventCollectionName);
+      ge=mcpartTES->genEvent();
+    }
+  }
+
 
   /** get the MC truth particle AOD container from StoreGate */
   m_photons = 0;
@@ -208,62 +231,6 @@ StatusCode PhotonEfficiency::execute()
   //const unsigned evNum = evtInfo->event_ID()->event_number();
 
 
-  // rewiegh for the Z sample and W sample
-  // switch (runNum) {
-  // case 107650:
-  //   m_weight = 661.9/303405.0;
-  //   break;
-  // case 107651:
-  //   m_weight = 133.3/63484.0;
-  //   break;
-  // case 107652:
-  //   m_weight = 40.3/19496.0; 
-  //   break;
-  // case 107653:
-  //   m_weight = 11.2/5500.0;
-  //   break;
-  // case 107654:
-  //   m_weight = 2.7/1500.0;
-  //   break;
-  // case 107655:
-  //   m_weight = 0.8/500.0;
-  //   break;
-  // case 107680:
-  //   m_weight = 6913.3/1382306.0;
-  //   break;
-  // case 107681:
-  //   m_weight = 1293.0/641361.0;
-  //   break;
-  // case 107682:
-  //   m_weight = 377.1/188956.0;
-  //   break;
-  // case 107683:
-  //   m_weight = 100.9/50476.0;
-  //   break;
-  // case 107684:
-  //   m_weight = 25.3/12990.0;
-  //   break;
-  // case 107685:
-  //   m_weight = 6.9/3497.0;
-  //   break;
-  // case 118619:
-  //   m_weight = 1.4597e-2/9998 * 35;
-  //   break;
-  // case 118618:
-  //   m_weight = 4.0558e-2/9998 * 35;
-  //   break;
-  // case 118617:
-  //   m_weight = 3.9128e-2/9999 * 35;
-  //   break;
-  // case 118616:
-  //   m_weight = 2.9366e-2/9998 * 35;
-  //   break;
-  // case 118615:
-  //   m_weight = 3.9201e-2/9994 * 35;
-  //   break;
-  // }
-
-  const HepMC::GenEvent *ge=mcpartTES->genEvent();
 
   //mLog <<MSG::DEBUG << "ge = " << (unsigned int) ge << endreq;
 
@@ -288,7 +255,7 @@ StatusCode PhotonEfficiency::execute()
 	msg(MSG::INFO) << " ->\t";
 	
 	
-	PrintDecayTree(pvtx);
+	PrintDecayTreeAnnotated(pvtx);
       }
     }
     
@@ -344,7 +311,7 @@ void PhotonEfficiency::PrintDecayTree(const HepMC::GenVertex *vtx, int extraSpac
     if (decayVertices.at(index) != NULL) {
       msg(MSG::INFO) << "                 \t";
       for (int j = 0; j < index+extraSpaces; j++) {
-	msg(MSG::INFO) << "           ";
+	msg(MSG::INFO) << "                ";
       }
       PrintDecayTree(decayVertices.at(index), index+extraSpaces);
     }
@@ -364,10 +331,12 @@ void PhotonEfficiency::PrintDecayTreeAnnotated(const HepMC::GenVertex *vtx, int 
   for (HepMC::GenVertex::particles_in_const_iterator outit = vtx->particles_out_const_begin();
        outit != vtx->particles_out_const_end();
        outit++) {
-    if (StatusGood((*outit)->status())) {
+    //    if (StatusGood((*outit)->status())) {
+    if (1) {
 
       HepMC::FourVector p = (*outit)->momentum();
-      msg(MSG::INFO) << std::setw(4) << std::right << round(p.perp()/GeV) << " ";
+      //msg(MSG::INFO) << std::setw(4) << std::right << round(p.perp()/GeV) << " ";
+      msg(MSG::INFO) << std::setw(4) << std::right << (*outit)->status() << " ";
       msg(MSG::INFO) << std::setw(11) << std::left << m_pdg.GetParticle((*outit)->pdg_id())->GetName();
       decayVertices.push_back(FindNextVertex(*outit));
     }
