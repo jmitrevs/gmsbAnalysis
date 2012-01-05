@@ -331,10 +331,108 @@ def main():
     ##############################
     # and now the weights
 
-    wino_600_200_scale = 7.005
-    wino_600_500_scale = 3.03021
+    # wino_600_200_scale = 7.005
+    # wino_600_500_scale = 3.03021
+    # wino_1000_200_scale = 4.1325
+    # wino_1500_400_scale = 0.16
+    # Wlepnu_Np0_scale = 12.0052623622
+    # Wlepnu_Np1_scale = 3.13076456857
+    # Wlepnu_Np2_scale = 0.60296853897
+    # Wlepnu_Np3_scale = 0.603183318846
+    # Wlepnu_Np4_scale = 0.62088
+    # Wlepnu_Np5_scale = 0.600008571551
+    # Wtaunu_Np0_scale = 12.1457006649
+    # Wtaunu_Np1_scale = 3.12868868923
+    # Wtaunu_Np2_scale = 0.602359552172
+    # Wtaunu_Np3_scale = 0.602586672951
+    # Wtaunu_Np4_scale = 0.62088496708
+    # Wtaunu_Np5_scale = 0.638769230769
+    # Zleplep_Np0_scale = 0.631361988532
+    # Zleplep_Np1_scale = 0.629541167757
+    # Zleplep_Np2_scale = 0.625618828688
+    # Zleplep_Np3_scale = 0.634090909091
+    # Zleplep_Np4_scale = 0.6
+    # Zleplep_Np5_scale = 0.51875
+    # Ztautau_Np0_scale = 0.631228327261
+    # Ztautau_Np1_scale = 0.631347664299
+    # Ztautau_Np2_scale = 0.622916409433
+    # Ztautau_Np3_scale = 0.640077378243
+    # Ztautau_Np4_scale = 0.581269375646
+    # Ztautau_Np5_scale = 0.48125
+    # Wgamma_Np0_scale = 0.0129441737417
+    # Wgamma_Np1_scale = 0.0635170304401
+    # Wgamma_Np2_scale = 0.140920227273
+    # Wgamma_Np3_scale = 0.140622611111
+    # Wgamma_Np4_scale = 0.134589
+    # Wgamma_Np5_scale = 0.123308
+    # ttbar_scale = 0.0384505023442
+    # st_tchan_lepnu_scale = 0.200916540624
+    # st_tchan_taunu_scale = 0.201132004918
+    # st_schan_lepnu_scale = 0.0092735093327
+    # st_schan_taunu_scale = 0.00926981472204
+    # st_Wt_scale = 0.0916407781992
+    # WW_scale = 0.0342151663714
+    # WZ_scale = 0.110873818259
+    # ZZ_scale = 0.0252773011092
+    # Zleplepgamma_scale = 0.963
+    # Ztautaugamma_scale = 0.941960800016
+
+    #################ntuple_pt25
+    # wino_600_200_scale = 1.401
+    # wino_600_500_scale = 3.03021
+    # wino_1000_200_scale = 4.1325
+    # wino_1500_400_scale = 0.16
+    # Wlepnu_Np0_scale = 12.0052623622
+    # Wlepnu_Np1_scale = 3.13076456857
+    # Wlepnu_Np2_scale = 0.60296853897
+    # Wlepnu_Np3_scale = 0.603183318846
+    # Wlepnu_Np4_scale = 0.62088
+    # Wlepnu_Np5_scale = 0.600008571551
+    # Wtaunu_Np0_scale = 12.1457006649
+    # Wtaunu_Np1_scale = 3.12868868923
+    # Wtaunu_Np2_scale = 0.602359552172
+    # Wtaunu_Np3_scale = 0.602586672951
+    # Wtaunu_Np4_scale = 0.62088496708
+    # Wtaunu_Np5_scale = 0.638769230769
+    # Zleplep_Np0_scale = 0.631361988532
+    # Zleplep_Np1_scale = 0.629541167757
+    # Zleplep_Np2_scale = 0.625618828688
+    # Zleplep_Np3_scale = 0.634090909091
+    # Zleplep_Np4_scale = 0.6
+    # Zleplep_Np5_scale = 0.51875
+    # Ztautau_Np0_scale = 0.631228327261
+    # Ztautau_Np1_scale = 0.631347664299
+    # Ztautau_Np2_scale = 0.622916409433
+    # Ztautau_Np3_scale = 0.640077378243
+    # Ztautau_Np4_scale = 0.581269375646
+    # Ztautau_Np5_scale = 0.48125
+    # Wgamma_Np0_scale = 1.08706263428
+    # Wgamma_Np1_scale = 0.734676952566
+    # Wgamma_Np2_scale = 0.733754057143
+    # Wgamma_Np3_scale = 0.149752323594
+    # Wgamma_Np4_scale = 0.157524392683
+    # Wgamma_Np5_scale = 0.1281354
+    # ttbar_scale = 0.0384505023442
+    # st_tchan_lepnu_scale = 0.200916540624
+    # st_tchan_taunu_scale = 0.201132004918
+    # st_Wt_scale = 0.0916407781992
+    # WW_scale = 0.0342151663714
+    # WZ_scale = 0.110873818259
+    # ZZ_scale = 0.0252773011092
+    # Zleplepgamma_scale = 0.963
+    # Ztautaugamma_scale = 0.941960800016
+    # gamma_Np1_scale = 4.06453310851
+    # gamma_Np2_scale = 3.3709968686
+    # gamma_Np3_scale = 1.38728943513
+    # gamma_Np4_scale = 1.41464077802
+    # gamma_Np5_scale = 1.23661096137
+
+    wino_600_200_scale = 1.1675
+    wino_600_500_scale = 2.69352
     wino_1000_200_scale = 4.1325
     wino_1500_400_scale = 0.16
+    wino_1000_100_scale = 69.5
+    wino_800_700_scale = 0.2328
     Wlepnu_Np0_scale = 12.0052623622
     Wlepnu_Np1_scale = 3.13076456857
     Wlepnu_Np2_scale = 0.60296853897
@@ -359,23 +457,27 @@ def main():
     Ztautau_Np3_scale = 0.640077378243
     Ztautau_Np4_scale = 0.581269375646
     Ztautau_Np5_scale = 0.48125
-    Wgamma_Np0_scale = 0.0129441737417
-    Wgamma_Np1_scale = 0.0635170304401
-    Wgamma_Np2_scale = 0.140920227273
-    Wgamma_Np3_scale = 0.140622611111
-    Wgamma_Np4_scale = 0.134589
-    Wgamma_Np5_scale = 0.123308
+    Wgamma_Np0_scale = 0.0132834003639
+    Wgamma_Np1_scale = 0.0651816146862
+    Wgamma_Np2_scale = 0.144613309091
+    Wgamma_Np3_scale = 0.144307893333
+    Wgamma_Np4_scale = 0.13811616
+    Wgamma_Np5_scale = 0.12653952
     ttbar_scale = 0.0384505023442
     st_tchan_lepnu_scale = 0.200916540624
     st_tchan_taunu_scale = 0.201132004918
-    st_schan_lepnu_scale = 0.0092735093327
-    st_schan_taunu_scale = 0.00926981472204
     st_Wt_scale = 0.0916407781992
     WW_scale = 0.0342151663714
     WZ_scale = 0.110873818259
     ZZ_scale = 0.0252773011092
     Zleplepgamma_scale = 0.963
     Ztautaugamma_scale = 0.941960800016
+    gamma_Np1_scale = 4.17064063358
+    gamma_Np2_scale = 3.35244054801
+    gamma_Np3_scale = 1.36994217452
+    gamma_Np4_scale = 1.41464077802
+    gamma_Np5_scale = 1.23661096137
+
 
     if signal == "600_200":
         factory.AddSignalTree(wino_600_200Tree, wino_600_200_scale)
@@ -448,7 +550,7 @@ def main():
     factory.AddVariable( "MET := sqrt(Metx*Metx+Mety*Mety)", 'F' )
     #factory.AddVariable( "HT", 'F' )
     factory.AddVariable( "PhotonPt[0]", 'F' )
-    #factory.AddVariable( "ElectronPt[0]", 'F' )
+    factory.AddVariable( "ElectronPt[0]", 'F' )
     factory.AddVariable( "mTel", 'F' )
     #factory.AddVariable( "abs(PhotonEta[0])", 'F' )
     #factory.AddVariable( "abs(ElectronEta[0])", 'F' )

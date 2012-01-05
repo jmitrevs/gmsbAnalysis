@@ -37,7 +37,9 @@ private:
   void PrintDecayTree(const HepMC::GenVertex *vtx, int extraSpaces=0);
 
    // also adds the pT of each particle
-  void PrintDecayTreeAnnotated(const HepMC::GenVertex *vtx, int extraSpaces=0);
+  void PrintDecayTreeAnnotated(const HepMC::GenVertex *vtx, int extraSpaces=0) const;
+
+  void DumpEntireTree(const HepMC::GenEvent *ge) const;
 
   // some utilities for it
   bool StatusGood(int status) const;

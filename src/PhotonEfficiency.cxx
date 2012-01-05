@@ -259,6 +259,7 @@ StatusCode PhotonEfficiency::execute()
       }
     }
     
+    DumpEntireTree(ge);
   }
   
   return StatusCode::SUCCESS;
@@ -322,7 +323,7 @@ void PhotonEfficiency::PrintDecayTree(const HepMC::GenVertex *vtx, int extraSpac
 // prints the decay products of one vertex, calling itself to to
 // further decay of SUSY particles, t, W, Z, higgses, (gamma? not now).
 // Doesn't continue into Geant particles 
-void PhotonEfficiency::PrintDecayTreeAnnotated(const HepMC::GenVertex *vtx, int extraSpaces)
+void PhotonEfficiency::PrintDecayTreeAnnotated(const HepMC::GenVertex *vtx, int extraSpaces) const
 {
   std::vector<const HepMC::GenVertex *> decayVertices;
   
@@ -378,6 +379,17 @@ const HepMC::GenVertex *PhotonEfficiency::FindNextVertex(const HepMC::GenParticl
     return nextVtx;
   } else {
     return NULL;
+  }
+}
+
+void PhotonEfficiency::DumpEntireTree(const HepMC::GenEvent *ge) const
+{
+  for(HepMC::GenEvent::particle_const_iterator pitr=ge->particles_begin();
+      pitr!=ge->particles_end(); ++pitr ){
+    if( (*pitr)->status()==1 ) {
+      ATH_MSG_INFO("Found particle of type " << m_pdg.GetParticle((*pitr)->pdg_id())->GetName() 
+		   << " with pT = " << (*pitr)->momentum().perp());
+    }
   }
 }
 
