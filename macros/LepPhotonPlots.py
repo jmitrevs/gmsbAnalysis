@@ -9,6 +9,8 @@ ROOT.SetAtlasStyle()
 ELECTRON = 0
 MUON = 1
 
+DEFAULTLEPTON = ELECTRON
+
 def GetHistNames(inFile):
     
     histNames = []
@@ -41,7 +43,7 @@ def LepPhotonPlots(lepton):
         wino_600_200FileName = path + "wino_600_200_el.root"
         wino_600_500FileName = path + "wino_600_500_el.root"
         wino_1000_200FileName = path + "wino_1000_200_el.root"
-        wino_1500_400FileName = path + "wino_1500_400_el.root"
+        wino_1500_300FileName = path + "wino_1500_300_el.root"
         wino_1000_100FileName = path + "wino_1000_100_el.root"
         wino_800_700FileName = path + "wino_800_700_el.root"
         
@@ -71,7 +73,7 @@ def LepPhotonPlots(lepton):
         wino_600_200FileName = path + "wino_600_200_mu.root"
         wino_600_500FileName = path + "wino_600_500_mu.root"
         wino_1000_200FileName = path + "wino_1000_200_mu.root"
-        wino_1500_400FileName = path + "wino_1500_400_mu.root"
+        wino_1500_300FileName = path + "wino_1500_300_mu.root"
 
         WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
         WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
@@ -141,7 +143,7 @@ def LepPhotonPlots(lepton):
     wino_600_200File = ROOT.TFile(wino_600_200FileName)
     wino_600_500File = ROOT.TFile(wino_600_500FileName)
     wino_1000_200File = ROOT.TFile(wino_1000_200FileName)
-    wino_1500_400File = ROOT.TFile(wino_1500_400FileName)
+    wino_1500_300File = ROOT.TFile(wino_1500_300FileName)
     wino_1000_100File = ROOT.TFile(wino_1000_100FileName)
     wino_800_700File = ROOT.TFile(wino_800_700FileName)
 
@@ -208,7 +210,7 @@ def LepPhotonPlots(lepton):
     cutFlowwino_600_200 = wino_600_200File.Get("Global/CutFlow")
     cutFlowwino_600_500 = wino_600_500File.Get("Global/CutFlow")
     cutFlowwino_1000_200 = wino_1000_200File.Get("Global/CutFlow")
-    cutFlowwino_1500_400 = wino_1500_400File.Get("Global/CutFlow")
+    cutFlowwino_1500_300 = wino_1500_300File.Get("Global/CutFlow")
     cutFlowwino_1000_100 = wino_1000_100File.Get("Global/CutFlow")
     cutFlowwino_800_700 = wino_800_700File.Get("Global/CutFlow")
 
@@ -275,7 +277,7 @@ def LepPhotonPlots(lepton):
     nOrigwino_600_200 = cutFlowwino_600_200.GetBinContent(1)
     nOrigwino_600_500 = cutFlowwino_600_500.GetBinContent(1)
     nOrigwino_1000_200 = cutFlowwino_1000_200.GetBinContent(1)
-    nOrigwino_1500_400 = cutFlowwino_1500_400.GetBinContent(1)
+    nOrigwino_1500_300 = cutFlowwino_1500_300.GetBinContent(1)
     nOrigwino_1000_100 = cutFlowwino_1000_100.GetBinContent(1)
     nOrigwino_800_700 = cutFlowwino_800_700.GetBinContent(1)
 
@@ -345,7 +347,7 @@ def LepPhotonPlots(lepton):
     print "\tnOrigwino_600_200 =", nOrigwino_600_200
     print "\tnOrigwino_600_500 =", nOrigwino_600_500
     print "\tnOrigwino_1000_200 =", nOrigwino_1000_200
-    print "\tnOrigwino_1500_400 =", nOrigwino_1500_400
+    print "\tnOrigwino_1500_300 =", nOrigwino_1500_300
     print "\tnOrigwino_1000_100 =", nOrigwino_1000_100
     print "\tnOrigwino_800_700 =", nOrigwino_800_700
 
@@ -409,14 +411,16 @@ def LepPhotonPlots(lepton):
     print
 
     ##############################################
-    #   scale is lumi * xsec * kfact / numEvents
+    #   scale is lumi * xsec * kfact * filter / numEvents
 
     wino_600_200_scale = Lumi * 1.1675 * 1 / nOrigwino_600_200
     wino_600_500_scale = Lumi * 0.33669 * 1.6 / nOrigwino_600_500
     wino_1000_200_scale = Lumi * 0.8265 * 1 / nOrigwino_1000_200
-    wino_1500_400_scale = Lumi * 0.0320 * 1 / nOrigwino_1500_400
+    #wino_1500_400_scale = Lumi * 0.0320 * 1 / nOrigwino_1500_400
     wino_1000_100_scale = Lumi * 13.9 * 1 / nOrigwino_1000_100
     wino_800_700_scale = Lumi * 0.0291 * 1.6 / nOrigwino_800_700
+
+    wino_1500_300_scale = Lumi * 0.1342 * 1 * 0.139 / nOrigwino_1500_300
 
 
     if lepton == ELECTRON:
@@ -511,7 +515,7 @@ def LepPhotonPlots(lepton):
     print "\twino_600_200_scale =", wino_600_200_scale
     print "\twino_600_500_scale =", wino_600_500_scale
     print "\twino_1000_200_scale =", wino_1000_200_scale
-    print "\twino_1500_400_scale =", wino_1500_400_scale
+    print "\twino_1500_300_scale =", wino_1500_300_scale
     print "\twino_1000_100_scale =", wino_1000_100_scale
     print "\twino_800_700_scale =", wino_800_700_scale
 
@@ -584,7 +588,7 @@ def LepPhotonPlots(lepton):
     nAfterPreselectwino_600_200 = cutFlowwino_600_200.GetBinContent(binToLookAt)
     nAfterPreselectwino_600_500 = cutFlowwino_600_500.GetBinContent(binToLookAt)
     nAfterPreselectwino_1000_200 = cutFlowwino_1000_200.GetBinContent(binToLookAt)
-    nAfterPreselectwino_1500_400 = cutFlowwino_1500_400.GetBinContent(binToLookAt)
+    nAfterPreselectwino_1500_300 = cutFlowwino_1500_300.GetBinContent(binToLookAt)
     nAfterPreselectwino_1000_100 = cutFlowwino_1000_100.GetBinContent(binToLookAt)
     nAfterPreselectwino_800_700 = cutFlowwino_800_700.GetBinContent(binToLookAt)
 
@@ -653,7 +657,7 @@ def LepPhotonPlots(lepton):
     print "Yield wino_600_200 =", nAfterPreselectwino_600_200 * wino_600_200_scale
     print "Yield wino_600_500 =", nAfterPreselectwino_600_500 * wino_600_500_scale
     print "Yield wino_1000_200 =", nAfterPreselectwino_1000_200 * wino_1000_200_scale
-    print "Yield wino_1500_400 =", nAfterPreselectwino_1500_400 * wino_1500_400_scale
+    print "Yield wino_1500_300 =", nAfterPreselectwino_1500_300 * wino_1500_300_scale
     print "Yield wino_1000_100 =", nAfterPreselectwino_1000_100 * wino_1000_100_scale
     print "Yield wino_800_700 =", nAfterPreselectwino_800_700 * wino_800_700_scale
 
@@ -730,7 +734,7 @@ def LepPhotonPlots(lepton):
         wino_600_200 = wino_600_200File.Get(histName)
         wino_600_500 = wino_600_500File.Get(histName)
         wino_1000_200 = wino_1000_200File.Get(histName)
-        wino_1500_400 = wino_1500_400File.Get(histName)
+        wino_1500_300 = wino_1500_300File.Get(histName)
         
         Wlepnu_Np0 = WlepnuFile_Np0.Get(histName)
         Wlepnu_Np1 = WlepnuFile_Np1.Get(histName)
@@ -795,7 +799,7 @@ def LepPhotonPlots(lepton):
         wino_600_200.Scale(wino_600_200_scale)
         wino_600_500.Scale(wino_600_500_scale)
         wino_1000_200.Scale(wino_1000_200_scale)
-        wino_1500_400.Scale(wino_1500_400_scale)
+        wino_1500_300.Scale(wino_1500_300_scale)
 
         Wlepnu_Np0.Scale(Wlepnu_Np0_scale)
         Wlepnu_Np1.Scale(Wlepnu_Np1_scale)
@@ -923,7 +927,7 @@ def LepPhotonPlots(lepton):
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbar.GetXaxis().GetTitle()+";Events")
 
-        #bg.SetMinimum(5e-2)
+        bg.SetMinimum(5e-2)
         bg.SetMaximum(200)
 
         gamma.SetFillStyle(1001)
@@ -969,8 +973,8 @@ def LepPhotonPlots(lepton):
         wino_600_500.Scale(0.1)
         wino_1000_200.Rebin(10)
         wino_1000_200.Scale(0.1)
-        wino_1500_400.Rebin(10)
-        wino_1500_400.Scale(0.1)
+        wino_1500_300.Rebin(10)
+        #wino_1500_300.Scale(0.1)
         
         wino_600_200.SetFillStyle(0)
         wino_600_200.SetLineColor(12)
@@ -981,13 +985,13 @@ def LepPhotonPlots(lepton):
         wino_1000_200.SetFillStyle(0)
         wino_1000_200.SetLineColor(41)
         wino_1000_200.SetLineWidth(3)
-        wino_1500_400.SetFillStyle(0)
-        wino_1500_400.SetLineColor(43)
-        wino_1500_400.SetLineWidth(3)
+        wino_1500_300.SetFillStyle(0)
+        wino_1500_300.SetLineColor(43)
+        wino_1500_300.SetLineWidth(3)
         wino_600_200.Draw("hist same");
         #wino_600_500.Draw("hist same");
         #wino_1000_200.Draw("hist same");
-        #wino_1500_400.Draw("hist same");
+        wino_1500_300.Draw("hist same");
 
 
         legb = ROOT.TLegend(0.5,0.55,0.93,0.92)
@@ -1005,7 +1009,7 @@ def LepPhotonPlots(lepton):
         legb.AddEntry(wino_600_200,"wino (600, 200) #times 100", "l");
         #legb.AddEntry(wino_600_500,"wino (600, 500)","l");
         #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
-        #legb.AddEntry(wino_1500_400,"wino (1500, 400)","l");
+        legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
 
         legb.Draw()
 
@@ -1015,3 +1019,5 @@ def LepPhotonPlots(lepton):
   
 
     
+if __name__ == "__main__":
+    LepPhotonPlots(DEFAULTLEPTON)

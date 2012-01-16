@@ -122,7 +122,7 @@ def main():
         wino_600_200FileName = path + "wino_600_200_el.root"
         wino_600_500FileName = path + "wino_600_500_el.root"
         wino_1000_200FileName = path + "wino_1000_200_el.root"
-        wino_1500_400FileName = path + "wino_1500_400_el.root"
+        wino_1500_300FileName = path + "wino_1500_300_el.root"
         
         WlepnuFileName_Np0 = path + "Wenu_Np0.root"
         WlepnuFileName_Np1 = path + "Wenu_Np1.root"
@@ -150,7 +150,7 @@ def main():
         wino_600_200FileName = path + "wino_600_200_mu.root"
         wino_600_500FileName = path + "wino_600_500_mu.root"
         wino_1000_200FileName = path + "wino_1000_200_mu.root"
-        wino_1500_400FileName = path + "wino_1500_400_mu.root"
+        wino_1500_300FileName = path + "wino_1500_300_mu.root"
 
         WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
         WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
@@ -214,7 +214,7 @@ def main():
     wino_600_200File = TFile(wino_600_200FileName)
     wino_600_500File = TFile(wino_600_500FileName)
     wino_1000_200File = TFile(wino_1000_200FileName)
-    wino_1500_400File = TFile(wino_1500_400FileName)
+    wino_1500_300File = TFile(wino_1500_300FileName)
 
     WlepnuFile_Np0 = TFile(WlepnuFileName_Np0)
     WlepnuFile_Np1 = TFile(WlepnuFileName_Np1)
@@ -274,7 +274,7 @@ def main():
     wino_600_200Tree = wino_600_200File.Get("GammaLepton")
     wino_600_500Tree = wino_600_500File.Get("GammaLepton")
     wino_1000_200Tree = wino_1000_200File.Get("GammaLepton")
-    wino_1500_400Tree = wino_1500_400File.Get("GammaLepton")
+    wino_1500_300Tree = wino_1500_300File.Get("GammaLepton")
 
     WlepnuTree_Np0 = WlepnuFile_Np0.Get("GammaLepton")
     WlepnuTree_Np1 = WlepnuFile_Np1.Get("GammaLepton")
@@ -334,7 +334,7 @@ def main():
     # wino_600_200_scale = 7.005
     # wino_600_500_scale = 3.03021
     # wino_1000_200_scale = 4.1325
-    # wino_1500_400_scale = 0.16
+    # wino_1500_300_scale = 0.16
     # Wlepnu_Np0_scale = 12.0052623622
     # Wlepnu_Np1_scale = 3.13076456857
     # Wlepnu_Np2_scale = 0.60296853897
@@ -381,7 +381,7 @@ def main():
     # wino_600_200_scale = 1.401
     # wino_600_500_scale = 3.03021
     # wino_1000_200_scale = 4.1325
-    # wino_1500_400_scale = 0.16
+    # wino_1500_300_scale = 0.16
     # Wlepnu_Np0_scale = 12.0052623622
     # Wlepnu_Np1_scale = 3.13076456857
     # Wlepnu_Np2_scale = 0.60296853897
@@ -430,7 +430,7 @@ def main():
     wino_600_200_scale = 1.1675
     wino_600_500_scale = 2.69352
     wino_1000_200_scale = 4.1325
-    wino_1500_400_scale = 0.16
+    wino_1500_300_scale = 0.0093269
     wino_1000_100_scale = 69.5
     wino_800_700_scale = 0.2328
     Wlepnu_Np0_scale = 12.0052623622
@@ -485,8 +485,8 @@ def main():
         factory.AddSignalTree(wino_600_500Tree, wino_600_500_scale)
     elif signal == "1000_200":
         factory.AddSignalTree(wino_1000_200Tree, wino_1000_200_scale)
-    elif signal == "1500_400":
-        factory.AddSignalTree(wino_1500_400Tree, wino_1500_400_scale)
+    elif signal == "1500_300":
+        factory.AddSignalTree(wino_1500_300Tree, wino_1500_300_scale)
     else:
         print "*** signal designation not supported: %s ****" % signal
         sys.exit(1)
@@ -548,16 +548,17 @@ def main():
     # note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
     # [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
     factory.AddVariable( "MET := sqrt(Metx*Metx+Mety*Mety)", 'F' )
-    #factory.AddVariable( "HT", 'F' )
+    factory.AddVariable( "HT", 'F' )
     factory.AddVariable( "PhotonPt[0]", 'F' )
-    factory.AddVariable( "ElectronPt[0]", 'F' )
+    #factory.AddVariable( "ElectronPt[0]", 'F' )
     factory.AddVariable( "mTel", 'F' )
     #factory.AddVariable( "abs(PhotonEta[0])", 'F' )
     #factory.AddVariable( "abs(ElectronEta[0])", 'F' )
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
-    mycutSig = TCut( "" ) 
+    mycutSig = TCut( "abs(PhotonEta[0]) < 2.01 && abs(ElectronEta[0]) < 2.01" ) 
+    #mycutSig = TCut( "sqrt(Metx*Metx+Mety*Mety) > 115000" ) 
     mycutBkg = TCut( "" ) 
     
     # Here, the relevant variables are copied over in new, slim trees that are
