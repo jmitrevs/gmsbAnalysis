@@ -1,5 +1,6 @@
 #include "gmsbAnalysis/SignalGammaLepton.h"
 #include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
+#include "gmsbTools/TruthStudies.h"
 
 #include "TH1.h"
 
@@ -70,6 +71,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("JetCleaningTool", m_JetCleaningTool);
 
+  declareProperty("TruthStudiesTool", m_truth);
+  declareProperty("doTruthStudies", m_doTruthStudies = false);
+
   // Tool for track extrapolation to vertex
   declareProperty("trackToVertexTool", m_trackToVertexTool,
 		  "Tool for track extrapolation to vertex");
@@ -127,6 +131,15 @@ StatusCode SignalGammaLepton::initialize(){
     return sc;
   }
 
+  // retrieving the truth studies tool
+  if (m_doTruthStudies) {
+    sc = m_truth.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool " << m_truth);
+      return sc;
+    }
+  }
+      
   if (m_applyTriggers) {
     sc = m_trigDec.retrieve();
     if ( sc.isFailure() ) {
@@ -210,6 +223,9 @@ StatusCode SignalGammaLepton::initialize(){
     m_histograms["mTmu"] = new TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500);
     m_histograms["meff"] = new TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 300, 0, 1500);
 
+    m_histograms["eventType"] = new TH1F("eventType", "The event type, based on truth;event type", 
+					 TruthStudies::numEventTypes, 0, TruthStudies::numEventTypes);
+
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
@@ -246,6 +262,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTel" , m_histograms["mTel"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTmu" , m_histograms["mTmu"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/meff" , m_histograms["meff"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/eventType" , m_histograms["eventType"]).ignore();
   }
 
 
@@ -296,6 +313,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("mTel", &m_mTel, "mTel/F"); 
     m_tree->Branch("mTmu", &m_mTmu, "mTmu/F"); 
     m_tree->Branch("meff", &m_meff, "meff/F"); 
+
+    m_tree->Branch("eventType",  &m_type, "eventType/I");
 
     // now now the arrays
     m_tree->Branch("PhotonPt", &m_ph_pt);
@@ -886,12 +905,17 @@ StatusCode SignalGammaLepton::execute()
 	       << m_numMu << " " << met_eta4p5_muon/GeV);
 
 
-  
+  m_type = EventType::unknown;
+  if (doTruthStudies) {
+    m_truth->execute();
+    m_type = m_truth->GetEventType();
+  }
 
   if (m_outputHistograms) {
 
     m_histograms["HT"]->Fill(m_HT/GeV, m_weight);
     m_histograms["meff"]->Fill(m_meff/GeV, m_weight);
+    m_histograms["eventType"]->Fill(m_type, m_weight);
 
     if (leadingPh) {
       m_histograms["ph_eta1"]->Fill(leadingPh->eta(), m_weight);

@@ -19,6 +19,7 @@ class Jet;
 namespace Reco  { class ITrackToVertex; }
 class ISUSYPhotonJetCleaningTool;
 namespace Trig  { class TrigDecisionTool; }
+class TruthStudies;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -80,6 +81,10 @@ private:
   /** @brief trigger decision tool */    
   ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 
+  /** @brief classify the event type */
+  ToolHandle<TruthStudies> m_truth;
+  bool m_doTruthStudies;
+
   FakeMetEstimator m_fakeMetEstimator;
   FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
 
@@ -116,6 +121,8 @@ private:
   unsigned int m_numEl;
   unsigned int m_numMu;
   unsigned int m_numJets;
+
+  TruthStudies::EventType m_type;
 
   // MET
   float m_metx;
