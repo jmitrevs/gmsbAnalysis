@@ -5,6 +5,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
+#include "gmsbTools/TruthStudies.h"
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
 #include "gmsbAnalysis/AccumulateUncert.h"
@@ -19,7 +20,6 @@ class Jet;
 namespace Reco  { class ITrackToVertex; }
 class ISUSYPhotonJetCleaningTool;
 namespace Trig  { class TrigDecisionTool; }
-class TruthStudies;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {

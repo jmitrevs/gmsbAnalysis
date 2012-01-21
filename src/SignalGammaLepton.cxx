@@ -1,6 +1,5 @@
 #include "gmsbAnalysis/SignalGammaLepton.h"
 #include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
-#include "gmsbTools/TruthStudies.h"
 
 #include "TH1.h"
 
@@ -905,9 +904,13 @@ StatusCode SignalGammaLepton::execute()
 	       << m_numMu << " " << met_eta4p5_muon/GeV);
 
 
-  m_type = EventType::unknown;
-  if (doTruthStudies) {
-    m_truth->execute();
+  m_type = TruthStudies::unknown;
+  if (m_doTruthStudies) {
+    sc = m_truth->execute();
+    if ( sc.isFailure() ) {
+      ATH_MSG_WARNING("TruthStudies Failed");
+      return sc;
+    }
     m_type = m_truth->GetEventType();
   }
 

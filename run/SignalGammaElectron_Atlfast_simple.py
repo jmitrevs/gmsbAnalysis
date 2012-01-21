@@ -90,7 +90,7 @@ from ROOT import egammaPID
 
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.MCTruthClassifier = MCTruthClassifier.MCTruthClassifierBase.MCTruthClassifier
-gmsbSelectionTool.DoTruth = True
+gmsbSelectionTool.DoTruth = False
 gmsbSelectionTool.Atlfast = True
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.SmearMC = False
@@ -108,6 +108,14 @@ gmsbCrackSelectionTool.SmearMC = False
 #gmsbCrackSelectionTool.MCEtconeShift = 0.0;
 #gmsbCrackSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
+from gmsbTools.gmsbToolsConf import TruthStudies
+truthStudies = TruthStudies(name = "TruthStudies",
+                            PrintDecayTree = True,
+                            UseAnnotated = True,
+                            OutputLevel = DEBUG
+                            )
+ToolSvc += truthStudies
+
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             isMC = True,
@@ -120,7 +128,9 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             applyTrigger = False,
                             NumPhotons = 1,
                             NumElectrons = 1,
-                            outputNtuple = True,
+                            outputNtuple = False,
+                            doTruthStudies = True,
+                            TruthStudiesTool = truthStudies
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG
