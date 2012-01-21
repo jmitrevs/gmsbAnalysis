@@ -123,6 +123,7 @@ private:
   unsigned int m_numJets;
 
   TruthStudies::EventType m_type;
+  int m_isStrong;
 
   // MET
   float m_metx;

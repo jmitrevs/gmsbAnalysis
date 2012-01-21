@@ -27,7 +27,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
 athenaCommonFlags.EvtMax=-1
-#athenaCommonFlags.EvtMax=100
+#athenaCommonFlags.EvtMax=500
 
 
 # # use closest DB replica

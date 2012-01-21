@@ -225,6 +225,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_histograms["eventType"] = new TH1F("eventType", "The event type, based on truth;event type", 
 					 TruthStudies::numEventTypes, 0, TruthStudies::numEventTypes);
 
+    m_histograms["isStrong"] = new TH1F("isStrong", "The type of production", 2, 0, 2); 
+
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
@@ -262,6 +264,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTmu" , m_histograms["mTmu"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/meff" , m_histograms["meff"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/eventType" , m_histograms["eventType"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/isStrong" , m_histograms["isStrong"]).ignore();
   }
 
 
@@ -314,6 +317,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("meff", &m_meff, "meff/F"); 
 
     m_tree->Branch("eventType",  &m_type, "eventType/I");
+    m_tree->Branch("isStrong",  &m_isStrong, "isStrong/I");
 
     // now now the arrays
     m_tree->Branch("PhotonPt", &m_ph_pt);
@@ -912,6 +916,7 @@ StatusCode SignalGammaLepton::execute()
       return sc;
     }
     m_type = m_truth->GetEventType();
+    m_isStrong = m_truth->isStrong();
   }
 
   if (m_outputHistograms) {
@@ -919,6 +924,7 @@ StatusCode SignalGammaLepton::execute()
     m_histograms["HT"]->Fill(m_HT/GeV, m_weight);
     m_histograms["meff"]->Fill(m_meff/GeV, m_weight);
     m_histograms["eventType"]->Fill(m_type, m_weight);
+    m_histograms["isStrong"]->Fill(m_isStrong, m_weight);
 
     if (leadingPh) {
       m_histograms["ph_eta1"]->Fill(leadingPh->eta(), m_weight);
