@@ -101,7 +101,7 @@ gmsbCrackSelectionTool.SmearMC = False
 
 from gmsbTools.gmsbToolsConf import TruthStudies
 truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = False,
+                            PrintDecayTree = True,
                             UseAnnotated = False,
                             DumpEntireTree = False,
                             OutputLevel = DEBUG
@@ -119,7 +119,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             applyTrigger = False,
                             NumPhotons = 1,
                             NumElectrons = 1,
-                            outputNtuple = False,
+                            outputNtuple = True,
                             doTruthStudies = True,
                             TruthStudiesTool = truthStudies
                             )

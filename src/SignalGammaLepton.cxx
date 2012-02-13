@@ -77,6 +77,10 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("trackToVertexTool", m_trackToVertexTool,
 		  "Tool for track extrapolation to vertex");
 
+  declareProperty("Blind", m_blind = false);
+  declareProperty("BlindMET", m_blindMET = 100*GeV);
+  declareProperty("BlindMT", m_blindMT = 100*GeV);
+
   declareProperty("isMC", m_isMC = false);
   declareProperty("trigDecisionTool", m_trigDec);
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
@@ -172,6 +176,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_histograms["ph_eta2"] = new TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3);
     m_histograms["ph_pt2"] = new TH1F("ph_pt2","Transverse momentum of the second photons;p_{T} [GeV]", 500, 0, 500);
 
+    m_histograms["ph_pt_input"] = new TH1F("ph_pt_input","Transverse momentum of the leading photons passing selection criteria;p_{T} [GeV]", 500, 0, 500);
+
     m_histograms["ph_ptB_unconv"] = new TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;p_{T} [GeV]", 500, 0, 500);
     m_histograms["ph_ptEC_unconv"] = new TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;p_{T} [GeV]", 500, 0, 500);
 
@@ -232,6 +238,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta2" , m_histograms["ph_eta2"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt2" , m_histograms["ph_pt2"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt_input" , m_histograms["ph_pt_input"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_unconv" , m_histograms["ph_ptB_unconv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_unconv" , m_histograms["ph_ptEC_unconv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_conv" , m_histograms["ph_ptB_conv"]).ignore();
@@ -345,9 +352,9 @@ StatusCode SignalGammaLepton::execute()
   m_weight = 1.0;
 
   // The missing ET object
-  const MissingET* met(0);
-  StatusCode sc = evtStore()->retrieve( met, m_METContainerName );
-  if( sc.isFailure()  ||  !met ) {
+  const MissingET* metCont(0);
+  StatusCode sc = evtStore()->retrieve( metCont, m_METContainerName );
+  if( sc.isFailure()  ||  !metCont ) {
     ATH_MSG_ERROR("No "<< m_METContainerName <<" container found in TDS");
     return StatusCode::RECOVERABLE;
   }
@@ -445,6 +452,7 @@ StatusCode SignalGammaLepton::execute()
 
   m_histograms["CutFlow"]->Fill(0.0, m_weight);
 
+
   if (m_applyTriggers) {
     if (! m_trigDec->isPassed(m_triggers)) {
       return StatusCode::SUCCESS; // reject event
@@ -522,6 +530,12 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Got the containers");
 
+  if (m_outputHistograms && photons->size() > 0) {
+    // let's plot all the photons
+
+    m_histograms["ph_pt_input"]->Fill(photons->at(0)->pt()/GeV, m_weight);
+
+  }
   // jet cleaning
   if (!m_isMC) {
     for (JetCollection::const_iterator jet = jets->begin();
@@ -764,7 +778,7 @@ StatusCode SignalGammaLepton::execute()
   double etMiss_eta4p5_etx=0;
   double etMiss_eta4p5_ety=0;
   //Regions for lochad topo
-  const MissingEtRegions* caloReg = met->getRegions();
+  const MissingEtRegions* caloReg = metCont->getRegions();
   if ( caloReg != 0 ) {
     double etMiss_topo_lochad_central_etx = caloReg->exReg(MissingEtRegions::Central);
     double etMiss_topo_lochad_central_ety = caloReg->eyReg(MissingEtRegions::Central);
@@ -793,6 +807,7 @@ StatusCode SignalGammaLepton::execute()
   m_mety = etMiss_eta4p5_ety_muon;
 
   const double met_eta4p5_muon = hypot(etMiss_eta4p5_etx_muon, etMiss_eta4p5_ety_muon);
+  const double met = met_eta4p5_muon;
   const double metPhi = (etMiss_eta4p5_ety_muon == 0.0 && etMiss_eta4p5_etx_muon == 0.0) 
     ? 0.0 : atan2(etMiss_eta4p5_ety_muon, etMiss_eta4p5_etx_muon);
 
@@ -839,32 +854,9 @@ StatusCode SignalGammaLepton::execute()
 
   }
 
-  // ATH_MSG_DEBUG("Passed smart veto");
-  // m_histograms["CutFlow"]->Fill(9.0, m_weight);
-
-  // if (met_eta4p5_muon > 75*GeV) {
-  //   m_histograms["CutFlow"]->Fill(10.0, m_weight);
-  // }
-
-  // if (met_eta4p5_muon > 100*GeV) {
-  //   m_histograms["CutFlow"]->Fill(11.0, m_weight);
-  // }
-
-  // if (met_eta4p5_muon > 125*GeV) {
-  //   m_histograms["CutFlow"]->Fill(12.0, m_weight);
-  // }
-
-  // if (met_eta4p5_muon > 150*GeV) {
-  //   m_histograms["CutFlow"]->Fill(13.0, m_weight);
-  // }
-
-  // if (met_eta4p5_muon < 140*GeV) {
-  //   return StatusCode::SUCCESS; // reject event
-  // }
-  m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
 
-  m_meff = m_HT+met_eta4p5_muon;
+  m_meff = m_HT+met;
   if (m_numEl >= 1 && m_numPh >= 1) {
     m_ph_el_minv = P4Helpers::invMass(leadingPh, leadingEl);
   }
@@ -883,15 +875,44 @@ StatusCode SignalGammaLepton::execute()
   }
   if (m_numEl >= 1) {
     m_deltaPhiElMET = P4Helpers::deltaPhi(*leadingEl, metPhi);
-    m_mTel = sqrt(2 * leadingElPt * met_eta4p5_muon * (1 - cos(m_deltaPhiElMET)));
+    m_mTel = sqrt(2 * leadingElPt * met * (1 - cos(m_deltaPhiElMET)));
   }
   if (m_numMu >= 1) {
     m_deltaPhiMuMET = P4Helpers::deltaPhi(*leadingMu, metPhi);
-    m_mTmu = sqrt(2 * leadingMu->pt() * met_eta4p5_muon * (1 - cos(m_deltaPhiMuMET)));    
+    m_mTmu = sqrt(2 * leadingMu->pt() * met * (1 - cos(m_deltaPhiMuMET)));    
   }
 
   const float mT = (m_mTel > m_mTmu) ? m_mTel : m_mTmu;
 
+  if (m_blind && (met > m_blindMET || mT > m_blindMT)) {
+    // blind the event
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG("Event passes blinding (or blinding disabled)");
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
+
+  // ATH_MSG_DEBUG("Passed smart veto");
+  // m_histograms["CutFlow"]->Fill(9.0, m_weight);
+
+  // if (met > 75*GeV) {
+  //   m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  // }
+
+  // if (met > 100*GeV) {
+  //   m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  // }
+
+  // if (met > 125*GeV) {
+  //   m_histograms["CutFlow"]->Fill(12.0, m_weight);
+  // }
+
+  // if (met > 150*GeV) {
+  //   m_histograms["CutFlow"]->Fill(13.0, m_weight);
+  // }
+
+  // if (met < 140*GeV) {
+  //   return StatusCode::SUCCESS; // reject event
+  // }
   // if (mT < 110*GeV) {
   //   return StatusCode::SUCCESS; // reject event
   // }
@@ -905,7 +926,7 @@ StatusCode SignalGammaLepton::execute()
   // let's print out run, lb, and event numbers,...
   ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
 	       << " " << m_numPh << " " << m_numEl << " " 
-	       << m_numMu << " " << met_eta4p5_muon/GeV);
+	       << m_numMu << " " << met/GeV);
 
 
   m_type = TruthStudies::unknown;
@@ -1001,16 +1022,16 @@ StatusCode SignalGammaLepton::execute()
     }
 
     if (m_numPh >= 1) {
-      static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(fabs(m_deltaPhiPhMET), met_eta4p5_muon/GeV, m_weight);
+      static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(fabs(m_deltaPhiPhMET), met/GeV, m_weight);
     }
     
     if (m_numEl >= 1) {
-      static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(fabs(m_deltaPhiElMET), met_eta4p5_muon/GeV, m_weight);
+      static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(fabs(m_deltaPhiElMET), met/GeV, m_weight);
       m_histograms["mTel"]->Fill(m_mTel/GeV, m_weight);
     }
     
     if (m_numMu >= 1) {
-      static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(fabs(m_deltaPhiMuMET), met_eta4p5_muon/GeV, m_weight);
+      static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(fabs(m_deltaPhiMuMET), met/GeV, m_weight);
       m_histograms["mTmu"]->Fill(m_mTmu/GeV, m_weight);
     }
 
@@ -1018,23 +1039,23 @@ StatusCode SignalGammaLepton::execute()
     
     // } // end of if on MET
     
-    m_histograms["met"]->Fill(met_eta4p5_muon/GeV, m_weight);
-    m_histograms["metExtended"]->Fill(met_eta4p5_muon/GeV, m_weight);
+    m_histograms["met"]->Fill(met/GeV, m_weight);
+    m_histograms["metExtended"]->Fill(met/GeV, m_weight);
     switch(m_numJets) {
     case 0:
-      m_histograms["met0J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      m_histograms["met0J"]->Fill(met/GeV, m_weight);
       break;
     case 1:
-      m_histograms["met1J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      m_histograms["met1J"]->Fill(met/GeV, m_weight);
       break;
     case 2:
-      m_histograms["met2J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      m_histograms["met2J"]->Fill(met/GeV, m_weight);
       break;
     case 3:
-      m_histograms["met3J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      m_histograms["met3J"]->Fill(met/GeV, m_weight);
       break;
     default:
-      m_histograms["met4J"]->Fill(met_eta4p5_muon/GeV, m_weight);
+      m_histograms["met4J"]->Fill(met/GeV, m_weight);
       break;
     }
   }

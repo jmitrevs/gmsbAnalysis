@@ -145,7 +145,7 @@ def main():
     elif lepton == MUON:
 
         print "Lepton is MUON."
-        path = "/data3/jmitrevs/lepphoton/old/mergedFiles/"
+        path = "/data3/jmitrevs/lepphoton/muphoton2/mergedFiles/"
 
         wino_600_200FileName = path + "wino_600_200_mu.root"
         wino_600_500FileName = path + "wino_600_500_mu.root"
@@ -168,7 +168,7 @@ def main():
 
         st_tchan_lepnuFileName   = path + "st_tchan_munu.root"
         st_schan_lepnuFileName   = path + "st_schan_munu.root"
-        ZleplepgammaFileName = path + "Zeegamma.root"
+        ZleplepgammaFileName = path + "Zmumugamma.root"
 
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
@@ -427,57 +427,105 @@ def main():
     # gamma_Np4_scale = 1.41464077802
     # gamma_Np5_scale = 1.23661096137
 
-    wino_600_200_scale = 1.1675
-    wino_600_500_scale = 2.69352
-    wino_1000_200_scale = 4.1325
-    wino_1500_300_scale = 0.0093269
-    wino_1000_100_scale = 69.5
-    wino_800_700_scale = 0.2328
-    Wlepnu_Np0_scale = 12.0052623622
-    Wlepnu_Np1_scale = 3.13076456857
-    Wlepnu_Np2_scale = 0.60296853897
-    Wlepnu_Np3_scale = 0.603183318846
-    Wlepnu_Np4_scale = 0.62088
-    Wlepnu_Np5_scale = 0.600008571551
-    Wtaunu_Np0_scale = 12.1457006649
-    Wtaunu_Np1_scale = 3.12868868923
-    Wtaunu_Np2_scale = 0.602359552172
-    Wtaunu_Np3_scale = 0.602586672951
-    Wtaunu_Np4_scale = 0.62088496708
-    Wtaunu_Np5_scale = 0.638769230769
-    Zleplep_Np0_scale = 0.631361988532
-    Zleplep_Np1_scale = 0.629541167757
-    Zleplep_Np2_scale = 0.625618828688
-    Zleplep_Np3_scale = 0.634090909091
-    Zleplep_Np4_scale = 0.6
-    Zleplep_Np5_scale = 0.51875
-    Ztautau_Np0_scale = 0.631228327261
-    Ztautau_Np1_scale = 0.631347664299
-    Ztautau_Np2_scale = 0.622916409433
-    Ztautau_Np3_scale = 0.640077378243
-    Ztautau_Np4_scale = 0.581269375646
-    Ztautau_Np5_scale = 0.48125
-    Wgamma_Np0_scale = 0.0132834003639
-    Wgamma_Np1_scale = 0.0651816146862
-    Wgamma_Np2_scale = 0.144613309091
-    Wgamma_Np3_scale = 0.144307893333
-    Wgamma_Np4_scale = 0.13811616
-    Wgamma_Np5_scale = 0.12653952
-    ttbar_scale = 0.0384505023442
-    st_tchan_lepnu_scale = 0.200916540624
-    st_tchan_taunu_scale = 0.201132004918
-    st_Wt_scale = 0.0916407781992
-    WW_scale = 0.0342151663714
-    WZ_scale = 0.110873818259
-    ZZ_scale = 0.0252773011092
-    Zleplepgamma_scale = 0.963
-    Ztautaugamma_scale = 0.941960800016
-    gamma_Np1_scale = 4.17064063358
-    gamma_Np2_scale = 3.35244054801
-    gamma_Np3_scale = 1.36994217452
-    gamma_Np4_scale = 1.41464077802
-    gamma_Np5_scale = 1.23661096137
 
+    if lepton == ELECTRON:
+        wino_600_200_scale = 0.291875
+        wino_600_500_scale = 2.69352
+        wino_1000_200_scale = 4.1325
+        wino_1500_300_scale = 0.0093269
+        wino_1000_100_scale = 69.5
+        wino_800_700_scale = 0.2328
+        Wlepnu_Np0_scale = 12.0052623622
+        Wlepnu_Np1_scale = 3.13076456857
+        Wlepnu_Np2_scale = 0.60296853897
+        Wlepnu_Np3_scale = 0.603183318846
+        Wlepnu_Np4_scale = 0.62088
+        Wlepnu_Np5_scale = 0.600008571551
+        Wtaunu_Np0_scale = 12.1457006649
+        Wtaunu_Np1_scale = 3.12868868923
+        Wtaunu_Np2_scale = 0.602359552172
+        Wtaunu_Np3_scale = 0.602586672951
+        Wtaunu_Np4_scale = 0.62088496708
+        Wtaunu_Np5_scale = 0.638769230769
+        Zleplep_Np0_scale = 0.631361988532
+        Zleplep_Np1_scale = 0.629541167757
+        Zleplep_Np2_scale = 0.625618828688
+        Zleplep_Np3_scale = 0.634090909091
+        Zleplep_Np4_scale = 0.6
+        Zleplep_Np5_scale = 0.51875
+        Ztautau_Np0_scale = 0.631228327261
+        Ztautau_Np1_scale = 0.631347664299
+        Ztautau_Np2_scale = 0.622916409433
+        Ztautau_Np3_scale = 0.640077378243
+        Ztautau_Np4_scale = 0.581269375646
+        Ztautau_Np5_scale = 0.48125
+        Wgamma_Np0_scale = 0.0132834003639
+        Wgamma_Np1_scale = 0.0651816146862
+        Wgamma_Np2_scale = 0.144613309091
+        Wgamma_Np3_scale = 0.144307893333
+        Wgamma_Np4_scale = 0.13811616
+        Wgamma_Np5_scale = 0.12653952
+        ttbar_scale = 0.0384505023442
+        st_tchan_lepnu_scale = 0.200916540624
+        st_tchan_taunu_scale = 0.201132004918
+        st_Wt_scale = 0.0916407781992
+        WW_scale = 0.0342151663714
+        WZ_scale = 0.110873818259
+        ZZ_scale = 0.0252773011092
+        Zleplepgamma_scale = 0.963
+        Ztautaugamma_scale = 0.941960800016
+        gamma_Np1_scale = 4.17064063358
+        gamma_Np2_scale = 3.35244054801
+        gamma_Np3_scale = 1.36994217452
+        gamma_Np4_scale = 1.41464077802
+        gamma_Np5_scale = 1.23661096137
+    elif lepton == MUON:
+        wino_600_200_scale = 0.291875
+        Wlepnu_Np0_scale = 11.9925371604
+        Wlepnu_Np1_scale = 3.13058966
+        Wlepnu_Np2_scale = 0.601616497017
+        Wlepnu_Np3_scale = 0.605913424797
+        Wlepnu_Np4_scale = 0.606001176701
+        Wlepnu_Np5_scale = 0.593142857143
+        Wtaunu_Np0_scale = 12.1457006649
+        Wtaunu_Np1_scale = 3.12868868923
+        Wtaunu_Np2_scale = 0.602359552172
+        Wtaunu_Np3_scale = 0.602586672951
+        Wtaunu_Np4_scale = 0.62088496708
+        Wtaunu_Np5_scale = 0.638769230769
+        Zleplep_Np0_scale = 0.631664271554
+        Zleplep_Np1_scale = 0.628327597475
+        Zleplep_Np2_scale = 0.62551337696
+        Zleplep_Np3_scale = 0.635795454545
+        Zleplep_Np4_scale = 0.572916666667
+        Zleplep_Np5_scale = 0.48125
+        Ztautau_Np0_scale = 0.631228327261
+        Ztautau_Np1_scale = 0.631347664299
+        Ztautau_Np2_scale = 0.622916409433
+        Ztautau_Np3_scale = 0.640077378243
+        Ztautau_Np4_scale = 0.581269375646
+        Ztautau_Np5_scale = 0.48125
+        Wgamma_Np0_scale = 0.0132834003639
+        Wgamma_Np1_scale = 0.0651816146862
+        Wgamma_Np2_scale = 0.144613309091
+        Wgamma_Np3_scale = 0.144307893333
+        Wgamma_Np4_scale = 0.13811616
+        Wgamma_Np5_scale = 0.12653952
+        ttbar_scale = 0.0384505023442
+        st_tchan_lepnu_scale = 0.201919368378
+        st_tchan_taunu_scale = 0.201132004918
+        st_Wt_scale = 0.0916407781992
+        WW_scale = 0.0342151663714
+        WZ_scale = 0.110873818259
+        ZZ_scale = 0.0252773011092
+        Zleplepgamma_scale = 0.963963963964
+        Ztautaugamma_scale = 0.941960800016
+        gamma_Np1_scale = 4.08704733658
+        gamma_Np2_scale = 3.35244054801
+        gamma_Np3_scale = 1.36994217452
+        gamma_Np4_scale = 1.41464077802
+        gamma_Np5_scale = 1.23661096137
+        
 
     if signal == "600_200":
         factory.AddSignalTree(wino_600_200Tree, wino_600_200_scale)
@@ -505,19 +553,19 @@ def main():
     factory.AddBackgroundTree(WtaunuTree_Np4, Wtaunu_Np4_scale)
     factory.AddBackgroundTree(WtaunuTree_Np5, Wtaunu_Np5_scale)
 
-    factory.AddBackgroundTree(ZleplepTree_Np0, Zleplep_Np0_scale)
-    factory.AddBackgroundTree(ZleplepTree_Np1, Zleplep_Np1_scale)
-    factory.AddBackgroundTree(ZleplepTree_Np2, Zleplep_Np2_scale)
-    factory.AddBackgroundTree(ZleplepTree_Np3, Zleplep_Np3_scale)
-    factory.AddBackgroundTree(ZleplepTree_Np4, Zleplep_Np4_scale)
-    factory.AddBackgroundTree(ZleplepTree_Np5, Zleplep_Np5_scale)
+    # factory.AddBackgroundTree(ZleplepTree_Np0, Zleplep_Np0_scale)
+    # factory.AddBackgroundTree(ZleplepTree_Np1, Zleplep_Np1_scale)
+    # factory.AddBackgroundTree(ZleplepTree_Np2, Zleplep_Np2_scale)
+    # factory.AddBackgroundTree(ZleplepTree_Np3, Zleplep_Np3_scale)
+    # factory.AddBackgroundTree(ZleplepTree_Np4, Zleplep_Np4_scale)
+    # factory.AddBackgroundTree(ZleplepTree_Np5, Zleplep_Np5_scale)
     
-    factory.AddBackgroundTree(ZtautauTree_Np0, Ztautau_Np0_scale)
-    factory.AddBackgroundTree(ZtautauTree_Np1, Ztautau_Np1_scale)
-    factory.AddBackgroundTree(ZtautauTree_Np2, Ztautau_Np2_scale)
-    factory.AddBackgroundTree(ZtautauTree_Np3, Ztautau_Np3_scale)
-    factory.AddBackgroundTree(ZtautauTree_Np4, Ztautau_Np4_scale)
-    factory.AddBackgroundTree(ZtautauTree_Np5, Ztautau_Np5_scale)
+    # factory.AddBackgroundTree(ZtautauTree_Np0, Ztautau_Np0_scale)
+    # factory.AddBackgroundTree(ZtautauTree_Np1, Ztautau_Np1_scale)
+    # factory.AddBackgroundTree(ZtautauTree_Np2, Ztautau_Np2_scale)
+    # factory.AddBackgroundTree(ZtautauTree_Np3, Ztautau_Np3_scale)
+    # factory.AddBackgroundTree(ZtautauTree_Np4, Ztautau_Np4_scale)
+    # factory.AddBackgroundTree(ZtautauTree_Np5, Ztautau_Np5_scale)
     
     factory.AddBackgroundTree(WgammaTree_Np0, Wgamma_Np0_scale)
     factory.AddBackgroundTree(WgammaTree_Np1, Wgamma_Np1_scale)
@@ -548,18 +596,26 @@ def main():
     # note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
     # [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
     factory.AddVariable( "MET := sqrt(Metx*Metx+Mety*Mety)", 'F' )
-    factory.AddVariable( "HT", 'F' )
+    # factory.AddVariable( "HT", 'F' )
     factory.AddVariable( "PhotonPt[0]", 'F' )
     #factory.AddVariable( "ElectronPt[0]", 'F' )
-    factory.AddVariable( "mTel", 'F' )
+    if lepton == ELECTRON:
+        factory.AddVariable( "mTel", 'F' )
+    else:
+        factory.AddVariable( "mTmu", 'F' )
     #factory.AddVariable( "abs(PhotonEta[0])", 'F' )
     #factory.AddVariable( "abs(ElectronEta[0])", 'F' )
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
-    mycutSig = TCut( "abs(PhotonEta[0]) < 2.01 && abs(ElectronEta[0]) < 2.01" ) 
-    #mycutSig = TCut( "sqrt(Metx*Metx+Mety*Mety) > 115000" ) 
-    mycutBkg = TCut( "" ) 
+    #mycutSig = TCut( "abs(PhotonEta[0]) < 2.01 && abs(ElectronEta[0]) < 2.01" ) 
+
+    if lepton == ELECTRON:
+        mycutSig = TCut( "sqrt((PhotonEta[0]-ElectronEta[0])*(PhotonEta[0]-ElectronEta[0]) + (PhotonPhi[0]-ElectronPhi[0])*(PhotonPhi[0]-ElectronPhi[0])) > 0.7")
+    else:
+        mycutSig = TCut( "sqrt((PhotonEta[0]-MuonEta[0])*(PhotonEta[0]-MuonEta[0]) + (PhotonPhi[0]-MuonPhi[0])*(PhotonPhi[0]-MuonPhi[0])) > 0.7")
+    #mycutSig = TCut( "PhotonPt[0] > 85000" ) 
+    mycutBkg = mycutSig 
     
     # Here, the relevant variables are copied over in new, slim trees that are
     # used for TMVA training and testing

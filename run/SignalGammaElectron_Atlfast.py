@@ -16,7 +16,7 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino800_400*_r2300*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_1000_100/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_800_700/*pool.root*')
-InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500/*pool.root*')
+InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500_filterd3/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_200/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_1000_200/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_1500_400/*pool.root*')

@@ -8,8 +8,8 @@ import getopt
 import math
 
 import ROOT
-ROOT.gROOT.LoadMacro("AtlasStyle.C") 
-ROOT.SetAtlasStyle()
+#ROOT.gROOT.LoadMacro("AtlasStyle.C") 
+#ROOT.SetAtlasStyle()
 
 ELECTRON = 0
 MUON = 1
@@ -22,20 +22,20 @@ DEFAULT_LEPTON = ELECTRON
 
 #Cuts
 # - electron channel
-EL_PHPTCUT = 90*GeV
-EL_PHETACUT = 2.01
-EL_ELPTCUT = 50*GeV
-EL_ELETACUT = 2.01
-EL_MET = 125*GeV
-EL_MT = 125*GeV
+EL_PHPTCUT = 85*GeV
+EL_PHETACUT = 2.37
+EL_ELPTCUT = 25*GeV
+EL_ELETACUT = 2.47
+EL_MET = 100*GeV
+EL_MT = 100*GeV
 
 # - muon channel
-MU_PHPTCUT = 90*GeV
-MU_PHETACUT = 2.01
-MU_MUPTCUT = 50*GeV
-MU_MUETACUT = 2.01
-MU_MET = 125*GeV
-MU_MT = 125*GeV
+MU_PHPTCUT = 85*GeV
+MU_PHETACUT = 2.37
+MU_MUPTCUT = 25*GeV
+MU_MUETACUT = 2.4
+MU_MET = 100*GeV
+MU_MT = 100*GeV
 
 def usage():
     print " "
@@ -55,6 +55,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
         return
 
     f = ROOT.TFile(outfile, 'RECREATE')
+
+    #print "glWeight = ", glWeight
 
     ##########################
     # Create the histograms
@@ -106,14 +108,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
 
     ######## MET
     mdir.cd()
-    h_met = ROOT.TH1F("met", "The MET distribution;Etmiss [GeV]", 500, 0, 500)
-    h_met0J = ROOT.TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 500, 0, 500)
-    h_met1J = ROOT.TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 500, 0, 500)
-    h_met2J = ROOT.TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 500, 0, 500)
-    h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 500, 0, 500)
-    h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 500, 0, 500)
+    h_met = ROOT.TH1F("met", "The MET distribution;Etmiss [GeV]", 100, 0, 500)
+    # h_met0J = ROOT.TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 500, 0, 500)
+    # h_met1J = ROOT.TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 500, 0, 500)
+    # h_met2J = ROOT.TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 500, 0, 500)
+    # h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 500, 0, 500)
+    # h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 500, 0, 500)
 
-    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250)
+    # h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250)
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
 						  "The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
@@ -129,9 +131,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
     ############ gldir
     gldir.cd()
     h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 300, 0, 1500)
-    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500)
-    h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500)
+    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV]", 100, 0, 500)
+    h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 100, 0, 500)
     h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 300, 0, 1500)
+
+    h_mTelvsMET = ROOT.TH2F("mTelvsMET", "m_{T} vs. MET;Etmiss [GeV];m_{T} [GeV]",
+                            50, 0, 500, 50, 0, 500)
+    h_mTmuvsMET = ROOT.TH2F("mTmuvsMET", "m_{T} vs. MET;Etmiss [GeV];m_{T} [GeV]",
+                            50, 0, 500, 50, 0, 500)
 
     ######## go back to root
     f.cd()
@@ -145,20 +152,40 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
             sys.exit(1)
 
         met = math.hypot(ev.Metx, ev.Mety)
+        #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
+        #print "weight =", ev.Weight * glWeight
+
+        # first the basic lepton and photon selection (but not MET and mT):
+        if ((lepton == ELECTRON and
+             (ev.PhotonPt[0] < EL_PHPTCUT or abs(ev.PhotonEta[0]) > EL_PHETACUT or
+              ev.ElectronPt[0] < EL_ELPTCUT or abs(ev.ElectronEta[0]) > EL_ELETACUT)) or
+            (lepton == MUON and
+             (ev.PhotonPt[0] < MU_PHPTCUT or abs(ev.PhotonEta[0]) > MU_PHETACUT or
+              ev.MuonPt[0] < MU_MUPTCUT or abs(ev.MuonEta[0]) > MU_MUETACUT))):
+            continue
+
+        # now plots that should be made before MET and mT cuts
+        h_mTelvsMET.Fill(met/GeV, ev.mTel/GeV, ev.Weight * glWeight)
+        h_mTmuvsMET.Fill(met/GeV, ev.mTmu/GeV, ev.Weight * glWeight)
+
+        # then make MET cut after mT and visa versa
+
+        if ((lepton == ELECTRON and met > EL_MET) or
+            (lepton == MUON and met > MU_MET)):
+            h_mTel.Fill(ev.mTel/GeV, ev.Weight * glWeight)
+            h_mTmu.Fill(ev.mTmu/GeV, ev.Weight * glWeight)
+
+        if ((lepton == ELECTRON and ev.mTel > EL_MT) or
+            (lepton == MUON and ev.mTmu > MU_MT)):
+            h_met.Fill(met/GeV, ev.Weight * glWeight)
+            
 
         ## our selection
         if ((lepton == ELECTRON and
-             (ev.PhotonPt[0] < EL_PHPTCUT or math.abs(ev.PhotoEta[0]) > EL_PHETACUT or
-              ev.ElectronPt[0] < EL_ELPTCUT or math.abs(ev.ElectronEta[0]) > EL_ELETACUT or
-              met < EL_MET_PTCUT or ev.mTel < EL_MTCUT)) or
+             (met < EL_MET or ev.mTel < EL_MT)) or
             (lepton == MUON and
-             (ev.PhotonPt[0] < MU_PHPTCUT or math.abs(ev.PhotoEta[0]) > MU_PHETACUT or
-              ev.MuonPt[0] < MU_MUPTCUT or math.abs(ev.MuonEta[0]) > MU_MUETACUT or
-              met < MU_MET_PTCUT or ev.mTel < MU_MTCUT))):
+             (met < MU_MET or ev.mTmu < MU_MT))):
             continue
-
-
-        h_met.Fill(met, ev.Weight * glWeight)
 
 
     f.Write()

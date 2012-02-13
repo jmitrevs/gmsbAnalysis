@@ -10,10 +10,10 @@ Method         : Cuts::Cuts
 TMVA Release   : 4.1.0         [262400]
 ROOT Release   : 5.28/00       [334848]
 Creator        : jmitrevs
-Date           : Fri Jan 13 20:31:20 2012
+Date           : Mon Jan 30 14:35:26 2012
 Host           : Linux lxbuild147.cern.ch 2.6.18-194.26.1.el5 #1 SMP Wed Nov 10 09:51:11 CET 2010 i686 i686 i386 GNU/Linux
 Dir            : /data3/jmitrevs/AtlasProduction-17.0.6.3/gmsbAnalysis/macros
-Training events: 62337
+Training events: 40178
 Analysis type  : [Classification]
 
 
@@ -32,25 +32,21 @@ IgnoreNegWeightsInTraining: "False" [Events with negative weights are ignored in
 CutRangeMin[0]: "-1.000000e+00" [Minimum of allowed cut range (set per variable)]
     CutRangeMin[1]: "-1.000000e+00"
     CutRangeMin[2]: "-1.000000e+00"
-    CutRangeMin[3]: "-1.000000e+00"
 CutRangeMax[0]: "-1.000000e+00" [Maximum of allowed cut range (set per variable)]
     CutRangeMax[1]: "-1.000000e+00"
     CutRangeMax[2]: "-1.000000e+00"
-    CutRangeMax[3]: "-1.000000e+00"
 VarProp[0]: "FSmart" [Categorisation of cuts]
     VarProp[1]: "FSmart"
     VarProp[2]: "FSmart"
-    VarProp[3]: "FSmart"
 ##
 
 
 #VAR -*-*-*-*-*-*-*-*-*-*-*-* variables *-*-*-*-*-*-*-*-*-*-*-*-
 
-NVar 4
-sqrt(Metx*Metx+Mety*Mety)     MET                           MET                           MET                                                             'F'    [71.7475814819,1012134.5]
-HT                            HT                            HT                            HT                                                              'F'    [75266.171875,2446047]
-PhotonPt[0]                   PhotonPt_0_                   PhotonPt[0]                   PhotonPt[0]                                                     'F'    [50000.2851562,845927.5]
-mTel                          mTel                          mTel                          mTel                                                            'F'    [0.145209223032,1959221.875]
+NVar 3
+sqrt(Metx*Metx+Mety*Mety)     MET                           MET                           MET                                                             'F'    [264.879730225,853221.1875]
+PhotonPt[0]                   PhotonPt_0_                   PhotonPt[0]                   PhotonPt[0]                                                     'F'    [50000.3710938,705441.375]
+mTel                          mTel                          mTel                          mTel                                                            'F'    [0.145209223032,1556789.625]
 NSpec 0
 
 
@@ -93,11 +89,11 @@ class ReadCuts : public IClassifierReader {
    ReadCuts( std::vector<std::string>& theInputVars ) 
       : IClassifierReader(),
         fClassName( "ReadCuts" ),
-        fNvars( 4 ),
+        fNvars( 3 ),
         fIsNormalised( false )
    {      
       // the training input variables
-      const char* inputVars[] = { "sqrt(Metx*Metx+Mety*Mety)", "HT", "PhotonPt[0]", "mTel" };
+      const char* inputVars[] = { "sqrt(Metx*Metx+Mety*Mety)", "PhotonPt[0]", "mTel" };
 
       // sanity checks
       if (theInputVars.size() <= 0) {
@@ -121,20 +117,17 @@ class ReadCuts : public IClassifierReader {
       }
 
       // initialize min and max vectors (for normalisation)
-      fVmin[0] = 71.7475814819336;
-      fVmax[0] = 1012134.5;
-      fVmin[1] = 75266.171875;
-      fVmax[1] = 2446047;
-      fVmin[2] = 50000.28515625;
-      fVmax[2] = 845927.5;
-      fVmin[3] = 0.145209223031998;
-      fVmax[3] = 1959221.875;
+      fVmin[0] = 264.879730224609;
+      fVmax[0] = 853221.1875;
+      fVmin[1] = 50000.37109375;
+      fVmax[1] = 705441.375;
+      fVmin[2] = 0.145209223031998;
+      fVmax[2] = 1556789.625;
 
       // initialize input variable types
       fType[0] = 'F';
       fType[1] = 'F';
       fType[2] = 'F';
-      fType[3] = 'F';
 
       // initialize constants
       Initialize();
@@ -166,15 +159,15 @@ class ReadCuts : public IClassifierReader {
    // normalisation of input variables
    const bool fIsNormalised;
    bool IsNormalised() const { return fIsNormalised; }
-   double fVmin[4];
-   double fVmax[4];
+   double fVmin[3];
+   double fVmax[3];
    double NormVariable( double x, double xmin, double xmax ) const {
       // normalise to output range: [-1, 1]
       return 2*(x - xmin)/(xmax - xmin) - 1.0;
    }
 
    // type of input variable: 'F' or 'I'
-   char   fType[4];
+   char   fType[3];
 
    // initialize internal variables
    void Initialize();

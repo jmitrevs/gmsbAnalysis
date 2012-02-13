@@ -85,6 +85,11 @@ private:
   ToolHandle<TruthStudies> m_truth;
   bool m_doTruthStudies;
 
+  /** @breif whether to blind or not */
+  bool m_blind;
+  double m_blindMET;
+  double m_blindMT;
+
   FakeMetEstimator m_fakeMetEstimator;
   FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
 

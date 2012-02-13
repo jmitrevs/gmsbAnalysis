@@ -110,8 +110,9 @@ gmsbCrackSelectionTool.SmearMC = False
 
 from gmsbTools.gmsbToolsConf import TruthStudies
 truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = True,
-                            UseAnnotated = True,
+                            PrintDecayTree = False,
+                            UseAnnotated = False,
+                            DumpEntireTree = False,
                             OutputLevel = DEBUG
                             )
 ToolSvc += truthStudies

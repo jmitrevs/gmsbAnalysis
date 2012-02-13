@@ -16,7 +16,7 @@ fileName = 'TMVAClassification_Cuts.weights.xml'
 
 # this is using the pt50 cuts
 #sigYield = 37
-sigYield = 6.81798
+sigYield = 80.2657
 backYield = 30621.3
 
 # This is using the pt25 cuts

@@ -3,31 +3,25 @@
 #--------------------------------------------------------------
 
 from glob import glob
-#InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mcskims/mc10_7TeV.115038.Pythia_photos_diphotons25.merge.AOD.e574_s933_s946_r1831_r1700*/*1.pool.root.8')
 #InputList = glob('/data3/jmitrevs/dataskims/gg_rel16/user.*periodH*/*.pool.root*')
 #InputList = glob('/data3/jmitrevs/mcskims/mc10*Wpluslepgammagamma*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mcskims/sps8/D2AOD_GMSBgg2.pool.root')
-#InputList = glob('/data3/jmitrevs/mcskims/rel_15/user.jmitrevs.20101120.76.mc09_7TeV.115038.Pythia_photos_diphotons25.ANALY_RALPP/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mcskims/user.jmitrevs.*.mc09_7TeV.10765*.AlpgenJimmyZee*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/AtlasProduction-16.0.2.5/run/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mc10_7TeV.139433.SPS8_160_herwigpp_susy.merge.AOD.e818_s933_s946_r2302_r2300_tid422579_00/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino_1000_300*_r2300*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mc10_7TeV*GGM_Bino800_400*_r2300*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_200/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.106046.PythiaZee_no_filter.merge.AOD.e815_s1272_s1274_r2730_r2700_tid519072_00/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.144716.GGM_gl_wino_1500_300_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_700_680_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
-InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_500_unf_herwigpp_susy.merge.AOD.*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_500_unf_herwigpp_susy.merge.AOD.*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_unf_herwigpp_susy.merge.AOD.*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_500_gfilter_herwigpp_susy.merge.AOD.*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500_ucsc/*pool.root*')
+InputList = glob('/data3/jmitrevs/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993_tid645402_00/*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
-athenaCommonFlags.EvtMax=-1
-#athenaCommonFlags.EvtMax=500
+#athenaCommonFlags.EvtMax=-1
+athenaCommonFlags.EvtMax=50
 
 
 # # use closest DB replica
