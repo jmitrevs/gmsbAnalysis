@@ -230,8 +230,8 @@ def main():
             outfile = a
         elif o in ("-t", "--ttree"):
             ttreeName = a
-        elif o in ("-2", "--weight"):
-            weight = a
+        elif o in ("-w", "--weight"):
+            weight = float(a)
         elif o in ("-l", "--lepton"):
             if a == "electron":
                 lepton = ELECTRON
