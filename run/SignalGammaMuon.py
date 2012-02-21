@@ -20,10 +20,11 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.144716.GGM_gl_wino_1500_300_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_700_680_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_500_unf_herwigpp_susy.merge.AOD.*/*pool.root*')
-InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_unf_herwigpp_susy.merge.AOD.*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_unf_herwigpp_susy.merge.AOD.*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_500_gfilter_herwigpp_susy.merge.AOD.*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500_ucsc/*pool.root*')
+InputList = glob('/data3/jmitrevs/mc11_7TeV.152627.GGM_gl_wino_900_200_newgfilter_herwigpp_susy.merge.AOD*/*pool.root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList

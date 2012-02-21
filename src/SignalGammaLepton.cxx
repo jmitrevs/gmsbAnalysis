@@ -30,6 +30,8 @@
 
 #include "ITrackToVertex/ITrackToVertex.h"
 
+#include <climits>
+
 
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
 const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
@@ -48,6 +50,10 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NumPhotons", m_numPhotonsReq = 1);
   declareProperty("NumElectrons", m_numElectronsReq = 0);
   declareProperty("NumMuons", m_numMuonsReq = 0);
+
+  declareProperty("NumPhotonsMax", m_numPhotonsMax = UINT_MAX);
+  declareProperty("NumElectronsMax", m_numElectronsMax = UINT_MAX);
+  declareProperty("NumMuonsMax", m_numMuonsMax = UINT_MAX);
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -694,7 +700,7 @@ StatusCode SignalGammaLepton::execute()
   }
 
 
-  if (m_numPh < m_numPhotonsReq) {
+  if (m_numPh < m_numPhotonsReq || m_numPh > m_numPhotonsMax) {
     return StatusCode::SUCCESS;
   }
 
@@ -766,9 +772,11 @@ StatusCode SignalGammaLepton::execute()
   const Analysis::Muon *leadingMu = (m_numMu) ? muons->at(0) : 0;
   const double leadingMuPt = (leadingMu) ? leadingMu->pt() : 0;
 
-  if (m_numEl < m_numElectronsReq || m_numMu < m_numMuonsReq) {
+  if (m_numEl < m_numElectronsReq || m_numMu < m_numMuonsReq ||
+      m_numEl > m_numElectronsMax || m_numMu > m_numMuonsMax ) {
     return StatusCode::SUCCESS;
   }
+
   ATH_MSG_DEBUG("Passed lepton");
    
   m_histograms["CutFlow"]->Fill(9.0, m_weight);
@@ -884,7 +892,7 @@ StatusCode SignalGammaLepton::execute()
 
   const float mT = (m_mTel > m_mTmu) ? m_mTel : m_mTmu;
 
-  if (m_blind && (met > m_blindMET || mT > m_blindMT)) {
+  if (m_blind && (met > m_blindMET && mT > m_blindMT)) {
     // blind the event
     return StatusCode::SUCCESS;
   }

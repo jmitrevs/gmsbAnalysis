@@ -41,6 +41,10 @@ private:
   unsigned int m_numMuonsReq;
   unsigned int m_numElectronsReq;
 
+  unsigned int m_numPhotonsMax;
+  unsigned int m_numMuonsMax;
+  unsigned int m_numElectronsMax;
+
   bool m_applyTriggers; //only really meant for MC
   std::string m_triggers;
 

@@ -87,7 +87,7 @@ gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.PhotonPt = 50*GeV
+gmsbSelectionTool.PhotonPt = 85*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
@@ -101,7 +101,7 @@ gmsbCrackSelectionTool.SmearMC = False
 
 from gmsbTools.gmsbToolsConf import TruthStudies
 truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = True,
+                            PrintDecayTree = False,
                             UseAnnotated = False,
                             DumpEntireTree = False,
                             OutputLevel = DEBUG
