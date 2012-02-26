@@ -32,20 +32,17 @@ def GetHistNames(inFile):
 
 def LepPhotonPlots(lepton):
 
-    Lumi = 5000.0
-
 
     if lepton == ELECTRON:
 
-        print "Lepton is ELECTRON."
-        path = "/data3/jmitrevs/lepphoton/elphoton_ntuple2/mergedFiles/"
+        Lumi = 4812.34 # really electron only
 
-        wino_600_200FileName = path + "wino_600_200_el.root"
-        wino_700_680FileName = path + "wino_700_680_el.root"
-        # wino_1000_200FileName = path + "wino_1000_200_el.root"
-        wino_1500_300FileName = path + "wino_1500_300_el.root"
-        # wino_1000_100FileName = path + "wino_1000_100_el.root"
-        # wino_800_700FileName = path + "wino_800_700_el.root"
+
+        print "Lepton is ELECTRON."
+        path = "/data3/jmitrevs/lepphoton/elphoton_ntuple3/mergedFiles/"
+        datapath = "/data3/jmitrevs/lepphoton/elphoton_data2/mergedFiles/"
+
+        winoFileName = path + "wino_600_200_el.root"
         
         WlepnuFileName_Np0 = path + "Wenu_Np0.root"
         WlepnuFileName_Np1 = path + "Wenu_Np1.root"
@@ -67,13 +64,14 @@ def LepPhotonPlots(lepton):
 
     elif lepton == MUON:
 
+        Lumi = 4812.34 # really electron only
+
+
         print "Lepton is MUON."
         path = "/data3/jmitrevs/lepphoton/muphoton2/mergedFiles/"
+        datapath = "/data3/jmitrevs/lepphoton/muphoton_data/mergedFiles/"
 
-        wino_600_200FileName = path + "wino_600_200_mu.root"
-        wino_700_680FileName = path + "wino_700_680_mu.root"
-        # wino_1000_200FileName = path + "wino_1000_200_mu.root"
-        wino_1500_300FileName = path + "wino_1500_300_mu.root"
+        winoFileName = path + "wino_600_200_mu.root"
 
         WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
         WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
@@ -136,16 +134,12 @@ def LepPhotonPlots(lepton):
     gammaFileName_Np4 = path + "gamma_Np4.root"
     gammaFileName_Np5 = path + "gamma_Np5.root"
 
+    dataFileName = datapath + "eg.root"
     
     ###########################################
 
     
-    wino_600_200File = ROOT.TFile(wino_600_200FileName)
-    wino_700_680File = ROOT.TFile(wino_700_680FileName)
-    # wino_1000_200File = ROOT.TFile(wino_1000_200FileName)
-    wino_1500_300File = ROOT.TFile(wino_1500_300FileName)
-    # wino_1000_100File = ROOT.TFile(wino_1000_100FileName)
-    # wino_800_700File = ROOT.TFile(wino_800_700FileName)
+    winoFile = ROOT.TFile(winoFileName)
 
     WlepnuFile_Np0 = ROOT.TFile(WlepnuFileName_Np0)
     WlepnuFile_Np1 = ROOT.TFile(WlepnuFileName_Np1)
@@ -205,14 +199,11 @@ def LepPhotonPlots(lepton):
     gammaFile_Np4 = ROOT.TFile(gammaFileName_Np4)
     gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
 
+    dataFile = ROOT.TFile(dataFileName)
+
     ##############################
 
-    cutFlowwino_600_200 = wino_600_200File.Get("Global/CutFlow")
-    cutFlowwino_700_680 = wino_700_680File.Get("Global/CutFlow")
-    # cutFlowwino_1000_200 = wino_1000_200File.Get("Global/CutFlow")
-    cutFlowwino_1500_300 = wino_1500_300File.Get("Global/CutFlow")
-    # cutFlowwino_1000_100 = wino_1000_100File.Get("Global/CutFlow")
-    # cutFlowwino_800_700 = wino_800_700File.Get("Global/CutFlow")
+    cutFlowwino = winoFile.Get("Global/CutFlow")
 
     cutFlowWlepnu_Np0 = WlepnuFile_Np0.Get("Global/CutFlow")
     cutFlowWlepnu_Np1 = WlepnuFile_Np1.Get("Global/CutFlow")
@@ -272,14 +263,11 @@ def LepPhotonPlots(lepton):
     cutFlowgamma_Np4 = gammaFile_Np4.Get("Global/CutFlow")
     cutFlowgamma_Np5 = gammaFile_Np5.Get("Global/CutFlow")
 
+    cutFlowdata = dataFile.Get("Global/CutFlow");
+
     #########################################################
 
-    nOrigwino_600_200 = cutFlowwino_600_200.GetBinContent(1)
-    nOrigwino_700_680 = cutFlowwino_700_680.GetBinContent(1)
-    # nOrigwino_1000_200 = cutFlowwino_1000_200.GetBinContent(1)
-    nOrigwino_1500_300 = cutFlowwino_1500_300.GetBinContent(1)
-    # nOrigwino_1000_100 = cutFlowwino_1000_100.GetBinContent(1)
-    # nOrigwino_800_700 = cutFlowwino_800_700.GetBinContent(1)
+    nOrigwino = cutFlowwino.GetBinContent(1)
 
     nOrigWlepnu_Np0 = cutFlowWlepnu_Np0.GetBinContent(1)
     nOrigWlepnu_Np1 = cutFlowWlepnu_Np1.GetBinContent(1)
@@ -339,17 +327,14 @@ def LepPhotonPlots(lepton):
     nOriggamma_Np4 = cutFlowgamma_Np4.GetBinContent(1)
     nOriggamma_Np5 = cutFlowgamma_Np5.GetBinContent(1)
 
+    nOrigdata = cutFlowdata.GetBinContent(1)
+
     ######################################################
 
     # let's print out the number of events for debugging
     print "Number of input events:"
 
-    print "\tnOrigwino_600_200 =", nOrigwino_600_200
-    print "\tnOrigwino_700_680 =", nOrigwino_700_680
-    # print "\tnOrigwino_1000_200 =", nOrigwino_1000_200
-    print "\tnOrigwino_1500_300 =", nOrigwino_1500_300
-    # print "\tnOrigwino_1000_100 =", nOrigwino_1000_100
-    # print "\tnOrigwino_800_700 =", nOrigwino_800_700
+    print "\tnOrigwino =", nOrigwino
 
     print "\tnOrigWlepnu_Np0 =", nOrigWlepnu_Np0
     print "\tnOrigWlepnu_Np1 =", nOrigWlepnu_Np1
@@ -409,19 +394,13 @@ def LepPhotonPlots(lepton):
     print "\tnOriggamma_Np4 =", nOriggamma_Np4
     print "\tnOriggamma_Np5 =", nOriggamma_Np5
     print
+    print "\tnOrigdata =", nOrigdata
+    print
 
     ##############################################
     #   scale is lumi * xsec * kfact * filter / numEvents
 
-    wino_600_200_scale = Lumi * 1.1675 * 1 / nOrigwino_600_200
-    wino_700_680_scale = Lumi * 0.33669 * 1.6 / nOrigwino_700_680
-    wino_1500_300_scale = Lumi * 0.1342 * 1 * 0.139 / nOrigwino_1500_300
-
-    # wino_1000_200_scale = Lumi * 0.8265 * 1 / nOrigwino_1000_200
-    # wino_1500_400_scale = Lumi * 0.0320 * 1 / nOrigwino_1500_400
-    # wino_1000_100_scale = Lumi * 13.9 * 1 / nOrigwino_1000_100
-    # wino_800_700_scale = Lumi * 0.0291 * 1.6 / nOrigwino_800_700
-
+    wino_scale = Lumi * 1.1675 * 1 / nOrigwino
 
 
     if lepton == ELECTRON:
@@ -513,12 +492,7 @@ def LepPhotonPlots(lepton):
 
     print "Scale (weight) for each sample:"
 
-    print "\twino_600_200_scale =", wino_600_200_scale
-    print "\twino_700_680_scale =", wino_700_680_scale
-    print "\twino_1000_200_scale =", wino_1000_200_scale
-    print "\twino_1500_300_scale =", wino_1500_300_scale
-    print "\twino_1000_100_scale =", wino_1000_100_scale
-    print "\twino_800_700_scale =", wino_800_700_scale
+    print "\twino_scale =", wino_scale
 
     print "\tWlepnu_Np0_scale =", Wlepnu_Np0_scale
     print "\tWlepnu_Np1_scale =", Wlepnu_Np1_scale
@@ -586,12 +560,7 @@ def LepPhotonPlots(lepton):
 
     binToLookAt = 10
 
-    nAfterPreselectwino_600_200 = cutFlowwino_600_200.GetBinContent(binToLookAt)
-    nAfterPreselectwino_700_680 = cutFlowwino_700_680.GetBinContent(binToLookAt)
-    nAfterPreselectwino_1000_200 = cutFlowwino_1000_200.GetBinContent(binToLookAt)
-    nAfterPreselectwino_1500_300 = cutFlowwino_1500_300.GetBinContent(binToLookAt)
-    nAfterPreselectwino_1000_100 = cutFlowwino_1000_100.GetBinContent(binToLookAt)
-    nAfterPreselectwino_800_700 = cutFlowwino_800_700.GetBinContent(binToLookAt)
+    nAfterPreselectwino = cutFlowwino.GetBinContent(binToLookAt)
 
     nAfterPreselectWlepnu_Np0 = cutFlowWlepnu_Np0.GetBinContent(binToLookAt)
     nAfterPreselectWlepnu_Np1 = cutFlowWlepnu_Np1.GetBinContent(binToLookAt)
@@ -651,16 +620,13 @@ def LepPhotonPlots(lepton):
     nAfterPreselectgamma_Np4 = cutFlowgamma_Np4.GetBinContent(binToLookAt)
     nAfterPreselectgamma_Np5 = cutFlowgamma_Np5.GetBinContent(binToLookAt)
 
+    nAfterPreselectdata = cutFlowdata.GetBinContent(binToLookAt)
+
     #############################################################
     # let's print out the yield after preselection
     print "Yield after Preselection:"
 
-    print "Yield wino_600_200 =", nAfterPreselectwino_600_200 * wino_600_200_scale
-    print "Yield wino_700_680 =", nAfterPreselectwino_700_680 * wino_700_680_scale
-    print "Yield wino_1000_200 =", nAfterPreselectwino_1000_200 * wino_1000_200_scale
-    print "Yield wino_1500_300 =", nAfterPreselectwino_1500_300 * wino_1500_300_scale
-    print "Yield wino_1000_100 =", nAfterPreselectwino_1000_100 * wino_1000_100_scale
-    print "Yield wino_800_700 =", nAfterPreselectwino_800_700 * wino_800_700_scale
+    print "Yield wino =", nAfterPreselectwino * wino_scale
 
     print "Yield Wlepnu_Np0 =", nAfterPreselectWlepnu_Np0 * Wlepnu_Np0_scale
     print "Yield Wlepnu_Np1 =", nAfterPreselectWlepnu_Np1 * Wlepnu_Np1_scale
@@ -720,6 +686,8 @@ def LepPhotonPlots(lepton):
     print "Yield gamma_Np4 =", nAfterPreselectgamma_Np4 * gamma_Np4_scale
     print "Yield gamma_Np5 =", nAfterPreselectgamma_Np5 * gamma_Np5_scale
 
+    print "Yield data (not correct if blinded) =", nAfterPreselectdata
+
     ##########################################################
     #   Now make a list of histogram names
 
@@ -732,10 +700,7 @@ def LepPhotonPlots(lepton):
 
     for histName in histNames:
 
-        wino_600_200 = wino_600_200File.Get(histName)
-        wino_700_680 = wino_700_680File.Get(histName)
-        wino_1000_200 = wino_1000_200File.Get(histName)
-        wino_1500_300 = wino_1500_300File.Get(histName)
+        wino = winoFile.Get(histName)
         
         Wlepnu_Np0 = WlepnuFile_Np0.Get(histName)
         Wlepnu_Np1 = WlepnuFile_Np1.Get(histName)
@@ -795,12 +760,12 @@ def LepPhotonPlots(lepton):
         gamma_Np4 = gammaFile_Np4.Get(histName)
         gamma_Np5 = gammaFile_Np5.Get(histName)
 
+        data = dataFile.Get(histName)
+        data.Sumw2()
+
         #######################################
 
-        wino_600_200.Scale(wino_600_200_scale)
-        wino_700_680.Scale(wino_700_680_scale)
-        wino_1000_200.Scale(wino_1000_200_scale)
-        wino_1500_300.Scale(wino_1500_300_scale)
+        wino.Scale(wino_scale)
 
         Wlepnu_Np0.Scale(Wlepnu_Np0_scale)
         Wlepnu_Np1.Scale(Wlepnu_Np1_scale)
@@ -862,6 +827,8 @@ def LepPhotonPlots(lepton):
 
         ############################################
 
+        nRebin = 5
+
         Wlepnu = Wlepnu_Np0.Clone()
         Wlepnu.Add(Wlepnu_Np1)
         Wlepnu.Add(Wlepnu_Np2)
@@ -878,6 +845,7 @@ def LepPhotonPlots(lepton):
 
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
+        Wjets.Rebin(nRebin)
  
         Wgamma = Wgamma_Np0.Clone()
         Wgamma.Add(Wgamma_Np1)
@@ -885,6 +853,7 @@ def LepPhotonPlots(lepton):
         Wgamma.Add(Wgamma_Np3)
         Wgamma.Add(Wgamma_Np4)
         Wgamma.Add(Wgamma_Np5)
+        Wgamma.Rebin(nRebin)
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)
@@ -902,29 +871,35 @@ def LepPhotonPlots(lepton):
 
         Zjets = Zleplep.Clone()
         Zjets.Add(Ztautau)
+        Zjets.Rebin(nRebin)
 
         Zgamma = Zleplepgamma.Clone()
         Zgamma.Add(Ztautaugamma)
+        Zgamma.Rebin(nRebin)
 
         diboson = WW.Clone()
         diboson.Add(WZ)
         diboson.Add(ZZ)
+        diboson.Rebin(nRebin)
 
         gamma = gamma_Np1.Clone()
         gamma.Add(gamma_Np2)
         gamma.Add(gamma_Np3)
         gamma.Add(gamma_Np4)
         gamma.Add(gamma_Np5)
-       
+        gamma.Rebin(nRebin)
+
+
         st = st_tchan_lepnu.Clone()
         st.Add(st_tchan_taunu)
         #st.Add(st_schan_lepnu)
         #st.Add(st_schan_taunu)
         st.Add(st_Wt)
+        st.Rebin(nRebin)
 
         hn = ttbar.GetName()
         c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
-        #c_paper.SetLogy()
+        c_paper.SetLogy()
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbar.GetXaxis().GetTitle()+";Events")
 
@@ -967,38 +942,38 @@ def LepPhotonPlots(lepton):
         
         bg.Draw()
         
-        wino_600_200.Rebin(10)
-        #wino_600_200.Scale(0.1)
-        wino_600_200.Scale(10)
-        wino_700_680.Rebin(10)
-        wino_700_680.Scale(0.1)
-        wino_1000_200.Rebin(10)
-        wino_1000_200.Scale(0.1)
-        wino_1500_300.Rebin(10)
-        #wino_1500_300.Scale(0.1)
+        wino.Rebin(nRebin)
+        #wino.Scale(0.5)
+        #wino.Scale(10)
+
         
-        wino_600_200.SetFillStyle(0)
-        wino_600_200.SetLineColor(12)
-        wino_600_200.SetLineWidth(3)
-        wino_700_680.SetFillStyle(0)
-        wino_700_680.SetLineColor(46)
-        wino_700_680.SetLineWidth(3)
-        wino_1000_200.SetFillStyle(0)
-        wino_1000_200.SetLineColor(41)
-        wino_1000_200.SetLineWidth(3)
-        wino_1500_300.SetFillStyle(0)
-        wino_1500_300.SetLineColor(43)
-        wino_1500_300.SetLineWidth(3)
-        wino_600_200.Draw("hist same");
-        #wino_700_680.Draw("hist same");
-        #wino_1000_200.Draw("hist same");
-        wino_1500_300.Draw("hist same");
+        wino.SetFillStyle(0)
+        wino.SetLineColor(12)
+        wino.SetLineWidth(3)
+
+        data.Rebin(nRebin)
+        data.Draw("same")
+
+        # wino_700_680.SetFillStyle(0)
+        # wino_700_680.SetLineColor(46)
+        # wino_700_680.SetLineWidth(3)
+        # wino_1000_200.SetFillStyle(0)
+        # wino_1000_200.SetLineColor(41)
+        # wino_1000_200.SetLineWidth(3)
+        # wino_1500_300.SetFillStyle(0)
+        # wino_1500_300.SetLineColor(43)
+        # wino_1500_300.SetLineWidth(3)
+        wino.Draw("hist same");
+        # #wino_700_680.Draw("hist same");
+        # #wino_1000_200.Draw("hist same");
+        # wino_1500_300.Draw("hist same");
 
 
         legb = ROOT.TLegend(0.5,0.55,0.93,0.92)
         legb.SetFillColor(0)
         legb.SetBorderSize(0)
         legb.SetTextSize(0.045)
+        legb.AddEntry(data,"data","l")
         legb.AddEntry(gamma,"#gamma+jets","f")
         legb.AddEntry(Zjets,"Z+jets","f")
         legb.AddEntry(Zgamma,"Z#gamma","f")
@@ -1007,10 +982,10 @@ def LepPhotonPlots(lepton):
         legb.AddEntry(diboson,"WW, WZ, ZZ","f")
         legb.AddEntry(ttbar,"ttbar","f")
         legb.AddEntry(st,"singe top","f")
-        legb.AddEntry(wino_600_200,"wino (600, 200) #times 100", "l");
+        legb.AddEntry(wino,"wino #times 100", "l");
         #legb.AddEntry(wino_700_680,"wino (600, 500)","l");
         #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
-        legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
+        #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
 
         legb.Draw()
 
