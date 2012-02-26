@@ -88,6 +88,9 @@ private:
   /** @brief classify the event type */
   ToolHandle<TruthStudies> m_truth;
   bool m_doTruthStudies;
+  bool m_filterWJets;
+  enum ttbarfilt_t {NO_TTBARFILT = 0, LEPJETS, DILEP};
+  int m_filterTTbar; // really the enum above
 
   /** @breif whether to blind or not */
   bool m_blind;
@@ -133,6 +136,7 @@ private:
 
   TruthStudies::EventType m_type;
   int m_isStrong;
+  int m_numTruthPh;
 
   // MET
   float m_metx;

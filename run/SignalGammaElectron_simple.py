@@ -87,7 +87,7 @@ gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.PhotonPt = 85*GeV
+gmsbSelectionTool.PhotonPt = 100*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
@@ -104,7 +104,7 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             PrintDecayTree = False,
                             UseAnnotated = False,
                             DumpEntireTree = False,
-                            OutputLevel = DEBUG
+                            OutputLevel = INFO
                             )
 ToolSvc += truthStudies
 

@@ -78,6 +78,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("TruthStudiesTool", m_truth);
   declareProperty("doTruthStudies", m_doTruthStudies = false);
+  declareProperty("filterWJets", m_filterWJets = false);
+  declareProperty("filterTTbar", m_filterTTbar = NO_TTBARFILT);
 
   // Tool for track extrapolation to vertex
   declareProperty("trackToVertexTool", m_trackToVertexTool,
@@ -141,7 +143,7 @@ StatusCode SignalGammaLepton::initialize(){
   }
 
   // retrieving the truth studies tool
-  if (m_doTruthStudies) {
+  if (m_doTruthStudies || m_filterWJets || m_filterTTbar) {
     sc = m_truth.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve tool " << m_truth);
@@ -238,6 +240,7 @@ StatusCode SignalGammaLepton::initialize(){
 					 TruthStudies::numEventTypes, 0, TruthStudies::numEventTypes);
 
     m_histograms["isStrong"] = new TH1F("isStrong", "The type of production", 2, 0, 2); 
+    m_histograms["numTruthPh"] = new TH1F("numTruthPh", "The number of truth photons;N_{truth photons}", 10, -1.5, 8.5);
 
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
@@ -250,6 +253,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptB_conv" , m_histograms["ph_ptB_conv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/ptEC_conv" , m_histograms["ph_ptEC_conv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numPh" , m_histograms["numPh"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numTruthPh" , m_histograms["numTruthPh"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Muon/eta1" , m_histograms["mu_eta1"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Muon/pt1" , m_histograms["mu_pt1"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/eta1" , m_histograms["el_eta1"]).ignore();
@@ -310,6 +314,7 @@ StatusCode SignalGammaLepton::initialize(){
 
     // now event (vs object) variables
     m_tree->Branch("numPh",  &m_numPh, "numPh/i");
+    m_tree->Branch("numTruthPh",  &m_numTruthPh, "numTruthPh/I");
     m_tree->Branch("numEl",  &m_numEl, "numEl/i");
     m_tree->Branch("numMu",  &m_numMu, "numMu/i");
     m_tree->Branch("numJets",  &m_numJets, "numJets/i");
@@ -459,6 +464,17 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(0.0, m_weight);
 
 
+  if (larError) {
+    return StatusCode::SUCCESS; // reject event
+  }
+    
+  ATH_MSG_DEBUG("Passed larError");
+
+  // also do truth-level filtering here
+  // if (m_filterWJets) {
+  //   if (
+  m_histograms["CutFlow"]->Fill(1.0, m_weight);
+
   if (m_applyTriggers) {
     if (! m_trigDec->isPassed(m_triggers)) {
       return StatusCode::SUCCESS; // reject event
@@ -466,13 +482,6 @@ StatusCode SignalGammaLepton::execute()
   }
 
   ATH_MSG_DEBUG("Passed trig");
-  m_histograms["CutFlow"]->Fill(1.0, m_weight);
-
-  if (larError) {
-    return StatusCode::SUCCESS; // reject event
-  }
-    
-  ATH_MSG_DEBUG("Passed larError");
   m_histograms["CutFlow"]->Fill(2.0, m_weight);
 
 
@@ -946,6 +955,9 @@ StatusCode SignalGammaLepton::execute()
     }
     m_type = m_truth->GetEventType();
     m_isStrong = m_truth->isStrong();
+    m_numTruthPh = m_truth->nPhotons();
+  } else {
+    m_numTruthPh = -1;
   }
 
   if (m_outputHistograms) {
@@ -954,6 +966,7 @@ StatusCode SignalGammaLepton::execute()
     m_histograms["meff"]->Fill(m_meff/GeV, m_weight);
     m_histograms["eventType"]->Fill(m_type, m_weight);
     m_histograms["isStrong"]->Fill(m_isStrong, m_weight);
+    m_histograms["numTruthPh"]->Fill(m_numTruthPh, m_weight);
 
     if (leadingPh) {
       m_histograms["ph_eta1"]->Fill(leadingPh->eta(), m_weight);

@@ -16,14 +16,16 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500_ucsc/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993_tid645402_00/*')
-InputList = glob('/data3/jmitrevs/mc11_7TeV.152627.GGM_gl_wino_900_200_newgfilter_herwigpp_susy.merge.AOD*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.152627.GGM_gl_wino_900_200_newgfilter_herwigpp_susy.merge.AOD*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.117421.AlpgenJimmyWgammaNp1_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993*/*')
+InputList = glob('/data3/jmitrevs/mc11_7TeV.107681.AlpgenJimmyWenuNp1_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993*/*')
 
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
 athenaCommonFlags.EvtMax=-1
-#athenaCommonFlags.EvtMax=50
+#athenaCommonFlags.EvtMax=500
 
 
 # # use closest DB replica
