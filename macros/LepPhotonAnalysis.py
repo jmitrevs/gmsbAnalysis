@@ -14,7 +14,9 @@ import ROOT
 ELECTRON = 0
 MUON = 1
 
-GeV = 1000
+GeV = 1000.0
+
+ZMASS = 91.1876*GeV
 
 DEFAULTTTREE = 'GammaLepton'
 DEFAULTWEIGHT = 1
@@ -22,12 +24,23 @@ DEFAULT_LEPTON = ELECTRON
 
 #Cuts
 # - electron channel
-EL_PHPTCUT = 85*GeV
+EL_PHPTCUT = 100*GeV
 EL_PHETACUT = 2.37
 EL_ELPTCUT = 25*GeV
 EL_ELETACUT = 2.47
 EL_MET = 100*GeV
 EL_MT = 100*GeV
+EL_MET_MAX = 100*GeV
+EL_MT_MAX = 100*GeV
+
+EL_QCD_MINV_WINDOW = 20*GeV
+EL_CR_MET_MIN = 25*GeV
+EL_CR_MET_MAX = 80*GeV
+EL_CR_MT_MIN = 40*GeV
+EL_CR_MT_MAX = 80*GeV
+
+EL_QCD_MET_MAX = 20*GeV
+EL_QCD_MT_MAX = 30*GeV
 
 # - muon channel
 MU_PHPTCUT = 85*GeV
@@ -36,6 +49,15 @@ MU_MUPTCUT = 25*GeV
 MU_MUETACUT = 2.4
 MU_MET = 100*GeV
 MU_MT = 100*GeV
+
+MU_QCD_MINV_WINDOW = 10*GeV
+MU_CR_MET_MIN = 25*GeV
+MU_CR_MET_MAX = 80*GeV
+MU_CR_MT_MIN = 40*GeV
+MU_CR_MT_MAX = 80*GeV
+
+MU_QCD_MET_MAX = 20*GeV
+MU_QCD_MT_MAX = 30*GeV
 
 def usage():
     print " "
@@ -101,6 +123,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
     h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3)
     h_el_pt2 = ROOT.TH1F("el_pt2","Transverse momentum of the second electrons;p_{T} [GeV]", 100, 0, 500)
     h_numEl = ROOT.TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5)
+    # h_el_mInv = ROOT.TH1F("el_mInv", "The invariant mass of leading electrons;m_{inv} [GeV]", 120, 0, 120)
 
     ######## jdir
     jdir.cd()
@@ -143,6 +166,20 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
     ######## go back to root
     f.cd()
 
+    ######## initialize counts
+
+    nCR = ROOT.TH1F("nCR", "Number of events in the CR", 1, 0, 1);
+    nQCD = ROOT.TH1F("nQCD", "Number of events in the QCD", 1, 0, 1);
+    nSIG = ROOT.TH1F("nSIG", "Number of events in the SR", 1, 0, 1);
+    nXR1 = ROOT.TH1F("nXR1", "Number of events in the XR1", 1, 0, 1);
+    nXR2 = ROOT.TH1F("nXR2", "Number of events in the XR2", 1, 0, 1);
+
+    nCR.Sumw2()
+    nQCD.Sumw2()
+    nSIG.Sumw2()
+    nXR1.Sumw2()
+    nXR2.Sumw2()
+
 
     for ev in ttree:
         # lets apply the cuts
@@ -179,6 +216,24 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
             (lepton == MUON and ev.mTmu > MU_MT)):
             h_met.Fill(met/GeV, ev.Weight * glWeight)
             
+        # do CR counts
+        if lepton == ELECTRON:
+            if met < EL_QCD_MET_MAX and ev.mTel < EL_QCD_MT_MAX:
+                if (ev.PhElMinv < ZMASS - EL_QCD_MINV_WINDOW or
+                    ev.PhElMinv > ZMASS + EL_QCD_MINV_WINDOW):
+                    nQCD.Fill(0, ev.Weight * glWeight)
+            elif (EL_CR_MET_MIN < met < EL_CR_MET_MAX and
+                  EL_CR_MT_MIN < ev.mTel < EL_CR_MT_MAX):
+                nCR.Fill(0, ev.Weight * glWeight)
+
+        # do the XR
+        if lepton == ELECTRON:
+            if (EL_CR_MET_MAX < met and
+                EL_CR_MT_MIN < ev.mTel < EL_CR_MT_MAX):
+                nXR2.Fill(0, ev.Weight * glWeight)
+            if (EL_CR_MT_MAX < ev.mTel and
+                EL_CR_MET_MIN < met < EL_CR_MET_MAX):
+                nXR1.Fill(0, ev.Weight * glWeight)
 
         ## our selection
         if ((lepton == ELECTRON and
@@ -187,9 +242,30 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
              (met < MU_MET or ev.mTmu < MU_MT))):
             continue
 
+        nSIG.Fill(0, ev.Weight * glWeight);
 
     f.Write()
+    print "**************************************"
+    print "*****          YIELDS            *****"
+    print "**************************************"
+    print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
+    print "  TOP/W+jets CR Yield =",nCR.GetBinContent(1),"+-", nCR.GetBinError(1)
+    print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
+    print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
+    print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
 
+    nTF = nSIG.Clone()
+    nTF.Divide(nCR)
+
+    nXF1 = nXR1.Clone()
+    nXF1.Divide(nCR)
+
+    nXF2 = nXR2.Clone()
+    nXF2.Divide(nCR)
+
+    print "  SR/CR =",nTF.GetBinContent(1),"+-", nTF.GetBinError(1)
+    print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
+    print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
 # This function calls the LepPhotonAnalysis function 
 def main():
@@ -248,6 +324,14 @@ def main():
 
     LepPhotonAnalysis(ttree, outfile, lepton, weight)
 
+
+def Nqcd(eps_sig, eps_qcd, nLoose, nTight):
+    if eps_sig != eps_qcd:
+        return (1.0*eps_sig*nLoose - nTight)/(eps_sig - eps_qcd)
+    else:
+        raise ValueError("eps_sig = %f and eps_qcd = %f must be different" % (eps_sig,eps_qcd))
+        return -1
     
 if __name__ == "__main__":
     main()
+

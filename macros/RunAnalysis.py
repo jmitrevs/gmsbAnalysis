@@ -6,6 +6,9 @@ import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
+import os.path
+import LepPhotonAnalysis
+
 ELECTRON = 0
 MUON = 1
 
@@ -28,9 +31,12 @@ def GetHistNames(inFile):
 
     return histNames
 
+def makeOutputName(infileName):
+    inFileNoPath = os.path.split(infileName)[1]
+    outfile = os.path.splitext(inFileNoPath)[0] + "Hist.root"
+    return outfile
 
-
-def LepPhotonPlots(lepton):
+def RunAnalysis(lepton):
 
 
     if lepton == ELECTRON:
@@ -695,321 +701,340 @@ def LepPhotonPlots(lepton):
     print "Yield data (not correct if blinded) =", nAfterPreselectdata
     print "Yield gj before tight subtraction (not correct if blinded) =", nAfterPreselectgj
 
-    ##########################################################
-    #   Now make a list of histogram names
-
-    #   Take the ttbar as the input that defines what should be in every file
-    histNames = GetHistNames(ttbarFile)
-    
-    #print histNames
-
-    ##########################################################
-
-    for histName in histNames:
-
-        wino = winoFile.Get(histName)
-        
-        Wlepnu_Np0 = WlepnuFile_Np0.Get(histName)
-        Wlepnu_Np1 = WlepnuFile_Np1.Get(histName)
-        Wlepnu_Np2 = WlepnuFile_Np2.Get(histName)
-        Wlepnu_Np3 = WlepnuFile_Np3.Get(histName)
-        Wlepnu_Np4 = WlepnuFile_Np4.Get(histName)
-        Wlepnu_Np5 = WlepnuFile_Np5.Get(histName)
-
-        Wtaunu_Np0 = WtaunuFile_Np0.Get(histName)
-        Wtaunu_Np1 = WtaunuFile_Np1.Get(histName)
-        Wtaunu_Np2 = WtaunuFile_Np2.Get(histName)
-        Wtaunu_Np3 = WtaunuFile_Np3.Get(histName)
-        Wtaunu_Np4 = WtaunuFile_Np4.Get(histName)
-        Wtaunu_Np5 = WtaunuFile_Np5.Get(histName)
-
-        Zleplep_Np0 = ZleplepFile_Np0.Get(histName)
-        Zleplep_Np1 = ZleplepFile_Np1.Get(histName)
-        Zleplep_Np2 = ZleplepFile_Np2.Get(histName)
-        Zleplep_Np3 = ZleplepFile_Np3.Get(histName)
-        Zleplep_Np4 = ZleplepFile_Np4.Get(histName)
-        Zleplep_Np5 = ZleplepFile_Np5.Get(histName)
-
-        Ztautau_Np0 = ZtautauFile_Np0.Get(histName)
-        Ztautau_Np1 = ZtautauFile_Np1.Get(histName)
-        Ztautau_Np2 = ZtautauFile_Np2.Get(histName)
-        Ztautau_Np3 = ZtautauFile_Np3.Get(histName)
-        Ztautau_Np4 = ZtautauFile_Np4.Get(histName)
-        Ztautau_Np5 = ZtautauFile_Np5.Get(histName)
-        
-        Wgamma_Np0 = WgammaFile_Np0.Get(histName)
-        Wgamma_Np1 = WgammaFile_Np1.Get(histName)
-        Wgamma_Np2 = WgammaFile_Np2.Get(histName)
-        Wgamma_Np3 = WgammaFile_Np3.Get(histName)
-        Wgamma_Np4 = WgammaFile_Np4.Get(histName)
-        Wgamma_Np5 = WgammaFile_Np5.Get(histName)
-        
-        ttbar = ttbarFile.Get(histName)
-        
-        st_tchan_lepnu = st_tchan_lepnuFile.Get(histName)
-        st_tchan_taunu = st_tchan_taunuFile.Get(histName)
-        
-        #st_schan_lepnu = st_schan_lepnuFile.Get(histName)
-        #st_schan_taunu = st_schan_taunuFile.Get(histName)
-        
-        st_Wt   = st_WtFile.Get(histName)
-        
-        WW   = WWFile.Get(histName)
-        WZ   = WZFile.Get(histName)
-        ZZ   = ZZFile.Get(histName)
-        
-        Zleplepgamma = ZleplepgammaFile.Get(histName)
-        Ztautaugamma = ZtautaugammaFile.Get(histName)
-        
-        gamma_Np1 = gammaFile_Np1.Get(histName)
-        gamma_Np2 = gammaFile_Np2.Get(histName)
-        gamma_Np3 = gammaFile_Np3.Get(histName)
-        gamma_Np4 = gammaFile_Np4.Get(histName)
-        gamma_Np5 = gammaFile_Np5.Get(histName)
-
-        data = dataFile.Get(histName)
-        gj = gjFile.Get(histName)
-        gj.Add(data, -1.0);
-        data.Sumw2()
-
-        #######################################
-
-        wino.Scale(wino_scale)
-
-        Wlepnu_Np0.Scale(Wlepnu_Np0_scale)
-        Wlepnu_Np1.Scale(Wlepnu_Np1_scale)
-        Wlepnu_Np2.Scale(Wlepnu_Np2_scale)
-        Wlepnu_Np3.Scale(Wlepnu_Np3_scale)
-        Wlepnu_Np4.Scale(Wlepnu_Np4_scale)
-        Wlepnu_Np5.Scale(Wlepnu_Np5_scale)
-
-        Wtaunu_Np0.Scale(Wtaunu_Np0_scale)
-        Wtaunu_Np1.Scale(Wtaunu_Np1_scale)
-        Wtaunu_Np2.Scale(Wtaunu_Np2_scale)
-        Wtaunu_Np3.Scale(Wtaunu_Np3_scale)
-        Wtaunu_Np4.Scale(Wtaunu_Np4_scale)
-        Wtaunu_Np5.Scale(Wtaunu_Np5_scale)
-
-        Zleplep_Np0.Scale(Zleplep_Np0_scale)
-        Zleplep_Np1.Scale(Zleplep_Np1_scale)
-        Zleplep_Np2.Scale(Zleplep_Np2_scale)
-        Zleplep_Np3.Scale(Zleplep_Np3_scale)
-        Zleplep_Np4.Scale(Zleplep_Np4_scale)
-        Zleplep_Np5.Scale(Zleplep_Np5_scale)
-
-        Ztautau_Np0.Scale(Ztautau_Np0_scale)
-        Ztautau_Np1.Scale(Ztautau_Np1_scale)
-        Ztautau_Np2.Scale(Ztautau_Np2_scale)
-        Ztautau_Np3.Scale(Ztautau_Np3_scale)
-        Ztautau_Np4.Scale(Ztautau_Np4_scale)
-        Ztautau_Np5.Scale(Ztautau_Np5_scale)
-        
-        Wgamma_Np0.Scale(Wgamma_Np0_scale)
-        Wgamma_Np1.Scale(Wgamma_Np1_scale)
-        Wgamma_Np2.Scale(Wgamma_Np2_scale)
-        Wgamma_Np3.Scale(Wgamma_Np3_scale)
-        Wgamma_Np4.Scale(Wgamma_Np4_scale)
-        Wgamma_Np5.Scale(Wgamma_Np5_scale)
-        
-        ttbar.Scale(ttbar_scale)
-        
-        st_tchan_lepnu.Scale(st_tchan_lepnu_scale)
-        st_tchan_taunu.Scale(st_tchan_taunu_scale)
-        
-        #st_schan_lepnu.Scale(st_schan_lepnu_scale)
-        #st_schan_taunu.Scale(st_schan_taunu_scale)
-
-        st_Wt.Scale(st_Wt_scale)
-
-        WW.Scale(WW_scale)
-        WZ.Scale(WZ_scale)
-        ZZ.Scale(ZZ_scale)
-        
-        Zleplepgamma.Scale(Zleplepgamma_scale)
-        Ztautaugamma.Scale(Ztautaugamma_scale)
-        
-        gamma_Np1.Scale(gamma_Np1_scale)
-        gamma_Np2.Scale(gamma_Np2_scale)
-        gamma_Np3.Scale(gamma_Np3_scale)
-        gamma_Np4.Scale(gamma_Np4_scale)
-        gamma_Np5.Scale(gamma_Np5_scale)
-
-        ############################################
-
-        nRebin = 5
-
-        Wlepnu = Wlepnu_Np0.Clone()
-        Wlepnu.Add(Wlepnu_Np1)
-        Wlepnu.Add(Wlepnu_Np2)
-        Wlepnu.Add(Wlepnu_Np3)
-        Wlepnu.Add(Wlepnu_Np4)
-        Wlepnu.Add(Wlepnu_Np5)
-
-        Wtaunu = Wtaunu_Np0.Clone()
-        Wtaunu.Add(Wtaunu_Np1)
-        Wtaunu.Add(Wtaunu_Np2)
-        Wtaunu.Add(Wtaunu_Np3)
-        Wtaunu.Add(Wtaunu_Np4)
-        Wtaunu.Add(Wtaunu_Np5)
-
-        Wjets = Wlepnu.Clone()
-        Wjets.Add(Wtaunu)
-        Wjets.Rebin(nRebin)
- 
-        Wgamma = Wgamma_Np0.Clone()
-        Wgamma.Add(Wgamma_Np1)
-        Wgamma.Add(Wgamma_Np2)
-        Wgamma.Add(Wgamma_Np3)
-        Wgamma.Add(Wgamma_Np4)
-        Wgamma.Add(Wgamma_Np5)
-        Wgamma.Rebin(nRebin)
-
-        Zleplep = Zleplep_Np0.Clone()
-        Zleplep.Add(Zleplep_Np1)
-        Zleplep.Add(Zleplep_Np2)
-        Zleplep.Add(Zleplep_Np3)
-        Zleplep.Add(Zleplep_Np4)
-        Zleplep.Add(Zleplep_Np5)
-
-        Ztautau = Ztautau_Np0.Clone()
-        Ztautau.Add(Ztautau_Np1)
-        Ztautau.Add(Ztautau_Np2)
-        Ztautau.Add(Ztautau_Np3)
-        Ztautau.Add(Ztautau_Np4)
-        Ztautau.Add(Ztautau_Np5)
-
-        Zjets = Zleplep.Clone()
-        Zjets.Add(Ztautau)
-        Zjets.Rebin(nRebin)
-
-        Zgamma = Zleplepgamma.Clone()
-        Zgamma.Add(Ztautaugamma)
-        Zgamma.Rebin(nRebin)
-
-        diboson = WW.Clone()
-        diboson.Add(WZ)
-        diboson.Add(ZZ)
-        diboson.Rebin(nRebin)
-
-        gamma = gamma_Np1.Clone()
-        gamma.Add(gamma_Np2)
-        gamma.Add(gamma_Np3)
-        gamma.Add(gamma_Np4)
-        gamma.Add(gamma_Np5)
-        gamma.Rebin(nRebin)
-
-
-        st = st_tchan_lepnu.Clone()
-        st.Add(st_tchan_taunu)
-        #st.Add(st_schan_lepnu)
-        #st.Add(st_schan_taunu)
-        st.Add(st_Wt)
-        st.Rebin(nRebin)
-
-        ttbar.Rebin(nRebin)
-
-        hn = ttbar.GetName()
-        c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
-        #c_paper.SetLogy()
-
-        bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbar.GetXaxis().GetTitle()+";Events")
-
-        bg.SetMinimum(5e-2)
-        bg.SetMaximum(200)
-
-        gamma.SetFillStyle(1001)
-        Wjets.SetFillStyle(1001)
-        Wgamma.SetFillStyle(1001)
-        diboson.SetFillStyle(1001)
-        Zgamma.SetFillStyle(1001)
-        ttbar.SetFillStyle(1001)
-        st.SetFillStyle(1001)
-
-        gamma.SetFillColor(28) # brown
-        gamma.SetLineColor(28)
-        Zjets.SetFillColor(43) # tan
-        Zjets.SetLineColor(43)
-        Zgamma.SetFillColor(42) # tan
-        Zgamma.SetLineColor(42)
-        Wjets.SetFillColor(3) # green
-        Wjets.SetLineColor(3)
-        Wgamma.SetFillColor(7) # cyan
-        Wgamma.SetLineColor(7)
-        diboson.SetFillColor(8) # dark green
-        diboson.SetLineColor(8)
-        ttbar.SetFillColor(2) # red
-        ttbar.SetLineColor(2)
-        st.SetFillColor(9) # purple
-        st.SetLineColor(9)
-
-        bg.Add(gamma)
-        bg.Add(Zjets)
-        bg.Add(Zgamma)
-        bg.Add(Wjets)
-        bg.Add(Wgamma)
-        bg.Add(diboson)
-        bg.Add(ttbar)
-        bg.Add(st)
-        
-        bg.Draw()
-        
-        wino.Rebin(nRebin)
-        #wino.Scale(0.5)
-        #wino.Scale(10)
-
-        
-        wino.SetFillStyle(0)
-        wino.SetLineColor(12)
-        wino.SetLineWidth(3)
-
-        data.Rebin(nRebin)
-        data.Draw("same")
-
-        gj.Rebin(nRebin)
-        gj.SetFillStyle(0)
-        gj.SetLineColor(41)
-        #gj.Draw("hist same")
-
-        # wino_700_680.SetFillStyle(0)
-        # wino_700_680.SetLineColor(46)
-        # wino_700_680.SetLineWidth(3)
-        # wino_1000_200.SetFillStyle(0)
-        # wino_1000_200.SetLineColor(41)
-        # wino_1000_200.SetLineWidth(3)
-        # wino_1500_300.SetFillStyle(0)
-        # wino_1500_300.SetLineColor(43)
-        # wino_1500_300.SetLineWidth(3)
-        wino.Draw("hist same");
-        # #wino_700_680.Draw("hist same");
-        # #wino_1000_200.Draw("hist same");
-        # wino_1500_300.Draw("hist same");
-
-
-        legb = ROOT.TLegend(0.5,0.55,0.93,0.92)
-        legb.SetFillColor(0)
-        legb.SetBorderSize(0)
-        legb.SetTextSize(0.045)
-        legb.AddEntry(data,"data","l")
-        legb.AddEntry(gamma,"#gamma+jets","f")
-        legb.AddEntry(Zjets,"Z+jets","f")
-        legb.AddEntry(Zgamma,"Z#gamma","f")
-        legb.AddEntry(Wjets,"W+jets","f")
-        legb.AddEntry(Wgamma,"W#gamma","f")
-        legb.AddEntry(diboson,"WW, WZ, ZZ","f")
-        legb.AddEntry(ttbar,"ttbar","f")
-        legb.AddEntry(st,"singe top","f")
-        legb.AddEntry(wino,"wino (600, 200)", "l");
-        #legb.AddEntry(wino_700_680,"wino (600, 500)","l");
-        #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
-        #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
-
-        legb.Draw()
-
-        c_paper.Print(hn+"Plot.eps")
-        c_paper.Print(hn+"Plot.png")
-        c_paper.Print(hn+"Plot.root")
+    ttreeName = LepPhotonAnalysis.DEFAULTTTREE
   
 
+    print "Wlepnu_Np0:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WlepnuFile_Np0.Get(ttreeName), 
+                                        makeOutputName(WlepnuFileName_Np0),
+                                        lepton,
+                                        Wlepnu_Np0_scale)
+
+    print
+    print "Wlepnu_Np1:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WlepnuFile_Np1.Get(ttreeName), 
+                                        makeOutputName(WlepnuFileName_Np1),
+                                        lepton,
+                                        Wlepnu_Np1_scale)
+
+    print
+    print "Wlepnu_Np2:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WlepnuFile_Np2.Get(ttreeName), 
+                                        makeOutputName(WlepnuFileName_Np2),
+                                        lepton,
+                                        Wlepnu_Np2_scale)
+
+    print
+    print "Wlepnu_Np3:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WlepnuFile_Np3.Get(ttreeName), 
+                                        makeOutputName(WlepnuFileName_Np3),
+                                        lepton,
+                                        Wlepnu_Np3_scale)
+
+    print
+    print "Wlepnu_Np4:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WlepnuFile_Np4.Get(ttreeName), 
+                                        makeOutputName(WlepnuFileName_Np4),
+                                        lepton,
+                                        Wlepnu_Np4_scale)
+
+    print
+    print "Wlepnu_Np5:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WlepnuFile_Np5.Get(ttreeName), 
+                                        makeOutputName(WlepnuFileName_Np5),
+                                        lepton,
+                                        Wlepnu_Np5_scale)
+    print
+    print "Wtaunu_Np0:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WtaunuFile_Np0.Get(ttreeName), 
+                                        makeOutputName(WtaunuFileName_Np0),
+                                        lepton,
+                                        Wtaunu_Np0_scale)
+
+    print
+    print "Wtaunu_Np1:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WtaunuFile_Np1.Get(ttreeName), 
+                                        makeOutputName(WtaunuFileName_Np1),
+                                        lepton,
+                                        Wtaunu_Np1_scale)
+
+    print
+    print "Wtaunu_Np2:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WtaunuFile_Np2.Get(ttreeName), 
+                                        makeOutputName(WtaunuFileName_Np2),
+                                        lepton,
+                                        Wtaunu_Np2_scale)
+
+    print
+    print "Wtaunu_Np3:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WtaunuFile_Np3.Get(ttreeName), 
+                                        makeOutputName(WtaunuFileName_Np3),
+                                        lepton,
+                                        Wtaunu_Np3_scale)
+
+    print
+    print "Wtaunu_Np4:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WtaunuFile_Np4.Get(ttreeName), 
+                                        makeOutputName(WtaunuFileName_Np4),
+                                        lepton,
+                                        Wtaunu_Np4_scale)
+
+    print
+    print "Wtaunu_Np5:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WtaunuFile_Np5.Get(ttreeName), 
+                                        makeOutputName(WtaunuFileName_Np5),
+                                        lepton,
+                                        Wtaunu_Np5_scale)
+    print
+    print "Wgamma_Np0:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WgammaFile_Np0.Get(ttreeName), 
+                                        makeOutputName(WgammaFileName_Np0),
+                                        lepton,
+                                        Wgamma_Np0_scale)
+
+    print
+    print "Wgamma_Np1:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WgammaFile_Np1.Get(ttreeName), 
+                                        makeOutputName(WgammaFileName_Np1),
+                                        lepton,
+                                        Wgamma_Np1_scale)
+
+    print
+    print "Wgamma_Np2:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WgammaFile_Np2.Get(ttreeName), 
+                                        makeOutputName(WgammaFileName_Np2),
+                                        lepton,
+                                        Wgamma_Np2_scale)
+
+    print
+    print "Wgamma_Np3:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WgammaFile_Np3.Get(ttreeName), 
+                                        makeOutputName(WgammaFileName_Np3),
+                                        lepton,
+                                        Wgamma_Np3_scale)
+
+    print
+    print "Wgamma_Np4:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WgammaFile_Np4.Get(ttreeName), 
+                                        makeOutputName(WgammaFileName_Np4),
+                                        lepton,
+                                        Wgamma_Np4_scale)
+
+    print
+    print "Wgamma_Np5:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WgammaFile_Np5.Get(ttreeName), 
+                                        makeOutputName(WgammaFileName_Np5),
+                                        lepton,
+                                        Wgamma_Np5_scale)
+    print
+
+    print "ttbar:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ttbarFile.Get(ttreeName), 
+                                        makeOutputName(ttbarFileName),
+                                        lepton,
+                                        ttbar_scale)
+
+    print
+    print "st_tchan_lepnu:"
+    LepPhotonAnalysis.LepPhotonAnalysis(st_tchan_lepnuFile.Get(ttreeName), 
+                                        makeOutputName(st_tchan_lepnuFileName),
+                                        lepton,
+                                        st_tchan_lepnu_scale)
+
+    print
+    print "st_tchan_taunu:"
+    LepPhotonAnalysis.LepPhotonAnalysis(st_tchan_taunuFile.Get(ttreeName), 
+                                        makeOutputName(st_tchan_taunuFileName),
+                                        lepton,
+                                        st_tchan_taunu_scale)
+
+    print
+    print "st_Wt:"
+    LepPhotonAnalysis.LepPhotonAnalysis(st_WtFile.Get(ttreeName), 
+                                        makeOutputName(st_WtFileName),
+                                        lepton,
+                                        st_Wt_scale)
+
+    print
+
+    print "WW:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WWFile.Get(ttreeName), 
+                                        makeOutputName(WWFileName),
+                                        lepton,
+                                        WW_scale)
+
+    print
+    print "WZ:"
+    LepPhotonAnalysis.LepPhotonAnalysis(WZFile.Get(ttreeName), 
+                                        makeOutputName(WZFileName),
+                                        lepton,
+                                        WZ_scale)
+
+    print
+    print "ZZ:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZZFile.Get(ttreeName), 
+                                        makeOutputName(ZZFileName),
+                                        lepton,
+                                        ZZ_scale)
+
+    print
+
+
+    print "Zleplepgamma:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepgammaFile.Get(ttreeName), 
+                                        makeOutputName(ZleplepgammaFileName),
+                                        lepton,
+                                        Zleplepgamma_scale)
+
+    print
+
+    print "Ztautaugamma:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautaugammaFile.Get(ttreeName), 
+                                        makeOutputName(ZtautaugammaFileName),
+                                        lepton,
+                                        Ztautaugamma_scale)
+
+    print
+
+
+    print "Zleplep_Np0:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepFile_Np0.Get(ttreeName), 
+                                        makeOutputName(ZleplepFileName_Np0),
+                                        lepton,
+                                        Zleplep_Np0_scale)
+
+    print
+    print "Zleplep_Np1:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepFile_Np1.Get(ttreeName), 
+                                        makeOutputName(ZleplepFileName_Np1),
+                                        lepton,
+                                        Zleplep_Np1_scale)
+
+    print
+    print "Zleplep_Np2:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepFile_Np2.Get(ttreeName), 
+                                        makeOutputName(ZleplepFileName_Np2),
+                                        lepton,
+                                        Zleplep_Np2_scale)
+
+    print
+    print "Zleplep_Np3:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepFile_Np3.Get(ttreeName), 
+                                        makeOutputName(ZleplepFileName_Np3),
+                                        lepton,
+                                        Zleplep_Np3_scale)
+
+    print
+    print "Zleplep_Np4:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepFile_Np4.Get(ttreeName), 
+                                        makeOutputName(ZleplepFileName_Np4),
+                                        lepton,
+                                        Zleplep_Np4_scale)
+
+    print
+    print "Zleplep_Np5:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZleplepFile_Np5.Get(ttreeName), 
+                                        makeOutputName(ZleplepFileName_Np5),
+                                        lepton,
+                                        Zleplep_Np5_scale)
+    print
+    print "Ztautau_Np0:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautauFile_Np0.Get(ttreeName), 
+                                        makeOutputName(ZtautauFileName_Np0),
+                                        lepton,
+                                        Ztautau_Np0_scale)
+
+    print
+    print "Ztautau_Np1:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautauFile_Np1.Get(ttreeName), 
+                                        makeOutputName(ZtautauFileName_Np1),
+                                        lepton,
+                                        Ztautau_Np1_scale)
+
+    print
+    print "Ztautau_Np2:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautauFile_Np2.Get(ttreeName), 
+                                        makeOutputName(ZtautauFileName_Np2),
+                                        lepton,
+                                        Ztautau_Np2_scale)
+
+    print
+    print "Ztautau_Np3:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautauFile_Np3.Get(ttreeName), 
+                                        makeOutputName(ZtautauFileName_Np3),
+                                        lepton,
+                                        Ztautau_Np3_scale)
+
+    print
+    print "Ztautau_Np4:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautauFile_Np4.Get(ttreeName), 
+                                        makeOutputName(ZtautauFileName_Np4),
+                                        lepton,
+                                        Ztautau_Np4_scale)
+
+    print
+    print "Ztautau_Np5:"
+    LepPhotonAnalysis.LepPhotonAnalysis(ZtautauFile_Np5.Get(ttreeName), 
+                                        makeOutputName(ZtautauFileName_Np5),
+                                        lepton,
+                                        Ztautau_Np5_scale)
+    print
+
+    print "gamma_Np1:"
+    LepPhotonAnalysis.LepPhotonAnalysis(gammaFile_Np1.Get(ttreeName), 
+                                        makeOutputName(gammaFileName_Np1),
+                                        lepton,
+                                        gamma_Np1_scale)
+
+    print
+    print "gamma_Np2:"
+    LepPhotonAnalysis.LepPhotonAnalysis(gammaFile_Np2.Get(ttreeName), 
+                                        makeOutputName(gammaFileName_Np2),
+                                        lepton,
+                                        gamma_Np2_scale)
+
+    print
+    print "gamma_Np3:"
+    LepPhotonAnalysis.LepPhotonAnalysis(gammaFile_Np3.Get(ttreeName), 
+                                        makeOutputName(gammaFileName_Np3),
+                                        lepton,
+                                        gamma_Np3_scale)
+
+    print
+    print "gamma_Np4:"
+    LepPhotonAnalysis.LepPhotonAnalysis(gammaFile_Np4.Get(ttreeName), 
+                                        makeOutputName(gammaFileName_Np4),
+                                        lepton,
+                                        gamma_Np4_scale)
+
+    print
+    print "gamma_Np5:"
+    LepPhotonAnalysis.LepPhotonAnalysis(gammaFile_Np5.Get(ttreeName), 
+                                        makeOutputName(gammaFileName_Np5),
+                                        lepton,
+                                        gamma_Np5_scale)
+    print
+
+    print "wino:"
+    LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
+                                        makeOutputName(winoFileName),
+                                        lepton,
+                                        wino_scale)
+    print
+
+    print "data:"
+    LepPhotonAnalysis.LepPhotonAnalysis(dataFile.Get(ttreeName), 
+                                        makeOutputName(dataFileName),
+                                        lepton,
+                                        1.0)
+    print
+
+    print "gj:"
+    LepPhotonAnalysis.LepPhotonAnalysis(gjFile.Get(ttreeName), 
+                                        makeOutputName(gjFileName),
+                                        lepton,
+                                        1.0)
+    print
     
 if __name__ == "__main__":
-    LepPhotonPlots(DEFAULTLEPTON)
+    RunAnalysis(DEFAULTLEPTON)
