@@ -375,14 +375,23 @@ ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
 # Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.488   / nOrigWgamma_Np5
 
 # if using gamma pt > 40 GeV sample
-Wgamma_Np0_scale     =  Lumi  *  1.7837 * 1.488   / nOrigWgamma_Np0
-Wgamma_Np1_scale     =  Lumi  *  4.3796 * 1.488   / nOrigWgamma_Np1
-Wgamma_Np2_scale     =  Lumi  *  2.1381 * 1.488   / nOrigWgamma_Np2
-Wgamma_Np3_scale     =  Lumi  *  0.87283 * 1.488   / nOrigWgamma_Np3
-Wgamma_Np4_scale     =  Lumi  *  0.27846 * 1.488   / nOrigWgamma_Np4
-Wgamma_Np5_scale     =  Lumi  *  0.08504 * 1.488   / nOrigWgamma_Np5
+Wgamma_kFact = 1.2
+#Wgamma_kFact = 1.488
+Wgamma_Np0_scale     =  Lumi  *  1.7837 * Wgamma_kFact   / nOrigWgamma_Np0
+Wgamma_Np1_scale     =  Lumi  *  4.3796 * Wgamma_kFact   / nOrigWgamma_Np1
+Wgamma_Np2_scale     =  Lumi  *  2.1381 * Wgamma_kFact   / nOrigWgamma_Np2
+Wgamma_Np3_scale     =  Lumi  *  0.87283 * Wgamma_kFact   / nOrigWgamma_Np3
+Wgamma_Np4_scale     =  Lumi  *  0.27846 * Wgamma_kFact   / nOrigWgamma_Np4
+Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 
-Zleplepgamma_scale   =  Lumi  *  9.63   / nOrigZleplepgamma
+# if using MadGraph
+#Zleplepgamma_scale   =  Lumi  *  9.63   / nOrigZleplepgamma
+
+#if using Sherpa
+Zgamma_kFact = 1.2 # made up
+Zleplepgamma_scale   =  Lumi  *  0.52528 * Zgamma_kFact  / nOrigZleplepgamma
+
+#inly have MadGraph
 Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
 
 st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
