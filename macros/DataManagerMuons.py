@@ -4,6 +4,10 @@
 Module to store all the source files, yields, etc, for electron channel.
 '''
 
+import ROOT
+ROOT.gROOT.LoadMacro("AtlasStyle.C") 
+ROOT.SetAtlasStyle()
+
 PRINT_YIELDS = True
 
 Lumi = 4812.34 # really electron only
