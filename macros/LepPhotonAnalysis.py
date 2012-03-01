@@ -243,6 +243,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
             continue
 
         nSIG.Fill(0, ev.Weight * glWeight);
+        h_ph_el_minv.Fill(ev.PhElMinv/GeV, ev.Weight * glWeight);
+        h_numEl.Fill(ev.numEl, ev.Weight * glWeight);
+        h_numPh.Fill(ev.numPh, ev.Weight * glWeight);
 
     f.Write()
     print "**************************************"

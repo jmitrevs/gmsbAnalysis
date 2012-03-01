@@ -120,7 +120,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,
-                            doTruthStudies = True,
+                            doTruthStudies = False,
                             TruthStudiesTool = truthStudies
                             )
 from AthenaCommon.AppMgr import ToolSvc
