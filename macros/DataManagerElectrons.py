@@ -61,12 +61,14 @@ WgammaFileName_Np4 = path + "Wgamma_Np4.root"
 WgammaFileName_Np5 = path + "Wgamma_Np5.root"
 
 ttbarFileName = path + "ttbar.root"
+ttbargammaFileName = path + "ttbargamma.root"
 
 WWFileName = path + "WW.root"
 WZFileName = path + "WZ.root"
 ZZFileName = path + "ZZ.root"
 
 ZtautaugammaFileName = path + "Ztautaugamma.root"
+ZnunugammagammaFileName = path + "Znunugammagamma.root"
 
 gammaFileName_Np1 = path + "gamma_Np1.root"
 gammaFileName_Np2 = path + "gamma_Np2.root"
@@ -118,6 +120,7 @@ WgammaFile_Np4 = ROOT.TFile(WgammaFileName_Np4)
 WgammaFile_Np5 = ROOT.TFile(WgammaFileName_Np5)
 
 ttbarFile = ROOT.TFile(ttbarFileName)
+ttbargammaFile = ROOT.TFile(ttbargammaFileName)
 
 st_tchan_lepnuFile   = ROOT.TFile(st_tchan_lepnuFileName)
 st_tchan_taunuFile = ROOT.TFile(st_tchan_taunuFileName)
@@ -130,6 +133,7 @@ ZZFile = ROOT.TFile(ZZFileName)
 
 ZleplepgammaFile = ROOT.TFile(ZleplepgammaFileName)
 ZtautaugammaFile = ROOT.TFile(ZtautaugammaFileName)
+ZnunugammagammaFile = ROOT.TFile(ZnunugammagammaFileName)
 
 gammaFile_Np1 = ROOT.TFile(gammaFileName_Np1)
 gammaFile_Np2 = ROOT.TFile(gammaFileName_Np2)
@@ -180,6 +184,7 @@ cutFlowWgamma_Np4 = WgammaFile_Np4.Get("Global/CutFlow")
 cutFlowWgamma_Np5 = WgammaFile_Np5.Get("Global/CutFlow")
 
 cutFlowttbar = ttbarFile.Get("Global/CutFlow")
+cutFlowttbargamma = ttbargammaFile.Get("Global/CutFlow")
 
 cutFlowst_tchan_lepnu = st_tchan_lepnuFile.Get("Global/CutFlow")
 cutFlowst_tchan_taunu = st_tchan_taunuFile.Get("Global/CutFlow")
@@ -192,6 +197,7 @@ cutFlowZZ   = ZZFile.Get("Global/CutFlow")
 
 cutFlowZleplepgamma = ZleplepgammaFile.Get("Global/CutFlow")
 cutFlowZtautaugamma = ZtautaugammaFile.Get("Global/CutFlow")
+cutFlowZnunugammagamma = ZnunugammagammaFile.Get("Global/CutFlow")
 
 cutFlowgamma_Np1 = gammaFile_Np1.Get("Global/CutFlow")
 cutFlowgamma_Np2 = gammaFile_Np2.Get("Global/CutFlow")
@@ -242,6 +248,7 @@ nOrigWgamma_Np4 = cutFlowWgamma_Np4.GetBinContent(1)
 nOrigWgamma_Np5 = cutFlowWgamma_Np5.GetBinContent(1)
 
 nOrigttbar = cutFlowttbar.GetBinContent(1)
+nOrigttbargamma = cutFlowttbargamma.GetBinContent(1)
 
 nOrigst_tchan_lepnu = cutFlowst_tchan_lepnu.GetBinContent(1)
 nOrigst_tchan_taunu = cutFlowst_tchan_taunu.GetBinContent(1)
@@ -254,6 +261,7 @@ nOrigZZ = cutFlowZZ.GetBinContent(1)
 
 nOrigZleplepgamma = cutFlowZleplepgamma.GetBinContent(1)
 nOrigZtautaugamma = cutFlowZtautaugamma.GetBinContent(1)
+nOrigZnunugammagamma = cutFlowZnunugammagamma.GetBinContent(1)
 
 nOriggamma_Np1 = cutFlowgamma_Np1.GetBinContent(1)
 nOriggamma_Np2 = cutFlowgamma_Np2.GetBinContent(1)
@@ -307,6 +315,7 @@ if PRINT_YIELDS:
     print "\tnOrigWgamma_Np5 =", nOrigWgamma_Np5
     
     print "\tnOrigttbar =", nOrigttbar
+    print "\tnOrigttbargamma =", nOrigttbargamma
     
     print "\tnOrigst_tchan_lepnu =", nOrigst_tchan_lepnu
     print "\tnOrigst_tchan_taunu =", nOrigst_tchan_taunu
@@ -319,6 +328,7 @@ if PRINT_YIELDS:
     
     print "\tnOrigZleplepgamma =", nOrigZleplepgamma
     print "\tnOrigZtautaugamma =", nOrigZtautaugamma
+    print "\tnOrigZnunugammagamma =", nOrigZnunugammagamma
 
     print "\tnOriggamma_Np1 =", nOriggamma_Np1
     print "\tnOriggamma_Np2 =", nOriggamma_Np2
@@ -365,6 +375,7 @@ Ztautau_Np4_scale   =  Lumi  *    2.79 * 1.25   / nOrigZtautau_Np4
 Ztautau_Np5_scale   =  Lumi  *    0.77 * 1.25   / nOrigZtautau_Np5
 
 ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
+ttbargamma_scale     =  Lumi  *  0.84 / nOrigttbargamma
 
 # if using gamma pt > 10 GeV samples
 # Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.488   / nOrigWgamma_Np0
@@ -393,6 +404,7 @@ Zleplepgamma_scale   =  Lumi  *  0.52528 * Zgamma_kFact  / nOrigZleplepgamma
 
 #inly have MadGraph
 Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
+Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
 
 st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
 st_tchan_taunu_scale = Lumi * 7.10 / nOrigst_tchan_taunu
@@ -452,6 +464,7 @@ if PRINT_YIELDS:
     print "\tWgamma_Np5_scale =", Wgamma_Np5_scale
     
     print "\tttbar_scale =", ttbar_scale
+    print "\tttbargamma_scale =", ttbargamma_scale
     
     print "\tst_tchan_lepnu_scale =", st_tchan_lepnu_scale
     print "\tst_tchan_taunu_scale =", st_tchan_taunu_scale
@@ -464,6 +477,7 @@ if PRINT_YIELDS:
     
     print "\tZleplepgamma_scale =", Zleplepgamma_scale
     print "\tZtautaugamma_scale =", Ztautaugamma_scale
+    print "\tZnunugammagamma_scale =", Znunugammagamma_scale
     
     print "\tgamma_Np1_scale =", gamma_Np1_scale
     print "\tgamma_Np2_scale =", gamma_Np2_scale
@@ -516,6 +530,7 @@ nAfterPreselectWgamma_Np4 = cutFlowWgamma_Np4.GetBinContent(binToLookAt)
 nAfterPreselectWgamma_Np5 = cutFlowWgamma_Np5.GetBinContent(binToLookAt)
 
 nAfterPreselectttbar = cutFlowttbar.GetBinContent(binToLookAt)
+nAfterPreselectttbargamma = cutFlowttbargamma.GetBinContent(binToLookAt)
 
 nAfterPreselectst_tchan_lepnu = cutFlowst_tchan_lepnu.GetBinContent(binToLookAt)
 nAfterPreselectst_tchan_taunu = cutFlowst_tchan_taunu.GetBinContent(binToLookAt)
@@ -528,6 +543,7 @@ nAfterPreselectZZ = cutFlowZZ.GetBinContent(binToLookAt)
 
 nAfterPreselectZleplepgamma = cutFlowZleplepgamma.GetBinContent(binToLookAt)
 nAfterPreselectZtautaugamma = cutFlowZtautaugamma.GetBinContent(binToLookAt)
+nAfterPreselectZnunugammagamma = cutFlowZnunugammagamma.GetBinContent(binToLookAt)
 
 nAfterPreselectgamma_Np1 = cutFlowgamma_Np1.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np2 = cutFlowgamma_Np2.GetBinContent(binToLookAt)
@@ -581,6 +597,7 @@ if PRINT_YIELDS:
     print "Yield Wgamma_Np5 =", nAfterPreselectWgamma_Np5 * Wgamma_Np5_scale
     
     print "Yield ttbar =", nAfterPreselectttbar * ttbar_scale
+    print "Yield ttbargamma =", nAfterPreselectttbargamma * ttbargamma_scale
     
     print "Yield st_tchan_lepnu =", nAfterPreselectst_tchan_lepnu * st_tchan_lepnu_scale
     print "Yield st_tchan_taunu =", nAfterPreselectst_tchan_taunu * st_tchan_taunu_scale
@@ -593,6 +610,7 @@ if PRINT_YIELDS:
 
     print "Yield Zleplepgamma =", nAfterPreselectZleplepgamma * Zleplepgamma_scale
     print "Yield Ztautaugamma =", nAfterPreselectZtautaugamma * Ztautaugamma_scale
+    print "Yield Znunugammagamma =", nAfterPreselectZnunugammagamma * Znunugammagamma_scale
 
     print "Yield gamma_Np1 =", nAfterPreselectgamma_Np1 * gamma_Np1_scale
     print "Yield gamma_Np2 =", nAfterPreselectgamma_Np2 * gamma_Np2_scale
