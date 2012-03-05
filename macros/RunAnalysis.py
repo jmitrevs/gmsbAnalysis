@@ -54,83 +54,95 @@ def RunAnalysis(lepton):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.WlepnuFileName_Np0),
                                         lepton,
-                                        DataManager.Wlepnu_Np0_scale)
+                                        DataManager.Wlepnu_Np0_scale,
+                                        True)
 
     print
     print "Wlepnu_Np1:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np1.Get(ttreeName), 
                                         makeOutputName(DataManager.WlepnuFileName_Np1),
                                         lepton,
-                                        DataManager.Wlepnu_Np1_scale)
+                                        DataManager.Wlepnu_Np1_scale,
+                                        True)
 
     print
     print "Wlepnu_Np2:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np2.Get(ttreeName), 
                                         makeOutputName(DataManager.WlepnuFileName_Np2),
                                         lepton,
-                                        DataManager.Wlepnu_Np2_scale)
+                                        DataManager.Wlepnu_Np2_scale,
+                                        True)
 
     print
     print "Wlepnu_Np3:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np3.Get(ttreeName), 
                                         makeOutputName(DataManager.WlepnuFileName_Np3),
                                         lepton,
-                                        DataManager.Wlepnu_Np3_scale)
+                                        DataManager.Wlepnu_Np3_scale,
+                                        True)
 
     print
     print "Wlepnu_Np4:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np4.Get(ttreeName), 
                                         makeOutputName(DataManager.WlepnuFileName_Np4),
                                         lepton,
-                                        DataManager.Wlepnu_Np4_scale)
+                                        DataManager.Wlepnu_Np4_scale,
+                                        True)
 
     print
     print "Wlepnu_Np5:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np5.Get(ttreeName), 
                                         makeOutputName(DataManager.WlepnuFileName_Np5),
                                         lepton,
-                                        DataManager.Wlepnu_Np5_scale)
+                                        DataManager.Wlepnu_Np5_scale,
+                                        True)
     print
     print "Wtaunu_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np0),
                                         lepton,
-                                        DataManager.Wtaunu_Np0_scale)
+                                        DataManager.Wtaunu_Np0_scale,
+                                        True)
 
     print
     print "Wtaunu_Np1:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np1.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np1),
                                         lepton,
-                                        DataManager.Wtaunu_Np1_scale)
+                                        DataManager.Wtaunu_Np1_scale,
+                                        True)
 
     print
     print "Wtaunu_Np2:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np2.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np2),
                                         lepton,
-                                        DataManager.Wtaunu_Np2_scale)
+                                        DataManager.Wtaunu_Np2_scale,
+                                        True)
 
     print
     print "Wtaunu_Np3:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np3.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np3),
                                         lepton,
-                                        DataManager.Wtaunu_Np3_scale)
+                                        DataManager.Wtaunu_Np3_scale,
+                                        True)
 
     print
     print "Wtaunu_Np4:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np4.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np4),
                                         lepton,
-                                        DataManager.Wtaunu_Np4_scale)
+                                        DataManager.Wtaunu_Np4_scale,
+                                        True)
 
     print
     print "Wtaunu_Np5:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np5.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np5),
                                         lepton,
-                                        DataManager.Wtaunu_Np5_scale)
+                                        DataManager.Wtaunu_Np5_scale,
+                                        True)
     print
     print "Wgamma_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np0.Get(ttreeName), 
@@ -179,6 +191,13 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ttbarFileName),
                                         lepton,
                                         DataManager.ttbar_scale)
+
+    print
+    print "ttbargamma:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ttbargammaFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.ttbargammaFileName),
+                                        lepton,
+                                        DataManager.ttbargamma_scale)
 
     print
     print "st_tchan_lepnu:"
@@ -247,83 +266,95 @@ def RunAnalysis(lepton):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZleplepFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.ZleplepFileName_Np0),
                                         lepton,
-                                        DataManager.Zleplep_Np0_scale)
+                                        DataManager.Zleplep_Np0_scale,
+                                        True)
 
     print
     print "Zleplep_Np1:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZleplepFile_Np1.Get(ttreeName), 
                                         makeOutputName(DataManager.ZleplepFileName_Np1),
                                         lepton,
-                                        DataManager.Zleplep_Np1_scale)
+                                        DataManager.Zleplep_Np1_scale,
+                                        True)
 
     print
     print "Zleplep_Np2:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZleplepFile_Np2.Get(ttreeName), 
                                         makeOutputName(DataManager.ZleplepFileName_Np2),
                                         lepton,
-                                        DataManager.Zleplep_Np2_scale)
+                                        DataManager.Zleplep_Np2_scale,
+                                        True)
 
     print
     print "Zleplep_Np3:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZleplepFile_Np3.Get(ttreeName), 
                                         makeOutputName(DataManager.ZleplepFileName_Np3),
                                         lepton,
-                                        DataManager.Zleplep_Np3_scale)
+                                        DataManager.Zleplep_Np3_scale,
+                                        True)
 
     print
     print "Zleplep_Np4:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZleplepFile_Np4.Get(ttreeName), 
                                         makeOutputName(DataManager.ZleplepFileName_Np4),
                                         lepton,
-                                        DataManager.Zleplep_Np4_scale)
+                                        DataManager.Zleplep_Np4_scale,
+                                        True)
 
     print
     print "Zleplep_Np5:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZleplepFile_Np5.Get(ttreeName), 
                                         makeOutputName(DataManager.ZleplepFileName_Np5),
                                         lepton,
-                                        DataManager.Zleplep_Np5_scale)
+                                        DataManager.Zleplep_Np5_scale,
+                                        True)
     print
     print "Ztautau_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np0),
                                         lepton,
-                                        DataManager.Ztautau_Np0_scale)
+                                        DataManager.Ztautau_Np0_scale,
+                                        True)
 
     print
     print "Ztautau_Np1:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np1.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np1),
                                         lepton,
-                                        DataManager.Ztautau_Np1_scale)
+                                        DataManager.Ztautau_Np1_scale,
+                                        True)
 
     print
     print "Ztautau_Np2:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np2.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np2),
                                         lepton,
-                                        DataManager.Ztautau_Np2_scale)
+                                        DataManager.Ztautau_Np2_scale,
+                                        True)
 
     print
     print "Ztautau_Np3:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np3.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np3),
                                         lepton,
-                                        DataManager.Ztautau_Np3_scale)
+                                        DataManager.Ztautau_Np3_scale,
+                                        True)
 
     print
     print "Ztautau_Np4:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np4.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np4),
                                         lepton,
-                                        DataManager.Ztautau_Np4_scale)
+                                        DataManager.Ztautau_Np4_scale,
+                                        True)
 
     print
     print "Ztautau_Np5:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np5.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np5),
                                         lepton,
-                                        DataManager.Ztautau_Np5_scale)
+                                        DataManager.Ztautau_Np5_scale,
+                                        True)
     print
 
     print "gamma_Np1:"

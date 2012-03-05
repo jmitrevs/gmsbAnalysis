@@ -70,7 +70,7 @@ def usage():
     print "  -h | --help       : print this help message"
 
 
-def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
+def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -187,6 +187,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight):
         if ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
             print "ERROR: event is malformed"
             sys.exit(1)
+
+        if filterPhotons and ev.numTruthPh > 0:
+            continue
 
         met = math.hypot(ev.Metx, ev.Mety)
         #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
