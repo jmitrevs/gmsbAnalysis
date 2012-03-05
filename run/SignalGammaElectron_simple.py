@@ -107,7 +107,7 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             OutputLevel = DEBUG
                             )
 ToolSvc += truthStudies
-print TruthStudies
+print truthStudies
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",

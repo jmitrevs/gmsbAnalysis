@@ -21,13 +21,13 @@ from glob import glob
 InputList = glob('/data3/jmitrevs/mc11_7TeV.117421.AlpgenJimmyWgammaNp1_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993*/*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.107681.AlpgenJimmyWenuNp1_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993*/*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.145163.Sherpa_Zeegamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993*/*')
-InputList = glob('/data3/jmitrevs/mc11_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993*/*')
+#InputList = glob('/data3/jmitrevs/mc11_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993*/*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
 athenaCommonFlags.EvtMax=-1
-#athenaCommonFlags.EvtMax=500
+#athenaCommonFlags.EvtMax=10000
 
 
 # # use closest DB replica
