@@ -9,6 +9,9 @@ ROOT.SetAtlasStyle()
 import os.path
 import LepPhotonAnalysis
 
+removeOverlap = True
+removeOverlapTtbar = False
+
 ELECTRON = 0
 MUON = 1
 
@@ -55,7 +58,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WlepnuFileName_Np0),
                                         lepton,
                                         DataManager.Wlepnu_Np0_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wlepnu_Np1:"
@@ -63,7 +66,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WlepnuFileName_Np1),
                                         lepton,
                                         DataManager.Wlepnu_Np1_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wlepnu_Np2:"
@@ -71,7 +74,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WlepnuFileName_Np2),
                                         lepton,
                                         DataManager.Wlepnu_Np2_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wlepnu_Np3:"
@@ -79,7 +82,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WlepnuFileName_Np3),
                                         lepton,
                                         DataManager.Wlepnu_Np3_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wlepnu_Np4:"
@@ -87,7 +90,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WlepnuFileName_Np4),
                                         lepton,
                                         DataManager.Wlepnu_Np4_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wlepnu_Np5:"
@@ -95,14 +98,14 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WlepnuFileName_Np5),
                                         lepton,
                                         DataManager.Wlepnu_Np5_scale,
-                                        True)
+                                        removeOverlap)
     print
     print "Wtaunu_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.WtaunuFileName_Np0),
                                         lepton,
                                         DataManager.Wtaunu_Np0_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wtaunu_Np1:"
@@ -110,7 +113,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WtaunuFileName_Np1),
                                         lepton,
                                         DataManager.Wtaunu_Np1_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wtaunu_Np2:"
@@ -118,7 +121,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WtaunuFileName_Np2),
                                         lepton,
                                         DataManager.Wtaunu_Np2_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wtaunu_Np3:"
@@ -126,7 +129,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WtaunuFileName_Np3),
                                         lepton,
                                         DataManager.Wtaunu_Np3_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wtaunu_Np4:"
@@ -134,7 +137,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WtaunuFileName_Np4),
                                         lepton,
                                         DataManager.Wtaunu_Np4_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Wtaunu_Np5:"
@@ -142,7 +145,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.WtaunuFileName_Np5),
                                         lepton,
                                         DataManager.Wtaunu_Np5_scale,
-                                        True)
+                                        removeOverlap)
     print
     print "Wgamma_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np0.Get(ttreeName), 
@@ -190,7 +193,8 @@ def RunAnalysis(lepton):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ttbarFile.Get(ttreeName), 
                                         makeOutputName(DataManager.ttbarFileName),
                                         lepton,
-                                        DataManager.ttbar_scale)
+                                        DataManager.ttbar_scale,
+                                        removeOverlapTtbar)
 
     print
     print "ttbargamma:"
@@ -267,7 +271,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZleplepFileName_Np0),
                                         lepton,
                                         DataManager.Zleplep_Np0_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Zleplep_Np1:"
@@ -275,7 +279,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZleplepFileName_Np1),
                                         lepton,
                                         DataManager.Zleplep_Np1_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Zleplep_Np2:"
@@ -283,7 +287,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZleplepFileName_Np2),
                                         lepton,
                                         DataManager.Zleplep_Np2_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Zleplep_Np3:"
@@ -291,7 +295,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZleplepFileName_Np3),
                                         lepton,
                                         DataManager.Zleplep_Np3_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Zleplep_Np4:"
@@ -299,7 +303,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZleplepFileName_Np4),
                                         lepton,
                                         DataManager.Zleplep_Np4_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Zleplep_Np5:"
@@ -307,14 +311,14 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZleplepFileName_Np5),
                                         lepton,
                                         DataManager.Zleplep_Np5_scale,
-                                        True)
+                                        removeOverlap)
     print
     print "Ztautau_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np0),
                                         lepton,
                                         DataManager.Ztautau_Np0_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Ztautau_Np1:"
@@ -322,7 +326,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZtautauFileName_Np1),
                                         lepton,
                                         DataManager.Ztautau_Np1_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Ztautau_Np2:"
@@ -330,7 +334,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZtautauFileName_Np2),
                                         lepton,
                                         DataManager.Ztautau_Np2_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Ztautau_Np3:"
@@ -338,7 +342,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZtautauFileName_Np3),
                                         lepton,
                                         DataManager.Ztautau_Np3_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Ztautau_Np4:"
@@ -346,7 +350,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZtautauFileName_Np4),
                                         lepton,
                                         DataManager.Ztautau_Np4_scale,
-                                        True)
+                                        removeOverlap)
 
     print
     print "Ztautau_Np5:"
@@ -354,7 +358,7 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ZtautauFileName_Np5),
                                         lepton,
                                         DataManager.Ztautau_Np5_scale,
-                                        True)
+                                        removeOverlap)
     print
 
     print "gamma_Np1:"

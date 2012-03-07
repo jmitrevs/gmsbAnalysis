@@ -342,7 +342,7 @@ if PRINT_YIELDS:
 ##############################################
 #   scale is lumi * xsec * kfact * filter / numEvents
 
-wino_scale = Lumi * 1.1675 * 1 / nOrigwino
+wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino
 
 Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20   / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20   / nOrigWlepnu_Np1
