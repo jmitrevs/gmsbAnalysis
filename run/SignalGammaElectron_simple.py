@@ -101,11 +101,11 @@ gmsbCrackSelectionTool.SmearMC = False
 
 from gmsbTools.gmsbToolsConf import TruthStudies
 truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = True,
+                            PrintDecayTree = False,
                             UseAnnotated = False,
                             DumpEntireTree = False,
                             #Ptcut = 8*GeV,
-                            doDeltaRLepton = True,
+                            doDeltaRLepton = False,
                             OutputLevel = DEBUG
                             )
 ToolSvc += truthStudies
@@ -123,7 +123,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,
-                            doTruthStudies = True,
+                            doTruthStudies = False,
                             TruthStudiesTool = truthStudies
                             )
 from AthenaCommon.AppMgr import ToolSvc

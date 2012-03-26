@@ -30,6 +30,13 @@
 
 #include "ITrackToVertex/ITrackToVertex.h"
 
+#include "FourMomUtils/P4Helpers.h"
+#include "TrkTrackLink/ITrackLink.h"
+#include "TrkParticleBase/LinkToTrackParticleBase.h"
+#include "TrkParticleBase/TrackParticleBaseCollection.h"
+#include "VxVertex/VxTrackAtVertex.h"
+
+
 #include <climits>
 
 
@@ -291,6 +298,15 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_eta = new std::vector<float>;
     m_ph_phi = new std::vector<float>;
 
+    m_ph_numConv = new std::vector<int>;
+    m_ph_numSi0 = new std::vector<int>;
+    m_ph_numSi1 = new std::vector<int>;
+    m_ph_numPix0 = new std::vector<int>;
+    m_ph_numPix1 = new std::vector<int>;
+    m_ph_numSiEl = new std::vector<int>;
+    m_ph_numPixEl = new std::vector<int>;
+    m_ph_numBEl = new std::vector<int>;
+
     m_el_pt = new std::vector<float>;
     m_el_eta = new std::vector<float>;
     m_el_phi = new std::vector<float>;
@@ -341,6 +357,15 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonPt", &m_ph_pt);
     m_tree->Branch("PhotonEta", &m_ph_eta);
     m_tree->Branch("PhotonPhi", &m_ph_phi);
+
+    m_tree->Branch("PhotonNumConv", &m_ph_numConv);
+    m_tree->Branch("PhotonNumSi0", &m_ph_numSi0);
+    m_tree->Branch("PhotonNumSi1", &m_ph_numSi1);
+    m_tree->Branch("PhotonNumPix0", &m_ph_numPix0);
+    m_tree->Branch("PhotonNumPix1", &m_ph_numPix1);
+    m_tree->Branch("PhotonNumSiEl", &m_ph_numSiEl);
+    m_tree->Branch("PhotonNumPixEl", &m_ph_numPixEl);
+    m_tree->Branch("PhotonNumBEl", &m_ph_numBEl);
 
     m_tree->Branch("ElectronPt", &m_el_pt);
     m_tree->Branch("ElectronEta", &m_el_eta);
@@ -403,6 +428,15 @@ StatusCode SignalGammaLepton::execute()
     m_ph_pt->clear();
     m_ph_eta->clear();
     m_ph_phi->clear();
+
+    m_ph_numConv->clear();
+    m_ph_numSi0->clear();
+    m_ph_numSi1->clear();
+    m_ph_numPix0->clear();
+    m_ph_numPix1->clear();
+    m_ph_numSiEl->clear();
+    m_ph_numPixEl->clear();
+    m_ph_numBEl->clear();
 
     m_el_pt->clear();
     m_el_eta->clear();
@@ -590,7 +624,8 @@ StatusCode SignalGammaLepton::execute()
 
     if ((*ph)->isgoodoq(LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
       return StatusCode::SUCCESS; // reject event
-    }      
+    }
+
   }
  
   m_histograms["CutFlow"]->Fill(4.0, m_weight);
@@ -688,10 +723,112 @@ StatusCode SignalGammaLepton::execute()
 
     m_HT += pt;
 
+      // let's do the AR studies
+
+    int numConv = 0;
+    int numSi0 = -9;
+    int numPix0 = -9;
+    int numSi1 = -9;
+    int numPix1 = -9;
+
+    const Trk::VxCandidate*  convVtx = (*ph)->conversion();
+
+    ATH_MSG_DEBUG("Will start covnersions");
+
+    if (convVtx) {
+      const std::vector<Trk::VxTrackAtVertex*> *trkAtVxPtr = convVtx->vxTrackAtVertex();
+      if (trkAtVxPtr->size() == 1) {
+	ATH_MSG_DEBUG("1-track");
+
+	numConv = 1;
+	// first track
+	Trk::VxTrackAtVertex* tmpTrkAtVtx1 = trkAtVxPtr->at(0);
+	const Trk::ITrackLink * trLink =tmpTrkAtVtx1->trackOrParticleLink();
+	const Trk::TrackParticleBase* tempTrk1PB(0);
+	if (0!= trLink) {
+	  const Trk::LinkToTrackParticleBase * linkToTrackPB =  dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink);  
+	  if (0!= linkToTrackPB) {
+	    if(linkToTrackPB->isValid()) tempTrk1PB = linkToTrackPB->cachedElement(); 
+	  } 
+	}
+	if ( tempTrk1PB!=NULL){  
+	  const Trk::TrackSummary* summary1 = tempTrk1PB->trackSummary();
+	  if (summary1 != NULL){
+	    numPix0 = summary1->get(Trk::numberOfPixelHits);
+	    numSi0 = summary1->get(Trk::numberOfSCTHits)+ numPix0;
+	  }
+	}
+      } else if (int(trkAtVxPtr->size())==2) {
+	ATH_MSG_DEBUG("2-track");
+	numConv = 2;
+
+	// first track
+	Trk::VxTrackAtVertex* tmpTrkAtVtx1 = trkAtVxPtr->at(0);
+	const Trk::ITrackLink * trLink1 =tmpTrkAtVtx1->trackOrParticleLink();
+	const Trk::TrackParticleBase* tempTrk1PB(0);
+	if (0!= trLink1) {
+	  const Trk::LinkToTrackParticleBase * linkToTrackPB =  dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink1);  
+	  if (0!= linkToTrackPB) {
+	    if(linkToTrackPB->isValid()) tempTrk1PB = linkToTrackPB->cachedElement(); 
+	  } 
+	}
+	if ( tempTrk1PB!=NULL){  
+	  const Trk::TrackSummary* summary1 = tempTrk1PB->trackSummary();
+	  if (summary1 != NULL){
+	    numPix0 = summary1->get(Trk::numberOfPixelHits);
+	    numSi0 = summary1->get(Trk::numberOfSCTHits)+numPix0;
+	  }
+	}
+	Trk::VxTrackAtVertex* tmpTrkAtVtx2 = trkAtVxPtr->at(1);
+	const Trk::ITrackLink * trLink2 =tmpTrkAtVtx2->trackOrParticleLink();
+	const Trk::TrackParticleBase* tempTrk2PB(0);
+	if (0!= trLink2) {
+	  const Trk::LinkToTrackParticleBase * linkToTrackPB =  dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink2);  
+	  if (0!= linkToTrackPB) {
+	    if (linkToTrackPB->isValid()) tempTrk2PB = linkToTrackPB->cachedElement(); 
+	  } 
+	}
+	if ( tempTrk2PB!=NULL) {
+	  const Trk::TrackSummary* summary2 = tempTrk2PB->trackSummary();
+	  if (summary2 != NULL){
+	    numPix1 = summary2->get(Trk::numberOfPixelHits);
+	    numSi1 = summary2->get(Trk::numberOfSCTHits) + numPix1;
+	  }
+	}
+      }
+    }
+
+    ATH_MSG_DEBUG("electron track");
+
+    int numBEl = -9;
+    int numSiEl = -9;
+    int numPixEl = -9;
+
+    const Rec::TrackParticle * trParticle = (*ph)->trackParticle();
+    if (trParticle) {
+      const Trk::TrackSummary* sum = trParticle->trackSummary();
+      if (sum != NULL)  {
+	numPixEl = sum->get(Trk::numberOfPixelHits);
+	numSiEl = sum->get(Trk::numberOfSCTHits)+ numPixEl;
+	numBEl = sum->get(Trk::numberOfBLayerHits);
+      }
+    }
+
+    ATH_MSG_DEBUG("will push back stuff");
+
     if (m_outputNtuple) {
       m_ph_pt->push_back(pt);
       m_ph_eta->push_back((*ph)->eta());
       m_ph_phi->push_back((*ph)->phi());
+
+      m_ph_numConv->push_back(numConv);
+      m_ph_numSi0->push_back(numSi0);
+      m_ph_numSi1->push_back(numSi1);
+      m_ph_numPix0->push_back(numPix0);
+      m_ph_numPix1->push_back(numPix1);
+      m_ph_numSiEl->push_back(numSiEl);
+      m_ph_numPixEl->push_back(numPixEl);
+      m_ph_numBEl->push_back(numBEl);
     }
 
     if ((*ph)->conversion()) numConvPhPass++;
@@ -706,6 +843,7 @@ StatusCode SignalGammaLepton::execute()
       secondPh = *ph;
       secondPhPt = pt;
     }
+
   }
 
 

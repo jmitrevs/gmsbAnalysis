@@ -18,6 +18,8 @@ GeV = 1000.0
 
 ZMASS = 91.1876*GeV
 
+numEventTypes = 46
+
 DEFAULTTTREE = 'GammaLepton'
 DEFAULTWEIGHT = 1
 DEFAULT_LEPTON = ELECTRON
@@ -30,17 +32,23 @@ EL_ELPTCUT = 25*GeV
 EL_ELETACUT = 2.47
 EL_MET = 100*GeV
 EL_MT = 100*GeV
-EL_MET_MAX = 100*GeV
-EL_MT_MAX = 100*GeV
 
 EL_QCD_MINV_WINDOW = 20*GeV
-EL_CR_MET_MIN = 25*GeV
-EL_CR_MET_MAX = 80*GeV
-EL_CR_MT_MIN = 40*GeV
-EL_CR_MT_MAX = 80*GeV
+EL_MINV_WINDOW = 15*GeV
+
+EL_WCR_MET_MIN = 25*GeV
+EL_WCR_MET_MAX = 80*GeV
+EL_WCR_MT_MIN = 40*GeV
+EL_WCR_MT_MAX = 80*GeV
+
+EL_TCR_MET_MIN = 45*GeV
+EL_TCR_MET_MAX = 80*GeV
+EL_TCR_MT_MIN =  80*GeV
 
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 30*GeV
+
+DELTAR_EL_PH = 0
 
 # - muon channel
 MU_PHPTCUT = 85*GeV
@@ -51,13 +59,18 @@ MU_MET = 100*GeV
 MU_MT = 100*GeV
 
 MU_QCD_MINV_WINDOW = 10*GeV
-MU_CR_MET_MIN = 25*GeV
-MU_CR_MET_MAX = 80*GeV
-MU_CR_MT_MIN = 40*GeV
-MU_CR_MT_MAX = 80*GeV
+
+MU_WCR_MET_MIN = 25*GeV
+MU_WCR_MET_MAX = 80*GeV
+MU_WCR_MT_MIN = 40*GeV
+MU_WCR_MT_MAX = 80*GeV
 
 MU_QCD_MET_MAX = 20*GeV
 MU_QCD_MT_MAX = 30*GeV
+
+DELTAR_MU_PH = 0.7
+
+VETO_SECOND_LEPTON = False
 
 def usage():
     print " "
@@ -106,9 +119,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
 
     h_ph_ptB_conv = ROOT.TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;p_{T} [GeV]", 500, 0, 500)
     h_ph_ptEC_conv = ROOT.TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;p_{T} [GeV]", 500, 0, 500)
-    h_ph_el_minv = ROOT.TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 120, 0, 120)
-    h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 120, 0, 120)
+    h_ph_el_minv = ROOT.TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 250, 0, 500)
+    h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 250, 0, 500)
     h_numPh = ROOT.TH1F("numPh", "The number of photons that pass cuts;N_{photons}", 9, -0.5, 8.5)
+
+    h_ph_el_deltaR = ROOT.TH1F("ph_el_deltaR", "The delta-R beteween the electron and the photon", 100, 0, 10)
+    h_ph_mu_deltaR = ROOT.TH1F("ph_mu_deltaR", "The delta-R beteween the muon and the photon", 100, 0, 10)
 
     ######## mudir
     mudir.cd()
@@ -142,15 +158,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
 						  "The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
-						  100, 0, math.pi, 250, 0, 250)
+						  50, 0, math.pi, 20, 100, 300)
 
     h_deltaPhiElMETvsMET = ROOT.TH2F("deltaPhiElMETvsMET", 
 						  "The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
-						  100, 0, math.pi, 250, 0, 250)
+						  50, 0, math.pi, 20, 100, 300)
 
     h_deltaPhiMuMETvsMET = ROOT.TH2F("deltaPhiMuMETvsMET", 
 						  "The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
-						  100, 0, math.pi, 250, 0, 250)
+						  50, 0, math.pi, 20, 100, 300)
     ############ gldir
     gldir.cd()
     h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 300, 0, 1500)
@@ -163,18 +179,23 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
     h_mTmuvsMET = ROOT.TH2F("mTmuvsMET", "m_{T} vs. MET;Etmiss [GeV];m_{T} [GeV]",
                             50, 0, 500, 50, 0, 500)
 
+    h_eventType = ROOT.TH1F("eventType", "The event type, based on truth;event type", 
+					 numEventTypes, 0, numEventTypes);
+
     ######## go back to root
     f.cd()
 
     ######## initialize counts
 
-    nCR = ROOT.TH1F("nCR", "Number of events in the CR", 1, 0, 1);
+    nWCR = ROOT.TH1F("nWCR", "Number of events in the WCR", 1, 0, 1);
+    nTCR = ROOT.TH1F("nTCR", "Number of events in the TCR", 1, 0, 1);
     nQCD = ROOT.TH1F("nQCD", "Number of events in the QCD", 1, 0, 1);
     nSIG = ROOT.TH1F("nSIG", "Number of events in the SR", 1, 0, 1);
     nXR1 = ROOT.TH1F("nXR1", "Number of events in the XR1", 1, 0, 1);
     nXR2 = ROOT.TH1F("nXR2", "Number of events in the XR2", 1, 0, 1);
 
-    nCR.Sumw2()
+    nWCR.Sumw2()
+    nTCR.Sumw2()
     nQCD.Sumw2()
     nSIG.Sumw2()
     nXR1.Sumw2()
@@ -195,6 +216,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
         #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
         #print "weight =", ev.Weight * glWeight
 
+        weight = ev.Weight * glWeight
+
         # first the basic lepton and photon selection (but not MET and mT):
         if ((lepton == ELECTRON and
              (ev.PhotonPt[0] < EL_PHPTCUT or abs(ev.PhotonEta[0]) > EL_PHETACUT or
@@ -204,39 +227,72 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
               ev.MuonPt[0] < MU_MUPTCUT or abs(ev.MuonEta[0]) > MU_MUETACUT))):
             continue
 
+        # veto second lepton or Z window cut
+        if lepton == ELECTRON and EL_MINV_WINDOW != 0:
+            if ZMASS - EL_MINV_WINDOW < ev.PhElMinv < ZMASS + EL_QCD_MINV_WINDOW:
+                continue
+
+        if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
+            continue
+        elif (lepton == ELECTRON and ev.numMu > 0 or
+              lepton == MUON and ev.numEl > 0):
+            continue
+
+        photon = ROOT.TVector3()
+        photon.SetPtEtaPhi(ev.PhotonPt[0], ev.PhotonEta[0], ev.PhotonPhi[0])
+        if lepton == ELECTRON:
+            electron = ROOT.TVector3()
+            electron.SetPtEtaPhi(ev.ElectronPt[0], ev.ElectronEta[0], ev.ElectronPhi[0])
+            el_ph_deltaR = photon.DeltaR(electron)
+            if el_ph_deltaR < DELTAR_EL_PH:
+                continue
+        else:
+            muon = ROOT.TVector3()
+            muon.SetPtEtaPhi(ev.MuonPt[0], ev.MuonEta[0], ev.MuonPhi[0])
+            mu_ph_deltaR = photon.DeltaR(muon)
+            if mu_ph_deltaR < DELTAR_MU_PH:
+                continue
+
         # now plots that should be made before MET and mT cuts
-        h_mTelvsMET.Fill(met/GeV, ev.mTel/GeV, ev.Weight * glWeight)
-        h_mTmuvsMET.Fill(met/GeV, ev.mTmu/GeV, ev.Weight * glWeight)
+        h_mTelvsMET.Fill(met/GeV, ev.mTel/GeV, weight)
+        h_mTmuvsMET.Fill(met/GeV, ev.mTmu/GeV, weight)
 
         # then make MET cut after mT and visa versa
 
         if ((lepton == ELECTRON and met > EL_MET) or
             (lepton == MUON and met > MU_MET)):
-            h_mTel.Fill(ev.mTel/GeV, ev.Weight * glWeight)
-            h_mTmu.Fill(ev.mTmu/GeV, ev.Weight * glWeight)
+            h_mTel.Fill(ev.mTel/GeV, weight)
+            h_mTmu.Fill(ev.mTmu/GeV, weight)
 
         if ((lepton == ELECTRON and ev.mTel > EL_MT) or
             (lepton == MUON and ev.mTmu > MU_MT)):
-            h_met.Fill(met/GeV, ev.Weight * glWeight)
+            h_met.Fill(met/GeV, weight)
+
+        inTCR = False
             
         # do CR counts
         if lepton == ELECTRON:
             if met < EL_QCD_MET_MAX and ev.mTel < EL_QCD_MT_MAX:
                 if (ev.PhElMinv < ZMASS - EL_QCD_MINV_WINDOW or
                     ev.PhElMinv > ZMASS + EL_QCD_MINV_WINDOW):
-                    nQCD.Fill(0, ev.Weight * glWeight)
-            elif (EL_CR_MET_MIN < met < EL_CR_MET_MAX and
-                  EL_CR_MT_MIN < ev.mTel < EL_CR_MT_MAX):
-                nCR.Fill(0, ev.Weight * glWeight)
+                    nQCD.Fill(0, weight)
+            elif (EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
+                  EL_WCR_MT_MIN < ev.mTel < EL_WCR_MT_MAX):
+                nWCR.Fill(0, weight)
+            elif (EL_TCR_MET_MIN < met < EL_TCR_MET_MAX and
+                  EL_TCR_MT_MIN < ev.mTel):
+                nTCR.Fill(0, weight)
+                inTCR = True
 
         # do the XR
         if lepton == ELECTRON:
-            if (EL_CR_MET_MAX < met and
-                EL_CR_MT_MIN < ev.mTel < EL_CR_MT_MAX):
-                nXR2.Fill(0, ev.Weight * glWeight)
-            if (EL_CR_MT_MAX < ev.mTel and
-                EL_CR_MET_MIN < met < EL_CR_MET_MAX):
-                nXR1.Fill(0, ev.Weight * glWeight)
+            if (EL_WCR_MET_MAX < met and
+                EL_WCR_MT_MIN < ev.mTel < EL_WCR_MT_MAX):
+                nXR2.Fill(0, weight)
+            if (EL_WCR_MT_MAX < ev.mTel and
+                EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
+                not inTCR):
+                nXR1.Fill(0, weight)
 
         ## our selection
         if ((lepton == ELECTRON and
@@ -245,33 +301,45 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
              (met < MU_MET or ev.mTmu < MU_MT))):
             continue
 
-        nSIG.Fill(0, ev.Weight * glWeight);
-        h_ph_el_minv.Fill(ev.PhElMinv/GeV, ev.Weight * glWeight);
-        h_numEl.Fill(ev.numEl, ev.Weight * glWeight);
-        h_numPh.Fill(ev.numPh, ev.Weight * glWeight);
+        nSIG.Fill(0, weight)
+        h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
+        h_numEl.Fill(ev.numEl, weight)
+        h_numMu.Fill(ev.numMu, weight)
+        h_numPh.Fill(ev.numPh, weight)
+        h_numJets.Fill(ev.numJets, weight)
+        h_deltaPhiPhMETvsMET.Fill(abs(ev.deltaPhiPhMET), met/GeV, weight)
+        h_deltaPhiElMETvsMET.Fill(abs(ev.deltaPhiElMET), met/GeV, weight)
+        h_eventType.Fill(ev.eventType, weight)
+
+        if lepton == ELECTRON:
+            h_ph_mu_deltaR.Fill(el_ph_deltaR, weight)
+        else:
+            h_ph_mu_deltaR.Fill(mu_ph_deltaR, weight)
+
 
     f.Write()
     print "**************************************"
     print "*****          YIELDS            *****"
     print "**************************************"
     print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
-    print "  TOP/W+jets CR Yield =",nCR.GetBinContent(1),"+-", nCR.GetBinError(1)
+    print "  W+jets CR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
+    print "  ttbar CR Yield =",nTCR.GetBinContent(1),"+-", nTCR.GetBinError(1)
     print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
     print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
     print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
 
-    nTF = nSIG.Clone()
-    nTF.Divide(nCR)
+    # nTF = nSIG.Clone()
+    # nTF.Divide(nWCR)
 
-    nXF1 = nXR1.Clone()
-    nXF1.Divide(nCR)
+    # nXF1 = nXR1.Clone()
+    # nXF1.Divide(nCR)
 
-    nXF2 = nXR2.Clone()
-    nXF2.Divide(nCR)
+    # nXF2 = nXR2.Clone()
+    # nXF2.Divide(nCR)
 
-    print "  SR/CR =",nTF.GetBinContent(1),"+-", nTF.GetBinError(1)
-    print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
-    print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
+    # print "  SR/CR =",nTF.GetBinContent(1),"+-", nTF.GetBinError(1)
+    # print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
+    # print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
 # This function calls the LepPhotonAnalysis function 
 def main():

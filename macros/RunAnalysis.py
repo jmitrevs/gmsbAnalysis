@@ -10,7 +10,7 @@ import os.path
 import LepPhotonAnalysis
 
 removeOverlap = True
-removeOverlapTtbar = False
+removeOverlapTtbar = True
 
 ELECTRON = 0
 MUON = 1
@@ -394,6 +394,12 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.gammaFileName_Np5),
                                         lepton,
                                         DataManager.gamma_Np5_scale)
+    print
+    print "diphotons:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.diphotonsFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.diphotonsFileName),
+                                        lepton,
+                                        DataManager.diphotons_scale)
     print
 
     print "wino:"

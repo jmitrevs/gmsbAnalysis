@@ -79,12 +79,12 @@ inDS_full = [
     # 'mc11_7TeV.108342.st_tchan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
 
-    'mc11_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107651.AlpgenJimmyZeeNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107652.AlpgenJimmyZeeNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107653.AlpgenJimmyZeeNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107654.AlpgenJimmyZeeNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107655.AlpgenJimmyZeeNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107651.AlpgenJimmyZeeNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107652.AlpgenJimmyZeeNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107653.AlpgenJimmyZeeNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107654.AlpgenJimmyZeeNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107655.AlpgenJimmyZeeNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
 
     # 'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
     # 'mc11_7TeV.107671.AlpgenJimmyZtautauNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
@@ -110,6 +110,9 @@ inDS_full = [
     # 'mc11_7TeV.107713.AlpgenJimmyZnunuNp3_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.107714.AlpgenJimmyZnunuNp4_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.107715.AlpgenJimmyZnunuNp5_pt20_filt1jet.merge.AOD.e1004_s1372_s1370_r3043_r2993',
+
+    'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
     ]
 #how to automatically configure GRL ?
 
@@ -118,14 +121,14 @@ inDS_full = [
 for i,inDS in enumerate(inDS_full):
  
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.37.%s SignalGammaElectron.py " % (inDS, inDS)
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120307.%s SignalGammaElectron.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120309.%s SignalGammaElectron.py " % (inDS, inDS)
    
     if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120307.tar"
+        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120309.tar"
     else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120307.tar"
+        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120309.tar"
 
-    #command += " --inTarBall=/data3/jmitrevs/submission_gammael_120305.tar"
+    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120307.tar"
 
     print command
     sys.stdout.flush()

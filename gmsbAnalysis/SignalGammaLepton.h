@@ -121,6 +121,16 @@ private:
   std::vector<float>* m_ph_eta;
   std::vector<float>* m_ph_phi;
 
+  // a bit more stuff for AR
+  std::vector<int>* m_ph_numConv;
+  std::vector<int>* m_ph_numSi0;
+  std::vector<int>* m_ph_numSi1;
+  std::vector<int>* m_ph_numPix0;
+  std::vector<int>* m_ph_numPix1;
+  std::vector<int>* m_ph_numSiEl;
+  std::vector<int>* m_ph_numPixEl;
+  std::vector<int>* m_ph_numBEl;
+  
   std::vector<float>* m_el_pt;
   std::vector<float>* m_el_eta;
   std::vector<float>* m_el_phi;

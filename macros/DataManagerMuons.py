@@ -75,6 +75,8 @@ gammaFileName_Np3 = path + "gamma_Np3.root"
 gammaFileName_Np4 = path + "gamma_Np4.root"
 gammaFileName_Np5 = path + "gamma_Np5.root"
 
+diphotonsFileName = path + "diphotons.root"
+
 dataFileName = datapath + "eg.root"
 gjFileName = datapath + "gj.root"
     
@@ -140,6 +142,8 @@ gammaFile_Np3 = ROOT.TFile(gammaFileName_Np3)
 gammaFile_Np4 = ROOT.TFile(gammaFileName_Np4)
 gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
 
+diphotonsFile = ROOT.TFile(diphotonsFileName)
+
 dataFile = ROOT.TFile(dataFileName)
 gjFile = ROOT.TFile(gjFileName)
 
@@ -204,6 +208,8 @@ cutFlowgamma_Np3 = gammaFile_Np3.Get("Global/CutFlow")
 cutFlowgamma_Np4 = gammaFile_Np4.Get("Global/CutFlow")
 cutFlowgamma_Np5 = gammaFile_Np5.Get("Global/CutFlow")
 
+cutFlowdiphotons = diphotonsFile.Get("Global/CutFlow");
+
 cutFlowdata = dataFile.Get("Global/CutFlow");
 cutFlowgj = gjFile.Get("Global/CutFlow");
 
@@ -267,6 +273,8 @@ nOriggamma_Np2 = cutFlowgamma_Np2.GetBinContent(1)
 nOriggamma_Np3 = cutFlowgamma_Np3.GetBinContent(1)
 nOriggamma_Np4 = cutFlowgamma_Np4.GetBinContent(1)
 nOriggamma_Np5 = cutFlowgamma_Np5.GetBinContent(1)
+
+nOrigdiphotons = cutFlowdiphotons.GetBinContent(1)
 
 nOrigdata = cutFlowdata.GetBinContent(1)
 nOriggj = cutFlowgj.GetBinContent(1)
@@ -334,6 +342,7 @@ if PRINT_YIELDS:
     print "\tnOriggamma_Np3 =", nOriggamma_Np3
     print "\tnOriggamma_Np4 =", nOriggamma_Np4
     print "\tnOriggamma_Np5 =", nOriggamma_Np5
+    print "\tnOrigdiphotons =", nOrigdiphotons
     print
     print "\tnOrigdata =", nOrigdata
     print "\tnOriggj (before subtraction) =", nOriggj
@@ -418,6 +427,9 @@ gamma_Np3_scale     =  Lumi  *  5861.9 * 4.6724E-01 / nOriggamma_Np3
 gamma_Np4_scale     =  Lumi  *  1355.9 * 6.2450E-01 / nOriggamma_Np4
 gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
 
+# this is for the diphotons50
+diphotons_scale = Lumi * 6.1162 * 8.7509E-01 / nOrigdiphotons
+
 if PRINT_YIELDS:
     ##########################################################
     # let's print out the scales
@@ -482,6 +494,9 @@ if PRINT_YIELDS:
     print "\tgamma_Np3_scale =", gamma_Np3_scale
     print "\tgamma_Np4_scale =", gamma_Np4_scale
     print "\tgamma_Np5_scale =", gamma_Np5_scale
+
+
+    print "\tdiphotons_scale =", diphotons_scale
     print
 
 #########################################################
@@ -549,6 +564,8 @@ nAfterPreselectgamma_Np3 = cutFlowgamma_Np3.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np4 = cutFlowgamma_Np4.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np5 = cutFlowgamma_Np5.GetBinContent(binToLookAt)
 
+nAfterPreselectdiphotons = cutFlowdiphotons.GetBinContent(binToLookAt)
+
 nAfterPreselectdata = cutFlowdata.GetBinContent(binToLookAt)
 nAfterPreselectgj = cutFlowgj.GetBinContent(binToLookAt)
 
@@ -615,6 +632,8 @@ if PRINT_YIELDS:
     print "Yield gamma_Np3 =", nAfterPreselectgamma_Np3 * gamma_Np3_scale
     print "Yield gamma_Np4 =", nAfterPreselectgamma_Np4 * gamma_Np4_scale
     print "Yield gamma_Np5 =", nAfterPreselectgamma_Np5 * gamma_Np5_scale
+
+    print "Yield diphotons =", nAfterPreselectdiphotons
 
     print "Yield data (not correct if blinded) =", nAfterPreselectdata
     print "Yield gj before tight subtraction (not correct if blinded) =", nAfterPreselectgj
