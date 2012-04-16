@@ -26,10 +26,12 @@ InputList = glob('/data3/jmitrevs/mc11_7TeV.*.GGM_gl_wino_600_200_newgfilter_her
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
-#athenaCommonFlags.SkipEvents=2
+##athenaCommonFlags.SkipEvents=34262
+##athenaCommonFlags.SkipEvents=47940
+#athenaCommonFlags.SkipEvents=50293
+#athenaCommonFlags.EvtMax=2
 athenaCommonFlags.EvtMax=-1
-#athenaCommonFlags.EvtMax=10000
-
+##athenaCommonFlags.EvtMax=1000
 
 # # use closest DB replica
 # from AthenaCommon.AppMgr import ServiceMgr
@@ -86,3 +88,8 @@ rec.doPerfMon.set_Value_and_Lock(False)
 
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+# if not hasattr(svcMgr, theApp.EventLoop):
+#    svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
+# evtloop = getattr(svcMgr, theApp.EventLoop)
+# evtloop.EventPrintoutInterval = 1

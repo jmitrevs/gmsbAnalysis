@@ -832,7 +832,8 @@ StatusCode SignalGammaLepton::execute()
     }
 
     if ((*ph)->conversion()) numConvPhPass++;
-    ATH_MSG_DEBUG("Found photon with pt = " << pt << " and etaBE2 = " << (*ph)->cluster()->etaBE(2));
+    ATH_MSG_DEBUG("Found photon with pt = " << pt << ", etaBE2 = " << (*ph)->cluster()->etaBE(2)
+		  << ", phi = " << (*ph)->phi());
     
     if (pt > leadingPhPt ) {
       secondPh = leadingPh;
@@ -878,7 +879,10 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
+    //ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
+    ATH_MSG_DEBUG("electron with pt = " << (*el)->pt() 
+		  << ", eta = " << (*el)->eta() 
+		  << ", phi = " << (*el)->phi()); 
     
     m_HT += pt;
 
@@ -966,12 +970,18 @@ StatusCode SignalGammaLepton::execute()
   const double metPhi = (etMiss_eta4p5_ety_muon == 0.0 && etMiss_eta4p5_etx_muon == 0.0) 
     ? 0.0 : atan2(etMiss_eta4p5_ety_muon, etMiss_eta4p5_etx_muon);
 
+  ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
+
   m_numJets = 0;
 
   // Count number of jets
   for (JetCollection::const_iterator jet = jets->begin();
        jet != jets->end();
        jet++) {
+
+    ATH_MSG_DEBUG("jet with pt = " << (*jet)->pt() 
+		  << ", eta = " << (*jet)->eta() 
+		  << ", phi = " << (*jet)->phi()); 
 
     if ((*jet)->eta() < 2.5) {
       m_HT += (*jet)->pt();

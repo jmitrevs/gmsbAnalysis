@@ -24,6 +24,8 @@ DEFAULTTTREE = 'GammaLepton'
 DEFAULTWEIGHT = 1
 DEFAULT_LEPTON = ELECTRON
 
+printAccepted = False
+
 #Cuts
 # - electron channel
 EL_PHPTCUT = 100*GeV
@@ -48,7 +50,7 @@ EL_TCR_MT_MIN =  80*GeV
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 30*GeV
 
-DELTAR_EL_PH = 0
+DELTAR_EL_PH = 0.7
 
 # - muon channel
 MU_PHPTCUT = 85*GeV
@@ -83,7 +85,8 @@ def usage():
     print "  -h | --help       : print this help message"
 
 
-def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
+def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False, 
+                      doPhotonStudies = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -107,7 +110,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
 
     ######## phdir
     phdir.cd()
-    h_ph_numConv = ROOT.TH1F("ph_numConv","Number of converted photons;number converted photons", 4, -0.5, 3.5)
 
     h_ph_eta1 = ROOT.TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3)
     h_ph_pt1 = ROOT.TH1F("ph_pt1","Transverse momentum of the leading photons;p_{T} [GeV]", 500, 0, 500)
@@ -125,6 +127,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
 
     h_ph_el_deltaR = ROOT.TH1F("ph_el_deltaR", "The delta-R beteween the electron and the photon", 100, 0, 10)
     h_ph_mu_deltaR = ROOT.TH1F("ph_mu_deltaR", "The delta-R beteween the muon and the photon", 100, 0, 10)
+
+    if doPhotonStudies:
+        h_ph_ConvType = ROOT.TH1F("ph_ConvType", "The number of conversion tracks;N_{tracks}", 3, -0.5, 2.5)
+        h_ph_numSi0 = ROOT.TH1F("ph_numSi0", "The number of Si hits in conversion track 0;N_{hits}", 30, -9.5, 20.5)
+        h_ph_numSi1 = ROOT.TH1F("ph_numSi1", "The number of Si hits in conversion track 1;N_{hits}", 30, -9.5, 20.5)
+        h_ph_numPix0 = ROOT.TH1F("ph_numPix0", "The number of PIX hits in conversion track 0;N_{hits}", 30, -9.5, 20.5)
+        h_ph_numPix1 = ROOT.TH1F("ph_numPix1", "The number of PIX hits in conversion track 1;N_{hits}", 30, -9.5, 20.5)
+        h_ph_numSiEl = ROOT.TH1F("ph_numSiEl", "The number of Si hits in electron track;N_{hits}", 30, -9.5, 20.5)
+        h_ph_numPixEl = ROOT.TH1F("ph_numPixEl", "The number of PIX hits in electron track;N_{hits}", 30, -9.5, 20.5)
+        h_ph_numBEl = ROOT.TH1F("ph_numBEl", "The number of PIX hits in electron track;N_{hits}", 30, -9.5, 20.5)
+        h_ph_rejectStudies = ROOT.TH1F("ph_rejectStudies", "1 = Fail with BL, 2 = Fail with PIX", 30, -9.5, 20.5)
+
 
     ######## mudir
     mudir.cd()
@@ -301,6 +315,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
              (met < MU_MET or ev.mTmu < MU_MT))):
             continue
 
+        # Accepted avent
+        if printAccepted:
+            print "Accepted event with Run =", ev.Run, ", Event =", ev.Event 
         nSIG.Fill(0, weight)
         h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
         h_numEl.Fill(ev.numEl, weight)
@@ -310,6 +327,54 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False):
         h_deltaPhiPhMETvsMET.Fill(abs(ev.deltaPhiPhMET), met/GeV, weight)
         h_deltaPhiElMETvsMET.Fill(abs(ev.deltaPhiElMET), met/GeV, weight)
         h_eventType.Fill(ev.eventType, weight)
+
+        if doPhotonStudies:
+            rejectStudies = -9
+            if ev.PhotonNumConv[0] == 0:
+                # unconverted
+                if ev.PhotonNumBEl[0] > 0:
+                    rejectStudies = 0
+                elif ev.PhotonNumPixEl[0] > 0:
+                    rejectStudies = 1
+                elif ev.PhotonNumSiEl[0] > 0:
+                    rejectStudies = 2
+            elif ev.PhotonNumConv[0] == 1 and ev.PhotonNumSi0[0] == 0:
+                # TRTSA single-track
+                isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
+                          ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
+                if ev.PhotonNumBEl[0] > 0:
+                    rejectStudies = 3
+                elif not isSame:
+                    if ev.PhotonNumPixEl[0] > 0:
+                        rejectStudies = 4
+                    elif ev.PhotonNumSiEl[0] > 0:
+                        rejectStudies = 5
+                    else:
+                        rejectStudies = 6
+            elif ev.PhotonNumConv[0] == 1:
+                # Si single-track
+                isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
+                          ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
+                if ev.PhotonNumBEl[0] > 0:
+                    rejectStudies = 7
+                elif not isSame:
+                    if ev.PhotonNumPixEl[0] > 0:
+                        rejectStudies = 8
+                    elif ev.PhotonNumSiEl[0] > 0:
+                        rejectStudies = 9
+                    else:
+                        rejectStudies = 10
+                
+            h_ph_rejectStudies.Fill(rejectStudies, weight)
+            h_ph_ConvType.Fill(ev.PhotonNumConv[0], weight)
+            h_ph_numSi0.Fill(ev.PhotonNumSi0[0], weight)
+            h_ph_numSi1.Fill(ev.PhotonNumSi1[0], weight)
+            h_ph_numPix0.Fill(ev.PhotonNumPix0[0], weight)
+            h_ph_numPix1.Fill(ev.PhotonNumPix1[0], weight)
+            h_ph_numSiEl.Fill(ev.PhotonNumSiEl[0], weight)
+            h_ph_numPixEl.Fill(ev.PhotonNumPixEl[0], weight)
+            h_ph_numBEl.Fill(ev.PhotonNumBEl[0], weight)
+            
 
         if lepton == ELECTRON:
             h_ph_mu_deltaR.Fill(el_ph_deltaR, weight)

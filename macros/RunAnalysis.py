@@ -11,6 +11,7 @@ import LepPhotonAnalysis
 
 removeOverlap = True
 removeOverlapTtbar = True
+doPhotonStudies = True
 
 ELECTRON = 0
 MUON = 1
@@ -194,7 +195,8 @@ def RunAnalysis(lepton):
                                         makeOutputName(DataManager.ttbarFileName),
                                         lepton,
                                         DataManager.ttbar_scale,
-                                        removeOverlapTtbar)
+                                        removeOverlapTtbar,
+                                        doPhotonStudies)
 
     print
     print "ttbargamma:"
@@ -406,7 +408,9 @@ def RunAnalysis(lepton):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.winoFile.Get(ttreeName), 
                                         makeOutputName(DataManager.winoFileName),
                                         lepton,
-                                        DataManager.wino_scale)
+                                        DataManager.wino_scale,
+                                        False,
+                                        doPhotonStudies)
     print
 
     print "data:"

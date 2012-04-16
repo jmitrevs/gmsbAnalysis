@@ -13,7 +13,7 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_ntuple3/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/elphoton_ntuple3_test/mergedFiles/"
 datapath = "/data3/jmitrevs/lepphoton/elphoton_data2/mergedFiles/"
 
 winoFileName = path + "wino_600_200_el.root"
@@ -383,7 +383,7 @@ Ztautau_Np4_scale   =  Lumi  *    2.79 * 1.25   / nOrigZtautau_Np4
 Ztautau_Np5_scale   =  Lumi  *    0.77 * 1.25   / nOrigZtautau_Np5
 
 ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
-ttbargamma_scale     =  Lumi  *  0.84 / nOrigttbargamma
+ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 
 # if using gamma pt > 10 GeV samples
 # Wgamma_Np0_scale     =  Lumi  *  213.270 * 1.488   / nOrigWgamma_Np0

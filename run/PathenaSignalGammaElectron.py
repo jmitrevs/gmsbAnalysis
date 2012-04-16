@@ -65,7 +65,7 @@ inDS_full = [
     # 'mc11_7TeV.117424.AlpgenJimmyWgammaNp4_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.117425.AlpgenJimmyWgammaNp5_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
 
-    # 'mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993',
+    'mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993',
 
     # 'mc11_7TeV.105985.WW_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.105986.ZZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
@@ -111,8 +111,8 @@ inDS_full = [
     # 'mc11_7TeV.107714.AlpgenJimmyZnunuNp4_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.107715.AlpgenJimmyZnunuNp5_pt20_filt1jet.merge.AOD.e1004_s1372_s1370_r3043_r2993',
 
-    'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
-    'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
     ]
 #how to automatically configure GRL ?
 
@@ -121,14 +121,14 @@ inDS_full = [
 for i,inDS in enumerate(inDS_full):
  
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.37.%s SignalGammaElectron.py " % (inDS, inDS)
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120309.%s SignalGammaElectron.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120327High.%s SignalGammaElectron.py " % (inDS, inDS)
    
-    if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120309.tar"
-    else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120309.tar"
+    # if i == 0:
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120327top.tar"
+    # else:
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120327top.tar"
 
-    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120307.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120327topHigh.tar"
 
     print command
     sys.stdout.flush()
