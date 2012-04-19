@@ -102,9 +102,9 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             PrintDecayTree = False,
                             UseAnnotated = False,
                             DumpEntireTree = False,
-                            #Ptcut = 8*GeV,
-                            doDeltaRLepton = False,
-                            OutputLevel = DEBUG
+                            Ptcut = 8*GeV,
+                            doMInv = True,
+                            OutputLevel = INFO
                             )
 ToolSvc += truthStudies
 print truthStudies
@@ -121,7 +121,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,
-                            doTruthStudies = False,
+                            doTruthStudies = True,
                             TruthStudiesTool = truthStudies
                             )
 from AthenaCommon.AppMgr import ToolSvc

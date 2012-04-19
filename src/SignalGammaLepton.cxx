@@ -12,6 +12,7 @@
 #include "egammaEvent/Photon.h"
 #include "egammaEvent/egammaPIDdefs.h"
 #include "egammaEvent/EMShower.h"
+#include "egammaEvent/EMConvert.h"
 
 #include "muonEvent/MuonContainer.h"
 
@@ -76,8 +77,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  m_vxCandidatesName="VxPrimaryCandidate",
 		  "Name of the primary vertex candidates");
 
-  declareProperty("PreparationTool",     m_PreparationTool);
-  declareProperty("CrackPreparationTool", m_CrackPreparationTool);
+  declareProperty("PreparationTool",      m_PreparationTool);
+  declareProperty("FinalSelectionTool",   m_FinalSelectionTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
 
@@ -117,9 +118,9 @@ StatusCode SignalGammaLepton::initialize(){
     return sc;
   }
 
-  sc = m_CrackPreparationTool.retrieve();
+  sc = m_FinalSelectionTool.retrieve();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Can't get handle on crack preparation tool");
+    ATH_MSG_ERROR("Can't get handle on final selection tool");
     return sc;
   }
 
@@ -298,7 +299,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_eta = new std::vector<float>;
     m_ph_phi = new std::vector<float>;
 
-    m_ph_numConv = new std::vector<int>;
+    m_ph_AR = new std::vector<int>;
+    m_ph_convType = new std::vector<int>;
     m_ph_numSi0 = new std::vector<int>;
     m_ph_numSi1 = new std::vector<int>;
     m_ph_numPix0 = new std::vector<int>;
@@ -335,11 +337,17 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("numMu",  &m_numMu, "numMu/i");
     m_tree->Branch("numJets",  &m_numJets, "numJets/i");
 
+    m_tree->Branch("numPhPresel",  &m_numPhPresel, "numPh/i");
+    m_tree->Branch("numElPresel",  &m_numElPresel, "numEl/i");
+    m_tree->Branch("numMuPresel",  &m_numMuPresel, "numMu/i");
+
     m_tree->Branch("Metx", &m_metx, "Metx/F"); 
     m_tree->Branch("Mety", &m_mety, "Mety/F"); 
 
     m_tree->Branch("PhElMinv", &m_ph_el_minv, "Weight/F"); // invariant mass photon electron
-    m_tree->Branch("PhMuMinv", &m_ph_el_minv, "Weight/F"); // invariant mass photon electron
+    m_tree->Branch("PhMuMinv", &m_ph_mu_minv, "Weight/F"); // invariant mass photon muon
+    m_tree->Branch("ElMinv", &m_el_minv, "Weight/F"); // invariant mass leading electron
+    m_tree->Branch("MuMinv", &m_mu_minv, "Weight/F"); // invariant mass leading muons
     
     m_tree->Branch("deltaPhiPhMET", &m_deltaPhiPhMET, "deltaPhiPhMET/F"); 
     m_tree->Branch("deltaPhiElMET", &m_deltaPhiElMET, "deltaPhiPhMET/F"); 
@@ -358,7 +366,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonEta", &m_ph_eta);
     m_tree->Branch("PhotonPhi", &m_ph_phi);
 
-    m_tree->Branch("PhotonNumConv", &m_ph_numConv);
+    m_tree->Branch("PhotonAR", &m_ph_AR);
+    m_tree->Branch("PhotonConvType", &m_ph_convType);
     m_tree->Branch("PhotonNumSi0", &m_ph_numSi0);
     m_tree->Branch("PhotonNumSi1", &m_ph_numSi1);
     m_tree->Branch("PhotonNumPix0", &m_ph_numPix0);
@@ -429,7 +438,8 @@ StatusCode SignalGammaLepton::execute()
     m_ph_eta->clear();
     m_ph_phi->clear();
 
-    m_ph_numConv->clear();
+    m_ph_AR->clear();
+    m_ph_convType->clear();
     m_ph_numSi0->clear();
     m_ph_numSi1->clear();
     m_ph_numPix0->clear();
@@ -543,13 +553,6 @@ StatusCode SignalGammaLepton::execute()
     return sc;
   }
 
-  // // do the selecton and overlap removal
-  // sc = m_CrackPreparationTool->execute(pretendRunNum);
-  // if ( sc.isFailure() ) {
-  //   ATH_MSG_ERROR("Preparation Failed - crack selection ");
-  //   return sc;
-  // }
-
   sc = m_OverlapRemovalTool1->execute();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("OverlapRemoval 1 Failed");
@@ -566,9 +569,7 @@ StatusCode SignalGammaLepton::execute()
 
   const PhotonContainer *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
   const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
-  //const PhotonContainer *crackPhotons = m_CrackPreparationTool->selectedPhotons();
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
-  // const ElectronContainer *crackElectrons = m_CrackPreparationTool->selectedElectrons();
 
   const Analysis::MuonContainer *muons = m_OverlapRemovalTool2->finalStateMuons();
 
@@ -692,6 +693,8 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("Passed muon rejection");
 
   // loop over photons
+  m_numPhPresel = photons->size();
+
   unsigned int numConvPhPass = 0; // this is per event
   Analysis::Photon *leadingPh = 0;
   Analysis::Photon *secondPh = 0;
@@ -706,7 +709,7 @@ StatusCode SignalGammaLepton::execute()
   for (PhotonContainer::const_iterator ph  = photons->begin();
        ph != photons->end();
        ph++) {
-    
+
     double pt = 0;
 
     // get the user data
@@ -716,6 +719,8 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::FAILURE;
     }
 
+    if (! m_FinalSelectionTool->isSelected(*ph, 0, 0, pt) ) continue;     
+
     ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
 
     // photon is OK
@@ -723,9 +728,9 @@ StatusCode SignalGammaLepton::execute()
 
     m_HT += pt;
 
-      // let's do the AR studies
+    // let's do the AR studies
 
-    int numConv = 0;
+    int convType = 0;
     int numSi0 = -9;
     int numPix0 = -9;
     int numSi1 = -9;
@@ -740,7 +745,7 @@ StatusCode SignalGammaLepton::execute()
       if (trkAtVxPtr->size() == 1) {
 	ATH_MSG_DEBUG("1-track");
 
-	numConv = 1;
+	convType = 1;
 	// first track
 	Trk::VxTrackAtVertex* tmpTrkAtVtx1 = trkAtVxPtr->at(0);
 	const Trk::ITrackLink * trLink =tmpTrkAtVtx1->trackOrParticleLink();
@@ -760,7 +765,7 @@ StatusCode SignalGammaLepton::execute()
 	}
       } else if (int(trkAtVxPtr->size())==2) {
 	ATH_MSG_DEBUG("2-track");
-	numConv = 2;
+	convType = 2;
 
 	// first track
 	Trk::VxTrackAtVertex* tmpTrkAtVtx1 = trkAtVxPtr->at(0);
@@ -821,7 +826,14 @@ StatusCode SignalGammaLepton::execute()
       m_ph_eta->push_back((*ph)->eta());
       m_ph_phi->push_back((*ph)->phi());
 
-      m_ph_numConv->push_back(numConv);
+      const EMConvert *convert = (*ph)->detail<EMConvert>();
+      
+      if (!convert) {
+	ATH_MSG_ERROR("Selected photon had now EMConvert");
+	return StatusCode::FAILURE;
+      }
+      m_ph_AR->push_back(convert->ambiguityResult());
+      m_ph_convType->push_back(convType);
       m_ph_numSi0->push_back(numSi0);
       m_ph_numSi1->push_back(numSi1);
       m_ph_numPix0->push_back(numPix0);
@@ -860,6 +872,9 @@ StatusCode SignalGammaLepton::execute()
   m_numMu = 0;
 
   // DEAL WITH ELECTRONS
+
+  m_numElPresel = electrons->size();
+
   Analysis::Electron *leadingEl = 0;
   Analysis::Electron *secondEl = 0;
   
@@ -871,6 +886,7 @@ StatusCode SignalGammaLepton::execute()
        el != electrons->end();
        el++) {
 
+
     double pt;
     // get the user data
     if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
@@ -878,6 +894,8 @@ StatusCode SignalGammaLepton::execute()
       ATH_MSG_ERROR("Error in geting photon decoration");
       return StatusCode::FAILURE;
     }
+
+    if (! m_FinalSelectionTool->isSelected(*el, 0, 0, pt) ) continue; 
 
     //ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
     ATH_MSG_DEBUG("electron with pt = " << (*el)->pt() 
@@ -902,26 +920,46 @@ StatusCode SignalGammaLepton::execute()
     } else if (pt > secondElPt) {
       secondEl = *el;
       secondElPt = pt;
-    }
-    
+    }    
   }
+
+  // DEAL WITH MUONS
+  m_numMuPresel = muons->size();
+
+  Analysis::Muon *leadingMu = 0;
+  Analysis::Muon *secondMu = 0;
+  
+  double leadingMuPt = 0;
+  double secondMuPt = 0;
 
   for (Analysis::MuonContainer::const_iterator mu = muons->begin();
        mu != muons->end();
        mu++) {
 
+    if (! m_FinalSelectionTool->isSelected(*mu) ) continue; 
+
     m_numMu++;
    
-    m_HT += (*mu)->pt();
+    const double pt = (*mu)->pt();
+
+    m_HT += pt;
     if (m_outputNtuple) {
       m_mu_pt->push_back((*mu)->pt());
       m_mu_eta->push_back((*mu)->eta());
       m_mu_phi->push_back((*mu)->phi());
     }
 
+    if (pt > leadingMuPt ) {
+      secondMu = leadingMu;
+      leadingMu = *mu;
+      secondMuPt = leadingMuPt;
+      leadingMuPt = pt;
+    } else if (pt > secondMuPt) {
+      secondMu = *mu;
+      secondMuPt = pt;
+    }
+
   }
-  const Analysis::Muon *leadingMu = (m_numMu) ? muons->at(0) : 0;
-  const double leadingMuPt = (leadingMu) ? leadingMu->pt() : 0;
 
   if (m_numEl < m_numElectronsReq || m_numMu < m_numMuonsReq ||
       m_numEl > m_numElectronsMax || m_numMu > m_numMuonsMax ) {
@@ -1022,11 +1060,22 @@ StatusCode SignalGammaLepton::execute()
   
 
   m_meff = m_HT+met;
+  m_ph_el_minv = -999;
+  m_ph_mu_minv = -999;
+  m_el_minv = -999;
+  m_mu_minv = -999;
   if (m_numEl >= 1 && m_numPh >= 1) {
     m_ph_el_minv = P4Helpers::invMass(leadingPh, leadingEl);
-  }
+  } 
   if (m_numMu >= 1 && m_numPh >= 1) {
     m_ph_mu_minv = P4Helpers::invMass(leadingPh, leadingMu);
+  } 
+
+  if (m_numElPresel >= 2) {
+    m_el_minv = P4Helpers::invMass(electrons->at(0), electrons->at(1));
+  }
+  if (m_numMuPresel >= 2) {
+    m_mu_minv = P4Helpers::invMass(muons->at(0), muons->at(1));
   }
 
   m_mTel = -999;

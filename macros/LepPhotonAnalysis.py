@@ -366,6 +366,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                         rejectStudies = 10
                 
             h_ph_rejectStudies.Fill(rejectStudies, weight)
+            #h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
             h_ph_ConvType.Fill(ev.PhotonNumConv[0], weight)
             h_ph_numSi0.Fill(ev.PhotonNumSi0[0], weight)
             h_ph_numSi1.Fill(ev.PhotonNumSi1[0], weight)

@@ -71,7 +71,7 @@ private:
 
   /** get a handle on the user tool for pre-selection and overlap removal */
   ToolHandle<gmsbPreparationTool>     m_PreparationTool;
-  ToolHandle<gmsbPreparationTool>     m_CrackPreparationTool;
+  ToolHandle<gmsbSelectionTool>       m_FinalSelectionTool;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
 
@@ -122,7 +122,8 @@ private:
   std::vector<float>* m_ph_phi;
 
   // a bit more stuff for AR
-  std::vector<int>* m_ph_numConv;
+  std::vector<int>* m_ph_AR;
+  std::vector<int>* m_ph_convType;
   std::vector<int>* m_ph_numSi0;
   std::vector<int>* m_ph_numSi1;
   std::vector<int>* m_ph_numPix0;
@@ -142,7 +143,13 @@ private:
   unsigned int m_numPh;
   unsigned int m_numEl;
   unsigned int m_numMu;
+  unsigned int m_numPhPresel;
+  unsigned int m_numElPresel;
+  unsigned int m_numMuPresel;
   unsigned int m_numJets;
+
+  float m_el_minv; // this uses preselected
+  float m_mu_minv;
 
   TruthStudies::EventType m_type;
   int m_isStrong;
