@@ -13,7 +13,7 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_ntuple3_test/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
 datapath = "/data3/jmitrevs/lepphoton/elphoton_data2/mergedFiles/"
 
 winoFileName = path + "wino_600_200_el.root"
@@ -75,7 +75,8 @@ gammaFileName_Np3 = path + "gamma_Np3.root"
 gammaFileName_Np4 = path + "gamma_Np4.root"
 gammaFileName_Np5 = path + "gamma_Np5.root"
 
-diphotonsFileName = path + "diphotons.root"
+diphotonsFileName = path + "diphotons100.root"
+Zee_altFileName = path + "Zee_pythia.root"
 
 dataFileName = datapath + "eg.root"
 gjFileName = datapath + "gj.root"
@@ -143,6 +144,7 @@ gammaFile_Np4 = ROOT.TFile(gammaFileName_Np4)
 gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
 
 diphotonsFile = ROOT.TFile(diphotonsFileName)
+Zee_altFile = ROOT.TFile(Zee_altFileName)
 
 dataFile = ROOT.TFile(dataFileName)
 gjFile = ROOT.TFile(gjFileName)
@@ -209,6 +211,7 @@ cutFlowgamma_Np4 = gammaFile_Np4.Get("Global/CutFlow")
 cutFlowgamma_Np5 = gammaFile_Np5.Get("Global/CutFlow")
 
 cutFlowdiphotons = diphotonsFile.Get("Global/CutFlow");
+cutFlowZee_alt = Zee_altFile.Get("Global/CutFlow");
 
 cutFlowdata = dataFile.Get("Global/CutFlow");
 cutFlowgj = gjFile.Get("Global/CutFlow");
@@ -275,6 +278,7 @@ nOriggamma_Np4 = cutFlowgamma_Np4.GetBinContent(1)
 nOriggamma_Np5 = cutFlowgamma_Np5.GetBinContent(1)
 
 nOrigdiphotons = cutFlowdiphotons.GetBinContent(1)
+nOrigZee_alt = cutFlowZee_alt.GetBinContent(1)
 
 nOrigdata = cutFlowdata.GetBinContent(1)
 nOriggj = cutFlowgj.GetBinContent(1)
@@ -343,6 +347,7 @@ if PRINT_YIELDS:
     print "\tnOriggamma_Np4 =", nOriggamma_Np4
     print "\tnOriggamma_Np5 =", nOriggamma_Np5
     print "\tnOrigdiphotons =", nOrigdiphotons
+    print "\tnOrigZee_alt =", nOrigZee_alt
     print
     print "\tnOrigdata =", nOrigdata
     print "\tnOriggj (before subtraction) =", nOriggj
@@ -431,6 +436,10 @@ gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
 # this is for the diphotons50
 diphotons_scale = Lumi * 6.1162 * 8.7509E-01 / nOrigdiphotons
 
+# Zee pythia
+Zee_alt_scale = Lumi * 834.62 / nOrigZee_alt
+
+
 if PRINT_YIELDS:
     ##########################################################
     # let's print out the scales
@@ -498,6 +507,7 @@ if PRINT_YIELDS:
 
 
     print "\tdiphotons_scale =", diphotons_scale
+    print "\tZee_alt_scale =", Zee_alt_scale
     print
 
 #########################################################
@@ -566,6 +576,7 @@ nAfterPreselectgamma_Np4 = cutFlowgamma_Np4.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np5 = cutFlowgamma_Np5.GetBinContent(binToLookAt)
 
 nAfterPreselectdiphotons = cutFlowdiphotons.GetBinContent(binToLookAt)
+nAfterPreselectZee_alt = cutFlowZee_alt.GetBinContent(binToLookAt)
 
 nAfterPreselectdata = cutFlowdata.GetBinContent(binToLookAt)
 nAfterPreselectgj = cutFlowgj.GetBinContent(binToLookAt)
@@ -635,6 +646,7 @@ if PRINT_YIELDS:
     print "Yield gamma_Np5 =", nAfterPreselectgamma_Np5 * gamma_Np5_scale
 
     print "Yield diphotons =", nAfterPreselectdiphotons
+    print "Yield Zee_alt =", nAfterPreselectZee_alt
 
     print "Yield data (not correct if blinded) =", nAfterPreselectdata
     print "Yield gj before tight subtraction (not correct if blinded) =", nAfterPreselectgj

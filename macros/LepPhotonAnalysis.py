@@ -73,6 +73,8 @@ MU_QCD_MT_MAX = 30*GeV
 DELTAR_MU_PH = 0.7
 
 VETO_SECOND_LEPTON = False
+VETO_SECOND_SFLEPTON_MINV = False
+VETO_TRTSA_PHOTON_E_BLAYER = True
 
 def usage():
     print " "
@@ -86,7 +88,7 @@ def usage():
 
 
 def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False, 
-                      doPhotonStudies = False):
+                      doPhotonStudies = True):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -153,7 +155,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3)
     h_el_pt2 = ROOT.TH1F("el_pt2","Transverse momentum of the second electrons;p_{T} [GeV]", 100, 0, 500)
     h_numEl = ROOT.TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5)
-    # h_el_mInv = ROOT.TH1F("el_mInv", "The invariant mass of leading electrons;m_{inv} [GeV]", 120, 0, 120)
+    h_el_mInv = ROOT.TH1F("el_mInv", "The invariant mass of leading electrons;m_{inv} [GeV]", 120, 0, 120)
 
     ######## jdir
     jdir.cd()
@@ -252,6 +254,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
               lepton == MUON and ev.numEl > 0):
             continue
 
+        # temp
+        if doPhotonStudies:
+            if (VETO_SECOND_SFLEPTON_MINV and
+                (lepton == ELECTRON and ZMASS - EL_MINV_WINDOW < ev.ElMinv < ZMASS + EL_QCD_MINV_WINDOW) or
+                (lepton == MUON and ZMASS - EL_MINV_WINDOW < ev.MuMinv < ZMASS + EL_QCD_MINV_WINDOW)):
+                continue
+
+            if (VETO_TRTSA_PHOTON_E_BLAYER and ev.numPh == 1 and
+                ev.PhotonConvType[0] == 1 and ev.PhotonNumSi0[0] == 0 and
+                ev.PhotonNumBEl[0]):
+                continue
+
         photon = ROOT.TVector3()
         photon.SetPtEtaPhi(ev.PhotonPt[0], ev.PhotonEta[0], ev.PhotonPhi[0])
         if lepton == ELECTRON:
@@ -330,7 +344,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if doPhotonStudies:
             rejectStudies = -9
-            if ev.PhotonNumConv[0] == 0:
+            if ev.PhotonConvType[0] == 0:
                 # unconverted
                 if ev.PhotonNumBEl[0] > 0:
                     rejectStudies = 0
@@ -338,7 +352,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     rejectStudies = 1
                 elif ev.PhotonNumSiEl[0] > 0:
                     rejectStudies = 2
-            elif ev.PhotonNumConv[0] == 1 and ev.PhotonNumSi0[0] == 0:
+            elif ev.PhotonConvType[0] == 1 and ev.PhotonNumSi0[0] == 0:
                 # TRTSA single-track
                 isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
                           ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
@@ -351,7 +365,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                         rejectStudies = 5
                     else:
                         rejectStudies = 6
-            elif ev.PhotonNumConv[0] == 1:
+            elif ev.PhotonConvType[0] == 1:
                 # Si single-track
                 isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
                           ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
@@ -367,7 +381,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 
             h_ph_rejectStudies.Fill(rejectStudies, weight)
             #h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
-            h_ph_ConvType.Fill(ev.PhotonNumConv[0], weight)
+            h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
             h_ph_numSi0.Fill(ev.PhotonNumSi0[0], weight)
             h_ph_numSi1.Fill(ev.PhotonNumSi1[0], weight)
             h_ph_numPix0.Fill(ev.PhotonNumPix0[0], weight)
@@ -375,7 +389,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             h_ph_numSiEl.Fill(ev.PhotonNumSiEl[0], weight)
             h_ph_numPixEl.Fill(ev.PhotonNumPixEl[0], weight)
             h_ph_numBEl.Fill(ev.PhotonNumBEl[0], weight)
-            
+
+            h_el_mInv.Fill(ev.ElMinv/GeV, weight)
 
         if lepton == ELECTRON:
             h_ph_mu_deltaR.Fill(el_ph_deltaR, weight)

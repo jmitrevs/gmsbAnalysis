@@ -315,6 +315,13 @@ def RunAnalysis(lepton):
                                         DataManager.Zleplep_Np5_scale,
                                         removeOverlap)
     print
+    print "Zee_alt:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Zee_altFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.Zee_altFileName),
+                                        lepton,
+                                        DataManager.Zee_alt_scale,
+                                        removeOverlap)
+    print
     print "Ztautau_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np0),
@@ -417,14 +424,14 @@ def RunAnalysis(lepton):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.dataFile.Get(ttreeName), 
                                         makeOutputName(DataManager.dataFileName),
                                         lepton,
-                                        1.0)
+                                        1.0, False, False)
     print
 
     print "gj:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.gjFile.Get(ttreeName), 
                                         makeOutputName(DataManager.gjFileName),
                                         lepton,
-                                        1.0)
+                                        1.0, False, False)
     print
     
 if __name__ == "__main__":

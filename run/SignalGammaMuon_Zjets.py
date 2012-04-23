@@ -56,7 +56,7 @@ rec.doTrigger.set_Value_and_Lock(False)
 # ANALYSIS
 #--------------------------------------------------------------
 
-rec.UserAlgs.set_Value_and_Lock("SignalGammaMuon_simple.py")
+rec.UserAlgs.set_Value_and_Lock("SignalGammaMuon_Zjets_simple.py")
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.PhotonisEMKey = 'PhotonTight'","ToolSvc.PhotonProcessingTool.ElectronisEMKey = 'ElectronTight'"]
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.excludeCrackRegion = False"]
 #UserExecsList = ["NtupleDumper.SUSY_ProductionVeto = True","NtupleDumper.SUSY_ProductionTypeAccepted = 2","NtupleDumper.isMC = True"]
