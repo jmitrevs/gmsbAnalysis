@@ -16,7 +16,8 @@ doPhotonStudies = True
 ELECTRON = 0
 MUON = 1
 
-DEFAULTLEPTON = ELECTRON
+#DEFAULTLEPTON = ELECTRON
+DEFAULTLEPTON = MUON
 
 def GetHistNames(inFile):
     
@@ -315,13 +316,14 @@ def RunAnalysis(lepton):
                                         DataManager.Zleplep_Np5_scale,
                                         removeOverlap)
     print
-    print "Zee_alt:"
-    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Zee_altFile.Get(ttreeName), 
-                                        makeOutputName(DataManager.Zee_altFileName),
-                                        lepton,
-                                        DataManager.Zee_alt_scale,
-                                        removeOverlap)
-    print
+    if lepton == ELECTRON:
+        print "Zee_alt:"
+        LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Zee_altFile.Get(ttreeName), 
+                                            makeOutputName(DataManager.Zee_altFileName),
+                                            lepton,
+                                            DataManager.Zee_alt_scale,
+                                            removeOverlap)
+        print
     print "Ztautau_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZtautauFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.ZtautauFileName_Np0),
@@ -404,12 +406,13 @@ def RunAnalysis(lepton):
                                         lepton,
                                         DataManager.gamma_Np5_scale)
     print
-    print "diphotons:"
-    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.diphotonsFile.Get(ttreeName), 
-                                        makeOutputName(DataManager.diphotonsFileName),
-                                        lepton,
-                                        DataManager.diphotons_scale)
-    print
+    if lepton == ELECTRON:
+        print "diphotons:"
+        LepPhotonAnalysis.LepPhotonAnalysis(DataManager.diphotonsFile.Get(ttreeName), 
+                                            makeOutputName(DataManager.diphotonsFileName),
+                                            lepton,
+                                            DataManager.diphotons_scale)
+        print
 
     print "wino:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.winoFile.Get(ttreeName), 

@@ -11,7 +11,8 @@ Dates=os.system(sfg)
 # this is for testing
 inDS_test = [
   
-    'mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993',
+    # 'mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993',
+    'mc11_7TeV.126854.Sherpa_tautaugammaPt10.merge.AOD.e1181_s1372_s1370_r3108_r3109',
     
     #'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
 
@@ -60,7 +61,7 @@ inDS_full = [
 
     #'mc11_7TeV.108323.Pythia_MadGraph_Zeegamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
     'mc11_7TeV.108325.Pythia_MadGraph_Ztautaugamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
-
+    'mc11_7TeV.126854.Sherpa_tautaugammaPt10.merge.AOD.e1181_s1372_s1370_r3108_r3109',
     'mc11_7TeV.108340.st_tchan_enu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r3043_r2993',
     'mc11_7TeV.108342.st_tchan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
     'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
@@ -93,19 +94,18 @@ for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:95] # make sure the name is not too long
  
-    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.37.%s SignalGammaElectron.py " % (inDS, inDS)
     command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120418.%s SignalGammaElectron.py " % (inDS, outName)
    
-    if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120418.tar"
-    else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120418.tar"
+    # if i == 0:
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120418.tar"
+    # else:
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120418.tar"
 
-    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120418.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120418.tar"
 
-    #print command
-    #sys.stdout.flush()
-    #os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
 
 
@@ -187,9 +187,9 @@ for i,inDS in enumerate(inDS_Zjets):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120418Zjets.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
     
 inDS_ttbar = [
     'mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993',

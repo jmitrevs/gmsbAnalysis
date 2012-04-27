@@ -75,6 +75,12 @@ private:
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
 
+  /** get a handle on the user tool for pre-selection and overlap removal */
+  ToolHandle<gmsbPreparationTool>     m_LoosePreparationTool;
+  ToolHandle<gmsbSelectionTool>       m_LooseFinalSelectionTool;
+  ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool1;
+  ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool2;
+
 
   /** @brief Tool handle for track extrapolation to vertex */
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;

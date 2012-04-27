@@ -13,8 +13,8 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is MUON."
-path = "/data3/jmitrevs/lepphoton/muphoton2/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/muphoton_data/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/muphoton_ntuple/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/elphoton_data2/mergedFiles/" # temp
 
 winoFileName = path + "wino_600_200_mu.root"
 
@@ -67,7 +67,7 @@ WZFileName = path + "WZ.root"
 ZZFileName = path + "ZZ.root"
 
 ZtautaugammaFileName = path + "Ztautaugamma.root"
-ZnunugammagammaFileName = path + "Znunugammagamma.root"
+# ZnunugammagammaFileName = path + "Znunugammagamma.root"
 
 gammaFileName_Np1 = path + "gamma_Np1.root"
 gammaFileName_Np2 = path + "gamma_Np2.root"
@@ -75,7 +75,7 @@ gammaFileName_Np3 = path + "gamma_Np3.root"
 gammaFileName_Np4 = path + "gamma_Np4.root"
 gammaFileName_Np5 = path + "gamma_Np5.root"
 
-diphotonsFileName = path + "diphotons.root"
+# diphotonsFileName = path + "diphotons.root"
 
 dataFileName = datapath + "eg.root"
 gjFileName = datapath + "gj.root"
@@ -134,7 +134,7 @@ ZZFile = ROOT.TFile(ZZFileName)
 
 ZleplepgammaFile = ROOT.TFile(ZleplepgammaFileName)
 ZtautaugammaFile = ROOT.TFile(ZtautaugammaFileName)
-ZnunugammagammaFile = ROOT.TFile(ZnunugammagammaFileName)
+# ZnunugammagammaFile = ROOT.TFile(ZnunugammagammaFileName)
 
 gammaFile_Np1 = ROOT.TFile(gammaFileName_Np1)
 gammaFile_Np2 = ROOT.TFile(gammaFileName_Np2)
@@ -142,7 +142,7 @@ gammaFile_Np3 = ROOT.TFile(gammaFileName_Np3)
 gammaFile_Np4 = ROOT.TFile(gammaFileName_Np4)
 gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
 
-diphotonsFile = ROOT.TFile(diphotonsFileName)
+#diphotonsFile = ROOT.TFile(diphotonsFileName)
 
 dataFile = ROOT.TFile(dataFileName)
 gjFile = ROOT.TFile(gjFileName)
@@ -200,7 +200,7 @@ cutFlowZZ   = ZZFile.Get("Global/CutFlow")
 
 cutFlowZleplepgamma = ZleplepgammaFile.Get("Global/CutFlow")
 cutFlowZtautaugamma = ZtautaugammaFile.Get("Global/CutFlow")
-cutFlowZnunugammagamma = ZnunugammagammaFile.Get("Global/CutFlow")
+# cutFlowZnunugammagamma = ZnunugammagammaFile.Get("Global/CutFlow")
 
 cutFlowgamma_Np1 = gammaFile_Np1.Get("Global/CutFlow")
 cutFlowgamma_Np2 = gammaFile_Np2.Get("Global/CutFlow")
@@ -208,7 +208,7 @@ cutFlowgamma_Np3 = gammaFile_Np3.Get("Global/CutFlow")
 cutFlowgamma_Np4 = gammaFile_Np4.Get("Global/CutFlow")
 cutFlowgamma_Np5 = gammaFile_Np5.Get("Global/CutFlow")
 
-cutFlowdiphotons = diphotonsFile.Get("Global/CutFlow");
+#cutFlowdiphotons = diphotonsFile.Get("Global/CutFlow");
 
 cutFlowdata = dataFile.Get("Global/CutFlow");
 cutFlowgj = gjFile.Get("Global/CutFlow");
@@ -266,7 +266,7 @@ nOrigZZ = cutFlowZZ.GetBinContent(1)
 
 nOrigZleplepgamma = cutFlowZleplepgamma.GetBinContent(1)
 nOrigZtautaugamma = cutFlowZtautaugamma.GetBinContent(1)
-nOrigZnunugammagamma = cutFlowZnunugammagamma.GetBinContent(1)
+# nOrigZnunugammagamma = cutFlowZnunugammagamma.GetBinContent(1)
 
 nOriggamma_Np1 = cutFlowgamma_Np1.GetBinContent(1)
 nOriggamma_Np2 = cutFlowgamma_Np2.GetBinContent(1)
@@ -274,7 +274,7 @@ nOriggamma_Np3 = cutFlowgamma_Np3.GetBinContent(1)
 nOriggamma_Np4 = cutFlowgamma_Np4.GetBinContent(1)
 nOriggamma_Np5 = cutFlowgamma_Np5.GetBinContent(1)
 
-nOrigdiphotons = cutFlowdiphotons.GetBinContent(1)
+#nOrigdiphotons = cutFlowdiphotons.GetBinContent(1)
 
 nOrigdata = cutFlowdata.GetBinContent(1)
 nOriggj = cutFlowgj.GetBinContent(1)
@@ -335,14 +335,14 @@ if PRINT_YIELDS:
     
     print "\tnOrigZleplepgamma =", nOrigZleplepgamma
     print "\tnOrigZtautaugamma =", nOrigZtautaugamma
-    print "\tnOrigZnunugammagamma =", nOrigZnunugammagamma
+    # print "\tnOrigZnunugammagamma =", nOrigZnunugammagamma
 
     print "\tnOriggamma_Np1 =", nOriggamma_Np1
     print "\tnOriggamma_Np2 =", nOriggamma_Np2
     print "\tnOriggamma_Np3 =", nOriggamma_Np3
     print "\tnOriggamma_Np4 =", nOriggamma_Np4
     print "\tnOriggamma_Np5 =", nOriggamma_Np5
-    print "\tnOrigdiphotons =", nOrigdiphotons
+    #    print "\tnOrigdiphotons =", nOrigdiphotons
     print
     print "\tnOrigdata =", nOrigdata
     print "\tnOriggj (before subtraction) =", nOriggj
@@ -393,7 +393,7 @@ ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 # Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.488   / nOrigWgamma_Np5
 
 # if using gamma pt > 40 GeV sample
-Wgamma_kFact = 1.2
+Wgamma_kFact = 1.39
 #Wgamma_kFact = 1.488
 Wgamma_Np0_scale     =  Lumi  *  1.7837 * Wgamma_kFact   / nOrigWgamma_Np0
 Wgamma_Np1_scale     =  Lumi  *  4.3796 * Wgamma_kFact   / nOrigWgamma_Np1
@@ -406,12 +406,12 @@ Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 #Zleplepgamma_scale   =  Lumi  *  9.63   / nOrigZleplepgamma
 
 #if using Sherpa
-Zgamma_kFact = 1.2 # made up
+Zgamma_kFact = 1.0 # made up
 Zleplepgamma_scale   =  Lumi  *  0.52528 * Zgamma_kFact  / nOrigZleplepgamma
 
 #inly have MadGraph
 Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
-Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
+# Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
 
 st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
 st_tchan_taunu_scale = Lumi * 7.10 / nOrigst_tchan_taunu
@@ -428,7 +428,7 @@ gamma_Np4_scale     =  Lumi  *  1355.9 * 6.2450E-01 / nOriggamma_Np4
 gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
 
 # this is for the diphotons50
-diphotons_scale = Lumi * 6.1162 * 8.7509E-01 / nOrigdiphotons
+#diphotons_scale = Lumi * 6.1162 * 8.7509E-01 / nOrigdiphotons
 
 if PRINT_YIELDS:
     ##########################################################
@@ -487,7 +487,7 @@ if PRINT_YIELDS:
     
     print "\tZleplepgamma_scale =", Zleplepgamma_scale
     print "\tZtautaugamma_scale =", Ztautaugamma_scale
-    print "\tZnunugammagamma_scale =", Znunugammagamma_scale
+    # print "\tZnunugammagamma_scale =", Znunugammagamma_scale
     
     print "\tgamma_Np1_scale =", gamma_Np1_scale
     print "\tgamma_Np2_scale =", gamma_Np2_scale
@@ -496,7 +496,7 @@ if PRINT_YIELDS:
     print "\tgamma_Np5_scale =", gamma_Np5_scale
 
 
-    print "\tdiphotons_scale =", diphotons_scale
+    #print "\tdiphotons_scale =", diphotons_scale
     print
 
 #########################################################
@@ -556,7 +556,7 @@ nAfterPreselectZZ = cutFlowZZ.GetBinContent(binToLookAt)
 
 nAfterPreselectZleplepgamma = cutFlowZleplepgamma.GetBinContent(binToLookAt)
 nAfterPreselectZtautaugamma = cutFlowZtautaugamma.GetBinContent(binToLookAt)
-nAfterPreselectZnunugammagamma = cutFlowZnunugammagamma.GetBinContent(binToLookAt)
+# nAfterPreselectZnunugammagamma = cutFlowZnunugammagamma.GetBinContent(binToLookAt)
 
 nAfterPreselectgamma_Np1 = cutFlowgamma_Np1.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np2 = cutFlowgamma_Np2.GetBinContent(binToLookAt)
@@ -564,7 +564,7 @@ nAfterPreselectgamma_Np3 = cutFlowgamma_Np3.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np4 = cutFlowgamma_Np4.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np5 = cutFlowgamma_Np5.GetBinContent(binToLookAt)
 
-nAfterPreselectdiphotons = cutFlowdiphotons.GetBinContent(binToLookAt)
+#nAfterPreselectdiphotons = cutFlowdiphotons.GetBinContent(binToLookAt)
 
 nAfterPreselectdata = cutFlowdata.GetBinContent(binToLookAt)
 nAfterPreselectgj = cutFlowgj.GetBinContent(binToLookAt)
@@ -625,7 +625,7 @@ if PRINT_YIELDS:
 
     print "Yield Zleplepgamma =", nAfterPreselectZleplepgamma * Zleplepgamma_scale
     print "Yield Ztautaugamma =", nAfterPreselectZtautaugamma * Ztautaugamma_scale
-    print "Yield Znunugammagamma =", nAfterPreselectZnunugammagamma * Znunugammagamma_scale
+    # print "Yield Znunugammagamma =", nAfterPreselectZnunugammagamma * Znunugammagamma_scale
 
     print "Yield gamma_Np1 =", nAfterPreselectgamma_Np1 * gamma_Np1_scale
     print "Yield gamma_Np2 =", nAfterPreselectgamma_Np2 * gamma_Np2_scale
@@ -633,7 +633,7 @@ if PRINT_YIELDS:
     print "Yield gamma_Np4 =", nAfterPreselectgamma_Np4 * gamma_Np4_scale
     print "Yield gamma_Np5 =", nAfterPreselectgamma_Np5 * gamma_Np5_scale
 
-    print "Yield diphotons =", nAfterPreselectdiphotons
+    #print "Yield diphotons =", nAfterPreselectdiphotons
 
     print "Yield data (not correct if blinded) =", nAfterPreselectdata
     print "Yield gj before tight subtraction (not correct if blinded) =", nAfterPreselectgj

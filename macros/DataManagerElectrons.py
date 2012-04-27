@@ -399,7 +399,7 @@ ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 # Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.488   / nOrigWgamma_Np5
 
 # if using gamma pt > 40 GeV sample
-Wgamma_kFact = 1.2
+Wgamma_kFact = 1.39
 #Wgamma_kFact = 1.488
 Wgamma_Np0_scale     =  Lumi  *  1.7837 * Wgamma_kFact   / nOrigWgamma_Np0
 Wgamma_Np1_scale     =  Lumi  *  4.3796 * Wgamma_kFact   / nOrigWgamma_Np1
@@ -412,7 +412,8 @@ Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 #Zleplepgamma_scale   =  Lumi  *  9.63   / nOrigZleplepgamma
 
 #if using Sherpa
-Zgamma_kFact = 1.2 # made up
+#Zgamma_kFact = 1.2 # made up
+Zgamma_kFact = 1.0 # made up
 Zleplepgamma_scale   =  Lumi  *  0.52528 * Zgamma_kFact  / nOrigZleplepgamma
 
 #inly have MadGraph

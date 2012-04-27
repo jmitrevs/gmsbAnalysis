@@ -61,11 +61,16 @@ MU_MET = 100*GeV
 MU_MT = 100*GeV
 
 MU_QCD_MINV_WINDOW = 10*GeV
+MU_MINV_WINDOW = 15*GeV
 
 MU_WCR_MET_MIN = 25*GeV
 MU_WCR_MET_MAX = 80*GeV
 MU_WCR_MT_MIN = 40*GeV
 MU_WCR_MT_MAX = 80*GeV
+
+MU_TCR_MET_MIN = 45*GeV
+MU_TCR_MET_MAX = 80*GeV
+MU_TCR_MT_MIN =  80*GeV
 
 MU_QCD_MET_MAX = 20*GeV
 MU_QCD_MT_MAX = 30*GeV
@@ -311,6 +316,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                   EL_TCR_MT_MIN < ev.mTel):
                 nTCR.Fill(0, weight)
                 inTCR = True
+        else:
+            if met < MU_QCD_MET_MAX and ev.mTmu < MU_QCD_MT_MAX:
+                if (ev.PhElMinv < ZMASS - MU_QCD_MINV_WINDOW or
+                    ev.PhElMinv > ZMASS + MU_QCD_MINV_WINDOW):
+                    nQCD.Fill(0, weight)
+            elif (MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
+                  MU_WCR_MT_MIN < ev.mTmu < MU_WCR_MT_MAX):
+                nWCR.Fill(0, weight)
+            elif (MU_TCR_MET_MIN < met < MU_TCR_MET_MAX and
+                  MU_TCR_MT_MIN < ev.mTmu):
+                nTCR.Fill(0, weight)
+                inTCR = True
 
         # do the XR
         if lepton == ELECTRON:
@@ -321,6 +338,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
                 not inTCR):
                 nXR1.Fill(0, weight)
+        else:
+            if (MU_WCR_MET_MAX < met and
+                MU_WCR_MT_MIN < ev.mTmu < MU_WCR_MT_MAX):
+                nXR2.Fill(0, weight)
+            if (MU_WCR_MT_MAX < ev.mTmu and
+                MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
+                not inTCR):
+                nXR1.Fill(0, weight)
+
 
         ## our selection
         if ((lepton == ELECTRON and
