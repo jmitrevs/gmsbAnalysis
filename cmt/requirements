@@ -12,7 +12,8 @@ use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reco
 use PathResolver       PathResolver-* Tools
 
 private
-use SUSYPhotonJetCleaningTool         SUSYPhotonJetCleaningTool-*
+use JetSelectorTools   JetSelectorTools-*       PhysicsAnalysis/JetMissingEtID
+use ObjectSelectorCore ObjectSelectorCore-*     PhysicsAnalysis/AnalysisCommon
 use gmsbTools          gmsbTools-*
 use FourMomUtils		FourMomUtils-*			Event
 use EventInfo                   EventInfo-*                     Event

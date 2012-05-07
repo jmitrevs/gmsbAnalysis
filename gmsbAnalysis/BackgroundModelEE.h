@@ -12,7 +12,7 @@
 
 class Jet;
 namespace Reco  { class ITrackToVertex; }
-class ISUSYPhotonJetCleaningTool;
+class IAthSelectorTool;
 
 /////////////////////////////////////////////////////////////////////////////
 class BackgroundModelEE:public AthAlgorithm {
@@ -56,7 +56,7 @@ private:
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
   
   /** @breif Tool handle for jet cleaning */  
-  ToolHandle<ISUSYPhotonJetCleaningTool>  m_JetCleaningTool;
+  ToolHandle<IAthSelectorTool>  m_JetCleaningTool;
 
   // user data
   ServiceHandle<IUserDataSvc> m_userdatasvc;

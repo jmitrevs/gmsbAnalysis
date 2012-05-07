@@ -10,40 +10,41 @@ from AthenaServices.TheUserDataSvc import TheUserDataSvc
 svcMgr += TheUserDataSvc("UserDataSvc")
 #svcMgr.UserDataSvc.OutputStream=outStream
 
-# #======================================================================================
-# # L u m i B l o c k  j o b  o p t i o n s 
-# #=========================================
-# # add LumiBlockMetaDataTool to ToolSvc and configure
-# from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-# ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-# LumiBlockMetaDataTool.calcLumi = False # False by default
-# LumiBlockMetaDataTool.storeXMLFiles = True
-# LumiBlockMetaDataTool.applyDQCuts = True 
-# LumiBlockMetaDataTool.OutputLevel = INFO
+#======================================================================================
+# L u m i B l o c k  j o b  o p t i o n s 
+#=========================================
+# add LumiBlockMetaDataTool to ToolSvc and configure
+from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
+ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
+LumiBlockMetaDataTool.calcLumi = False # False by default
+LumiBlockMetaDataTool.storeXMLFiles = True
+LumiBlockMetaDataTool.applyDQCuts = True 
+LumiBlockMetaDataTool.OutputLevel = INFO
 
-# # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
-# from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
-# svcMgr += MetaDataSvc( "MetaDataSvc" )
-# svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
+# add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
+from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+svcMgr += MetaDataSvc( "MetaDataSvc" )
+svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 
-# # Configure the goodrunslist selector tool
-# from GoodRunsLists.GoodRunsListsConf import *
-# ToolSvc += GoodRunsListSelectorTool() 
-# GoodRunsListSelectorTool.OutputLevel = INFO
-# #GoodRunsListSelectorTool.GoodRunsListVec = [ 'susy_E3toI.xml' ]
-# GoodRunsListSelectorTool.PassThrough = True
+# Configure the goodrunslist selector tool
+from GoodRunsLists.GoodRunsListsConf import *
+ToolSvc += GoodRunsListSelectorTool() 
+GoodRunsListSelectorTool.OutputLevel = INFO
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_DetStatus-v36-pro10_CoolRunQuery-00-04-08_Susy.xml' ]
+GoodRunsListSelectorTool.PassThrough = False
 
-# ## This Athena job consists of algorithms that loop over events;
-# ## here, the (default) top sequence is used:
-# from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-# job = AlgSequence()
-# seq = AthSequencer("AthFilterSeq")
+## This Athena job consists of algorithms that loop over events;
+## here, the (default) top sequence is used:
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+job = AlgSequence()
+seq = AthSequencer("AthFilterSeq")
 
-# from GoodRunsListsUser.GoodRunsListsUserConf import *
-# seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-# ## In the next line, pick up correct name from inside xml file!
-# # seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']
-# seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
+from GoodRunsListsUser.GoodRunsListsUserConf import *
+seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
+## In the next line, pick up correct name from inside xml file!
+seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy']
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18'
+#seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18_L1J10'
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -86,7 +87,7 @@ from ROOT import egammaPID
 
 #print "random seed", RANDSEED
 
-gmsbSelectionTool.IsMC = True
+gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.DoNewElectronIsolation = False
@@ -97,24 +98,23 @@ gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
-gmsbFinalSelectionTool.IsMC = True
-gmsbFinalSelectionTool.SmearMC = False
+gmsbFinalSelectionTool.IsMC = False
 
-from gmsbTools.gmsbToolsConf import TruthStudies
-truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = False,
-                            UseAnnotated = False,
-                            DumpEntireTree = False,
-                            Ptcut = 8*GeV,
-                            doMInv = True,
-                            OutputLevel = INFO
-                            )
-ToolSvc += truthStudies
-print truthStudies
+# from gmsbTools.gmsbToolsConf import TruthStudies
+# truthStudies = TruthStudies(name = "TruthStudies",
+#                             PrintDecayTree = False,
+#                             UseAnnotated = False,
+#                             DumpEntireTree = False,
+#                             #Ptcut = 8*GeV,
+#                             doDeltaRLepton = False,
+#                             OutputLevel = DEBUG
+#                             )
+# ToolSvc += truthStudies
+# print truthStudies
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
-                            isMC = True,
+                            isMC = False,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
@@ -124,8 +124,9 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             NumPhotons = 1,
                             NumMuons = 1,
                             outputNtuple = True,
-                            doTruthStudies = True,
-                            TruthStudiesTool = truthStudies
+                            doTruthStudies = False,
+                            TruthStudiesTool = None,
+                            Blind = True
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

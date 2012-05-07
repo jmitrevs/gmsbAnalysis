@@ -1,5 +1,5 @@
 #include "gmsbAnalysis/SignalGammaLepton.h"
-#include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
+#include "ObjectSelectorCore/IAthSelectorTool.h"
 
 #include "TH1.h"
 
@@ -44,13 +44,28 @@
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
 const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
 
+bool SignalGammaLepton::isInLArHole(Jet* jet) const
+{
+  const double etamin = -0.1;
+  const double etamax = 1.5; 
+  const double phimin = -0.9;
+  const double  phimax = -0.5;
+
+  const double eta = jet->eta();
+  const double phi = jet->phi();
+  if (eta < etamin || eta > etamax) return false;
+  if (phi < phimin || phi > phimax) return false;
+  return true;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_trackToVertexTool("Reco::TrackToVertex"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_fakeMetEstimator("fest_periodF_v1.root"),
-  m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
+  //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
   m_userdatasvc("UserDataSvc", name)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
@@ -102,7 +117,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
   declareProperty("triggers", m_triggers = "EF_2g20_loose");
 
-  declareProperty("doSmartVeto", m_doSmartVeto = false);
+  declareProperty("doSmartVeto", m_doSmartVeto = true);
   declareProperty("outputHistograms", m_outputHistograms = true);
   declareProperty("outputNtuple", m_outputNtuple = false);
 
@@ -587,15 +602,13 @@ StatusCode SignalGammaLepton::execute()
 
   }
   // jet cleaning
-  if (!m_isMC) {
-    for (JetCollection::const_iterator jet = jets->begin();
-	 jet != jets->end();
-	 jet++) {
-      
-      ATH_MSG_DEBUG("Looking at jet with pt = " << (*jet)->pt() << ", eta = " << (*jet)->eta() << ", phi = " << (*jet)->phi());
-      if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
-	return StatusCode::SUCCESS; // reject event
-      }
+  for (JetCollection::const_iterator jet = jets->begin();
+       jet != jets->end();
+       jet++) {
+    
+    ATH_MSG_DEBUG("Looking at jet with pt = " << (*jet)->pt() << ", eta = " << (*jet)->eta() << ", phi = " << (*jet)->phi());
+    if (!m_JetCleaningTool->accept(*jet)) {
+      return StatusCode::SUCCESS; // reject event
     }
   }
   m_histograms["CutFlow"]->Fill(3.0, m_weight);
@@ -1026,37 +1039,17 @@ StatusCode SignalGammaLepton::execute()
       m_numJets++;
     }
 
-    // if (m_doSmartVeto) {
-    //   bool eventFails = false;
-    //   if(m_isMC) {
-    // 	if (hasFEBHole) {
-    // 	  eventFails = m_fakeMetEstimator.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
-    // 						    etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
-    // 						    (*jet)->getMoment("BCH_CORR_JET"),
-    // 						    (*jet)->getMoment("BCH_CORR_CELL"),
-    // 						    (*jet)->getMoment("BCH_CORR_DOTX"));
-    // 	} else {
-    // 	  eventFails = m_fakeMetEstimatorEmulNoHole.isBadEmul((*jet)->pt(),(*jet)->eta(),(*jet)->phi(),
-    // 							      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon,
-    // 							      (*jet)->getMoment("BCH_CORR_JET"),
-    // 							      (*jet)->getMoment("BCH_CORR_CELL"),
-    // 							      (*jet)->getMoment("BCH_CORR_DOTX"));
-    // 	}
-    //   } else {
-    // 	eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
-    // 					      (*jet)->getMoment("BCH_CORR_CELL"),
-    // 					      (*jet)->getMoment("BCH_CORR_DOTX"),
-    // 					      (*jet)->phi(),
-    // 					      etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
-    //   }
-    //   if (eventFails) {
-    //   	return StatusCode::SUCCESS;
-    //   }
-      
-    // }
-
+    if (m_doSmartVeto && isInLArHole(*jet)) {
+      bool eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
+						 (*jet)->getMoment("BCH_CORR_CELL"),
+						 (*jet)->getMoment("BCH_CORR_DOTX"),
+						 (*jet)->phi(),
+						 etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
+      if (eventFails) {
+       	return StatusCode::SUCCESS;
+      }
+    }
   }
-
   
 
   m_meff = m_HT+met;

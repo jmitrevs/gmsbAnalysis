@@ -72,7 +72,10 @@ localMCFile = "mu_mc10b.root"
 
 # add the selection
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
-include ( "SUSYPhotonJetCleaningTool/SUSYPhotonJetCleaningTool_jobOptions.py" )
+
+from JetSelectorTools.ConfiguredAthJetCleaningTools import *
+myJetCleaningTool = ConfiguredAthJetCleaningTool_VeryLoose("gmsbJetCleaningTool")
+ToolSvc += myJetCleaningTool
 
 import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')

@@ -18,7 +18,7 @@
 
 class Jet;
 namespace Reco  { class ITrackToVertex; }
-class ISUSYPhotonJetCleaningTool;
+class IAthSelectorTool;
 namespace Trig  { class TrigDecisionTool; }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,8 @@ public:
   enum NUM_CUTS_t {NUM_CUTS = 20};
 
 private:
+
+  bool isInLArHole(Jet* jet) const;
 
   /** MET selecton */
   std::string m_METContainerName;
@@ -86,7 +88,7 @@ private:
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
   /** @brief Tool handle for jet cleaning */  
-  ToolHandle<ISUSYPhotonJetCleaningTool>  m_JetCleaningTool;
+  ToolHandle<IAthSelectorTool>  m_JetCleaningTool;
 
   /** @brief trigger decision tool */    
   ToolHandle< Trig::TrigDecisionTool > m_trigDec;
@@ -104,7 +106,7 @@ private:
   double m_blindMT;
 
   FakeMetEstimator m_fakeMetEstimator;
-  FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
+  //FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
 
   // user data
   ServiceHandle<IUserDataSvc> m_userdatasvc;

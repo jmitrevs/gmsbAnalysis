@@ -17,7 +17,7 @@
 
 class Jet;
 namespace Reco  { class ITrackToVertex; }
-class ISUSYPhotonJetCleaningTool;
+class IAthSelectorTool;
 namespace Trig  { class TrigDecisionTool; }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ private:
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
   /** @brief Tool handle for jet cleaning */  
-  ToolHandle<ISUSYPhotonJetCleaningTool>  m_JetCleaningTool;
+  ToolHandle<IAthSelectorTool>  m_JetCleaningTool;
 
   /** @brief trigger decision tool */    
   ToolHandle< Trig::TrigDecisionTool > m_trigDec;

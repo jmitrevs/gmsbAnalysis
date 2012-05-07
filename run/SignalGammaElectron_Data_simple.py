@@ -72,7 +72,10 @@ localMCFile = "mu_mc10b.root"
 
 # add the selection
 include ( "gmsbTools/gmsbTools_jobOptions.py" )
-include ( "SUSYPhotonJetCleaningTool/SUSYPhotonJetCleaningTool_jobOptions.py" )
+
+from JetSelectorTools.ConfiguredAthJetCleaningTools import *
+myJetCleaningTool = ConfiguredAthJetCleaningTool_VeryLoose("gmsbJetCleaningTool")
+ToolSvc += myJetCleaningTool
 
 import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
@@ -86,7 +89,7 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.ElectronID = egammaPID.ElectronIDLoosePP
+#gmsbSelectionTool.ElectronID = egammaPID.ElectronIDLoosePP
 gmsbSelectionTool.DoNewElectronIsolation = False
 gmsbSelectionTool.DoElectronTrackIsolation = True
 gmsbSelectionTool.PhotonPt = 100*GeV
@@ -111,7 +114,7 @@ gmsbFinalSelectionTool.IsMC = False
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
-                            isMC = True,
+                            isMC = False,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,

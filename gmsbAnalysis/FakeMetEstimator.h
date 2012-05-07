@@ -1,7 +1,9 @@
-#ifndef SUSYTOOLS_FakeMetEstimator_h
-#define SUSYTOOLS_FakeMetEstimator_h
+#ifndef FakeMetEstimator_h
+#define FakeMetEstimator_h
 
-////////  FakeMetEstimator version 3.0 ///////
+#define SUSY_ATHENA
+
+////////  FakeMetEstimator version 4.1 ///////
 //
 // a tool to reject or correct events by BCH_CORR_JET (estimated fake MET fraction by jet profile method)
 // emulation of detector condition to calculate inefficiency for MC is also implemented
@@ -35,13 +37,21 @@
 //
 // - correct met by jet profile method (switching from default BCH_CORR_CELL,BCH_CORR_DOTX to BCH_CORR_JET)
 // root [6] double correctionEx,correctionEy; // vector sum of corrected energy for jets
-// root [7] est.correction(correctionEx,correctionEy,ptJet, BCH_CORR_JET, BCH_CORR_CELL, BCH_CORR_DOTX, phiJet) 
+// root [7] est.correction(correctionEx, correctionEy, ptJet, BCH_CORR_JET, BCH_CORR_CELL, BCH_CORR_DOTX, phiJet) 
 // root [8] double metEx = originalEx - correctionEx
 // root [9] double metEy = originalEy - correctionEy
+//      (if you want corrected jet too, use ptCorrected(ptJet, BCH_CORR_JET, BCH_CORR_CELL, BCH_CORR_DOTX) )
+//
+// - emulate scale shift for given detector condition
+// root [10] double correctionEx,correctionEy; // vector sum of corrected energy for jets
+// root [11] est.emulation(correctionEx, correctionEy, ptJet, etaJet, phiJet, BCH_CORR_JET, BCH_CORR_CELL, BCH_CORR_DOTX) // ptJet is modified after call
+// root [12] double metEx = originalEx - correctionEx
+// root [13] double metEy = originalEy - correctionEy
+//      (if you want corrected jet directly, use ptReconstructedEmul(ptJet,etaJet,phiJet,BCH_CORR_JET,BCH_CORR_CELL,BCH_CORR_DOTX) )
 //
 // - low level functions of emulation: fcor = BCH_CORR_CELL+BCH_CORR_DOTX, fjet = BCH_CORR_JET
-// root [10] est.fcor(40000., 0.5, 0.8) // pt, eta, phi
-// root [11] est.fjet(40000., 0.5, 0.8)
+// root [14] est.fcor(40000., 0.5, 0.8) // pt, eta, phi
+// root [15] est.fjet(40000., 0.5, 0.8)
 //
 //
 //////// definitions /////////
@@ -59,8 +69,9 @@
 // v1.0 ( 5/ 6/2011) ... initial version
 // v2.0 ( 6/ 6/2011) ... in the emulation mode, the shift of MET by the estimated fake is considered
 // v3.0 (10/ 6/2011) ... in the emulation mode, the shift of jet pT by dead cells is considered
-//
-#include "PathResolver/PathResolver.h"
+// v3.1 ( 1/ 7/2011) ... fix to release memory in deleting
+// v4.0 (11/ 7/2011) ... add emulation func. to emulate scale shift of Jet/Met in given detector condition
+// v4.1 (17/ 1/2012) ... minor changes to run on PROOF
 
 #include <TFile.h>
 #include <TFolder.h>
@@ -70,10 +81,11 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 class EmulFakeMet {
  public:
-  EmulFakeMet(std::string rootname): m_rootname(rootname) {
+  EmulFakeMet(std::string rootname = ""): m_rootname(rootname) {
     // initialize
     m_fname[FCOR]="fcor";
     m_fname[FJET]="fjet";
@@ -125,19 +137,23 @@ class EmulFakeMet {
     }
   }
 
+  //for persistification (PROOF) 
+  void preload() { 
+    //preload data to avoid future file access 
+    for(int i=0; i<NFTYPE; i++){ 
+      if(!cache_ftype[i]) getFolder((FType)i); 
+    } 
+  } 
+
   enum FType { FCOR=0, FJET, NFTYPE };
   enum NBins { NETABINS=100, NPHIBINS=128, NPTBINS=10 };
 
   // get folder fcor or fjet
   TFolder* getFolder(FType itype){
     if(cache_ftype[itype]) return cache_ftype[itype];
-
-
-    std::string filename = PathResolver::find_file(m_rootname, "DATAPATH");
-    
-    TFile tf(filename.c_str());
+    TFile tf(m_rootname.c_str());
     if(!tf.IsOpen()){
-      std::cout << "file " << filename << " not opened" << std::endl;
+      std::cout << "file " << m_rootname << " not opened" << std::endl;
       abort();
     }
     cache_ftype[itype] = (TFolder*)tf.Get(m_fname[itype].c_str());
@@ -227,7 +243,9 @@ class EmulFakeMet {
     double f = 0;
     if(hist->Integral()>0){
       // gurantee same number when same arguments, maybe not recomended usage but it's enough
-      m_random.SetSeed(int(itype+eta*10000+phi*10000+pt));
+      int seed = int(itype+eta*10000+phi*10000+pt); 
+      if(!seed) seed++; 
+      m_random.SetSeed(seed); 
       TRandom* backup = gRandom; 
       gRandom = &m_random;
       f = hist->GetRandom();
@@ -241,42 +259,53 @@ class EmulFakeMet {
     return f;
   }
 
+// to be ROOT class
+#ifndef SUSY_ATHENA
+ClassDef(EmulFakeMet,1)
+#endif
+
  private:
-  TRandom2 m_random;
+  TRandom2 m_random; //! don't persistify
   std::string m_rootname;
-  std::string m_fname[NFTYPE];
-  double m_ptmax[NPTBINS];
+  std::string m_fname[NFTYPE]; //! don't persistify
+  double m_ptmax[NPTBINS]; //! don't persistify
 
   // FindObject maybe expensive, cache histos 
-  TFolder* cache_ftype[NFTYPE];
-  TFolder* cache_feta[NFTYPE][NETABINS];
-  TFolder* cache_fphi[NFTYPE][NETABINS][NPHIBINS];
-  TH1D* cache_hist[NFTYPE][NETABINS][NPHIBINS][NPTBINS];
+  TFolder* cache_ftype[NFTYPE]; //! don't persistify
+  TFolder* cache_feta[NFTYPE][NETABINS]; //! don't persistify
+  TFolder* cache_fphi[NFTYPE][NETABINS][NPHIBINS]; //! don't persistify
+  TH1D* cache_hist[NFTYPE][NETABINS][NPHIBINS][NPTBINS]; //! don't persistify
 
   // GetRandom maybe expensive, 1 length cache 
-  double cache_eta[NFTYPE];
-  double cache_phi[NFTYPE];
-  double cache_pt[NFTYPE];
-  double cache_f[NFTYPE];
+  double cache_eta[NFTYPE]; //! don't persistify
+  double cache_phi[NFTYPE]; //! don't persistify
+  double cache_pt[NFTYPE]; //! don't persistify
+  double cache_f[NFTYPE]; //! don't persistify
 
-  char hname[256];
+  char hname[256]; //! don't persistify
 };
 
-class FakeMetEstimator {
+//class FakeMetEstimator {
+// to be ROOT class
+class FakeMetEstimator : public TNamed {
  public:
-  FakeMetEstimator(std::string rootname="fest_periodF_v1.root"): m_rootname(rootname), m_emul(0){}
+  FakeMetEstimator(std::string rootname="fest_periodF_v1.root"): m_rootname(rootname), m_emul(0), m_fjetScale(1.){}
   virtual ~FakeMetEstimator(){
    if(m_emul) delete m_emul;
   }
 
   // This method is needed for Proof usage, added by Renaud
-  void initialize(std::string rootname) {
+  void initialize(std::string rootname, bool emul = false) {
     m_rootname = rootname;
     if(m_emul) delete m_emul;
-    m_emul = new EmulFakeMet(m_rootname);
+    if(emul) {
+      m_emul = new EmulFakeMet(m_rootname);
+      m_emul->preload();
+    }
   }
 
-   void setRootName(std::string rootname){ m_rootname = rootname; }
+  void setRootName(std::string rootname){ m_rootname = rootname; }
+  void setFjetScale(double scale){ m_fjetScale = scale; }
 
   bool isBad(const std::vector<float>* ptJet,
 	     const std::vector<float>* BCH_CORR_JET,
@@ -319,9 +348,35 @@ class FakeMetEstimator {
     return false;
   }
 
+  // emulate scale shift in detector conditions, gives ptJet vector modified after call, correctionEx,Ey is the propagation to MET
+  double emulation(double& correctionEx,
+                   double& correctionEy,
+                   std::vector<float>* ptJet,
+                   const std::vector<float>* etaJet,
+                   const std::vector<float>* phiJet,
+                   const std::vector<float>* BCH_CORR_JET, 
+                   const std::vector<float>* BCH_CORR_CELL,
+                   const std::vector<float>* BCH_CORR_DOTX){
+    double fake=0;
+    correctionEx=0;
+    correctionEy=0;
+    for(unsigned int i=0; i<ptJet->size(); i++){
+      double fakeEx=0;
+      double fakeEy=0;
+      double ptJetEmul=ptJet->at(i);
 
+      fake += emulation(fakeEx,fakeEy,ptJetEmul,etaJet->at(i),phiJet->at(i),BCH_CORR_JET->at(i),BCH_CORR_CELL->at(i),BCH_CORR_DOTX->at(i));
+
+      correctionEx += fakeEx;
+      correctionEy += fakeEy;
+      (*ptJet)[i] = static_cast<float>(ptJetEmul);
+    }
+    return fake;
+  }
+
+  // correct MET by estimator
   double correction(double& correctionEx,
-		    double& correctionEy,
+                    double& correctionEy,
 		    const std::vector<float>* ptJet, 
 		    const std::vector<float>* BCH_CORR_JET, 
 		    const std::vector<float>* BCH_CORR_CELL,
@@ -333,7 +388,9 @@ class FakeMetEstimator {
     for(unsigned int i=0; i<ptJet->size(); i++){
       double fakeEx=0; 
       double fakeEy=0; 
+
       fake += correction(fakeEx,fakeEy,ptJet->at(i),BCH_CORR_JET->at(i),BCH_CORR_CELL->at(i),BCH_CORR_DOTX->at(i),phiJet->at(i)); 
+
       correctionEx += fakeEx;
       correctionEy += fakeEy;
     }
@@ -411,7 +468,24 @@ class FakeMetEstimator {
     return true;// bad event
   }
 
-  
+  // emulate scale shift in detector conditions
+  double emulation(double& correctionEx,
+                   double& correctionEy,
+                   double& ptJet,
+                   double etaJet,
+                   double phiJet,
+                   double BCH_CORR_JET,
+                   double BCH_CORR_CELL,
+                   double BCH_CORR_DOTX){
+    double ptJetEmul = ptReconstructedEmul(ptJet,etaJet,phiJet,BCH_CORR_JET,BCH_CORR_CELL,BCH_CORR_DOTX);
+    double fake = ptJetEmul - ptJet;
+    correctionEx = fake * cos(phiJet);
+    correctionEy = fake * sin(phiJet);
+    ptJet = ptJetEmul;
+    return fake;//absolute value of correction
+  }
+ 
+  // correct MET by estimator 
   double correction(double& correctionEx,
 		    double& correctionEy,
 		    double ptReconstructed, 
@@ -427,7 +501,7 @@ class FakeMetEstimator {
 
   // fcor/fjet
   double fcor(double BCH_CORR_CELL, double BCH_CORR_DOTX) { return BCH_CORR_CELL+BCH_CORR_DOTX; }
-  double fjet(double BCH_CORR_JET) { return BCH_CORR_JET; }
+  double fjet(double BCH_CORR_JET) { return BCH_CORR_JET*m_fjetScale; }
 
   // emulation of fcor/fjet
   double femul(EmulFakeMet::FType itype, double pt, double eta, double phi) {
@@ -444,7 +518,7 @@ class FakeMetEstimator {
   double fjet(double pt, double eta, double phi) {
     double f=femul(EmulFakeMet::FJET,pt,eta,phi);
     if(fabs(f)<0.01) return 0;
-    else return f;
+    else return f*m_fjetScale;
   }
   
   // pt(reconstructed) <emulation>
@@ -660,9 +734,15 @@ class FakeMetEstimator {
  
   enum CValue {LARGEVALUE=9999};
 
+// to be ROOT class
+#ifndef SUSY_ATHENA 
+ClassDef(FakeMetEstimator,1) 
+#endif 
+
  private:
   std::string m_rootname; 
   EmulFakeMet* m_emul; 
+  double m_fjetScale;
 };
 
 #endif

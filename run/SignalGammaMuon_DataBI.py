@@ -16,22 +16,14 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500_ucsc/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993_tid645402_00/*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.152627.GGM_gl_wino_900_200_newgfilter_herwigpp_susy.merge.AOD*/*pool.root*')
-InputList = glob('/data3/jmitrevs/mc11_7TeV.*.GGM_gl_wino_600_200_newgfilter_herwigpp_susy.merge.AOD*/*pool.root*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.117421.AlpgenJimmyWgammaNp1_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993*/*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.107681.AlpgenJimmyWenuNp1_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993*/*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.145163.Sherpa_Zeegamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993*/*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993*/*')
-#InputList = glob('/data3/jmitrevs/mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993*/*')
+InputList = glob('/data3/jmitrevs/user.jmitrevs.eLgSkim_021112.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01*/*pool.root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
-##athenaCommonFlags.SkipEvents=34262
-##athenaCommonFlags.SkipEvents=47940
-#athenaCommonFlags.SkipEvents=50293
-#athenaCommonFlags.EvtMax=2
-#athenaCommonFlags.EvtMax=-1
-athenaCommonFlags.EvtMax=1000
+#athenaCommonFlags.SkipEvents=2
+athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=50
+
 
 # # use closest DB replica
 # from AthenaCommon.AppMgr import ServiceMgr
@@ -43,13 +35,13 @@ athenaCommonFlags.EvtMax=1000
 
 from RecExConfig.RecFlags import rec
 
-rec.doTrigger.set_Value_and_Lock(False)
+rec.doTrigger.set_Value_and_Lock(True)
 
 #--------------------------------------------------------------
 # ANALYSIS
 #--------------------------------------------------------------
 
-rec.UserAlgs.set_Value_and_Lock("SignalGammaElectron_simple.py")
+rec.UserAlgs.set_Value_and_Lock("SignalGammaMuon_DataBI_simple.py")
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.PhotonisEMKey = 'PhotonTight'","ToolSvc.PhotonProcessingTool.ElectronisEMKey = 'ElectronTight'"]
 #UserExecsList = ["ToolSvc.PhotonProcessingTool.excludeCrackRegion = False"]
 #UserExecsList = ["NtupleDumper.SUSY_ProductionVeto = True","NtupleDumper.SUSY_ProductionTypeAccepted = 2","NtupleDumper.isMC = True"]
@@ -88,8 +80,3 @@ rec.doPerfMon.set_Value_and_Lock(False)
 
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
-
-# if not hasattr(svcMgr, theApp.EventLoop):
-#    svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
-# evtloop = getattr(svcMgr, theApp.EventLoop)
-# evtloop.EventPrintoutInterval = 1

@@ -1,5 +1,5 @@
 #include "gmsbAnalysis/BackgroundModelEE.h"
-#include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
+#include "ObjectSelectorCore/IAthSelectorTool.h"
 
 #include "TH1.h"
 
@@ -428,7 +428,7 @@ StatusCode BackgroundModelEE::execute()
 	 jet != jets->end();
 	 jet++) {
       
-      if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
+      if (!m_JetCleaningTool->accept(*jet)) {
 	return StatusCode::SUCCESS; // reject event
       }
     }

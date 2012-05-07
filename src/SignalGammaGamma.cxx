@@ -1,5 +1,5 @@
 #include "gmsbAnalysis/SignalGammaGamma.h"
-#include "SUSYPhotonJetCleaningTool/ISUSYPhotonJetCleaningTool.h"
+#include "ObjectSelectorCore/IAthSelectorTool.h"
 
 #include "TH1.h"
 
@@ -430,7 +430,7 @@ StatusCode SignalGammaGamma::execute()
 	 jet++) {
       
       ATH_MSG_DEBUG("Looking at jet with pt = " << (*jet)->pt() << ", eta = " << (*jet)->eta() << ", phi = " << (*jet)->phi());
-      if (!m_JetCleaningTool->passCleaningCuts(*jet, JetIDCriteria::LooseBad)) {
+      if (!m_JetCleaningTool->accept(*jet)) {
 	return StatusCode::SUCCESS; // reject event
       }
     }
