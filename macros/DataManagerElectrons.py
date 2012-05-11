@@ -14,7 +14,7 @@ Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
 path = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/elphoton_data2/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/elphoton_data5/mergedFiles/"
 
 winoFileName = path + "wino_600_200_el.root"
 
@@ -356,7 +356,8 @@ if PRINT_YIELDS:
 ##############################################
 #   scale is lumi * xsec * kfact * filter / numEvents
 
-wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino
+#wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
+wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20   / nOrigWlepnu_Np0
@@ -415,18 +416,18 @@ Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 #Zgamma_kFact = 1.2 # made up
 Zgamma_kFact = 1.0 # made up
 Zleplepgamma_scale   =  Lumi  *  0.52528 * Zgamma_kFact  / nOrigZleplepgamma
+Ztautaugamma_scale   =  Lumi  *  0.81710 * Zgamma_kFact  / nOrigZtautaugamma
 
 #inly have MadGraph
-Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
 Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
 
 st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
 st_tchan_taunu_scale = Lumi * 7.10 / nOrigst_tchan_taunu
 st_Wt_scale = Lumi * 14.59 / nOrigst_Wt
 
-WW_scale = Lumi * 11.5003 * 1.48 / nOrigWW
-WZ_scale = Lumi *  3.4641 * 1.60 / nOrigWZ
-ZZ_scale = Lumi *  0.9722 * 1.30 / nOrigZZ
+WW_scale = Lumi * 43.81 * 0.38947 / nOrigWW  # include k-factor
+WZ_scale = Lumi * 19.09 * 0.30986 / nOrigWZ
+ZZ_scale = Lumi *  6.21 * 0.21319 / nOrigZZ
 
 gamma_Np1_scale     =  Lumi  *  74235 * 1.0933E-01 / nOriggamma_Np1
 gamma_Np2_scale     =  Lumi  *  21574 * 3.1052E-01 / nOriggamma_Np2

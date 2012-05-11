@@ -30,8 +30,8 @@ athenaCommonFlags.FilesInput = InputList
 ##athenaCommonFlags.SkipEvents=47940
 #athenaCommonFlags.SkipEvents=50293
 #athenaCommonFlags.EvtMax=2
-#athenaCommonFlags.EvtMax=-1
-athenaCommonFlags.EvtMax=1000
+athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=1000
 
 # # use closest DB replica
 # from AthenaCommon.AppMgr import ServiceMgr

@@ -32,6 +32,7 @@ use AtlasHepMC         AtlasHepMC-*             External
 use GeneratorObjects   GeneratorObjects-*       Generators
 use TrkTrackLink		TrkTrackLink-*			Tracking/TrkEvent
 use TrkParticleBase		TrkParticleBase-*		Tracking/TrkEvent
+use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
 
 end_private
 

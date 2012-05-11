@@ -12,7 +12,7 @@ Dates=os.system(sfg)
 inDS_test = [
    
     #'mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993',
-    'mc11_7TeV.126854.Sherpa_tautaugammaPt10.merge.AOD.e1181_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
     ]
 
 inDS_full = [
@@ -29,7 +29,7 @@ inDS_full = [
     'mc11_7TeV.105987.WZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
 
     'mc11_7TeV.108325.Pythia_MadGraph_Ztautaugamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
-    'mc11_7TeV.126854.Sherpa_tautaugammaPt10.merge.AOD.e1181_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
     'mc11_7TeV.145164.Sherpa_Zmumugamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993', 
 
     'mc11_7TeV.108341.st_tchan_munu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r3043_r2993',

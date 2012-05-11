@@ -12,6 +12,7 @@ import LepPhotonAnalysis
 removeOverlap = True
 removeOverlapTtbar = True
 doPhotonStudies = True
+onlyStrong = False
 
 ELECTRON = 0
 MUON = 1
@@ -420,7 +421,8 @@ def RunAnalysis(lepton):
                                         lepton,
                                         DataManager.wino_scale,
                                         False,
-                                        doPhotonStudies)
+                                        doPhotonStudies,
+                                        onlyStrong)
     print
 
     print "data:"

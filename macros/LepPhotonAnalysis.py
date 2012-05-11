@@ -43,9 +43,9 @@ EL_WCR_MET_MAX = 80*GeV
 EL_WCR_MT_MIN = 40*GeV
 EL_WCR_MT_MAX = 80*GeV
 
-EL_TCR_MET_MIN = 45*GeV
-EL_TCR_MET_MAX = 80*GeV
-EL_TCR_MT_MIN =  80*GeV
+EL_TCR_MET_MIN = 55*GeV
+EL_TCR_MET_MAX = 90*GeV
+EL_TCR_MT_MIN =  100*GeV
 
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 30*GeV
@@ -68,9 +68,9 @@ MU_WCR_MET_MAX = 80*GeV
 MU_WCR_MT_MIN = 40*GeV
 MU_WCR_MT_MAX = 80*GeV
 
-MU_TCR_MET_MIN = 45*GeV
-MU_TCR_MET_MAX = 80*GeV
-MU_TCR_MT_MIN =  80*GeV
+MU_TCR_MET_MIN = 55*GeV
+MU_TCR_MET_MAX = 90*GeV
+MU_TCR_MT_MIN =  100*GeV
 
 MU_QCD_MET_MAX = 20*GeV
 MU_QCD_MT_MAX = 30*GeV
@@ -93,7 +93,7 @@ def usage():
 
 
 def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False, 
-                      doPhotonStudies = True):
+                      doPhotonStudies = True, onlyStrong = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -227,7 +227,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # lets apply the cuts
         # double-check quality
         if ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
-            print "ERROR: event is malformed"
+            print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
             sys.exit(1)
 
         if filterPhotons and ev.numTruthPh > 0:
@@ -238,6 +238,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         #print "weight =", ev.Weight * glWeight
 
         weight = ev.Weight * glWeight
+
+        if onlyStrong and not ev.isStrong:
+            continue
 
         # first the basic lepton and photon selection (but not MET and mT):
         if ((lepton == ELECTRON and
