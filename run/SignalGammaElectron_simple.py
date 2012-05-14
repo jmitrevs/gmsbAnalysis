@@ -65,8 +65,8 @@ localMCFile = "mu_mc10b.root"
 #                                      )
 
 # add the fudge factors
-#include ( "gmsbFudgeFactors/gmsbFudgeFactors.py" )
-#topSequence += theGmsbFudgeFactors
+include ( "gmsbFudgeFactors/gmsbFudgeFactors.py" )
+topSequence += theGmsbFudgeFactors
 
 #theGmsbFudgeFactors.WhichFudgeFactors = 200
 
@@ -87,7 +87,7 @@ from ROOT import egammaPID
 #print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
-gmsbSelectionTool.SmearMC = False
+gmsbSelectionTool.SmearMC = True
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.DoNewElectronIsolation = False
 gmsbSelectionTool.DoElectronTrackIsolation = True
@@ -120,7 +120,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
                             JetCleaningTool = myJetCleaningTool,
-                            applyTrigger = False,
+                            applyTrigger = True,
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,

@@ -586,6 +586,7 @@ StatusCode SignalGammaLepton::execute()
   const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
   const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
 
+  const Analysis::MuonContainer *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
   const Analysis::MuonContainer *muons = m_OverlapRemovalTool2->finalStateMuons();
 
   // const JetCollection *allJets =  m_PreparationTool->selectedJets();
@@ -687,7 +688,33 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("Passed vertex");
 
 
-  // moun cleaning
+  // moun cleaning -- bad muons
+  for (Analysis::MuonContainer::const_iterator mu = muonsBeforeOverlapRemoval->begin();
+       mu != muonsBeforeOverlapRemoval->end();
+       mu++) {
+   
+    const Rec::TrackParticle* track = (*mu)->track();
+    bool trackok = (track && track->measuredPerigee()->localErrorMatrix().covariance().num_row() != 0);
+    if(!trackok && track) {
+      ATH_MSG_WARNING("MuonTrackAtPVFiller: muon (primary) track has null covariance matrix.");
+      return StatusCode::RECOVERABLE;
+    }
+
+    const Trk::MeasuredPerigee* newMeasPerigee =
+      m_trackToVertexTool->perigeeAtVertex(*track, vxContainer->at(0)->recVertex().position());
+    const double qoverp_exPV = newMeasPerigee->parameters()[Trk::qOverP];
+    const Trk::ErrorMatrix errormat = newMeasPerigee->localErrorMatrix();
+    const double cov_qoverp_exPV = errormat.covValue(Trk::qOverP);
+    delete newMeasPerigee;
+    ATH_MSG_DEBUG("qoverp_exPV = " << qoverp_exPV << ", cov_qoverp_exPV = " << cov_qoverp_exPV);
+    
+    if (qoverp_exPV != 0 && qoverp_exPV > -99999.) {
+      double qoperror = sqrt(cov_qoverp_exPV)/fabs(qoverp_exPV);
+      if (qoperror >= 0.2) return StatusCode::SUCCESS; // reject event 
+    }
+  }
+
+  // muon cleaning -- cosmic muons
   for (Analysis::MuonContainer::const_iterator mu = muons->begin();
        mu != muons->end();
        mu++) {

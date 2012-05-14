@@ -36,8 +36,8 @@ InputList = glob('/data3/jmitrevs/mc11_7TeV.*.GGM_gl_wino_600_200_newgfilter_her
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
-athenaCommonFlags.EvtMax=-1
-#athenaCommonFlags.EvtMax=100
+#athenaCommonFlags.EvtMax=-1
+athenaCommonFlags.EvtMax=1000
 
 
 # # use closest DB replica
@@ -50,7 +50,7 @@ athenaCommonFlags.EvtMax=-1
 
 from RecExConfig.RecFlags import rec
 
-rec.doTrigger.set_Value_and_Lock(False)
+rec.doTrigger.set_Value_and_Lock(True)
 
 #--------------------------------------------------------------
 # ANALYSIS
