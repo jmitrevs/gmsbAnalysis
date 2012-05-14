@@ -516,7 +516,7 @@ if PRINT_YIELDS:
 # let's print the yield before any cuts
 #########################################################
 
-binToLookAt = 10
+binToLookAt = 12 #1 more than last Fill value because this count starts at 1
 
 nAfterPreselectwino = cutFlowwino.GetBinContent(binToLookAt)
 

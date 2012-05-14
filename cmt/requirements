@@ -28,6 +28,7 @@ use MCTruthClassifier  MCTruthClassifier-*      PhysicsAnalysis
 use PhotonAnalysisUtils        PhotonAnalysisUtils-*           PhysicsAnalysis/StandardModelPhys
 use McParticleEvent    McParticleEvent-*        PhysicsAnalysis/TruthParticleID
 use TrigDecisionTool   TrigDecisionTool-*       Trigger/TrigAnalysis
+use TrigObjectMatching TrigObjectMatching-*     Trigger/TrigAnalysis
 use AtlasHepMC         AtlasHepMC-*             External
 use GeneratorObjects   GeneratorObjects-*       Generators
 use TrkTrackLink		TrkTrackLink-*			Tracking/TrkEvent

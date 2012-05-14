@@ -25,6 +25,7 @@
 #include "VxVertex/VxContainer.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigObjectMatching/TrigMatchTool.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
@@ -64,6 +65,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   AthAlgorithm(name, pSvcLocator),
   m_trackToVertexTool("Reco::TrackToVertex"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_trigMatch("TrigMatchTool/TrigMatchTool"),
   m_fakeMetEstimator("fest_periodF_v1.root"),
   //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
   m_userdatasvc("UserDataSvc", name)
@@ -114,7 +116,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("isMC", m_isMC = false);
   declareProperty("trigDecisionTool", m_trigDec);
+  declareProperty("trigMatchingTool", m_trigMatch);
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
+  declareProperty("matchTrigger", m_matchTriggers = false); //for both data and MC
   declareProperty("triggers", m_triggers = "EF_2g20_loose");
 
   declareProperty("doSmartVeto", m_doSmartVeto = true);
@@ -174,10 +178,18 @@ StatusCode SignalGammaLepton::initialize(){
     }
   }
       
-  if (m_applyTriggers) {
+  if (m_applyTriggers || m_matchTriggers) {
     sc = m_trigDec.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve tool " << m_trigDec);
+      return sc;
+    }
+  }
+
+  if (m_matchTriggers) {
+    sc = m_trigMatch.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool " << m_trigMatch);
       return sc;
     }
   }
@@ -534,15 +546,6 @@ StatusCode SignalGammaLepton::execute()
   //   if (
   m_histograms["CutFlow"]->Fill(1.0, m_weight);
 
-  if (m_applyTriggers) {
-    if (! m_trigDec->isPassed(m_triggers)) {
-      return StatusCode::SUCCESS; // reject event
-    }
-  }
-
-  ATH_MSG_DEBUG("Passed trig");
-  m_histograms["CutFlow"]->Fill(2.0, m_weight);
-
 
   // now chose a run number for the LAr hole veto
   // const double feb_lumi_fraction = (1067.4-165.468)/1067.4; // Fraction of lumi with hole
@@ -612,7 +615,7 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::SUCCESS; // reject event
     }
   }
-  m_histograms["CutFlow"]->Fill(3.0, m_weight);
+  m_histograms["CutFlow"]->Fill(2.0, m_weight);
   ATH_MSG_DEBUG("Passed jet cleaning");
 
   // define some bitmasks
@@ -643,7 +646,7 @@ StatusCode SignalGammaLepton::execute()
 
   }
  
-  m_histograms["CutFlow"]->Fill(4.0, m_weight);
+  m_histograms["CutFlow"]->Fill(3.0, m_weight);
   ATH_MSG_DEBUG("Passed photon cleaning");
 
   // electron cleaning
@@ -668,7 +671,7 @@ StatusCode SignalGammaLepton::execute()
     // }      
   }
 
-  m_histograms["CutFlow"]->Fill(5.0, m_weight);
+  m_histograms["CutFlow"]->Fill(4.0, m_weight);
   ATH_MSG_DEBUG("Passed electron cleaning");
 
 
@@ -684,7 +687,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
-  m_histograms["CutFlow"]->Fill(6.0, m_weight);
+  m_histograms["CutFlow"]->Fill(5.0, m_weight);
   ATH_MSG_DEBUG("Passed vertex");
 
 
@@ -729,7 +732,7 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::SUCCESS; // reject event
     }      
   }
-  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  m_histograms["CutFlow"]->Fill(6.0, m_weight);
   ATH_MSG_DEBUG("Passed muon rejection");
 
   // loop over photons
@@ -904,7 +907,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS;
   }
 
-  m_histograms["CutFlow"]->Fill(8.0, m_weight);
+  m_histograms["CutFlow"]->Fill(7.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
 
 
@@ -1008,7 +1011,7 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Passed lepton");
    
-  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+  m_histograms["CutFlow"]->Fill(8.0, m_weight);
 
   // lets correct the MET
   double met_eta4p5=0;
@@ -1077,7 +1080,19 @@ StatusCode SignalGammaLepton::execute()
       }
     }
   }
+  ATH_MSG_DEBUG("Passed LAr Hole");
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
   
+
+  if (m_applyTriggers) {
+    if (! m_trigDec->isPassed(m_triggers)) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  ATH_MSG_DEBUG("Passed trig");
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
+
 
   m_meff = m_HT+met;
   m_ph_el_minv = -999;
@@ -1123,10 +1138,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Event passes blinding (or blinding disabled)");
-  m_histograms["CutFlow"]->Fill(10.0, m_weight);
-
-  // ATH_MSG_DEBUG("Passed smart veto");
-  // m_histograms["CutFlow"]->Fill(9.0, m_weight);
+  m_histograms["CutFlow"]->Fill(11.0, m_weight);
 
   // if (met > 75*GeV) {
   //   m_histograms["CutFlow"]->Fill(10.0, m_weight);
@@ -1150,7 +1162,7 @@ StatusCode SignalGammaLepton::execute()
   // if (mT < 110*GeV) {
   //   return StatusCode::SUCCESS; // reject event
   // }
-  m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  //  m_histograms["CutFlow"]->Fill(12.0, m_weight);
 
 
   /////////////////////////////////////////////////////

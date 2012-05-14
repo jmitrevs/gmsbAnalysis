@@ -20,6 +20,7 @@ class Jet;
 namespace Reco  { class ITrackToVertex; }
 class IAthSelectorTool;
 namespace Trig  { class TrigDecisionTool; }
+class TrigMatchTool;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -48,6 +49,7 @@ private:
   unsigned int m_numElectronsMax;
 
   bool m_applyTriggers; //only really meant for MC
+  bool m_matchTriggers; // match offline to online 
   std::string m_triggers;
 
   bool m_doSmartVeto;
@@ -92,6 +94,8 @@ private:
 
   /** @brief trigger decision tool */    
   ToolHandle< Trig::TrigDecisionTool > m_trigDec;
+  /** @brief trigger matching tool */    
+  ToolHandle< TrigMatchTool > m_trigMatch;
 
   /** @brief classify the event type */
   ToolHandle<TruthStudies> m_truth;

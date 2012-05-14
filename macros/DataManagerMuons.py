@@ -504,7 +504,7 @@ if PRINT_YIELDS:
 # let's print the yield before any cuts
 #########################################################
 
-binToLookAt = 10
+binToLookAt = 12
 
 nAfterPreselectwino = cutFlowwino.GetBinContent(binToLookAt)
 
