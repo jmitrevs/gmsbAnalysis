@@ -34,7 +34,7 @@ use GeneratorObjects   GeneratorObjects-*       Generators
 use TrkTrackLink		TrkTrackLink-*			Tracking/TrkEvent
 use TrkParticleBase		TrkParticleBase-*		Tracking/TrkEvent
 use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
-
+use TrigMuonEvent       TrigMuonEvent-*         Trigger/TrigEvent
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

@@ -16,7 +16,8 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.14*.GGM_gl_wino_600_200_gfilter_herwigpp_susy.merge.AOD.e1004_s1372_s1370_r3043_r2993*/*pool.root*')
 #InputList = glob('/data3/jmitrevs/suspect_data/wino_600_500_ucsc/*pool.root*')
 #InputList = glob('/data3/jmitrevs/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993_tid645402_00/*')
-InputList = glob('/data3/jmitrevs/user.jmitrevs.eLgSkim_021112.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01*/*pool.root*')
+#InputList = glob('/data3/jmitrevs/user.jmitrevs.eLgSkim_021112.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01*/*pool.root*')
+InputList = glob('/data3/jmitrevs/user.jmitrevs.muLgSkim_120425.data11_7TeV.periodM.physics_Muons.PhysCont.AOD.pro10_v01*/*root*')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList

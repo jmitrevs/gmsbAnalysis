@@ -31,6 +31,7 @@ public:
   StatusCode finalize();
 
   enum NUM_CUTS_t {NUM_CUTS = 20};
+  enum TRIG_MATCH_t {NONE = 0, MUONS}; // only muons implemented so far
 
 private:
 
@@ -49,7 +50,7 @@ private:
   unsigned int m_numElectronsMax;
 
   bool m_applyTriggers; //only really meant for MC
-  bool m_matchTriggers; // match offline to online 
+  int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
   std::string m_triggers;
 
   bool m_doSmartVeto;

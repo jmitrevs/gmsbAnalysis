@@ -24,6 +24,7 @@
 
 #include "VxVertex/VxContainer.h"
 
+#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigObjectMatching/TrigMatchTool.h"
 
@@ -64,7 +65,7 @@ bool SignalGammaLepton::isInLArHole(Jet* jet) const
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_trigDec("Trig::TrigDecisionTool/Trig::TrigDecisionTool"),
   m_trigMatch("TrigMatchTool/TrigMatchTool"),
   m_fakeMetEstimator("fest_periodF_v1.root"),
   //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
@@ -118,8 +119,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("trigDecisionTool", m_trigDec);
   declareProperty("trigMatchingTool", m_trigMatch);
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
-  declareProperty("matchTrigger", m_matchTriggers = false); //for both data and MC
-  declareProperty("triggers", m_triggers = "EF_2g20_loose");
+  declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
+  declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
 
   declareProperty("doSmartVeto", m_doSmartVeto = true);
   declareProperty("outputHistograms", m_outputHistograms = true);
@@ -1088,6 +1089,27 @@ StatusCode SignalGammaLepton::execute()
     if (! m_trigDec->isPassed(m_triggers)) {
       return StatusCode::SUCCESS; // reject event
     }
+  }
+
+  switch(m_matchTriggers) {
+  case NONE:
+    // do nothing
+    break;
+  case MUONS:
+    if (m_numMu < 1) {
+      ATH_MSG_ERROR("No muons found but attempting to match trigger. Should not be here. Probably misconfigured");
+      return StatusCode::FAILURE;
+    }
+    TrigMatch::TrigMuonEFInfoHelper::setTrackToUse(TrigMatch::useCombinedTrack);
+    if (!(m_trigMatch->matchToTriggerObject<TrigMuonEFInfo>(leadingMu, m_triggers, 
+							    0.15, true))) {
+      // did not match to a trigger object
+      return StatusCode::FAILURE;
+    } 
+    break;
+  default:
+    ATH_MSG_WARNING("Trigger matching " << m_matchTriggers << " not supported.");
+    break;
   }
 
   ATH_MSG_DEBUG("Passed trig");
