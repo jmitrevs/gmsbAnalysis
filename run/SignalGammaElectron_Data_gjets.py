@@ -78,5 +78,9 @@ rec.doPerfMon.set_Value_and_Lock(False)
 #InDetFlags.preProcessing.set_Value_and_Lock(True)
 #InDetFlags.doSpacePointFormation.set_Value_and_Lock(True)
 
+include ("RecExCond/RecExCommon_flags.py")
+DetFlags.ID_setOn()
+DetFlags.Calo_setOn()
+
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")

@@ -89,9 +89,6 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
-#gmsbSelectionTool.ElectronID = egammaPID.ElectronIDLoosePP
-gmsbSelectionTool.DoNewElectronIsolation = False
-gmsbSelectionTool.DoElectronTrackIsolation = False
 gmsbSelectionTool.PhotonPt = 100*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
@@ -99,8 +96,6 @@ gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbFinalSelectionTool.IsMC = False
-gmsbFinalSelectionTool.DoNewElectronIsolation = False
-gmsbFinalSelectionTool.DoElectronTrackIsolation = False
 
 # from gmsbTools.gmsbToolsConf import TruthStudies
 # truthStudies = TruthStudies(name = "TruthStudies",
@@ -123,6 +118,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
+                            RequireTight = False,
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,

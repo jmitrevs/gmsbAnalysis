@@ -90,8 +90,6 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.DoNewElectronIsolation = False
-gmsbSelectionTool.DoElectronTrackIsolation = True
 gmsbSelectionTool.PhotonPt = 85*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED

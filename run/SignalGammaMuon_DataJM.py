@@ -85,4 +85,3 @@ DetFlags.Calo_setOn()
 
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
-
