@@ -49,6 +49,8 @@ private:
   unsigned int m_numMuonsMax;
   unsigned int m_numElectronsMax;
 
+  bool m_requireTight; // if this is false, only sets the variable.
+
   bool m_applyTriggers; //only really meant for MC
   int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
   std::string m_triggers;
@@ -132,6 +134,7 @@ private:
 
   std::vector<float>* m_ph_pt;
   std::vector<float>* m_ph_eta;
+  std::vector<float>* m_ph_eta2;
   std::vector<float>* m_ph_phi;
 
   // a bit more stuff for AR
@@ -147,11 +150,14 @@ private:
   
   std::vector<float>* m_el_pt;
   std::vector<float>* m_el_eta;
+  std::vector<float>* m_el_eta2;
   std::vector<float>* m_el_phi;
+  std::vector<int>* m_el_tight;
 
   std::vector<float>* m_mu_pt;
   std::vector<float>* m_mu_eta;
   std::vector<float>* m_mu_phi;
+  std::vector<int>* m_mu_tight;
 
   unsigned int m_numPh;
   unsigned int m_numEl;

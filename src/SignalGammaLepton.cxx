@@ -39,9 +39,7 @@
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
-
 #include <climits>
-
 
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
 const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
@@ -65,7 +63,7 @@ bool SignalGammaLepton::isInLArHole(Jet* jet) const
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trigDec("Trig::TrigDecisionTool/Trig::TrigDecisionTool"),
+  //m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_trigMatch("TrigMatchTool/TrigMatchTool"),
   m_fakeMetEstimator("fest_periodF_v1.root"),
   //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
@@ -80,6 +78,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NumPhotonsMax", m_numPhotonsMax = UINT_MAX);
   declareProperty("NumElectronsMax", m_numElectronsMax = UINT_MAX);
   declareProperty("NumMuonsMax", m_numMuonsMax = UINT_MAX);
+
+  declareProperty("RequireTight", m_requireTight = true, "False is for QCD and MM");
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -179,7 +179,7 @@ StatusCode SignalGammaLepton::initialize(){
     }
   }
       
-  if (m_applyTriggers || m_matchTriggers) {
+  if (m_applyTriggers) {
     sc = m_trigDec.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve tool " << m_trigDec);
@@ -325,6 +325,7 @@ StatusCode SignalGammaLepton::initialize(){
 
     m_ph_pt = new std::vector<float>;
     m_ph_eta = new std::vector<float>;
+    m_ph_eta2 = new std::vector<float>;
     m_ph_phi = new std::vector<float>;
 
     m_ph_AR = new std::vector<int>;
@@ -339,11 +340,14 @@ StatusCode SignalGammaLepton::initialize(){
 
     m_el_pt = new std::vector<float>;
     m_el_eta = new std::vector<float>;
+    m_el_eta2 = new std::vector<float>;
     m_el_phi = new std::vector<float>;
+    m_el_tight = new std::vector<int>;
 
     m_mu_pt = new std::vector<float>;
     m_mu_eta = new std::vector<float>;
     m_mu_phi = new std::vector<float>;
+    m_mu_tight = new std::vector<int>;
 
     // the TTree
     m_tree = new TTree("GammaLepton","TTree for GammaLepton analysis");
@@ -392,6 +396,7 @@ StatusCode SignalGammaLepton::initialize(){
     // now now the arrays
     m_tree->Branch("PhotonPt", &m_ph_pt);
     m_tree->Branch("PhotonEta", &m_ph_eta);
+    m_tree->Branch("PhotonEta2", &m_ph_eta2);
     m_tree->Branch("PhotonPhi", &m_ph_phi);
 
     m_tree->Branch("PhotonAR", &m_ph_AR);
@@ -406,11 +411,14 @@ StatusCode SignalGammaLepton::initialize(){
 
     m_tree->Branch("ElectronPt", &m_el_pt);
     m_tree->Branch("ElectronEta", &m_el_eta);
+    m_tree->Branch("ElectronEta2", &m_el_eta2);
     m_tree->Branch("ElectronPhi", &m_el_phi);
+    m_tree->Branch("ElectronTight", &m_el_tight);
 
     m_tree->Branch("MuonPt", &m_mu_pt);
     m_tree->Branch("MuonEta", &m_mu_eta);
     m_tree->Branch("MuonPhi", &m_mu_phi);
+    m_tree->Branch("MuonTight", &m_mu_tight);
   }
 
   return StatusCode::SUCCESS;
@@ -464,6 +472,7 @@ StatusCode SignalGammaLepton::execute()
   if (m_outputNtuple) {
     m_ph_pt->clear();
     m_ph_eta->clear();
+    m_ph_eta2->clear();
     m_ph_phi->clear();
 
     m_ph_AR->clear();
@@ -478,11 +487,14 @@ StatusCode SignalGammaLepton::execute()
 
     m_el_pt->clear();
     m_el_eta->clear();
+    m_el_eta2->clear();
     m_el_phi->clear();
+    m_el_tight->clear();
 
     m_mu_pt->clear();
     m_mu_eta->clear();
     m_mu_phi->clear();
+    m_mu_tight->clear();
   }
   
   m_runNumber = evtInfo->event_ID()->run_number();
@@ -868,6 +880,7 @@ StatusCode SignalGammaLepton::execute()
     if (m_outputNtuple) {
       m_ph_pt->push_back(pt);
       m_ph_eta->push_back((*ph)->eta());
+      m_ph_eta2->push_back((*ph)->cluster()->etaBE(2));
       m_ph_phi->push_back((*ph)->phi());
 
       const EMConvert *convert = (*ph)->detail<EMConvert>();
@@ -939,7 +952,9 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::FAILURE;
     }
 
-    if (! m_FinalSelectionTool->isSelected(*el, 0, 0, pt) ) continue; 
+    bool isTight = m_FinalSelectionTool->isSelected(*el, 0, 0, pt);
+
+    if (m_requireTight && !isTight) continue; 
 
     //ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
     ATH_MSG_DEBUG("electron with pt = " << (*el)->pt() 
@@ -953,7 +968,9 @@ StatusCode SignalGammaLepton::execute()
     if (m_outputNtuple) {
       m_el_pt->push_back(pt);
       m_el_eta->push_back((*el)->eta());
+      m_el_eta2->push_back((*el)->cluster()->etaBE(2));
       m_el_phi->push_back((*el)->phi());
+      m_el_tight->push_back(isTight);
     }
 
     if (pt > leadingElPt ) {
@@ -980,7 +997,9 @@ StatusCode SignalGammaLepton::execute()
        mu != muons->end();
        mu++) {
 
-    if (! m_FinalSelectionTool->isSelected(*mu) ) continue; 
+    bool isTight = m_FinalSelectionTool->isSelected(*mu);
+
+    if (m_requireTight && !isTight) continue; 
 
     m_numMu++;
    
@@ -991,6 +1010,7 @@ StatusCode SignalGammaLepton::execute()
       m_mu_pt->push_back((*mu)->pt());
       m_mu_eta->push_back((*mu)->eta());
       m_mu_phi->push_back((*mu)->phi());
+      m_mu_tight->push_back(isTight);
     }
 
     if (pt > leadingMuPt ) {
@@ -1104,7 +1124,7 @@ StatusCode SignalGammaLepton::execute()
     if (!(m_trigMatch->matchToTriggerObject<TrigMuonEFInfo>(leadingMu, m_triggers, 
 							    0.15, true))) {
       // did not match to a trigger object
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     } 
     break;
   default:
