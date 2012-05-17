@@ -65,9 +65,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   m_trackToVertexTool("Reco::TrackToVertex"),
   //m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_trigMatch("TrigMatchTool/TrigMatchTool"),
-  m_fakeMetEstimator("fest_periodF_v1.root"),
+  m_fakeMetEstimator("fest_periodF_v1.root")
   //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
-  m_userdatasvc("UserDataSvc", name)
+  //m_userdatasvc("UserDataSvc", name)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
 
@@ -195,10 +195,10 @@ StatusCode SignalGammaLepton::initialize(){
     }
   }
 
-  if ( !m_userdatasvc.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR("Unable to retrieve pointer to UserDataSvc");
-    return StatusCode::FAILURE;
-  }
+  // if ( !m_userdatasvc.retrieve().isSuccess() ) {
+  //   ATH_MSG_ERROR("Unable to retrieve pointer to UserDataSvc");
+  //   return StatusCode::FAILURE;
+  // }
 
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
@@ -752,8 +752,8 @@ StatusCode SignalGammaLepton::execute()
   m_numPhPresel = photons->size();
 
   unsigned int numConvPhPass = 0; // this is per event
-  Analysis::Photon *leadingPh = 0;
-  Analysis::Photon *secondPh = 0;
+  const Analysis::Photon *leadingPh = 0;
+  const Analysis::Photon *secondPh = 0;
   
   double leadingPhPt = 0;
   double secondPhPt = 0;
@@ -766,18 +766,18 @@ StatusCode SignalGammaLepton::execute()
        ph != photons->end();
        ph++) {
 
-    double pt = 0;
+    const double pt = (*ph)->pt();
 
-    // get the user data
-    if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
-	!= StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Error in geting photon decoration");
-      return StatusCode::FAILURE;
-    }
+    // // get the user data
+    // if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
+    // 	!= StatusCode::SUCCESS) {
+    //   ATH_MSG_ERROR("Error in geting photon decoration");
+    //   return StatusCode::FAILURE;
+    // }
 
-    if (! m_FinalSelectionTool->isSelected(*ph, 0, 0, pt) ) continue;     
+    if (! m_FinalSelectionTool->isSelected(*ph) ) continue;     
 
-    ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
+    // ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
 
     // photon is OK
     m_numPh++;
@@ -932,8 +932,8 @@ StatusCode SignalGammaLepton::execute()
 
   m_numElPresel = electrons->size();
 
-  Analysis::Electron *leadingEl = 0;
-  Analysis::Electron *secondEl = 0;
+  const Analysis::Electron *leadingEl = 0;
+  const Analysis::Electron *secondEl = 0;
   
   double leadingElPt = 0;
   double secondElPt = 0;
@@ -944,23 +944,22 @@ StatusCode SignalGammaLepton::execute()
        el++) {
 
 
-    double pt;
-    // get the user data
-    if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
-	!= StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("Error in geting photon decoration");
-      return StatusCode::FAILURE;
-    }
+    const double pt = (*el)->pt();
+    // // get the user data
+    // if (m_userdatasvc->getInMemElementDecoration(**el, std::string("corrPt"), pt)
+    // 	!= StatusCode::SUCCESS) {
+    //   ATH_MSG_ERROR("Error in geting photon decoration");
+    //   return StatusCode::FAILURE;
+    // }
 
-    bool isTight = m_FinalSelectionTool->isSelected(*el, 0, 0, pt);
-
-    if (m_requireTight && !isTight) continue; 
-
-    //ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
+    // ATH_MSG_DEBUG("Original electron pt = " << (*el)->pt() << ", corrected = " << pt); 
     ATH_MSG_DEBUG("electron with pt = " << (*el)->pt() 
 		  << ", eta = " << (*el)->eta() 
 		  << ", phi = " << (*el)->phi()); 
     
+    bool isTight = m_FinalSelectionTool->isSelected(*el);
+    if (m_requireTight && !isTight) continue; 
+
     m_HT += pt;
 
     m_numEl++;
@@ -987,8 +986,8 @@ StatusCode SignalGammaLepton::execute()
   // DEAL WITH MUONS
   m_numMuPresel = muons->size();
 
-  Analysis::Muon *leadingMu = 0;
-  Analysis::Muon *secondMu = 0;
+  const Analysis::Muon *leadingMu = 0;
+  const Analysis::Muon *secondMu = 0;
   
   double leadingMuPt = 0;
   double secondMuPt = 0;
@@ -1004,6 +1003,7 @@ StatusCode SignalGammaLepton::execute()
     m_numMu++;
    
     const double pt = (*mu)->pt();
+    ATH_MSG_DEBUG("Muon with pt = " << pt);
 
     m_HT += pt;
     if (m_outputNtuple) {

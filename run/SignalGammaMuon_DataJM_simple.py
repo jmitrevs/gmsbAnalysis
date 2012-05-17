@@ -6,8 +6,8 @@
 #---------------------------------------------------------------
 # UserDataSvc
 #---------------------------------------------------------------
-from AthenaServices.TheUserDataSvc import TheUserDataSvc
-svcMgr += TheUserDataSvc("UserDataSvc")
+#from AthenaServices.TheUserDataSvc import TheUserDataSvc
+#svcMgr += TheUserDataSvc("UserDataSvc")
 #svcMgr.UserDataSvc.OutputStream=outStream
 
 #======================================================================================
@@ -92,6 +92,7 @@ gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 85*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
+#gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight

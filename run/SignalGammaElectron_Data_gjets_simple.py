@@ -6,8 +6,8 @@
 #---------------------------------------------------------------
 # UserDataSvc
 #---------------------------------------------------------------
-from AthenaServices.TheUserDataSvc import TheUserDataSvc
-svcMgr += TheUserDataSvc("UserDataSvc")
+#from AthenaServices.TheUserDataSvc import TheUserDataSvc
+#svcMgr += TheUserDataSvc("UserDataSvc")
 #svcMgr.UserDataSvc.OutputStream=outStream
 
 #======================================================================================

@@ -3,7 +3,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "AthenaKernel/IUserDataSvc.h"
+//#include "AthenaKernel/IUserDataSvc.h"
 
 #include "gmsbTools/TruthStudies.h"
 #include "gmsbTools/gmsbPreparationTool.h"
@@ -116,7 +116,7 @@ private:
   //FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
 
   // user data
-  ServiceHandle<IUserDataSvc> m_userdatasvc;
+  //ServiceHandle<IUserDataSvc> m_userdatasvc;
 
   AccumulateUncert accUnc;  // for leading photon
   AccumulateFFUncert accFFUnc;
