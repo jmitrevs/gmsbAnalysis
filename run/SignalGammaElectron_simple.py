@@ -6,8 +6,8 @@
 #---------------------------------------------------------------
 # UserDataSvc
 #---------------------------------------------------------------
-from AthenaServices.TheUserDataSvc import TheUserDataSvc
-svcMgr += TheUserDataSvc("UserDataSvc")
+#from AthenaServices.TheUserDataSvc import TheUserDataSvc
+#svcMgr += TheUserDataSvc("UserDataSvc")
 #svcMgr.UserDataSvc.OutputStream=outStream
 
 # #======================================================================================
@@ -89,10 +89,9 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.DoNewElectronIsolation = False
-gmsbSelectionTool.DoElectronTrackIsolation = True
 gmsbSelectionTool.PhotonPt = 100*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
+#gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -128,8 +127,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             TruthStudiesTool = truthStudies
                             )
 from AthenaCommon.AppMgr import ToolSvc
-#testAlg.OutputLevel = DEBUG
-testAlg.OutputLevel = INFO
+testAlg.OutputLevel = DEBUG
+#testAlg.OutputLevel = INFO
 
 # Add example to Reader
 topSequence += testAlg

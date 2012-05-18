@@ -13,6 +13,8 @@
 
 #include "gmsbAnalysis/FakeMetEstimator.h"
 
+#include "egammaAnalysisUtils/egammaSFclass.h"
+
 #include "TRandom3.h"
 #include "TTree.h"
 
@@ -21,6 +23,7 @@ namespace Reco  { class ITrackToVertex; }
 class IAthSelectorTool;
 namespace Trig  { class TrigDecisionTool; }
 class TrigMatchTool;
+namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -36,6 +39,10 @@ public:
 private:
 
   bool isInLArHole(Jet* jet) const;
+
+  // both should really be const.
+  float GetSignalElecSF(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
+  float GetSignalElecSFUnc(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
 
   /** MET selecton */
   std::string m_METContainerName;
@@ -125,6 +132,11 @@ private:
 
   mutable TRandom3 m_rand3;
 
+  // for calculating scale factors in electron channel
+  egammaSFclass  m_egammaSFclass;
+
+  Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
+
   // The variables if one outputs an ntuple
   TTree* m_tree;
   unsigned int m_runNumber;
@@ -169,6 +181,20 @@ private:
 
   float m_el_minv; // this uses preselected
   float m_mu_minv;
+
+  // The scale factro for the leading photon
+  float m_ph_sf;
+  // no uncertainty provided
+
+  // The scale factor for the leading electron
+  float m_el_sf;
+  float m_el_sf_unc;
+  // The scale factor for the leading muon
+  float m_mu_sf;
+  float m_mu_sf_unc;
+  // The weight for the muon trigger
+  float m_mu_trig_weight;
+  float m_mu_trig_weight_unc;
 
   TruthStudies::EventType m_type;
   int m_isStrong;

@@ -15,17 +15,17 @@ inDS_test = [
     ]
 
 inDS_full = [
-    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodL.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodK.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodJ.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodI.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodH.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodG.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodF.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodE.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodD.physics_Egamma.PhysCont.AOD.pro10_v01',
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodB.physics_Egamma.PhysCont.AOD.pro10_v01',
+    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodL.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodK.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodJ.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodI.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodH.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodG.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodF.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodE.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodD.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodB.physics_Egamma.PhysCont.AOD.pro10_v01',
     ]
 #how to automatically configure GRL ?
 
@@ -33,27 +33,27 @@ inDS_full = [
     
 for i,inDS in enumerate(inDS_full):
 
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120516.%s SignalGammaElectron_Data.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120517.%s SignalGammaElectron_Data.py " % (inDS, inDS)
     
-    if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120516.tar"
-    else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120516.tar"
+    # if i == 0:
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
+    # else:
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
 
-    # # command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120516.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
 
     print command
     sys.stdout.flush()
     os.system(command)
 
-    command = "pathena --mergeOutput --excludedSite=ANALY_GOEGRID --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120516_gej.%s SignalGammaElectron_Data_gjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_GOEGRID --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120517_gej.%s SignalGammaElectron_Data_gjets.py " % (inDS, inDS)
     
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120508.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120508.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120516.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
 
     print command
     sys.stdout.flush()

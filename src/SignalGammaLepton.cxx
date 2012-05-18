@@ -39,6 +39,8 @@
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
+#include "MuonEfficiencyCorrections/AnalysisMuonEfficiencyScaleFactors.h"
+
 #include <climits>
 
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
@@ -63,7 +65,7 @@ bool SignalGammaLepton::isInLArHole(Jet* jet) const
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_trackToVertexTool("Reco::TrackToVertex"),
-  //m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_trigMatch("TrigMatchTool/TrigMatchTool"),
   m_fakeMetEstimator("fest_periodF_v1.root")
   //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
@@ -206,6 +208,32 @@ StatusCode SignalGammaLepton::initialize(){
     ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
     return sc;
   }
+
+  if (m_numMuonsReq > 0 && m_isMC) {
+    // need to initialize scale factors
+    std::vector<double> muon_sf_int_lum(11);
+    muon_sf_int_lum[0]  = 11.9912; // luminosity for period B = [177986, 178109]
+    muon_sf_int_lum[1]  = 175.533;  // luminosity for period D = [179710, 180481]
+    muon_sf_int_lum[2]  = 50.6941; // luminosity for period E = [180614, 180776]
+    muon_sf_int_lum[3]  = 130.918; // luminosity for period F = [182013, 182519]
+    muon_sf_int_lum[4]  = 501.769; // luminosity for period G = [182726, 183462]
+    muon_sf_int_lum[5]  = 256.386; // luminosity for period H = [183544, 184169]
+    muon_sf_int_lum[6]  = 339.135; // luminosity for period I = [185353, 186493]
+    muon_sf_int_lum[7]  = 227.443; // luminosity for period J = [186516, 186755]
+    muon_sf_int_lum[8]  = 590.621; // luminosity for period K = [186873, 187815]
+    muon_sf_int_lum[9]  = 1373.49;  // luminosity for period L = [188902, 190343]
+    muon_sf_int_lum[10] = 989.656; // luminosity for period M = [190503, 191933]
+
+    // create an instance of the scale factor class 
+    std::string muon_type("STACO_CB"); // for STACO combined muon 
+    std::string unit("MeV"); // for MeV; for GeV use "GeV" 
+    std::string directory(""); // directory containing the scale factor files 
+    //                            "" is default, i.e. under share of the CMT package 
+    m_muon_sf = new Analysis::AnalysisMuonEfficiencyScaleFactors(muon_type, muon_sf_int_lum, unit, directory);
+  } else {
+    m_muon_sf = 0;
+  }
+
 
   // this gets created no matter what
   m_histograms["CutFlow"] = new TH1D("CutFlow", "CutFlow", NUM_CUTS, 0, NUM_CUTS);
@@ -376,14 +404,22 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("Metx", &m_metx, "Metx/F"); 
     m_tree->Branch("Mety", &m_mety, "Mety/F"); 
 
-    m_tree->Branch("PhElMinv", &m_ph_el_minv, "Weight/F"); // invariant mass photon electron
-    m_tree->Branch("PhMuMinv", &m_ph_mu_minv, "Weight/F"); // invariant mass photon muon
-    m_tree->Branch("ElMinv", &m_el_minv, "Weight/F"); // invariant mass leading electron
-    m_tree->Branch("MuMinv", &m_mu_minv, "Weight/F"); // invariant mass leading muons
+    m_tree->Branch("PhElMinv", &m_ph_el_minv, "PhElMinv/F"); // invariant mass photon electron
+    m_tree->Branch("PhMuMinv", &m_ph_mu_minv, "PhMuMinv/F"); // invariant mass photon muon
+    m_tree->Branch("ElMinv", &m_el_minv, "ElMinv/F"); // invariant mass leading electron
+    m_tree->Branch("MuMinv", &m_mu_minv, "MuMinv/F"); // invariant mass leading muons
     
     m_tree->Branch("deltaPhiPhMET", &m_deltaPhiPhMET, "deltaPhiPhMET/F"); 
-    m_tree->Branch("deltaPhiElMET", &m_deltaPhiElMET, "deltaPhiPhMET/F"); 
-    m_tree->Branch("deltaPhiMuMET", &m_deltaPhiMuMET, "deltaPhiPhMET/F"); 
+    m_tree->Branch("deltaPhiElMET", &m_deltaPhiElMET, "deltaPhiElMET/F"); 
+    m_tree->Branch("deltaPhiMuMET", &m_deltaPhiMuMET, "deltaPhiMuMET/F"); 
+
+    m_tree->Branch("PhotonSF", &m_ph_sf, "PhotonSF/F");
+    m_tree->Branch("ElectronSF", &m_el_sf, "ElectronSF/F");
+    m_tree->Branch("ElectronSFUnc", &m_el_sf_unc, "ElectronSFUnc/F");
+    m_tree->Branch("MuonSF", &m_mu_sf, "MuonSF/F");
+    m_tree->Branch("MuonSFUnc", &m_mu_sf_unc, "MuonSFUnc/F");
+    m_tree->Branch("MuonTrigWeight", &m_mu_trig_weight, "MuonTrigWeight/F");
+    m_tree->Branch("MuonTrigWeightUnc", &m_mu_trig_weight_unc, "MuonTrigWeightUnc/F");
 
     m_tree->Branch("HT", &m_HT, "HT/F"); 
     m_tree->Branch("mTel", &m_mTel, "mTel/F"); 
@@ -761,10 +797,14 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("Before overlap removal photons size at input = " << photonsBeforeOverlapRemoval->size());
   ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
   
+  ATH_MSG_DEBUG("here 1");
+
   m_numPh = 0;
   for (PhotonContainer::const_iterator ph  = photons->begin();
        ph != photons->end();
        ph++) {
+
+    ATH_MSG_DEBUG("here 2");
 
     const double pt = (*ph)->pt();
 
@@ -916,7 +956,7 @@ StatusCode SignalGammaLepton::execute()
 
   }
 
-
+  ATH_MSG_DEBUG("here 3");
   if (m_numPh < m_numPhotonsReq || m_numPh > m_numPhotonsMax) {
     return StatusCode::SUCCESS;
   }
@@ -1217,6 +1257,43 @@ StatusCode SignalGammaLepton::execute()
 	       << m_numMu << " " << met/GeV);
 
 
+  /////////////////////////////////////////////////////
+  // first let's update the weights
+  /////////////////////////////////////////////////////
+
+  m_ph_sf = 1;
+  m_el_sf = 1;
+  m_mu_sf = 1;
+  m_mu_trig_weight = 1;
+
+  m_el_sf_unc = 0;
+  m_mu_sf_unc = 0;
+  m_mu_trig_weight_unc = 0;
+
+  if (m_isMC) {
+    if (m_numPhotonsReq > 0 && 
+	leadingPh->conversion() == NULL && 
+	fabs(leadingPh->cluster()->etaBE(2)) > 1.81) {
+      m_ph_sf = 0.97;
+    }
+    
+    if (m_numElectronsReq > 0) {
+      // require an electron. Only really valid when 1 electron is requested
+      m_el_sf = GetSignalElecSF(leadingEl->cluster()->eta(), leadingElPt);
+      m_el_sf_unc = GetSignalElecSF(leadingEl->cluster()->eta(), leadingElPt);
+    }
+    
+    if (m_numMuonsReq > 0) {
+      TLorentzVector p(leadingMu->px(), leadingMu->py(), leadingMu->pz(), leadingMu->e());
+      m_mu_sf = m_muon_sf->scaleFactor(p);
+      m_mu_sf_unc = hypot(m_muon_sf->scaleFactorUncertainty(p), m_muon_sf->scaleFactorSystematicUncertainty(p));
+    }
+  }
+
+  /////////////////////////////////////////////////////
+  // Now some truth studies
+  /////////////////////////////////////////////////////
+
   m_type = TruthStudies::unknown;
   if (m_doTruthStudies) {
     sc = m_truth->execute();
@@ -1380,5 +1457,46 @@ StatusCode SignalGammaLepton::finalize() {
     ATH_MSG_INFO("Average FF error second photon: " << accFFUnc2.Uncert());
     ATH_MSG_INFO("Average FF error second photon using sum of squares: " << accFFUnc2.Uncert2());
 
+    delete m_muon_sf;
+
     return StatusCode::SUCCESS;
+}
+
+/// Method used as python wrapper to get tightPP electron reco efficiency (and uncertainty)
+/// mode 0: apply both id efficiency SF (default is mediumPP) and reco+trkqual efficiency SF
+/// mode 1: apply only id efficiency SF (default is mediumPP)
+/// mode 2: apply only reco+trkqual efficiency SF 
+///    * Loose SF (set=0)
+///    * Medium SF (set=1)
+///    * Tight SF (set=2)
+///    * e20_medium trigger SF (set=3) (use set 8 or 10 for release 17 2011 data/MC11a)
+///    * reco+trkqual SF (set=4)
+///    * Loose++ SF (set=5)
+///    * Medium++ SF (set=6)
+///    * Tight++ SF (set=7)
+/// release 15 2010 data/MC09 (rel=0)
+/// release 16 2010 data/MC10 (rel=1)
+/// release 16.6 estimated from 2010 data (rel=2)  / 
+/// release 16.6 estimated from 2011 data "EPS recommendations" (rel=3) /
+/// release 16.6 estimated from 2011 data "EPS recommendations" including Jpsi measurements (rel=4)
+/// release 17 estimated from 2011 data/MC11a "CERN council recommendations" (rel=5)
+/// release 17 estimated from 2011 data/MC11a/b/c "Moriond recommendations" G4 FullSim MC (rel=6)
+/// release 17 estimated from 2011 data/MC11a/b/c "Moriond recommendations" AFII MC (rel=7)
+/// measured with probes in the 20-50 GeV range (range=0) or 30-50 GeV (range=1) 
+/// and correcting (etcorrection=1) or not (etcorrection=0) for the ET-dependence
+/// et := cluster_E/cosh(track_eta)
+float SignalGammaLepton::GetSignalElecSF(float el_cl_eta, float et, int set, int rel, int mode, int range)
+{ 
+  float sf = 1.;
+  if (mode == 0 || mode == 1) sf = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).first;
+  if (mode == 0 || mode == 2) sf *= m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).first;
+  return sf; 
+}
+
+float SignalGammaLepton::GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel, int mode, int range)
+{ 
+  float sfUnc = 0.;
+  if (mode == 0 || mode == 1) sfUnc = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).second;
+  if (mode == 0 || mode == 2) sfUnc = hypot(sfUnc, m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).second);
+  return sfUnc;
 }

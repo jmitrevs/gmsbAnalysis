@@ -79,6 +79,9 @@ rec.doJiveXML.set_Value_and_Lock(False)
 
 rec.doPerfMon.set_Value_and_Lock(False)
 
+# from RecExConfig.RecFlags import rec
+# rec.doFloatingPointException=True
+
 #### jOs from Thijs for spacepoints from ESDs:
 #from AthenaCommon.BeamFlags import jobproperties
 #from InDetRecExample.InDetJobProperties import InDetFlags
@@ -86,10 +89,19 @@ rec.doPerfMon.set_Value_and_Lock(False)
 #InDetFlags.preProcessing.set_Value_and_Lock(True)
 #InDetFlags.doSpacePointFormation.set_Value_and_Lock(True)
 
+include ("RecExCond/RecExCommon_flags.py")
+DetFlags.ID_setOn()
+DetFlags.geometry.Calo_setOn()
+
+import TrigDecisionTool.TrigDecisionToolConf 
+tdt = TrigDecisionTool.TrigDecisionToolConf.Trig__TrigDecisionTool("TrigDecisionTool") 
+ToolSvc += tdt 
+ToolSvc.TrigDecisionTool.Navigation.Dlls = ['TrigTopoEvent'] 
+
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-# if not hasattr(svcMgr, theApp.EventLoop):
-#    svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
-# evtloop = getattr(svcMgr, theApp.EventLoop)
-# evtloop.EventPrintoutInterval = 1
+if not hasattr(svcMgr, theApp.EventLoop):
+    svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
+evtloop = getattr(svcMgr, theApp.EventLoop)
+evtloop.EventPrintoutInterval = 1
