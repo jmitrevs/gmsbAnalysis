@@ -106,7 +106,7 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             DumpEntireTree = False,
                             #Ptcut = 8*GeV,
                             doDeltaRLepton = False,
-                            OutputLevel = DEBUG
+                            #OutputLevel = DEBUG
                             )
 ToolSvc += truthStudies
 print truthStudies
@@ -127,8 +127,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             TruthStudiesTool = truthStudies
                             )
 from AthenaCommon.AppMgr import ToolSvc
-testAlg.OutputLevel = DEBUG
-#testAlg.OutputLevel = INFO
+#testAlg.OutputLevel = DEBUG
+testAlg.OutputLevel = INFO
 
 # Add example to Reader
 topSequence += testAlg

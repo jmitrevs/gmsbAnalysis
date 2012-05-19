@@ -104,7 +104,8 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             UseAnnotated = False,
                             DumpEntireTree = False,
                             Ptcut = 40*GeV,
-                            doDeltaRLepton = False,
+                            doDeltaRLepton = True,
+                            DeltaRLepton = 0.1,
                             OutputLevel = INFO
                             )
 ToolSvc += truthStudies

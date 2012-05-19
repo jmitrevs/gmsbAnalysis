@@ -30,8 +30,8 @@ athenaCommonFlags.FilesInput = InputList
 ##athenaCommonFlags.SkipEvents=47940
 #athenaCommonFlags.SkipEvents=50293
 #athenaCommonFlags.EvtMax=2
-#athenaCommonFlags.EvtMax=-1
-athenaCommonFlags.EvtMax=1000
+athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=1000
 
 # # use closest DB replica
 # from AthenaCommon.AppMgr import ServiceMgr
@@ -93,15 +93,15 @@ include ("RecExCond/RecExCommon_flags.py")
 DetFlags.ID_setOn()
 DetFlags.geometry.Calo_setOn()
 
-import TrigDecisionTool.TrigDecisionToolConf 
-tdt = TrigDecisionTool.TrigDecisionToolConf.Trig__TrigDecisionTool("TrigDecisionTool") 
-ToolSvc += tdt 
-ToolSvc.TrigDecisionTool.Navigation.Dlls = ['TrigTopoEvent'] 
+# import TrigDecisionTool.TrigDecisionToolConf 
+# tdt = TrigDecisionTool.TrigDecisionToolConf.Trig__TrigDecisionTool("TrigDecisionTool") 
+# ToolSvc += tdt 
+# ToolSvc.TrigDecisionTool.Navigation.Dlls = ['TrigTopoEvent'] 
 
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-if not hasattr(svcMgr, theApp.EventLoop):
-    svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
-evtloop = getattr(svcMgr, theApp.EventLoop)
-evtloop.EventPrintoutInterval = 1
+# if not hasattr(svcMgr, theApp.EventLoop):
+#    svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
+# evtloop = getattr(svcMgr, theApp.EventLoop)
+# evtloop.EventPrintoutInterval = 1
