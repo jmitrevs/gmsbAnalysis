@@ -93,6 +93,15 @@ rec.doPerfMon.set_Value_and_Lock(False)
 #InDetFlags.preProcessing.set_Value_and_Lock(True)
 #InDetFlags.doSpacePointFormation.set_Value_and_Lock(True)
 
+include ("RecExCond/RecExCommon_flags.py")
+DetFlags.ID_setOn()
+DetFlags.geometry.Calo_setOn()
+
+# import TrigDecisionTool.TrigDecisionToolConf 
+# tdt = TrigDecisionTool.TrigDecisionToolConf.Trig__TrigDecisionTool("TrigDecisionTool") 
+# ToolSvc += tdt 
+# ToolSvc.TrigDecisionTool.Navigation.Dlls = ['TrigTopoEvent'] 
+
 # main jobOption - must always be included
 include ("RecExCommon/RecExCommon_topOptions.py")
 

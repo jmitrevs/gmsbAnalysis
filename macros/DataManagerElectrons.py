@@ -5,18 +5,21 @@ Module to store all the source files, yields, etc, for electron channel.
 '''
 
 import ROOT
-ROOT.gROOT.LoadMacro("AtlasStyle.C") 
-ROOT.SetAtlasStyle()
+# ROOT.gROOT.LoadMacro("AtlasStyle.C") 
+# ROOT.SetAtlasStyle()
 
 PRINT_YIELDS = True
 
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/elphoton_data5/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/elphoton_ntuple5/mergedFiles/"
+oldpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/elphoton_data6/mergedFiles/"
+dataloosepath = "/data3/jmitrevs/lepphoton/elphoton_datalooser/mergedFiles/"
+sigpath = "/data3/jmitrevs/lepphoton/elphoton_grid/mergedFiles/"
 
-winoFileName = path + "wino_600_200_el.root"
+winoFileName = sigpath + "wino_600_200_el.root"
 
 WlepnuFileName_Np0 = path + "Wenu_Np0.root"
 WlepnuFileName_Np1 = path + "Wenu_Np1.root"
@@ -67,7 +70,7 @@ WZFileName = path + "WZ.root"
 ZZFileName = path + "ZZ.root"
 
 ZtautaugammaFileName = path + "Ztautaugamma.root"
-ZnunugammagammaFileName = path + "Znunugammagamma.root"
+ZnunugammagammaFileName = oldpath + "Znunugammagamma.root"
 
 gammaFileName_Np1 = path + "gamma_Np1.root"
 gammaFileName_Np2 = path + "gamma_Np2.root"
@@ -75,11 +78,11 @@ gammaFileName_Np3 = path + "gamma_Np3.root"
 gammaFileName_Np4 = path + "gamma_Np4.root"
 gammaFileName_Np5 = path + "gamma_Np5.root"
 
-diphotonsFileName = path + "diphotons100.root"
-Zee_altFileName = path + "Zee_pythia.root"
+diphotonsFileName = oldpath + "diphotons100.root"
+Zee_altFileName = oldpath + "Zee_pythia.root"
 
 dataFileName = datapath + "eg.root"
-gjFileName = datapath + "gj.root"
+gjFileName = dataloosepath + "gj.root"
     
 ###########################################
 

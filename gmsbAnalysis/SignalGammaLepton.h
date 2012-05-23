@@ -24,6 +24,7 @@ class IAthSelectorTool;
 namespace Trig  { class TrigDecisionTool; }
 class TrigMatchTool;
 namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
+class APReweightND;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -136,6 +137,9 @@ private:
   egammaSFclass  m_egammaSFclass;
 
   Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
+
+  std::string m_muonTrigWeightsFile;
+  APReweightND *m_trigWeighter;
 
   // The variables if one outputs an ntuple
   TTree* m_tree;

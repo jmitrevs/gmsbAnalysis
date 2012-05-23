@@ -90,6 +90,7 @@ gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 100*GeV
+gmsbSelectionTool.ElectronID = egammaPID.ElectronIDLoosePP
 gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
@@ -124,7 +125,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             outputNtuple = True,
                             doTruthStudies = False,
                             TruthStudiesTool = None,
-                            Blind = True
+                            Blind = False
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

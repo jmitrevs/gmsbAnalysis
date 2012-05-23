@@ -40,6 +40,9 @@
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "MuonEfficiencyCorrections/AnalysisMuonEfficiencyScaleFactors.h"
+#include "PathResolver/PathResolver.h"
+#include "ReweightUtils/APReweightND.h"
+#include "ReweightUtils/APEvtWeight.h"
 
 #include <climits>
 
@@ -123,6 +126,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
   declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
   declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
+
+  declareProperty("MuonTriggerWeights",
+		  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
 
   declareProperty("doSmartVeto", m_doSmartVeto = true);
   declareProperty("outputHistograms", m_outputHistograms = true);
@@ -230,8 +236,26 @@ StatusCode SignalGammaLepton::initialize(){
     std::string directory(""); // directory containing the scale factor files 
     //                            "" is default, i.e. under share of the CMT package 
     m_muon_sf = new Analysis::AnalysisMuonEfficiencyScaleFactors(muon_type, muon_sf_int_lum, unit, directory);
+
+    if (m_muonTrigWeightsFile != "") {
+      std::string filename = PathResolver::find_file(m_muonTrigWeightsFile, "DATAPATH");
+      if (filename == "") {
+	ATH_MSG_ERROR("Muon trigger file " << m_muonTrigWeightsFile << " not found. Exiting");
+	return StatusCode::FAILURE;
+      }
+      TFile reweightFile(filename.c_str());
+      THnSparse *trig_numerator_hist = (THnSparse*) reweightFile.Get("ths_mu18_nom"); // Get the numerator histogram
+      THnSparse *trig_denominator_hist = (THnSparse*) reweightFile.Get("ths_mu18_den"); // Get the denominator histogram
+      m_trigWeighter = new APReweightND(trig_denominator_hist, trig_numerator_hist, true); // Instantiate the tool
+      reweightFile.Close();
+      if (!m_trigWeighter) {
+	ATH_MSG_ERROR("Failed to initialize trigger weighter from file: " << m_muonTrigWeightsFile);
+	return StatusCode::FAILURE;
+      }	
+    }
   } else {
     m_muon_sf = 0;
+    m_trigWeighter = 0;
   }
 
 
@@ -1287,8 +1311,30 @@ StatusCode SignalGammaLepton::execute()
       TLorentzVector p(leadingMu->px(), leadingMu->py(), leadingMu->pz(), leadingMu->e());
       m_mu_sf = m_muon_sf->scaleFactor(p);
       m_mu_sf_unc = hypot(m_muon_sf->scaleFactorUncertainty(p), m_muon_sf->scaleFactorSystematicUncertainty(p));
+
+      // AND NOW THE TRIGGER WEIGHTS
+      if (m_trigWeighter) {
+	double in[5];
+	in[0] = leadingMuPt;
+	in[1] = leadingMu->eta();
+	in[2] = leadingMu->phi();
+	in[3] = leadingMu->isCombinedMuon();
+	in[4] = leadingMu->parameter(MuonParameters::ptcone20);
+	ATH_MSG_DEBUG("in = (" << in[0] << ", " << in[1] << ", " << in[2] << ", " << in[3] << ", " << in[4] << ")");
+
+	APEvtWeight weight_muon(APEvtWeight::kMuon);
+	weight_muon.AddWeightToEvt(m_trigWeighter->GetWeight(in));
+	m_mu_trig_weight = weight_muon.GetWeight();
+	m_mu_trig_weight_unc = hypot(weight_muon.GetStdDev(), weight_muon.GetSysUncert());
+      }
     }
   }
+
+  ATH_MSG_DEBUG("el sf = " << m_el_sf << " +- " << m_el_sf_unc); 
+  ATH_MSG_DEBUG("mu sf = " << m_mu_sf << " +- " << m_mu_sf_unc); 
+  ATH_MSG_DEBUG("mu trigh weight = " << m_mu_trig_weight << " +- " << m_mu_trig_weight_unc); 
+
+  const double totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight;
 
   /////////////////////////////////////////////////////
   // Now some truth studies
@@ -1310,121 +1356,121 @@ StatusCode SignalGammaLepton::execute()
 
   if (m_outputHistograms) {
 
-    m_histograms["HT"]->Fill(m_HT/GeV, m_weight);
-    m_histograms["meff"]->Fill(m_meff/GeV, m_weight);
-    m_histograms["eventType"]->Fill(m_type, m_weight);
-    m_histograms["isStrong"]->Fill(m_isStrong, m_weight);
-    m_histograms["numTruthPh"]->Fill(m_numTruthPh, m_weight);
+    m_histograms["HT"]->Fill(m_HT/GeV, totalWeight);
+    m_histograms["meff"]->Fill(m_meff/GeV, totalWeight);
+    m_histograms["eventType"]->Fill(m_type, totalWeight);
+    m_histograms["isStrong"]->Fill(m_isStrong, totalWeight);
+    m_histograms["numTruthPh"]->Fill(m_numTruthPh, totalWeight);
 
     if (leadingPh) {
-      m_histograms["ph_eta1"]->Fill(leadingPh->eta(), m_weight);
-      m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, m_weight);
+      m_histograms["ph_eta1"]->Fill(leadingPh->eta(), totalWeight);
+      m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, totalWeight);
       
       
       if (fabs(leadingPh->cluster()->eta()) < 1.45) {
 	if (leadingPh->conversion()) {
-	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, m_weight);
+	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
-	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, m_weight);
+	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
 	}
       } else {
 	if (leadingPh->conversion()) {
-	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, m_weight);
+	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
-	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, m_weight);
+	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
 	}
       }    
     
       if (secondPh) {
-	m_histograms["ph_eta2"]->Fill(secondPh->eta(), m_weight);
-	m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, m_weight);
+	m_histograms["ph_eta2"]->Fill(secondPh->eta(), totalWeight);
+	m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, totalWeight);
 	
 	accFFUnc.AddObjects(leadingPhPt, leadingPh->cluster()->etaBE(2), leadingPh->conversion(), 
-			    secondPhPt, secondPh->cluster()->etaBE(2), secondPh->conversion(), m_weight);
+			    secondPhPt, secondPh->cluster()->etaBE(2), secondPh->conversion(), totalWeight);
 	
 	bool isBarrel1 = fabs(leadingPh->cluster()->eta()) < 1.45;
 	bool isBarrel2 = fabs(secondPh->cluster()->eta()) < 1.45;
 	
 	
 	accUnc.AddObjects(leadingPhPt, isBarrel1, leadingPh->conversion(),
-			  secondPhPt, isBarrel2, secondPh->conversion(), m_weight);
+			  secondPhPt, isBarrel2, secondPh->conversion(), totalWeight);
 	
 	
 	if (fabs(secondPh->cluster()->eta()) < 1.45) {
 	  if (secondPh->conversion()) {
-	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, m_weight);
+	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
-	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, m_weight);
+	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, totalWeight);
 	  }
 	} else {
 	  if (secondPh->conversion()) {
-	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, m_weight);
+	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
-	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, m_weight);
+	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, totalWeight);
 	  }
 	}    
       }
     }
-    m_histograms["numPh"]->Fill(m_numPh, m_weight);
-    m_histograms["ph_numConv"]->Fill(numConvPhPass, m_weight);
+    m_histograms["numPh"]->Fill(m_numPh, totalWeight);
+    m_histograms["ph_numConv"]->Fill(numConvPhPass, totalWeight);
   
     if (leadingEl) {
-      m_histograms["el_eta1"]->Fill(leadingEl->eta(), m_weight);
-      m_histograms["el_pt1"]->Fill(leadingElPt/GeV, m_weight);
+      m_histograms["el_eta1"]->Fill(leadingEl->eta(), totalWeight);
+      m_histograms["el_pt1"]->Fill(leadingElPt/GeV, totalWeight);
     }
     if (secondEl) {
-      m_histograms["el_eta2"]->Fill(secondEl->eta(), m_weight);
-      m_histograms["el_pt2"]->Fill(secondElPt/GeV, m_weight);
+      m_histograms["el_eta2"]->Fill(secondEl->eta(), totalWeight);
+      m_histograms["el_pt2"]->Fill(secondElPt/GeV, totalWeight);
     }
-    m_histograms["numEl"]->Fill(m_numEl, m_weight);
-    m_histograms["numMu"]->Fill(m_numMu, m_weight);
+    m_histograms["numEl"]->Fill(m_numEl, totalWeight);
+    m_histograms["numMu"]->Fill(m_numMu, totalWeight);
     if (leadingMu) {
-      m_histograms["mu_eta1"]->Fill(leadingMu->eta(), m_weight);
-      m_histograms["mu_pt1"]->Fill(leadingMuPt/GeV, m_weight);
+      m_histograms["mu_eta1"]->Fill(leadingMu->eta(), totalWeight);
+      m_histograms["mu_pt1"]->Fill(leadingMuPt/GeV, totalWeight);
     }
     
     if (m_numEl >= 1 && m_numPh >= 1) {
-      m_histograms["ph_el_minv"]->Fill(m_ph_el_minv/GeV, m_weight);
+      m_histograms["ph_el_minv"]->Fill(m_ph_el_minv/GeV, totalWeight);
     }
     if (m_numMu >= 1 && m_numPh >= 1) {
-      m_histograms["ph_mu_minv"]->Fill(m_ph_mu_minv/GeV, m_weight);
+      m_histograms["ph_mu_minv"]->Fill(m_ph_mu_minv/GeV, totalWeight);
     }
 
     if (m_numPh >= 1) {
-      static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(fabs(m_deltaPhiPhMET), met/GeV, m_weight);
+      static_cast<TH2F*>(m_histograms["deltaPhiPhMETvsMET"])->Fill(fabs(m_deltaPhiPhMET), met/GeV, totalWeight);
     }
     
     if (m_numEl >= 1) {
-      static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(fabs(m_deltaPhiElMET), met/GeV, m_weight);
-      m_histograms["mTel"]->Fill(m_mTel/GeV, m_weight);
+      static_cast<TH2F*>(m_histograms["deltaPhiElMETvsMET"])->Fill(fabs(m_deltaPhiElMET), met/GeV, totalWeight);
+      m_histograms["mTel"]->Fill(m_mTel/GeV, totalWeight);
     }
     
     if (m_numMu >= 1) {
-      static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(fabs(m_deltaPhiMuMET), met/GeV, m_weight);
-      m_histograms["mTmu"]->Fill(m_mTmu/GeV, m_weight);
+      static_cast<TH2F*>(m_histograms["deltaPhiMuMETvsMET"])->Fill(fabs(m_deltaPhiMuMET), met/GeV, totalWeight);
+      m_histograms["mTmu"]->Fill(m_mTmu/GeV, totalWeight);
     }
 
-    m_histograms["numJets"]->Fill(m_numJets, m_weight);
+    m_histograms["numJets"]->Fill(m_numJets, totalWeight);
     
     // } // end of if on MET
     
-    m_histograms["met"]->Fill(met/GeV, m_weight);
-    m_histograms["metExtended"]->Fill(met/GeV, m_weight);
+    m_histograms["met"]->Fill(met/GeV, totalWeight);
+    m_histograms["metExtended"]->Fill(met/GeV, totalWeight);
     switch(m_numJets) {
     case 0:
-      m_histograms["met0J"]->Fill(met/GeV, m_weight);
+      m_histograms["met0J"]->Fill(met/GeV, totalWeight);
       break;
     case 1:
-      m_histograms["met1J"]->Fill(met/GeV, m_weight);
+      m_histograms["met1J"]->Fill(met/GeV, totalWeight);
       break;
     case 2:
-      m_histograms["met2J"]->Fill(met/GeV, m_weight);
+      m_histograms["met2J"]->Fill(met/GeV, totalWeight);
       break;
     case 3:
-      m_histograms["met3J"]->Fill(met/GeV, m_weight);
+      m_histograms["met3J"]->Fill(met/GeV, totalWeight);
       break;
     default:
-      m_histograms["met4J"]->Fill(met/GeV, m_weight);
+      m_histograms["met4J"]->Fill(met/GeV, totalWeight);
       break;
     }
   }

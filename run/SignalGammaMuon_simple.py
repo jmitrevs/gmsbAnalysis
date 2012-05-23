@@ -6,8 +6,8 @@
 #---------------------------------------------------------------
 # UserDataSvc
 #---------------------------------------------------------------
-from AthenaServices.TheUserDataSvc import TheUserDataSvc
-svcMgr += TheUserDataSvc("UserDataSvc")
+#from AthenaServices.TheUserDataSvc import TheUserDataSvc
+#svcMgr += TheUserDataSvc("UserDataSvc")
 #svcMgr.UserDataSvc.OutputStream=outStream
 
 # #======================================================================================
@@ -89,8 +89,6 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.DoNewElectronIsolation = False
-gmsbSelectionTool.DoElectronTrackIsolation = True
 gmsbSelectionTool.PhotonPt = 85*GeV
 gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
@@ -107,7 +105,7 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             DumpEntireTree = False,
                             #Ptcut = 8*GeV,
                             doDeltaRLepton = False,
-                            OutputLevel = DEBUG
+                            #OutputLevel = DEBUG
                             )
 ToolSvc += truthStudies
 print truthStudies

@@ -15,7 +15,7 @@ inDS_test = [
     ]
 
 inDS_full = [
-    # 'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01',
+    'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodM.physics_Egamma.PhysCont.AOD.pro10_v01',
     'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodL.physics_Egamma.PhysCont.AOD.pro10_v01',
     'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodK.physics_Egamma.PhysCont.AOD.pro10_v01',
     'user.jmitrevs.eLgSkim_120419.data11_7TeV.periodJ.physics_Egamma.PhysCont.AOD.pro10_v01',
@@ -42,18 +42,18 @@ for i,inDS in enumerate(inDS_full):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
 
-    command = "pathena --mergeOutput --excludedSite=ANALY_GOEGRID --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120517_gej.%s SignalGammaElectron_Data_gjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_GOEGRID --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120522_gej.%s SignalGammaElectron_Data_gjets.py " % (inDS, inDS)
     
     # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120508.tar"
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120522.tar"
     # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120508.tar"
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120522.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120522.tar"
 
     print command
     sys.stdout.flush()

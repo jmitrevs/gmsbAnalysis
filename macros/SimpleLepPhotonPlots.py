@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
 # code to make all the plots in a file
+import sys
+import getopt
 
 import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
@@ -9,8 +11,7 @@ ROOT.SetAtlasStyle()
 ELECTRON = 0
 MUON = 1
 
-#DEFAULTLEPTON = ELECTRON
-DEFAULTLEPTON = MUON
+DEFAULTLEPTON = ELECTRON
 
 def GetHistNames(inFile):
     
@@ -31,13 +32,13 @@ def GetHistNames(inFile):
 
 
 
-def LepPhotonPlots(lepton):
+def SimpleLepPhotonPlots(lepton):
 
 
     if lepton == ELECTRON:
-        import DataManagerElectrons as DataManager
+        import DataManagerElectronsSimple as DataManager
     elif lepton == MUON:
-        import DataManagerMuons as DataManager
+        import DataManagerMuonsSimple as DataManager
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
 
@@ -115,74 +116,12 @@ def LepPhotonPlots(lepton):
 
         data = DataManager.dataFile.Get(histName)
         gj = DataManager.gjFile.Get(histName)
-        gj.Add(data, -1.0);
+        #gj.Add(data, -1.0);
         data.Sumw2()
-
-        #######################################
-
-        wino.Scale(DataManager.wino_scale)
-
-        Wlepnu_Np0.Scale(DataManager.Wlepnu_Np0_scale)
-        Wlepnu_Np1.Scale(DataManager.Wlepnu_Np1_scale)
-        Wlepnu_Np2.Scale(DataManager.Wlepnu_Np2_scale)
-        Wlepnu_Np3.Scale(DataManager.Wlepnu_Np3_scale)
-        Wlepnu_Np4.Scale(DataManager.Wlepnu_Np4_scale)
-        Wlepnu_Np5.Scale(DataManager.Wlepnu_Np5_scale)
-
-        Wtaunu_Np0.Scale(DataManager.Wtaunu_Np0_scale)
-        Wtaunu_Np1.Scale(DataManager.Wtaunu_Np1_scale)
-        Wtaunu_Np2.Scale(DataManager.Wtaunu_Np2_scale)
-        Wtaunu_Np3.Scale(DataManager.Wtaunu_Np3_scale)
-        Wtaunu_Np4.Scale(DataManager.Wtaunu_Np4_scale)
-        Wtaunu_Np5.Scale(DataManager.Wtaunu_Np5_scale)
-
-        Zleplep_Np0.Scale(DataManager.Zleplep_Np0_scale)
-        Zleplep_Np1.Scale(DataManager.Zleplep_Np1_scale)
-        Zleplep_Np2.Scale(DataManager.Zleplep_Np2_scale)
-        Zleplep_Np3.Scale(DataManager.Zleplep_Np3_scale)
-        Zleplep_Np4.Scale(DataManager.Zleplep_Np4_scale)
-        Zleplep_Np5.Scale(DataManager.Zleplep_Np5_scale)
-
-        Ztautau_Np0.Scale(DataManager.Ztautau_Np0_scale)
-        Ztautau_Np1.Scale(DataManager.Ztautau_Np1_scale)
-        Ztautau_Np2.Scale(DataManager.Ztautau_Np2_scale)
-        Ztautau_Np3.Scale(DataManager.Ztautau_Np3_scale)
-        Ztautau_Np4.Scale(DataManager.Ztautau_Np4_scale)
-        Ztautau_Np5.Scale(DataManager.Ztautau_Np5_scale)
-        
-        Wgamma_Np0.Scale(DataManager.Wgamma_Np0_scale)
-        Wgamma_Np1.Scale(DataManager.Wgamma_Np1_scale)
-        Wgamma_Np2.Scale(DataManager.Wgamma_Np2_scale)
-        Wgamma_Np3.Scale(DataManager.Wgamma_Np3_scale)
-        Wgamma_Np4.Scale(DataManager.Wgamma_Np4_scale)
-        Wgamma_Np5.Scale(DataManager.Wgamma_Np5_scale)
-        
-        ttbar.Scale(DataManager.ttbar_scale)
-        
-        st_tchan_lepnu.Scale(DataManager.st_tchan_lepnu_scale)
-        st_tchan_taunu.Scale(DataManager.st_tchan_taunu_scale)
-        
-        #st_schan_lepnu.Scale(st_schan_lepnu_scale)
-        #st_schan_taunu.Scale(st_schan_taunu_scale)
-
-        st_Wt.Scale(DataManager.st_Wt_scale)
-
-        WW.Scale(DataManager.WW_scale)
-        WZ.Scale(DataManager.WZ_scale)
-        ZZ.Scale(DataManager.ZZ_scale)
-        
-        Zleplepgamma.Scale(DataManager.Zleplepgamma_scale)
-        Ztautaugamma.Scale(DataManager.Ztautaugamma_scale)
-        
-        gamma_Np1.Scale(DataManager.gamma_Np1_scale)
-        gamma_Np2.Scale(DataManager.gamma_Np2_scale)
-        gamma_Np3.Scale(DataManager.gamma_Np3_scale)
-        gamma_Np4.Scale(DataManager.gamma_Np4_scale)
-        gamma_Np5.Scale(DataManager.gamma_Np5_scale)
 
         ############################################
 
-        nRebin = 1
+        #nRebin = 2
 
         Wlepnu = Wlepnu_Np0.Clone()
         Wlepnu.Add(Wlepnu_Np1)
@@ -200,7 +139,7 @@ def LepPhotonPlots(lepton):
 
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
-        Wjets.Rebin(nRebin)
+        #Wjets.Rebin(nRebin)
  
         Wgamma = Wgamma_Np0.Clone()
         Wgamma.Add(Wgamma_Np1)
@@ -208,7 +147,7 @@ def LepPhotonPlots(lepton):
         Wgamma.Add(Wgamma_Np3)
         Wgamma.Add(Wgamma_Np4)
         Wgamma.Add(Wgamma_Np5)
-        Wgamma.Rebin(nRebin)
+        #Wgamma.Rebin(nRebin)
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)
@@ -226,23 +165,23 @@ def LepPhotonPlots(lepton):
 
         Zjets = Zleplep.Clone()
         Zjets.Add(Ztautau)
-        Zjets.Rebin(nRebin)
+        #Zjets.Rebin(nRebin)
 
         Zgamma = Zleplepgamma.Clone()
         Zgamma.Add(Ztautaugamma)
-        Zgamma.Rebin(nRebin)
+        #Zgamma.Rebin(nRebin)
 
         diboson = WW.Clone()
         diboson.Add(WZ)
         diboson.Add(ZZ)
-        diboson.Rebin(nRebin)
+        #diboson.Rebin(nRebin)
 
         gamma = gamma_Np1.Clone()
         gamma.Add(gamma_Np2)
         gamma.Add(gamma_Np3)
         gamma.Add(gamma_Np4)
         gamma.Add(gamma_Np5)
-        gamma.Rebin(nRebin)
+        #gamma.Rebin(nRebin)
 
 
         st = st_tchan_lepnu.Clone()
@@ -250,9 +189,9 @@ def LepPhotonPlots(lepton):
         #st.Add(st_schan_lepnu)
         #st.Add(st_schan_taunu)
         st.Add(st_Wt)
-        st.Rebin(nRebin)
+        #st.Rebin(nRebin)
 
-        ttbar.Rebin(nRebin)
+        #ttbar.Rebin(nRebin)
 
         hn = ttbar.GetName()
         c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
@@ -261,7 +200,7 @@ def LepPhotonPlots(lepton):
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbar.GetXaxis().GetTitle()+";Events")
 
         bg.SetMinimum(5e-2)
-        bg.SetMaximum(200)
+        #bg.SetMaximum(25)
 
         gamma.SetFillStyle(1001)
         Wjets.SetFillStyle(1001)
@@ -297,9 +236,9 @@ def LepPhotonPlots(lepton):
         bg.Add(ttbar)
         bg.Add(st)
         
-        bg.Draw()
+        bg.Draw("HIST")
         
-        wino.Rebin(nRebin)
+        #wino.Rebin(nRebin)
         #wino.Scale(0.5)
         #wino.Scale(10)
 
@@ -308,10 +247,10 @@ def LepPhotonPlots(lepton):
         wino.SetLineColor(12)
         wino.SetLineWidth(3)
 
-        data.Rebin(nRebin)
+        #data.Rebin(nRebin)
         data.Draw("same")
 
-        gj.Rebin(nRebin)
+        #gj.Rebin(nRebin)
         gj.SetFillStyle(0)
         gj.SetLineColor(41)
         #gj.Draw("hist same")
@@ -358,4 +297,32 @@ def LepPhotonPlots(lepton):
 
     
 if __name__ == "__main__":
-    LepPhotonPlots(DEFAULTLEPTON)
+    try:
+        # retrive command line options
+        shortopts  = "eml:"
+        longopts   = ["lepton="]
+        opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
+    except getopt.GetoptError:
+        # print help information and exit:
+        print "ERROR: unknown options in argument %s" % sys.argv[1:]
+        sys.exit(1)
+
+    lepton = DEFAULTLEPTON
+    for o, a in opts:
+        if o in ("-?", "-h", "--help", "--usage"):
+            usage()
+            sys.exit(0)
+        elif o in ("-m"):
+            lepton = MUON
+        elif o in ("-e"):
+            lepton = ELECTRON
+        elif o in ("-l", "--lepton"):
+            if a == "electron":
+                lepton = ELECTRON
+            elif a == "muon":
+                lepton = MUON
+            else:
+                print "*** Lepton must be 'electron' or 'muon ****"
+                sys.exit(1)
+    
+    SimpleLepPhotonPlots(lepton)

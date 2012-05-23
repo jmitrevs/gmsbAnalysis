@@ -5,18 +5,19 @@ Module to store all the source files, yields, etc, for electron channel.
 '''
 
 import ROOT
-ROOT.gROOT.LoadMacro("AtlasStyle.C") 
-ROOT.SetAtlasStyle()
+#ROOT.gROOT.LoadMacro("AtlasStyle.C") 
+#ROOT.SetAtlasStyle()
 
 PRINT_YIELDS = True
 
 Lumi = 4708.61 # really electron only
 
 print "Lepton is MUON."
-path = "/data3/jmitrevs/lepphoton/muphoton_ntuple/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/muphoton_data/mergedFiles/" # temp
+path = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/muphoton_data4/mergedFiles/"
+sigpath = "/data3/jmitrevs/lepphoton/muphoton_grid/mergedFiles/"
 
-winoFileName = path + "wino_600_200_mu.root"
+winoFileName = sigpath + "wino_600_200_mu.root"
 
 WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
 WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
@@ -409,9 +410,10 @@ Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 #if using Sherpa
 Zgamma_kFact = 1.0 # made up
 Zleplepgamma_scale   =  Lumi  *  0.52528 * Zgamma_kFact  / nOrigZleplepgamma
+Ztautaugamma_scale   =  Lumi  *  0.81710 * Zgamma_kFact  / nOrigZtautaugamma
 
-#inly have MadGraph
-Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
+# MadGraph
+# Ztautaugamma_scale   =  Lumi  *  9.41   / nOrigZtautaugamma
 # Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
 
 st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
