@@ -143,9 +143,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     ######## phdir
     phdir.cd()
 
-    h_ph_eta1 = ROOT.TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 100, -3,3)
+    h_ph_eta1 = ROOT.TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 60, -3, 3)
     h_ph_pt1 = ROOT.TH1F("ph_pt1","Transverse momentum of the leading photons;p_{T} [GeV]", 100, 0, 500)
-    h_ph_eta2 = ROOT.TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 100, -3,3)
+    h_ph_eta2 = ROOT.TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 60, -3, 3)
     h_ph_pt2 = ROOT.TH1F("ph_pt2","Transverse momentum of the second photons;p_{T} [GeV]", 100, 0, 500)
 
     # h_ph_ptB_unconv = ROOT.TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;p_{T} [GeV]", 500, 0, 500)
@@ -172,18 +172,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     ######## mudir
     mudir.cd()
-    h_mu_eta1 = ROOT.TH1F("mu_eta1","Psuedorapidity of the leading muons;#eta_{reco}", 100, -3,3)
+    h_mu_eta1 = ROOT.TH1F("mu_eta1","Psuedorapidity of the leading muons;#eta_{reco}", 60, -3, 3)
     h_mu_pt1 = ROOT.TH1F("mu_pt1","Transverse momentum of the leading muons;p_{T} [GeV]", 100, 0, 500)
-    h_mu_eta2 = ROOT.TH1F("mu_eta2","Psuedorapidity of the second muons;#eta_{reco}", 100, -3,3)
+    h_mu_eta2 = ROOT.TH1F("mu_eta2","Psuedorapidity of the second muons;#eta_{reco}", 60, -3, 3)
     h_mu_pt2 = ROOT.TH1F("mu_pt2","Transverse momentum of the second muons;p_{T} [GeV]", 100, 0, 500)
     h_numMu = ROOT.TH1F("numMu", "The number of muons that pass cuts;N_{muons}", 9, -0.5, 8.5)
     h_mu_mInv = ROOT.TH1F("mu_mInv", "The invariant mass of leading muons;m_{inv} [GeV]", 120, 0, 120)
 
     ######## eldir
     eldir.cd()
-    h_el_eta1 = ROOT.TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 100, -3,3)
+    h_el_eta1 = ROOT.TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 60, -3, 3)
     h_el_pt1 = ROOT.TH1F("el_pt1","Transverse momentum of the leading electrons;p_{T} [GeV]", 100, 0, 500)
-    h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 100, -3,3)
+    h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 60, -3, 3)
     h_el_pt2 = ROOT.TH1F("el_pt2","Transverse momentum of the second electrons;p_{T} [GeV]", 100, 0, 500)
     h_numEl = ROOT.TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5)
     h_el_mInv = ROOT.TH1F("el_mInv", "The invariant mass of leading electrons;m_{inv} [GeV]", 120, 0, 120)
@@ -534,9 +534,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
             if ev.numPh >= 2:
                 h_ph_pt2.Fill(ev.PhotonPt[1]/GeV, weight)
-                h_ph_eta2.Fill(ev.PhotonEta[1]/GeV, weight)
+                h_ph_eta2.Fill(ev.PhotonEta[1], weight)
             h_ph_pt1.Fill(ev.PhotonPt[0]/GeV, weight)
-            h_ph_eta1.Fill(ev.PhotonEta[0]/GeV, weight)
+            h_ph_eta1.Fill(ev.PhotonEta[0], weight)
             if ev.numEl >= 2:
                 h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
                 h_el_eta2.Fill(ev.ElectronEta[1], weight)
