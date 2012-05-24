@@ -32,8 +32,19 @@ DEFAULT_LEPTON = ELECTRON
 
 printAccepted = False
 
-# if the following is set to true, then no selections are made
-ONLY_PRESEL = True
+# What plots should be made
+NO_SEL = 0
+PRESEL = 1
+SR = 2
+WCR = 3
+TCR = 4
+QCD = 5
+XR1 = 6
+XR2 = 7
+
+DEFAULT_PLOTS = SR
+
+# Where the plots should be
 
 #Cuts
 # - electron channel
@@ -108,7 +119,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       measureFakeAndEff = False, 
                       numBkgTight = 0, scaleQCD = False,
                       applySF = NONE, applyTrigWeight = NONE,
-                      onlyPreselection = ONLY_PRESEL):
+                      plotsRegion = DEFAULT_PLOTS):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -116,7 +127,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
-    #print "glWeight = ", glWeight
 
     ##########################
     # Create the histograms
@@ -290,7 +300,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         if onlyStrong and not ev.isStrong:
             continue
 
-        if not onlyPreselection:
+        if plotsRegion != NO_SEL:
 
             # first the basic lepton and photon selection (but not MET and mT):
             if ((lepton == ELECTRON and
@@ -328,13 +338,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             electron = ROOT.TVector3()
             electron.SetPtEtaPhi(ev.ElectronPt[0], ev.ElectronEta[0], ev.ElectronPhi[0])
             el_ph_deltaR = photon.DeltaR(electron)
-            if not onlyPreselection and el_ph_deltaR < DELTAR_EL_PH:
+            if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
                 continue
         else:
             muon = ROOT.TVector3()
             muon.SetPtEtaPhi(ev.MuonPt[0], ev.MuonEta[0], ev.MuonPhi[0])
             mu_ph_deltaR = photon.DeltaR(muon)
-            if not onlyPreselection and mu_ph_deltaR < DELTAR_MU_PH:
+            if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
                 continue
 
         # scale the gj sampe to represent QCD
@@ -351,7 +361,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         # then make MET cut after mT and visa versa
 
-        if not onlyPreselection:
+        if plotsRegion != NO_SEL:
             if ((lepton == ELECTRON and met > EL_MET) or
                 (lepton == MUON and met > MU_MET)):
                 h_mTel.Fill(ev.mTel/GeV, weight)
@@ -366,7 +376,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             h_met.Fill(met/GeV, weight)
                 
 
+        inQCD = False
         inTCR = False
+        inWCR = False
+        inXR1 = False
+        inXR2 = False
+        inSR = False
             
         # do CR counts
         if lepton == ELECTRON:
@@ -374,12 +389,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 if (ev.PhElMinv < ZMASS - EL_QCD_MINV_WINDOW or
                     ev.PhElMinv > ZMASS + EL_QCD_MINV_WINDOW):
                     # in QCD CR
+                    inQCD = True
                     nQCD.Fill(0, weight)
                     if measureFakeAndEff and ev.ElectronTight[0]:
                         nQCDTight.Fill(0, weight)
 
             elif (EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
                   EL_WCR_MT_MIN < ev.mTel < EL_WCR_MT_MAX):
+                inWCR = True
                 nWCR.Fill(0, weight)
                 if measureFakeAndEff and ev.ElectronTight[0]:
                     nWCRTight.Fill(0, weight)
@@ -391,11 +408,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             if met < MU_QCD_MET_MAX and ev.mTmu < MU_QCD_MT_MAX:
                 if (ev.PhElMinv < ZMASS - MU_QCD_MINV_WINDOW or
                     ev.PhElMinv > ZMASS + MU_QCD_MINV_WINDOW):
+                    inQCD = True
                     nQCD.Fill(0, weight)
                     if measureFakeAndEff and ev.MuonTight[0]:
                         nQCDTight.Fill(0, weight)
             elif (MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
                   MU_WCR_MT_MIN < ev.mTmu < MU_WCR_MT_MAX):
+                inWCR = True
                 nWCR.Fill(0, weight)
                 if measureFakeAndEff and ev.MuonTight[0]:
                     nWCRTight.Fill(0, weight)
@@ -408,118 +427,128 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         if lepton == ELECTRON:
             if (EL_WCR_MET_MAX < met and
                 EL_WCR_MT_MIN < ev.mTel < EL_WCR_MT_MAX):
+                inXR2 = True
                 nXR2.Fill(0, weight)
             if (EL_WCR_MT_MAX < ev.mTel and
                 EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
                 not inTCR):
+                inXR1 = True
                 nXR1.Fill(0, weight)
         else:
             if (MU_WCR_MET_MAX < met and
                 MU_WCR_MT_MIN < ev.mTmu < MU_WCR_MT_MAX):
+                inXR2 = True
                 nXR2.Fill(0, weight)
             if (MU_WCR_MT_MAX < ev.mTmu and
                 MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
                 not inTCR):
+                inXR1 = True
                 nXR1.Fill(0, weight)
 
 
         ## our selection
-        if not onlyPreselection:
-            if ((lepton == ELECTRON and
-                 (met < EL_MET or ev.mTel < EL_MT)) or
-                (lepton == MUON and
-                 (met < MU_MET or ev.mTmu < MU_MT))):
-                continue
+        if ((lepton == ELECTRON and
+             (met > EL_MET and ev.mTel > EL_MT)) or
+            (lepton == MUON and
+             (met > MU_MET and ev.mTmu > MU_MT))):
+            inSR = True
 
-        # Accepted avent
-        if printAccepted:
-            print "Accepted event with Run =", ev.Run, ", Event =", ev.Event 
-        nSIG.Fill(0, weight)
-        h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
-        h_ph_mu_minv.Fill(ev.PhMuMinv/GeV, weight)
-        h_numEl.Fill(ev.numEl, weight)
-        h_numMu.Fill(ev.numMu, weight)
-        h_numPh.Fill(ev.numPh, weight)
-        h_numJets.Fill(ev.numJets, weight)
-        h_deltaPhiPhMETvsMET.Fill(abs(ev.deltaPhiPhMET), met/GeV, weight)
-        h_deltaPhiElMETvsMET.Fill(abs(ev.deltaPhiElMET), met/GeV, weight)
-        h_eventType.Fill(ev.eventType, weight)
+        if (plotsRegion == NO_SEL or plotsRegion == PRESEL or
+            plotsRegion == SR and inSR or
+            plotsRegion == WCR and inWCR or
+            plotsRegion == TCR and inTCR or
+            plotsRegion == XR1 and inXR1 or
+            plotsRegion == XR2 and inXR2):
 
-        rejectStudies = -9
-        if ev.PhotonConvType[0] == 0:
-            # unconverted
-            if ev.PhotonNumBEl[0] > 0:
-                rejectStudies = 0
-            elif ev.PhotonNumPixEl[0] > 0:
-                rejectStudies = 1
-            elif ev.PhotonNumSiEl[0] > 0:
-                rejectStudies = 2
-        elif ev.PhotonConvType[0] == 1 and ev.PhotonNumSi0[0] == 0:
-            # TRTSA single-track
-            isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
-                      ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
-            if ev.PhotonNumBEl[0] > 0:
-                rejectStudies = 3
-            elif not isSame:
-                if ev.PhotonNumPixEl[0] > 0:
-                    rejectStudies = 4
+            # Accepted avent
+            if printAccepted:
+                print "Accepted event with Run =", ev.Run, ", Event =", ev.Event 
+            nSIG.Fill(0, weight)
+            h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
+            h_ph_mu_minv.Fill(ev.PhMuMinv/GeV, weight)
+            h_numEl.Fill(ev.numEl, weight)
+            h_numMu.Fill(ev.numMu, weight)
+            h_numPh.Fill(ev.numPh, weight)
+            h_numJets.Fill(ev.numJets, weight)
+            h_deltaPhiPhMETvsMET.Fill(abs(ev.deltaPhiPhMET), met/GeV, weight)
+            h_deltaPhiElMETvsMET.Fill(abs(ev.deltaPhiElMET), met/GeV, weight)
+            h_eventType.Fill(ev.eventType, weight)
+
+            rejectStudies = -9
+            if ev.PhotonConvType[0] == 0:
+                # unconverted
+                if ev.PhotonNumBEl[0] > 0:
+                    rejectStudies = 0
+                elif ev.PhotonNumPixEl[0] > 0:
+                    rejectStudies = 1
                 elif ev.PhotonNumSiEl[0] > 0:
-                    rejectStudies = 5
-                else:
-                    rejectStudies = 6
-        elif ev.PhotonConvType[0] == 1:
-            # Si single-track
-            isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
-                      ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
-            if ev.PhotonNumBEl[0] > 0:
-                rejectStudies = 7
-            elif not isSame:
-                if ev.PhotonNumPixEl[0] > 0:
-                    rejectStudies = 8
-                elif ev.PhotonNumSiEl[0] > 0:
-                    rejectStudies = 9
-                else:
-                    rejectStudies = 10
+                    rejectStudies = 2
+            elif ev.PhotonConvType[0] == 1 and ev.PhotonNumSi0[0] == 0:
+                # TRTSA single-track
+                isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
+                          ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
+                if ev.PhotonNumBEl[0] > 0:
+                    rejectStudies = 3
+                elif not isSame:
+                    if ev.PhotonNumPixEl[0] > 0:
+                        rejectStudies = 4
+                    elif ev.PhotonNumSiEl[0] > 0:
+                        rejectStudies = 5
+                    else:
+                        rejectStudies = 6
+            elif ev.PhotonConvType[0] == 1:
+                # Si single-track
+                isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
+                          ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
+                if ev.PhotonNumBEl[0] > 0:
+                    rejectStudies = 7
+                elif not isSame:
+                    if ev.PhotonNumPixEl[0] > 0:
+                        rejectStudies = 8
+                    elif ev.PhotonNumSiEl[0] > 0:
+                        rejectStudies = 9
+                    else:
+                        rejectStudies = 10
 
-        h_ph_rejectStudies.Fill(rejectStudies, weight)
-        #h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
-        h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
-        h_ph_numSi0.Fill(ev.PhotonNumSi0[0], weight)
-        h_ph_numSi1.Fill(ev.PhotonNumSi1[0], weight)
-        h_ph_numPix0.Fill(ev.PhotonNumPix0[0], weight)
-        h_ph_numPix1.Fill(ev.PhotonNumPix1[0], weight)
-        h_ph_numSiEl.Fill(ev.PhotonNumSiEl[0], weight)
-        h_ph_numPixEl.Fill(ev.PhotonNumPixEl[0], weight)
-        h_ph_numBEl.Fill(ev.PhotonNumBEl[0], weight)
+            h_ph_rejectStudies.Fill(rejectStudies, weight)
+            #h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
+            h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
+            h_ph_numSi0.Fill(ev.PhotonNumSi0[0], weight)
+            h_ph_numSi1.Fill(ev.PhotonNumSi1[0], weight)
+            h_ph_numPix0.Fill(ev.PhotonNumPix0[0], weight)
+            h_ph_numPix1.Fill(ev.PhotonNumPix1[0], weight)
+            h_ph_numSiEl.Fill(ev.PhotonNumSiEl[0], weight)
+            h_ph_numPixEl.Fill(ev.PhotonNumPixEl[0], weight)
+            h_ph_numBEl.Fill(ev.PhotonNumBEl[0], weight)
 
-        h_el_mInv.Fill(ev.ElMinv/GeV, weight)
-        h_mu_mInv.Fill(ev.MuMinv/GeV, weight)
+            h_el_mInv.Fill(ev.ElMinv/GeV, weight)
+            h_mu_mInv.Fill(ev.MuMinv/GeV, weight)
 
-        h_meff.Fill(ev.meff/GeV, weight)
-        h_HT.Fill(ev.HT/GeV, weight)
+            h_meff.Fill(ev.meff/GeV, weight)
+            h_HT.Fill(ev.HT/GeV, weight)
 
-        if lepton == ELECTRON:
-            h_ph_lep_deltaR.Fill(el_ph_deltaR, weight)
-        else:
-            h_ph_lep_deltaR.Fill(mu_ph_deltaR, weight)
+            if lepton == ELECTRON:
+                h_ph_lep_deltaR.Fill(el_ph_deltaR, weight)
+            else:
+                h_ph_lep_deltaR.Fill(mu_ph_deltaR, weight)
 
-        if ev.numPh >= 2:
-            h_ph_pt2.Fill(ev.PhotonPt[1]/GeV, weight)
-            h_ph_eta2.Fill(ev.PhotonEta[1]/GeV, weight)
-        h_ph_pt1.Fill(ev.PhotonPt[0]/GeV, weight)
-        h_ph_eta1.Fill(ev.PhotonEta[0]/GeV, weight)
-        if ev.numEl >= 2:
-            h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
-            h_el_eta2.Fill(ev.ElectronEta[1], weight)
-        if ev.numEl >= 1:
-            h_el_pt1.Fill(ev.ElectronPt[0]/GeV, weight)
-            h_el_eta1.Fill(ev.ElectronEta[0], weight)
-        if ev.numMu >= 2:
-            h_mu_pt2.Fill(ev.MuonPt[1]/GeV, weight)
-            h_mu_eta2.Fill(ev.MuonEta[1], weight)
-        if ev.numMu >= 1:
-            h_mu_pt1.Fill(ev.MuonPt[0]/GeV, weight)
-            h_mu_eta1.Fill(ev.MuonEta[0], weight)
+            if ev.numPh >= 2:
+                h_ph_pt2.Fill(ev.PhotonPt[1]/GeV, weight)
+                h_ph_eta2.Fill(ev.PhotonEta[1]/GeV, weight)
+            h_ph_pt1.Fill(ev.PhotonPt[0]/GeV, weight)
+            h_ph_eta1.Fill(ev.PhotonEta[0]/GeV, weight)
+            if ev.numEl >= 2:
+                h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
+                h_el_eta2.Fill(ev.ElectronEta[1], weight)
+            if ev.numEl >= 1:
+                h_el_pt1.Fill(ev.ElectronPt[0]/GeV, weight)
+                h_el_eta1.Fill(ev.ElectronEta[0], weight)
+            if ev.numMu >= 2:
+                h_mu_pt2.Fill(ev.MuonPt[1]/GeV, weight)
+                h_mu_eta2.Fill(ev.MuonEta[1], weight)
+            if ev.numMu >= 1:
+                h_mu_pt1.Fill(ev.MuonPt[0]/GeV, weight)
+                h_mu_eta1.Fill(ev.MuonEta[0], weight)
         
 
     f.Write()

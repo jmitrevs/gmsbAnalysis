@@ -13,7 +13,7 @@ import LepPhotonAnalysis
 
 removeOverlap = True
 removeOverlapTtbar = True
-onlyStrong = True
+onlyStrong = False
 
 ELECTRON = 0
 MUON = 1
