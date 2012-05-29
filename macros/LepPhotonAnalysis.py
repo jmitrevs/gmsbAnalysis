@@ -105,7 +105,7 @@ def usage():
     print " "
     print "Usage: %s [options] inputFile.root" % sys.argv[0]    
     print "  -o | --outfile    : name of the output root file (default <inputFile>Hist.root)"
-    print "  -l | --lepton     : which lepton (default: '%s')" % DEFAULT_LEPTON
+    print "  -l | --lepton     : which lepton (default: '%s') (or use -m or -e seperately)" % DEFAULT_LEPTON
     print "  -t | --ttree      : name of the TTree/TChain"
     print "  -w | --weight     : global weight"
     print "  -? | --usage      : print this help message"
@@ -323,8 +323,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 continue
 
             if (VETO_SECOND_SFLEPTON_MINV and
-                (lepton == ELECTRON and ZMASS - EL_MINV_WINDOW < ev.ElMinv < ZMASS + EL_QCD_MINV_WINDOW) or
-                (lepton == MUON and ZMASS - EL_MINV_WINDOW < ev.MuMinv < ZMASS + EL_QCD_MINV_WINDOW)):
+                (lepton == ELECTRON and ZMASS - EL_MINV_WINDOW < ev.ElMinv < ZMASS + EL_MINV_WINDOW) or
+                (lepton == MUON and ZMASS - MU_MINV_WINDOW < ev.MuMinv < ZMASS + MU_MINV_WINDOW)):
                 continue
 
             if (VETO_TRTSA_PHOTON_E_BLAYER and ev.numPh == 1 and
@@ -641,6 +641,10 @@ def main():
             ttreeName = a
         elif o in ("-w", "--weight"):
             weight = float(a)
+        elif o in ("-m"):
+            lepton = MUON
+        elif o in ("-e"):
+            lepton = ELECTRON
         elif o in ("-l", "--lepton"):
             if a == "electron":
                 lepton = ELECTRON
