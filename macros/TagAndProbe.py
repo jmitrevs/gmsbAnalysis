@@ -5,29 +5,16 @@ import os.path
 import getopt
 import math
 
-from ROOT import gSystem
-gSystem.Load('libRooFit')
-
 import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
-ELECTRON = 0
-MUON = 1
+import EfficiencyCalc
 
 ELECTRON = 0
 MUON = 1
-
-# for SFs
-NONE = 0
-NOMINAL = 1
-LOW = 2
-HIGH = 3
 
 GeV = 1000.0
-
-MINV_WINDOW_LO = 76.0
-MINV_WINDOW_HI = 106.0
 
 NBINS_ETA = 26
 NBINS_PHI = 10
@@ -36,10 +23,6 @@ NBINS_PT = 10
 ETA_MAX = 2.6
 PT_MAX = 200
 
-#if the fitting LO and HI are equal, then the fit is made over the whole range
-FIT_LO = 28
-FIT_HI = 150
-
 minv_bins = 150
 minv_low = 0
 minv_high = 150
@@ -47,6 +30,8 @@ minv_high = 150
 DEFAULTTTREE = 'GammaLepton'
 DEFAULTWEIGHT = 1.0
 DEFAULT_LEPTON = ELECTRON
+DEFAULT_SUBB = False
+DEFAULT_CALCULATE = False
 
 def usage():
     print " "
@@ -57,6 +42,7 @@ def usage():
     #print "  -w | --weight     : global weight"
     print "  -? | --usage      : print this help message"
     print "  -h | --help       : print this help message"
+    print "  -s | --subBackground : set to true or false"
 
 
 # measureEff is simple W tag and probe; numBackground is passed for iterative improvement.
@@ -142,73 +128,23 @@ def TagAndProbe(ttree, outfile, lepton, calculate = True, subBack = True):
 
         intdir = f.mkdir("Internal")
         intdir.cd()
-        calcEff(eff, eff_num, eff_den, subBack)
-        calcEff(eff_eta, eff_eta_num, eff_eta_den, subBack)
-        calcEff(eff_pt, eff_pt_num, eff_pt_den, subBack)
-        calcEff(eff_phi, eff_phi_num, eff_phi_den, subBack)
+        EfficiencyCalc.calcEff(eff, eff_num, eff_den, subBack)
+        EfficiencyCalc.calcEff(eff_eta, eff_eta_num, eff_eta_den, subBack)
+        EfficiencyCalc.calcEff(eff_pt, eff_pt_num, eff_pt_den, subBack)
+        EfficiencyCalc.calcEff(eff_phi, eff_phi_num, eff_phi_den, subBack)
         f.cd()
 
     f.Write()
     if calculate:
         print "***** Overal Eficiency =", eff.GetBinContent(1),"+-", eff.GetBinError(1)
 
-
-def calcEff(h_eff, h_num, h_den, subBack):
-    '''Calculate the efficiency given the numerator and denominator histograms, and fill the eff histogram.
-     The first dimension must be the invariant mass distribution'''
-    if (h_num.GetDimension() != h_den.GetDimension() or
-        h_num.GetDimension() == 1 and h_eff.GetDimension() != 1 or
-        h_num.GetDimension() > 1 and h_eff.GetDimension() != h_num.GetDimension() - 1):
-        raise TypeError("Histograms of incompatible dimensions passed")
-
-    
-    if h_num.GetDimension() == 1:
-        eff, err = calcEff1D(h_num, h_den, subBack)
-        h_eff.SetBinContent(1, eff)
-        h_eff.SetBinError(1, err)
-    elif h_num.GetDimension() == 2:
-        nbinsx = h_eff.GetNbinsX()
-        if nbinsx != h_num.GetNbinsY() or nbinsx != h_den.GetNbinsY():
-            raise TypeError("Histograms of incompatible number of bins passed")
-        for b in range(nbinsx+2):
-            proj_num = h_num.ProjectionX(h_num.GetName() + "proj_" + str(b), b, b)
-            proj_den = h_den.ProjectionX(h_den.GetName() + "proj_" + str(b), b, b)
-            eff, err = calcEff1D(proj_num, proj_den, subBack)
-            h_eff.SetBinContent(b, eff)
-            h_eff.SetBinError(b, err)
-            
-    else:
-        raise NotImplementedError("Currently only support 1D and 2D histograms as input (0D and 1D output)")
-        
-    
-def calcEff1D(h_num, h_den, subBack):
-    '''Calculate the efficiency given the 1D numerator and denominator histograms, and return (eff, err).
-     NOT MEANT TO BE USED DIRECTLY. ONLY CALLED FROM calcEff'''
-    if subBack:
-        raise NotImplementedError("Background subtraction not yet implemented")
-    else:
-        num = 0.0
-        den = 0.0
-        for b in range(1, h_num.GetNbinsX() + 1):
-            if MINV_WINDOW_LO <= h_num.GetBinLowEdge(b) < MINV_WINDOW_HI:
-                num += h_num.GetBinContent(b)
-                den += h_den.GetBinContent(b)
-        if den != 0:
-            return (num / den, EfficiencyError(num, den))
-        else:
-            return (0.0, 0.0)
-
-def EfficiencyError(a, b):
-    'Returns the error when not doing background subtracion. From D0'
-    return math.sqrt((a+1.0)*(b-a+1.0)/(b+2.0)/(b+2.0)/(b+3.0))
-
 # This function calls the LepPhotonAnalysis function 
 def main():
     
     try:
         # retrive command line options
-        shortopts  = "o:l:t:vmeh?"
-        longopts   = ["outfile=", "lepton=", "ttree=", "help", "usage"]
+        shortopts  = "o:l:t:s:c:vmeh?"
+        longopts   = ["outfile=", "lepton=", "ttree=", "help", "usage", "subBackground=", "calculate="]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
 
     except getopt.GetoptError:
@@ -232,6 +168,8 @@ def main():
     ttreeName = DEFAULTTTREE
     #weight = DEFAULTWEIGHT
     lepton = DEFAULT_LEPTON
+    subBackground = DEFAULT_SUBB
+    calculate = DEFAULT_CALCULATE
 
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
@@ -243,6 +181,16 @@ def main():
             ttreeName = a
         # elif o in ("-w", "--weight"):
         #     weight = float(a)
+        elif o in ("-s", "--subBackground"):
+            if a == "0" or a == "false" or a == "False" or a == "FALSE":
+                subBackground = False
+            else:
+                subBackground = True
+        elif o in ("-c", "--calculate"):
+            if a == "0" or a == "false" or a == "False" or a == "FALSE":
+                calculate = False
+            else:
+                calculate = True
         elif o in ("-m"):
             lepton = MUON
         elif o in ("-e"):
@@ -261,7 +209,7 @@ def main():
     f = ROOT.TFile(infile)
     ttree=f.Get(ttreeName)
 
-    TagAndProbe(ttree, outfile, lepton, calculate=True, subBack=False)
+    TagAndProbe(ttree, outfile, lepton, calculate=calculate, subBack=subBackground)
 
 if __name__ == "__main__":
     main()
