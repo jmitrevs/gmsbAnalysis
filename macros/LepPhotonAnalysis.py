@@ -11,6 +11,8 @@ import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
+FILENAME_ELEFF = 'eeHistHistOut.root'
+
 ELECTRON = 0
 MUON = 1
 
@@ -350,9 +352,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # scale the gj sampe to represent QCD
         if scaleQCD:
             if lepton == ELECTRON:
-                weight *= Nqcd(1, ev.ElectronTight[0])
+                weight *= Nqcd(1, ev.ElectronTight[0], ev.ElectronEta[0], lepton)
             else:
-                weight *= Nqcd(1, ev.MuonTight[0])
+                weight *= Nqcd(1, ev.MuonTight[0], ev.MuonEta[0], lepton)
 
 
         # now plots that should be made before MET and mT cuts
@@ -662,14 +664,32 @@ def main():
     LepPhotonAnalysis(ttree, outfile, lepton, weight)
 
 
-#def Nqcd(nLoose, nTight, eps_sig = 0.93, eps_qcd = 0.23): # for electrons
-def Nqcd(nLoose, nTight, eps_sig = 0.973, eps_qcd = 0.62): # for muons
+def Nqcd(nLoose, nTight, eta, lepton):
+    if lepton == MUON:
+        eps_sig = 0.973
+        eps_qcd = 0.62
+    else:
+        eps_qcd = 0.23
+        eps_sig = ElEffPar.GetEfficiency(eta)
+    #print "eta =", eta, "eps_qcd =", eps_qcd, "eps_sig =", eps_sig
     if eps_sig != eps_qcd:
         return eps_qcd*(1.0*eps_sig*nLoose - nTight)/(eps_sig - eps_qcd)
     else:
         raise ValueError("eps_sig = %f and eps_qcd = %f must be different" % (eps_sig,eps_qcd))
         return -1
-    
+
+class EffParametrization:
+    '''A 1D parametrization of an efficiency'''
+    def __init__(self, h):
+        self.hist = h
+
+    def GetEfficiency(self, par):
+        b = self.hist.FindBin(par)
+        return self.hist.GetBinContent(b)
+
+fpar = ROOT.TFile(FILENAME_ELEFF)
+ElEffPar = EffParametrization(fpar.Get("eff_eta"))
+
 if __name__ == "__main__":
     main()
 

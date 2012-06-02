@@ -11,8 +11,8 @@ from ROOT import *
 ### NOTE: THIS FILE DOES EVERYTHING IN GEV!!!!!!!
 ###################################################################
 
-MINV_WINDOW_LO = 76.0
-MINV_WINDOW_HI = 106.0
+MINV_WINDOW_LO = 81.0
+MINV_WINDOW_HI = 101.0
 
 #if the fitting LO and HI are equal, then the fit is made over the whole range
 FIT_LO = 40.0
