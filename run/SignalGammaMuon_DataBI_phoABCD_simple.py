@@ -43,8 +43,8 @@ from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
 seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy']
-#seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18'
-seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18_L1J10'
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18'
+#seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18_L1J10'
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -91,13 +91,28 @@ gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 85*GeV
-#gmsbSelectionTool.MuonPt = 25*GeV # really need 10*GeV in initial selection
+#gmsbSelectionTool.MuonPt = 25*GeV
+gmsbSelectionTool.DoEDPhotonIsolation = False
+gmsbSelectionTool.PhotonID = egammaPID.PhotonIDLooseAR
 #gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
-#gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbFinalSelectionTool.IsMC = False
+
+gmsbAltSelectionTool = ConfiguredUserSelectionTool(
+    name = "gmsbAltSelectionTool",
+    DoElectronTrackIsolation = True,
+    PhotonID = egammaPID.PhotonIDLooseAR,
+    PAUcaloIsolationTool = mycaloisolationtool,
+    DoEDPhotonIsolation = True,
+    DoMuonIsoCut = True,
+    MuonPt = 25*GeV,
+    Simple = True
+    )
+
+ToolSvc += gmsbAltSelectionTool
+print      gmsbAltSelectionTool
 
 # from gmsbTools.gmsbToolsConf import TruthStudies
 # truthStudies = TruthStudies(name = "TruthStudies",
@@ -118,16 +133,19 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
+                            AltSelectionTool = gmsbAltSelectionTool,
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
                             matchTrigger = 1,
-                            triggers = 'EF_mu18_L1J10',
+                            RequireTightPho = False,
+                            doABCDPho = True,
+                            triggers = 'EF_mu18',
                             NumPhotons = 1,
                             NumMuons = 1,
                             outputNtuple = True,
                             doTruthStudies = False,
                             TruthStudiesTool = None,
-                            Blind = True
+                            Blind = False
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

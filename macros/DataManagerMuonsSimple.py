@@ -13,7 +13,7 @@ PRINT_YIELDS = True
 Lumi = 4708.61 # really electron only
 
 print "Lepton is MUON."
-path = "plots_120523/muons/WCR/"
+path = "/data3/jmitrevs/lepPhotonResults/plots_120603/muon/PRESEL_SIGMADOWN/"
 
 winoFileName = path + "wino_600_200_muHist.root"
 

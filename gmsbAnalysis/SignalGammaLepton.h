@@ -57,7 +57,13 @@ private:
   unsigned int m_numMuonsMax;
   unsigned int m_numElectronsMax;
 
-  bool m_requireTight; // if this is false, only sets the variable.
+  double m_minMuonPt; // preselection is lower, really only needed for studies
+  // since final selection is right
+
+  bool m_requireTightLep; // if this is false, only sets the variable.
+  bool m_requireTightPho; // if this is false, only sets the variable.
+  bool m_doABCDPho; // if true also sets alternate variables
+  bool m_doABCDLep; // if true also sets alternate variables
 
   bool m_applyTriggers; //only really meant for MC
   int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
@@ -90,11 +96,13 @@ private:
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool2;
 
-  /** get a handle on the user tool for pre-selection and overlap removal */
-  ToolHandle<gmsbPreparationTool>     m_LoosePreparationTool;
-  ToolHandle<gmsbSelectionTool>       m_LooseFinalSelectionTool;
-  ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool1;
-  ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool2;
+  // This is for ABCD method
+  ToolHandle<gmsbSelectionTool>       m_AltSelectionTool;
+
+  // /** get a handle on the user tool for pre-selection and overlap removal */
+  // ToolHandle<gmsbPreparationTool>     m_LoosePreparationTool;
+  // ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool1;
+  // ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool2;
 
 
   /** @brief Tool handle for track extrapolation to vertex */
@@ -152,6 +160,8 @@ private:
   std::vector<float>* m_ph_eta;
   std::vector<float>* m_ph_eta2;
   std::vector<float>* m_ph_phi;
+  std::vector<int>* m_ph_tight;
+  std::vector<int>* m_ph_alt; // for ABCD
 
   // a bit more stuff for AR
   std::vector<int>* m_ph_AR;
@@ -169,11 +179,13 @@ private:
   std::vector<float>* m_el_eta2;
   std::vector<float>* m_el_phi;
   std::vector<int>* m_el_tight;
+  std::vector<int>* m_el_alt;
 
   std::vector<float>* m_mu_pt;
   std::vector<float>* m_mu_eta;
   std::vector<float>* m_mu_phi;
   std::vector<int>* m_mu_tight;
+  std::vector<int>* m_mu_alt;
 
   unsigned int m_numPh;
   unsigned int m_numEl;

@@ -43,8 +43,8 @@ from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
 seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy']
-#seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18'
-seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18_L1J10'
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18'
+#seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18_L1J10'
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -91,8 +91,7 @@ gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 85*GeV
-#gmsbSelectionTool.MuonPt = 25*GeV # really need 10*GeV in initial selection
-#gmsbSelectionTool.OutputLevel = DEBUG
+gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -121,13 +120,14 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
                             matchTrigger = 1,
-                            triggers = 'EF_mu18_L1J10',
+                            RequireTight = False,
+                            triggers = 'EF_mu18',
                             NumPhotons = 1,
                             NumMuons = 1,
                             outputNtuple = True,
                             doTruthStudies = False,
                             TruthStudiesTool = None,
-                            Blind = True
+                            Blind = False
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

@@ -30,7 +30,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool() 
 GoodRunsListSelectorTool.OutputLevel = INFO
-GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_DetStatus-v36-pro10_CoolRunQuery-00-04-08_Susy.xml' ]
+GoodRunsListSelectorTool.GoodRunsListVec = [ 'data11_7TeV.periodAllYear_DetStatus-v36-pro10_CoolRunQuery-00-04-08_Susy_ph_met.xml' ]
 GoodRunsListSelectorTool.PassThrough = False
 
 ## This Athena job consists of algorithms that loop over events;
@@ -42,9 +42,8 @@ seq = AthSequencer("AthFilterSeq")
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 ## In the next line, pick up correct name from inside xml file!
-seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy']
-#seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18'
-seq.GRLTriggerAlg1.TriggerSelection = 'EF_mu18_L1J10'
+seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy_ph_met']
+seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -90,9 +89,9 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
-gmsbSelectionTool.PhotonPt = 85*GeV
-#gmsbSelectionTool.MuonPt = 25*GeV # really need 10*GeV in initial selection
-#gmsbSelectionTool.OutputLevel = DEBUG
+gmsbSelectionTool.PhotonPt = 100*GeV
+gmsbSelectionTool.ElectronID = egammaPID.ElectronIDLoosePP
+gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -120,14 +119,14 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
-                            matchTrigger = 1,
-                            triggers = 'EF_mu18_L1J10',
-                            NumPhotons = 1,
-                            NumMuons = 1,
+                            RequireTight = False,
+                            NumPhotons = 0,
+                            NumPhotonsMax = 0,
+                            NumElectrons = 2,
                             outputNtuple = True,
                             doTruthStudies = False,
                             TruthStudiesTool = None,
-                            Blind = True
+                            Blind = False
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

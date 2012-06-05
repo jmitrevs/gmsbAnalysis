@@ -5,6 +5,7 @@ import sys
 import getopt
 
 import ROOT
+ROOT.gROOT.SetBatch()
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
@@ -92,6 +93,7 @@ def SimpleLepPhotonPlots(lepton):
         Wgamma_Np5 = DataManager.WgammaFile_Np5.Get(histName)
         
         ttbar = DataManager.ttbarFile.Get(histName)
+        ttbargamma = DataManager.ttbargammaFile.Get(histName)
         
         st_tchan_lepnu = DataManager.st_tchan_lepnuFile.Get(histName)
         st_tchan_taunu = DataManager.st_tchan_taunuFile.Get(histName)
@@ -193,11 +195,11 @@ def SimpleLepPhotonPlots(lepton):
 
         #ttbar.Rebin(nRebin)
 
-        hn = ttbar.GetName()
+        hn = ttbargamma.GetName()
         c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
         #c_paper.SetLogy()
 
-        bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbar.GetXaxis().GetTitle()+";Events")
+        bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbargamma.GetXaxis().GetTitle()+";Events")
 
         bg.SetMinimum(5e-2)
         #bg.SetMaximum(25)
@@ -208,6 +210,7 @@ def SimpleLepPhotonPlots(lepton):
         diboson.SetFillStyle(1001)
         Zgamma.SetFillStyle(1001)
         ttbar.SetFillStyle(1001)
+        ttbargamma.SetFillStyle(1001)
         st.SetFillStyle(1001)
 
         gamma.SetFillColor(28) # brown
@@ -224,6 +227,8 @@ def SimpleLepPhotonPlots(lepton):
         diboson.SetLineColor(8)
         ttbar.SetFillColor(2) # red
         ttbar.SetLineColor(2)
+        ttbargamma.SetFillColor(46) # brick
+        ttbargamma.SetLineColor(46)
         st.SetFillColor(9) # purple
         st.SetLineColor(9)
 
@@ -234,6 +239,7 @@ def SimpleLepPhotonPlots(lepton):
         bg.Add(Wgamma)
         bg.Add(diboson)
         bg.Add(ttbar)
+        bg.Add(ttbargamma)
         bg.Add(st)
         
         bg.Draw("HIST")
@@ -282,6 +288,7 @@ def SimpleLepPhotonPlots(lepton):
         legb.AddEntry(Wgamma,"W#gamma","f")
         legb.AddEntry(diboson,"WW, WZ, ZZ","f")
         legb.AddEntry(ttbar,"ttbar","f")
+        legb.AddEntry(ttbargamma,"ttbar#gamma","f")
         legb.AddEntry(st,"singe top","f")
         legb.AddEntry(wino,"wino (600, 200)", "l");
         #legb.AddEntry(wino_700_680,"wino (600, 500)","l");
@@ -290,8 +297,9 @@ def SimpleLepPhotonPlots(lepton):
 
         legb.Draw()
 
-        c_paper.Print(hn+"Plot.eps")
-        c_paper.Print(hn+"Plot.png")
+        if wino.GetDimension() == 1:
+            c_paper.Print(hn+"Plot.eps")
+            c_paper.Print(hn+"Plot.png")
         c_paper.Print(hn+"Plot.root")
   
 

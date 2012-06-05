@@ -91,8 +91,7 @@ gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 85*GeV
-#gmsbSelectionTool.MuonPt = 25*GeV # really need 10*GeV in initial selection
-#gmsbSelectionTool.OutputLevel = DEBUG
+#gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -121,13 +120,14 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
                             matchTrigger = 1,
+                            RequireTightLep = False,
                             triggers = 'EF_mu18_L1J10',
                             NumPhotons = 1,
                             NumMuons = 1,
                             outputNtuple = True,
                             doTruthStudies = False,
                             TruthStudiesTool = None,
-                            Blind = True
+                            Blind = False
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

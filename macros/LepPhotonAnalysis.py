@@ -8,6 +8,7 @@ import getopt
 import math
 
 import ROOT
+ROOT.gROOT.SetBatch()
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
@@ -44,7 +45,7 @@ QCD = 5
 XR1 = 6
 XR2 = 7
 
-DEFAULT_PLOTS = SR
+DEFAULT_PLOTS = PRESEL
 
 # Where the plots should be
 
@@ -155,8 +156,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     # h_ph_ptB_conv = ROOT.TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;p_{T} [GeV]", 500, 0, 500)
     # h_ph_ptEC_conv = ROOT.TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;p_{T} [GeV]", 500, 0, 500)
-    h_ph_el_minv = ROOT.TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 250, 0, 500)
-    h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 250, 0, 500)
+    h_ph_el_minv = ROOT.TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 100, 0, 500)
+    h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 100, 0, 500)
     h_numPh = ROOT.TH1F("numPh", "The number of photons that pass cuts;N_{photons}", 9, -0.5, 8.5)
 
     h_ph_lep_deltaR = ROOT.TH1F("ph_lep_deltaR", "The delta-R beteween the lepton and the photon", 100, 0, 10)
@@ -218,10 +219,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 						  50, 0, math.pi, 20, 100, 300)
     ############ gldir
     gldir.cd()
-    h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 300, 0, 1500)
+    h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 150, 0, 1500)
     h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV]", 100, 0, 500)
     h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 100, 0, 500)
-    h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 300, 0, 1500)
+    h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 150, 0, 1500)
 
     h_mTelvsMET = ROOT.TH2F("mTelvsMET", "m_{T} vs. MET;Etmiss [GeV];m_{T} [GeV]",
                             50, 0, 500, 50, 0, 500)
@@ -361,23 +362,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         h_mTelvsMET.Fill(met/GeV, ev.mTel/GeV, weight)
         h_mTmuvsMET.Fill(met/GeV, ev.mTmu/GeV, weight)
 
-        # then make MET cut after mT and visa versa
-
-        if plotsRegion != NO_SEL:
-            if ((lepton == ELECTRON and met > EL_MET) or
-                (lepton == MUON and met > MU_MET)):
-                h_mTel.Fill(ev.mTel/GeV, weight)
-                h_mTmu.Fill(ev.mTmu/GeV, weight)
-
-            if ((lepton == ELECTRON and ev.mTel > EL_MT) or
-                (lepton == MUON and ev.mTmu > MU_MT)):
-                h_met.Fill(met/GeV, weight)
-        else:
-            h_mTel.Fill(ev.mTel/GeV, weight)
-            h_mTmu.Fill(ev.mTmu/GeV, weight)
-            h_met.Fill(met/GeV, weight)
-                
-
         inQCD = False
         inTCR = False
         inWCR = False
@@ -454,7 +438,19 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             (lepton == MUON and
              (met > MU_MET and ev.mTmu > MU_MT))):
             inSR = True
+            nSIG.Fill(0, weight)
 
+
+        if plotsRegion == SR:
+            if ((lepton == ELECTRON and met > EL_MET) or
+                (lepton == MUON and met > MU_MET)):
+                h_mTel.Fill(ev.mTel/GeV, weight)
+                h_mTmu.Fill(ev.mTmu/GeV, weight)
+
+            if ((lepton == ELECTRON and ev.mTel > EL_MT) or
+                (lepton == MUON and ev.mTmu > MU_MT)):
+                h_met.Fill(met/GeV, weight)
+                
         if (plotsRegion == NO_SEL or plotsRegion == PRESEL or
             plotsRegion == SR and inSR or
             plotsRegion == WCR and inWCR or
@@ -464,8 +460,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
             # Accepted avent
             if printAccepted:
-                print "Accepted event with Run =", ev.Run, ", Event =", ev.Event 
-            nSIG.Fill(0, weight)
+                print "Accepted event with Run =", ev.Run, ", Event =", ev.Event
+
+            if plotsRegion != SR:
+                h_mTel.Fill(ev.mTel/GeV, weight)
+                h_mTmu.Fill(ev.mTmu/GeV, weight)
+                h_met.Fill(met/GeV, weight)
+
             h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
             h_ph_mu_minv.Fill(ev.PhMuMinv/GeV, weight)
             h_numEl.Fill(ev.numEl, weight)
@@ -669,7 +670,8 @@ def Nqcd(nLoose, nTight, eta, lepton):
         eps_sig = 0.973
         eps_qcd = 0.62
     else:
-        eps_qcd = 0.23
+        #eps_qcd = 0.23
+        eps_qcd = 0.15
         eps_sig = ElEffPar.GetEfficiency(eta)
     #print "eta =", eta, "eps_qcd =", eps_qcd, "eps_sig =", eps_sig
     if eps_sig != eps_qcd:

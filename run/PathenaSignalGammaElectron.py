@@ -104,9 +104,9 @@ for i,inDS in enumerate(inDS_full):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
     
 
 inDS_ttbar = [
@@ -158,18 +158,18 @@ inDS_Wjets = [
 for i,inDS in enumerate(inDS_Wjets):
  
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.37.%s SignalGammaElectron.py " % (inDS, inDS)
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120519.%s SignalGammaElectron_Wjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120601.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
    
-    # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120519Wjets.tar"
-    # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519Wjets.tar"
+    if i == 0:
+        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120601.tar"
+    else:
+        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120601.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
+    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120601.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
 inDS_Zjets = [
 

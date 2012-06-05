@@ -10,7 +10,7 @@ import ROOT
 
 PRINT_YIELDS = True
 
-Lumi = 4708.61 # really electron only
+Lumi = 4708.61
 
 print "Lepton is MUON."
 path = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
@@ -355,12 +355,14 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20   / nOrigWlepnu_Np0
-Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20   / nOrigWlepnu_Np1
-Wlepnu_Np2_scale     =  Lumi  *   377.83 * 1.20   / nOrigWlepnu_Np2
-Wlepnu_Np3_scale     =  Lumi  *   101.88 * 1.20   / nOrigWlepnu_Np3
-Wlepnu_Np4_scale     =  Lumi  *    25.75 * 1.20   / nOrigWlepnu_Np4
-Wlepnu_Np5_scale     =  Lumi  *     6.92 * 1.20   / nOrigWlepnu_Np5
+WjetExtraScale = 0.518 * 0.46726 # from fit * tight/loose
+
+Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
+Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
+Wlepnu_Np2_scale     =  Lumi  *   377.83 * 1.20 * WjetExtraScale / nOrigWlepnu_Np2
+Wlepnu_Np3_scale     =  Lumi  *   101.88 * 1.20 * WjetExtraScale / nOrigWlepnu_Np3
+Wlepnu_Np4_scale     =  Lumi  *    25.75 * 1.20 * WjetExtraScale / nOrigWlepnu_Np4
+Wlepnu_Np5_scale     =  Lumi  *     6.92 * 1.20 * WjetExtraScale / nOrigWlepnu_Np5
 
 Zleplep_Np0_scale     =  Lumi  *  668.68 * 1.25   / nOrigZleplep_Np0
 Zleplep_Np1_scale     =  Lumi  *  134.14 * 1.25   / nOrigZleplep_Np1
@@ -369,12 +371,12 @@ Zleplep_Np3_scale     =  Lumi  *   11.19 * 1.25   / nOrigZleplep_Np3
 Zleplep_Np4_scale     =  Lumi  *    2.75 * 1.25   / nOrigZleplep_Np4
 Zleplep_Np5_scale     =  Lumi  *    0.77 * 1.25   / nOrigZleplep_Np5
 
-Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / nOrigWtaunu_Np0
-Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20   / nOrigWtaunu_Np1
-Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20   / nOrigWtaunu_Np2
-Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20   / nOrigWtaunu_Np3
-Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20   / nOrigWtaunu_Np4
-Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20   / nOrigWtaunu_Np5
+Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWtaunu_Np0
+Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20 * WjetExtraScale / nOrigWtaunu_Np1
+Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20 * WjetExtraScale / nOrigWtaunu_Np2
+Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20 * WjetExtraScale / nOrigWtaunu_Np3
+Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20 * WjetExtraScale / nOrigWtaunu_Np4
+Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20 * WjetExtraScale / nOrigWtaunu_Np5
 
 Ztautau_Np0_scale   =  Lumi  *  668.40 * 1.25   / nOrigZtautau_Np0
 Ztautau_Np1_scale   =  Lumi  *  134.81 * 1.25   / nOrigZtautau_Np1
@@ -395,7 +397,8 @@ ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 # Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.488   / nOrigWgamma_Np5
 
 # if using gamma pt > 40 GeV sample
-Wgamma_kFact = 1.39
+#Wgamma_kFact = 1.39
+Wgamma_kFact = 1.26 # -1 sigma
 #Wgamma_kFact = 1.488
 Wgamma_Np0_scale     =  Lumi  *  1.7837 * Wgamma_kFact   / nOrigWgamma_Np0
 Wgamma_Np1_scale     =  Lumi  *  4.3796 * Wgamma_kFact   / nOrigWgamma_Np1

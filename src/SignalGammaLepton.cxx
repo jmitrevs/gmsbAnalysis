@@ -79,12 +79,20 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NumPhotons", m_numPhotonsReq = 1);
   declareProperty("NumElectrons", m_numElectronsReq = 0);
   declareProperty("NumMuons", m_numMuonsReq = 0);
+  declareProperty("MinMuonPt", m_minMuonPt = 25*GeV);
 
   declareProperty("NumPhotonsMax", m_numPhotonsMax = UINT_MAX);
   declareProperty("NumElectronsMax", m_numElectronsMax = UINT_MAX);
   declareProperty("NumMuonsMax", m_numMuonsMax = UINT_MAX);
 
-  declareProperty("RequireTight", m_requireTight = true, "False is for QCD and MM");
+  declareProperty("RequireTightLep", m_requireTightLep = true, 
+		  "False is for QCD and MM");
+  declareProperty("doABCDLep", m_doABCDLep = false, 
+		  "This implies RequireTight = False");
+  declareProperty("RequireTightPho", m_requireTightPho = true, 
+		  "False is for QCD and MM");
+  declareProperty("doABCDPho", m_doABCDPho = false, 
+		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
@@ -104,6 +112,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("FinalSelectionTool",   m_FinalSelectionTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
   declareProperty("OverlapRemovalTool2",  m_OverlapRemovalTool2);
+
+  // for ABCD
+  declareProperty("AltSelectionTool",   m_AltSelectionTool);
 
   declareProperty("JetCleaningTool", m_JetCleaningTool);
 
@@ -162,6 +173,20 @@ StatusCode SignalGammaLepton::initialize(){
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on secnd analysis overlap removal tool");
     return sc;
+  }
+
+  if (m_doABCDLep || m_doABCDPho) {
+    sc = m_AltSelectionTool.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Can't get handle on final selection tool");
+      return sc;
+    }
+    if (m_doABCDLep) {
+      m_requireTightLep = false; // this is implied
+    }
+    if (m_doABCDPho) {
+      m_requireTightPho = false; // this is implied
+    }
   }
 
   // retrieving TrackToVertex:
@@ -379,6 +404,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_eta = new std::vector<float>;
     m_ph_eta2 = new std::vector<float>;
     m_ph_phi = new std::vector<float>;
+    m_ph_tight = new std::vector<int>;
+    m_ph_alt = new std::vector<int>;
 
     m_ph_AR = new std::vector<int>;
     m_ph_convType = new std::vector<int>;
@@ -395,11 +422,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_el_eta2 = new std::vector<float>;
     m_el_phi = new std::vector<float>;
     m_el_tight = new std::vector<int>;
+    m_el_alt = new std::vector<int>;
 
     m_mu_pt = new std::vector<float>;
     m_mu_eta = new std::vector<float>;
     m_mu_phi = new std::vector<float>;
     m_mu_tight = new std::vector<int>;
+    m_mu_alt = new std::vector<int>;
 
     // the TTree
     m_tree = new TTree("GammaLepton","TTree for GammaLepton analysis");
@@ -458,6 +487,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonEta", &m_ph_eta);
     m_tree->Branch("PhotonEta2", &m_ph_eta2);
     m_tree->Branch("PhotonPhi", &m_ph_phi);
+    m_tree->Branch("PhotonTight", &m_ph_tight);
+    m_tree->Branch("PhotonAlt", &m_ph_alt);
 
     m_tree->Branch("PhotonAR", &m_ph_AR);
     m_tree->Branch("PhotonConvType", &m_ph_convType);
@@ -474,11 +505,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("ElectronEta2", &m_el_eta2);
     m_tree->Branch("ElectronPhi", &m_el_phi);
     m_tree->Branch("ElectronTight", &m_el_tight);
+    m_tree->Branch("ElectronAlt", &m_el_alt);
 
     m_tree->Branch("MuonPt", &m_mu_pt);
     m_tree->Branch("MuonEta", &m_mu_eta);
     m_tree->Branch("MuonPhi", &m_mu_phi);
     m_tree->Branch("MuonTight", &m_mu_tight);
+    m_tree->Branch("MuonAlt", &m_mu_alt);
   }
 
   return StatusCode::SUCCESS;
@@ -534,6 +567,8 @@ StatusCode SignalGammaLepton::execute()
     m_ph_eta->clear();
     m_ph_eta2->clear();
     m_ph_phi->clear();
+    m_ph_tight->clear();
+    m_ph_alt->clear();
 
     m_ph_AR->clear();
     m_ph_convType->clear();
@@ -550,11 +585,13 @@ StatusCode SignalGammaLepton::execute()
     m_el_eta2->clear();
     m_el_phi->clear();
     m_el_tight->clear();
+    m_el_alt->clear();
 
     m_mu_pt->clear();
     m_mu_eta->clear();
     m_mu_phi->clear();
     m_mu_tight->clear();
+    m_mu_alt->clear();
   }
   
   m_runNumber = evtInfo->event_ID()->run_number();
@@ -839,9 +876,10 @@ StatusCode SignalGammaLepton::execute()
     //   return StatusCode::FAILURE;
     // }
 
-    if (! m_FinalSelectionTool->isSelected(*ph) ) continue;     
+    bool isTight = m_FinalSelectionTool->isSelected(*ph);
+    if (m_requireTightPho && !isTight) continue; 
 
-    // ATH_MSG_DEBUG("Original photon pt = " << (*ph)->pt() << ", corrected = " << pt); 
+    bool isAlt = (m_doABCDPho) ? m_AltSelectionTool->isSelected(*ph) : false;
 
     // photon is OK
     m_numPh++;
@@ -946,6 +984,8 @@ StatusCode SignalGammaLepton::execute()
       m_ph_eta->push_back((*ph)->eta());
       m_ph_eta2->push_back((*ph)->cluster()->etaBE(2));
       m_ph_phi->push_back((*ph)->phi());
+      m_ph_tight->push_back(isTight);
+      m_ph_alt->push_back(isAlt);
 
       const EMConvert *convert = (*ph)->detail<EMConvert>();
       
@@ -1022,7 +1062,9 @@ StatusCode SignalGammaLepton::execute()
 		  << ", phi = " << (*el)->phi()); 
     
     bool isTight = m_FinalSelectionTool->isSelected(*el);
-    if (m_requireTight && !isTight) continue; 
+    if (m_requireTightLep && !isTight) continue; 
+
+    bool isAlt = (m_doABCDLep) ? m_AltSelectionTool->isSelected(*el) : false;
 
     m_HT += pt;
 
@@ -1034,6 +1076,7 @@ StatusCode SignalGammaLepton::execute()
       m_el_eta2->push_back((*el)->cluster()->etaBE(2));
       m_el_phi->push_back((*el)->phi());
       m_el_tight->push_back(isTight);
+      m_el_alt->push_back(isAlt);
     }
 
     if (pt > leadingElPt ) {
@@ -1060,9 +1103,13 @@ StatusCode SignalGammaLepton::execute()
        mu != muons->end();
        mu++) {
 
+    if ((*mu)->pt() < m_minMuonPt) continue;
+
     bool isTight = m_FinalSelectionTool->isSelected(*mu);
 
-    if (m_requireTight && !isTight) continue; 
+    if (m_requireTightLep && !isTight) continue; 
+
+    bool isAlt = (m_doABCDLep) ? m_AltSelectionTool->isSelected(*mu) : false;
 
     m_numMu++;
    
@@ -1075,6 +1122,7 @@ StatusCode SignalGammaLepton::execute()
       m_mu_eta->push_back((*mu)->eta());
       m_mu_phi->push_back((*mu)->phi());
       m_mu_tight->push_back(isTight);
+      m_mu_alt->push_back(isAlt);
     }
 
     if (pt > leadingMuPt ) {
