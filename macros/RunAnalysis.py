@@ -19,6 +19,7 @@ ELECTRON = 0
 MUON = 1
 
 DEFAULTLEPTON = ELECTRON
+DEFAULTABCD = LepPhotonAnalysis.NoABCD
 
 def GetHistNames(inFile):
     
@@ -42,7 +43,7 @@ def makeOutputName(infileName):
     outfile = os.path.splitext(inFileNoPath)[0] + "Hist.root"
     return outfile
 
-def RunAnalysis(lepton, plots):
+def RunAnalysis(lepton, plots, abcd):
 
 
     if lepton == ELECTRON:
@@ -427,7 +428,7 @@ def RunAnalysis(lepton, plots):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.dataFile.Get(ttreeName), 
                                         makeOutputName(DataManager.dataFileName),
                                         lepton,
-                                        1.0, plotsRegion=plots)
+                                        1.0, plotsRegion=plots, doABCD=abcd, blind=True)
     print
 
     # print "gj:"
@@ -448,8 +449,8 @@ def RunAnalysis(lepton, plots):
 if __name__ == "__main__":
     try:
         # retrive command line options
-        shortopts  = "eml:p:"
-        longopts   = ["lepton=", "plots="]
+        shortopts  = "eml:p:a:"
+        longopts   = ["lepton=", "plots=", "abcd="]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
     except getopt.GetoptError:
         # print help information and exit:
@@ -458,6 +459,7 @@ if __name__ == "__main__":
 
     lepton = DEFAULTLEPTON
     plots = LepPhotonAnalysis.DEFAULT_PLOTS
+    abcd = DEFAULTABCD
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -494,4 +496,16 @@ if __name__ == "__main__":
             else:
                 print "*** plots type unknown ****"
                 sys.exit(1)
-    RunAnalysis(lepton, plots)
+        elif o in ("-a", "--abcd"):
+            if a == "TT":
+                abcd = LepPhotonAnalysis.TT
+            elif a == "TL":
+                abcd = LepPhotonAnalysis.TL
+            elif a == "LT":
+                abcd = LepPhotonAnalysis.LT
+            elif a == "LL":
+                abcd = LepPhotonAnalysis.LL
+            else:
+                print "*** abcd unknown ****"
+                sys.exit(1)
+    RunAnalysis(lepton, plots, abcd)

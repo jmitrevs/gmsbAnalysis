@@ -94,6 +94,7 @@ gmsbSelectionTool.PhotonPt = 85*GeV
 #gmsbSelectionTool.MuonPt = 25*GeV
 gmsbSelectionTool.DoEDPhotonIsolation = False
 gmsbSelectionTool.PhotonID = egammaPID.PhotonIDLooseAR
+gmsbSelectionTool.PhotonIsEM = 0xc5fc01
 #gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;

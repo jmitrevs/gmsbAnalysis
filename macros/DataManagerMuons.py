@@ -14,7 +14,10 @@ Lumi = 4708.61
 
 print "Lepton is MUON."
 path = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/muphoton_data4/mergedFiles/"
+#altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
+altpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleABCD/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/muphoton_dataABCD2/mergedFiles/"
+dataloosepath = "/data3/jmitrevs/lepphoton/muphoton_data4/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/muphoton_grid/mergedFiles/"
 
 winoFileName = sigpath + "wino_600_200_mu.root"
@@ -61,7 +64,7 @@ WgammaFileName_Np4 = path + "Wgamma_Np4.root"
 WgammaFileName_Np5 = path + "Wgamma_Np5.root"
 
 ttbarFileName = path + "ttbar.root"
-ttbargammaFileName = path + "ttbargamma.root"
+ttbargammaFileName = altpath + "ttbargamma.root"
 
 WWFileName = path + "WW.root"
 WZFileName = path + "WZ.root"
@@ -79,7 +82,7 @@ gammaFileName_Np5 = path + "gamma_Np5.root"
 # diphotonsFileName = path + "diphotons.root"
 
 dataFileName = datapath + "mug.root"
-gjFileName = datapath + "gj.root"
+gjFileName = dataloosepath + "gj.root"
     
 ###########################################
 

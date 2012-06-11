@@ -47,7 +47,12 @@ XR2 = 7
 
 DEFAULT_PLOTS = PRESEL
 
-# Where the plots should be
+# For the ABCD method
+NoABCD = 0
+LL = 1
+LT = 2
+TL = 3
+TT = 4
 
 #Cuts
 # - electron channel
@@ -122,7 +127,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       measureFakeAndEff = False, 
                       numBkgTight = 0, scaleQCD = False,
                       applySF = NONE, applyTrigWeight = NONE,
-                      plotsRegion = DEFAULT_PLOTS):
+                      plotsRegion = DEFAULT_PLOTS,
+                      doABCD = NoABCD,
+                      blind = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -303,14 +310,79 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         if onlyStrong and not ev.isStrong:
             continue
 
+        photonIndex = 0
+        if doABCD:
+            #print "doABCD =",doABCD
+            foundLL = False
+            foundTL = False
+            foundLT = False
+            foundTT = False
+            indexLL = -1
+            indexTL = -1
+            indexLT = -1
+            indexTT = -1
+            for i in range(ev.numPh):
+                if ev.PhotonTight[i] and ev.PhotonAlt[i]:
+                    foundTT = True
+                    if indexTT < 0:
+                        indexTT = i
+                if not ev.PhotonTight[i] and ev.PhotonAlt[i]:
+                    foundLT = True
+                    if indexLT < 0:
+                        indexLT = i
+                if ev.PhotonTight[i] and not ev.PhotonAlt[i]:
+                    foundTL = True
+                    if indexTL < 0:
+                        indexTL = i
+                if not ev.PhotonTight[i] and not ev.PhotonAlt[i]:
+                    foundLL = True
+                    if indexLL < 0:
+                        indexLL = i
+
+            #print "doABCD=", doABCD, "foundTT=", foundTT
+
+            # precedence
+            if foundTT:
+                foundTL = False
+                foundLT = False
+                foundLL = False
+            elif foundTL:
+                foundLT = False
+                foundLL = False
+            elif foundLT:
+                foundLL = False
+
+            if doABCD == TT:
+                if not foundTT:
+                    continue
+                else:
+                    photonIndex = indexTT
+            if doABCD == TL:
+                if not foundTL:
+                    continue
+                else:
+                    photonIndex = indexTL
+            if doABCD == LT:
+                if not foundLT:
+                    continue
+                else:
+                    photonIndex = indexLT
+            if doABCD == LL:
+                if not foundLL:
+                    continue
+                else:
+                    photonIndex = indexLL
+
+        #print "passed Req, photonIndex =", photonIndex
+
         if plotsRegion != NO_SEL:
 
             # first the basic lepton and photon selection (but not MET and mT):
             if ((lepton == ELECTRON and
-                 (ev.PhotonPt[0] < EL_PHPTCUT or abs(ev.PhotonEta[0]) > EL_PHETACUT or
+                 (ev.PhotonPt[photonIndex] < EL_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > EL_PHETACUT or
                   ev.ElectronPt[0] < EL_ELPTCUT or abs(ev.ElectronEta[0]) > EL_ELETACUT)) or
                 (lepton == MUON and
-                 (ev.PhotonPt[0] < MU_PHPTCUT or abs(ev.PhotonEta[0]) > MU_PHETACUT or
+                 (ev.PhotonPt[photonIndex] < MU_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > MU_PHETACUT or
                   ev.MuonPt[0] < MU_MUPTCUT or abs(ev.MuonEta[0]) > MU_MUETACUT))):
                 continue
 
@@ -331,12 +403,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 continue
 
             if (VETO_TRTSA_PHOTON_E_BLAYER and ev.numPh == 1 and
-                ev.PhotonConvType[0] == 1 and ev.PhotonNumSi0[0] == 0 and
-                ev.PhotonNumBEl[0]):
+                ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0 and
+                ev.PhotonNumBEl[photonIndex]):
                 continue
 
         photon = ROOT.TVector3()
-        photon.SetPtEtaPhi(ev.PhotonPt[0], ev.PhotonEta[0], ev.PhotonPhi[0])
+        photon.SetPtEtaPhi(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex])
         if lepton == ELECTRON:
             electron = ROOT.TVector3()
             electron.SetPtEtaPhi(ev.ElectronPt[0], ev.ElectronEta[0], ev.ElectronPhi[0])
@@ -441,18 +513,19 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             nSIG.Fill(0, weight)
 
 
-        if plotsRegion == SR:
-            if ((lepton == ELECTRON and met > EL_MET) or
-                (lepton == MUON and met > MU_MET)):
-                h_mTel.Fill(ev.mTel/GeV, weight)
-                h_mTmu.Fill(ev.mTmu/GeV, weight)
-
-            if ((lepton == ELECTRON and ev.mTel > EL_MT) or
-                (lepton == MUON and ev.mTmu > MU_MT)):
-                h_met.Fill(met/GeV, weight)
+        if not (blind and inSR):
+            if plotsRegion == SR:
+                if ((lepton == ELECTRON and met > EL_MET) or
+                    (lepton == MUON and met > MU_MET)):
+                    h_mTel.Fill(ev.mTel/GeV, weight)
+                    h_mTmu.Fill(ev.mTmu/GeV, weight)
+                    
+                if ((lepton == ELECTRON and ev.mTel > EL_MT) or
+                    (lepton == MUON and ev.mTmu > MU_MT)):
+                    h_met.Fill(met/GeV, weight)
                 
         if (plotsRegion == NO_SEL or plotsRegion == PRESEL or
-            plotsRegion == SR and inSR or
+            plotsRegion == SR and inSR and not blind or
             plotsRegion == WCR and inWCR or
             plotsRegion == TCR and inTCR or
             plotsRegion == XR1 and inXR1 or
@@ -478,51 +551,51 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             h_eventType.Fill(ev.eventType, weight)
 
             rejectStudies = -9
-            if ev.PhotonConvType[0] == 0:
+            if ev.PhotonConvType[photonIndex] == 0:
                 # unconverted
-                if ev.PhotonNumBEl[0] > 0:
+                if ev.PhotonNumBEl[photonIndex] > 0:
                     rejectStudies = 0
-                elif ev.PhotonNumPixEl[0] > 0:
+                elif ev.PhotonNumPixEl[photonIndex] > 0:
                     rejectStudies = 1
-                elif ev.PhotonNumSiEl[0] > 0:
+                elif ev.PhotonNumSiEl[photonIndex] > 0:
                     rejectStudies = 2
-            elif ev.PhotonConvType[0] == 1 and ev.PhotonNumSi0[0] == 0:
+            elif ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0:
                 # TRTSA single-track
-                isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
-                          ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
-                if ev.PhotonNumBEl[0] > 0:
+                isSame = (ev.PhotonNumSiEl[photonIndex] == ev.PhotonNumSi0[photonIndex] or
+                          ev.PhotonNumPixEl[photonIndex] == ev.PhotonNumPix0[photonIndex])
+                if ev.PhotonNumBEl[photonIndex] > 0:
                     rejectStudies = 3
                 elif not isSame:
-                    if ev.PhotonNumPixEl[0] > 0:
+                    if ev.PhotonNumPixEl[photonIndex] > 0:
                         rejectStudies = 4
-                    elif ev.PhotonNumSiEl[0] > 0:
+                    elif ev.PhotonNumSiEl[photonIndex] > 0:
                         rejectStudies = 5
                     else:
                         rejectStudies = 6
-            elif ev.PhotonConvType[0] == 1:
+            elif ev.PhotonConvType[photonIndex] == 1:
                 # Si single-track
-                isSame = (ev.PhotonNumSiEl[0] == ev.PhotonNumSi0[0] or
-                          ev.PhotonNumPixEl[0] == ev.PhotonNumPix0[0])
-                if ev.PhotonNumBEl[0] > 0:
+                isSame = (ev.PhotonNumSiEl[photonIndex] == ev.PhotonNumSi0[photonIndex] or
+                          ev.PhotonNumPixEl[photonIndex] == ev.PhotonNumPix0[photonIndex])
+                if ev.PhotonNumBEl[photonIndex] > 0:
                     rejectStudies = 7
                 elif not isSame:
-                    if ev.PhotonNumPixEl[0] > 0:
+                    if ev.PhotonNumPixEl[photonIndex] > 0:
                         rejectStudies = 8
-                    elif ev.PhotonNumSiEl[0] > 0:
+                    elif ev.PhotonNumSiEl[photonIndex] > 0:
                         rejectStudies = 9
                     else:
                         rejectStudies = 10
 
             h_ph_rejectStudies.Fill(rejectStudies, weight)
-            #h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
-            h_ph_ConvType.Fill(ev.PhotonConvType[0], weight)
-            h_ph_numSi0.Fill(ev.PhotonNumSi0[0], weight)
-            h_ph_numSi1.Fill(ev.PhotonNumSi1[0], weight)
-            h_ph_numPix0.Fill(ev.PhotonNumPix0[0], weight)
-            h_ph_numPix1.Fill(ev.PhotonNumPix1[0], weight)
-            h_ph_numSiEl.Fill(ev.PhotonNumSiEl[0], weight)
-            h_ph_numPixEl.Fill(ev.PhotonNumPixEl[0], weight)
-            h_ph_numBEl.Fill(ev.PhotonNumBEl[0], weight)
+            #h_ph_ConvType.Fill(ev.PhotonConvType[photonIndex], weight)
+            h_ph_ConvType.Fill(ev.PhotonConvType[photonIndex], weight)
+            h_ph_numSi0.Fill(ev.PhotonNumSi0[photonIndex], weight)
+            h_ph_numSi1.Fill(ev.PhotonNumSi1[photonIndex], weight)
+            h_ph_numPix0.Fill(ev.PhotonNumPix0[photonIndex], weight)
+            h_ph_numPix1.Fill(ev.PhotonNumPix1[photonIndex], weight)
+            h_ph_numSiEl.Fill(ev.PhotonNumSiEl[photonIndex], weight)
+            h_ph_numPixEl.Fill(ev.PhotonNumPixEl[photonIndex], weight)
+            h_ph_numBEl.Fill(ev.PhotonNumBEl[photonIndex], weight)
 
             h_el_mInv.Fill(ev.ElMinv/GeV, weight)
             h_mu_mInv.Fill(ev.MuMinv/GeV, weight)
@@ -538,8 +611,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             if ev.numPh >= 2:
                 h_ph_pt2.Fill(ev.PhotonPt[1]/GeV, weight)
                 h_ph_eta2.Fill(ev.PhotonEta[1], weight)
-            h_ph_pt1.Fill(ev.PhotonPt[0]/GeV, weight)
-            h_ph_eta1.Fill(ev.PhotonEta[0], weight)
+            h_ph_pt1.Fill(ev.PhotonPt[photonIndex]/GeV, weight)
+            h_ph_eta1.Fill(ev.PhotonEta[photonIndex], weight)
             if ev.numEl >= 2:
                 h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
                 h_el_eta2.Fill(ev.ElectronEta[1], weight)
@@ -558,7 +631,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     print "**************************************"
     print "*****          YIELDS            *****"
     print "**************************************"
-    print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
+    if not blind:
+        print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
     print "  W+jets CR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
     if measureFakeAndEff:
         print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nQCD.GetBinError(1)
