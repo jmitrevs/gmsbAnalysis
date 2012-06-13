@@ -38,9 +38,9 @@ def GetHistNames(inFile):
 
     return histNames
 
-def makeOutputName(infileName):
+def makeOutputName(infileName, extra = ""):
     inFileNoPath = os.path.split(infileName)[1]
-    outfile = os.path.splitext(inFileNoPath)[0] + "Hist.root"
+    outfile = os.path.splitext(inFileNoPath)[0] + extra + "Hist.root"
     return outfile
 
 def RunAnalysis(lepton, plots, abcd):
@@ -193,13 +193,33 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wgamma_Np5_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
     print
 
-    print "ttbar:"
+    # print "ttbar:"
+    # LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ttbarFile.Get(ttreeName), 
+    #                                     makeOutputName(DataManager.ttbarFileName),
+    #                                     lepton,
+    #                                     DataManager.ttbar_scale,
+    #                                     removeOverlapTtbar,
+    #                                     applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+
+    print "ttbar (lepjets):"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ttbarFile.Get(ttreeName), 
-                                        makeOutputName(DataManager.ttbarFileName),
+                                        makeOutputName(DataManager.ttbarFileName, "Lepjets"),
+                                        lepton,
+                                        DataManager.ttbarLepjets_scale,
+                                        removeOverlapTtbar,
+                                        applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
+                                        tttype = LepPhotonAnalysis.LEPJETS)
+
+    print
+
+    print "ttbar (dilep):"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ttbarFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.ttbarFileName, "Dilep"),
                                         lepton,
                                         DataManager.ttbar_scale,
                                         removeOverlapTtbar,
-                                        applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
+                                        tttype = LepPhotonAnalysis.DILEP)
 
     print
     print "ttbargamma:"
@@ -438,7 +458,7 @@ def RunAnalysis(lepton, plots, abcd):
     #                                     1.0,
     #                                     measureFakeAndEff=True,
     #                                     numBkgTight=0, plotsRegion=plots)
-    # print "gj:"
+    print "gj:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.gjFile.Get(ttreeName), 
                                         makeOutputName(DataManager.gjFileName),
                                         lepton,

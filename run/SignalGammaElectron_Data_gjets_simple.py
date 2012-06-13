@@ -91,7 +91,7 @@ gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 100*GeV
 gmsbSelectionTool.ElectronID = egammaPID.ElectronIDLoosePP
-gmsbSelectionTool.MuonPt = 25*GeV
+#gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -119,7 +119,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
-                            RequireTight = False,
+                            RequireTightLep = False,
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,

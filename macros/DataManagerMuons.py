@@ -29,15 +29,15 @@ WlepnuFileName_Np3 = path + "Wmunu_Np3.root"
 WlepnuFileName_Np4 = path + "Wmunu_Np4.root"
 WlepnuFileName_Np5 = path + "Wmunu_Np5.root"
 
-ZleplepFileName_Np0 = path + "Zmumu_Np0.root"
-ZleplepFileName_Np1 = path + "Zmumu_Np1.root"
-ZleplepFileName_Np2 = path + "Zmumu_Np2.root"
-ZleplepFileName_Np3 = path + "Zmumu_Np3.root"
-ZleplepFileName_Np4 = path + "Zmumu_Np4.root"
-ZleplepFileName_Np5 = path + "Zmumu_Np5.root"
+ZleplepFileName_Np0 = altpath + "Zmumu_Np0.root"
+ZleplepFileName_Np1 = altpath + "Zmumu_Np1.root"
+ZleplepFileName_Np2 = altpath + "Zmumu_Np2.root"
+ZleplepFileName_Np3 = altpath + "Zmumu_Np3.root"
+ZleplepFileName_Np4 = altpath + "Zmumu_Np4.root"
+ZleplepFileName_Np5 = altpath + "Zmumu_Np5.root"
 
-st_tchan_lepnuFileName   = path + "st_tchan_munu.root"
-ZleplepgammaFileName = path + "Zmumugamma.root"
+st_tchan_lepnuFileName   = altpath + "st_tchan_munu.root"
+ZleplepgammaFileName = altpath + "Zmumugamma.root"
 
 WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
 WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
@@ -46,31 +46,31 @@ WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
 WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
 WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
 
-ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
-ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
-ZtautauFileName_Np2 = path + "Ztautau_Np2.root"
-ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
-ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
-ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
+ZtautauFileName_Np0 = altpath + "Ztautau_Np0.root"
+ZtautauFileName_Np1 = altpath + "Ztautau_Np1.root"
+ZtautauFileName_Np2 = altpath + "Ztautau_Np2.root"
+ZtautauFileName_Np3 = altpath + "Ztautau_Np3.root"
+ZtautauFileName_Np4 = altpath + "Ztautau_Np4.root"
+ZtautauFileName_Np5 = altpath + "Ztautau_Np5.root"
 
-st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
-st_WtFileName   = path + "st_Wt.root"    
+st_tchan_taunuFileName = altpath + "st_tchan_taunu.root"    
+st_WtFileName   = altpath + "st_Wt.root"    
     
-WgammaFileName_Np0 = path + "Wgamma_Np0.root"
-WgammaFileName_Np1 = path + "Wgamma_Np1.root"
-WgammaFileName_Np2 = path + "Wgamma_Np2.root"
-WgammaFileName_Np3 = path + "Wgamma_Np3.root"
-WgammaFileName_Np4 = path + "Wgamma_Np4.root"
-WgammaFileName_Np5 = path + "Wgamma_Np5.root"
+WgammaFileName_Np0 = altpath + "Wgamma_Np0.root"
+WgammaFileName_Np1 = altpath + "Wgamma_Np1.root"
+WgammaFileName_Np2 = altpath + "Wgamma_Np2.root"
+WgammaFileName_Np3 = altpath + "Wgamma_Np3.root"
+WgammaFileName_Np4 = altpath + "Wgamma_Np4.root"
+WgammaFileName_Np5 = altpath + "Wgamma_Np5.root"
 
-ttbarFileName = path + "ttbar.root"
+ttbarFileName = altpath + "ttbar.root"
 ttbargammaFileName = altpath + "ttbargamma.root"
 
-WWFileName = path + "WW.root"
-WZFileName = path + "WZ.root"
-ZZFileName = path + "ZZ.root"
+WWFileName = altpath + "WW.root"
+WZFileName = altpath + "WZ.root"
+ZZFileName = altpath + "ZZ.root"
 
-ZtautaugammaFileName = path + "Ztautaugamma.root"
+ZtautaugammaFileName = altpath + "Ztautaugamma.root"
 # ZnunugammagammaFileName = path + "Znunugammagamma.root"
 
 gammaFileName_Np1 = path + "gamma_Np1.root"
@@ -358,8 +358,9 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.518 * 0.46726 # from fit * tight/loose
-
+WjetExtraScale = 0.12 * 0.46726 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.12
+ 
 Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
 Wlepnu_Np2_scale     =  Lumi  *   377.83 * 1.20 * WjetExtraScale / nOrigWlepnu_Np2
@@ -389,6 +390,7 @@ Ztautau_Np4_scale   =  Lumi  *    2.79 * 1.25   / nOrigZtautau_Np4
 Ztautau_Np5_scale   =  Lumi  *    0.77 * 1.25   / nOrigZtautau_Np5
 
 ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
+ttbarLepjets_scale   =  Lumi  *  89.02311 * ttbarLepjetExtraScale / nOrigttbar
 ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 
 # if using gamma pt > 10 GeV samples
@@ -400,8 +402,8 @@ ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 # Wgamma_Np5_scale     =  Lumi  *    0.34445 * 1.488   / nOrigWgamma_Np5
 
 # if using gamma pt > 40 GeV sample
-#Wgamma_kFact = 1.39
-Wgamma_kFact = 1.26 # -1 sigma
+Wgamma_kFact = 1.39
+#Wgamma_kFact = 1.26 # -1 sigma
 #Wgamma_kFact = 1.488
 Wgamma_Np0_scale     =  Lumi  *  1.7837 * Wgamma_kFact   / nOrigWgamma_Np0
 Wgamma_Np1_scale     =  Lumi  *  4.3796 * Wgamma_kFact   / nOrigWgamma_Np1

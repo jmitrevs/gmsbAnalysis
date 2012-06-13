@@ -54,6 +54,11 @@ LT = 2
 TL = 3
 TT = 4
 
+# TTType (note all should be LEPJETS or DILEP):
+ALL = 0
+LEPJETS = 1
+DILEP = 2
+
 #Cuts
 # - electron channel
 EL_PHPTCUT = 100*GeV
@@ -129,7 +134,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       applySF = NONE, applyTrigWeight = NONE,
                       plotsRegion = DEFAULT_PLOTS,
                       doABCD = NoABCD,
-                      blind = False):
+                      blind = False,
+                      tttype = ALL):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -309,6 +315,19 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if onlyStrong and not ev.isStrong:
             continue
+
+        if tttype != ALL:
+            if lepton == MUON:
+                if tttype == LEPJETS and ev.eventType not in (11, 13, 9):
+                    continue
+                elif tttype == DILEP and ev.eventType in (11, 13, 9):
+                    continue
+            else:
+                if tttype == LEPJETS and ev.eventType not in (8, 13):
+                    continue
+                elif tttype == DILEP and ev.eventType in (8, 13):
+                    continue
+
 
         photonIndex = 0
         if doABCD:

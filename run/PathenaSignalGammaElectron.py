@@ -9,39 +9,7 @@ Dates=os.system(sfg)
 # Put the list of datasets you want to run over here (remove the '/' from the end). 
 
 # this is for testing
-inDS_test = [
-  
-    # 'mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993',
-    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    #'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-
-    # 'mc11_7TeV.107680.AlpgenJimmyWenuNp0_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107681.AlpgenJimmyWenuNp1_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107682.AlpgenJimmyWenuNp2_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107683.AlpgenJimmyWenuNp3_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107684.AlpgenJimmyWenuNp4_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107685.AlpgenJimmyWenuNp5_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-
-    # 'mc11_7TeV.107700.AlpgenJimmyWtaunuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107701.AlpgenJimmyWtaunuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107702.AlpgenJimmyWtaunuNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107703.AlpgenJimmyWtaunuNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107704.AlpgenJimmyWtaunuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107705.AlpgenJimmyWtaunuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-
-    # 'mc11_7TeV.117420.AlpgenJimmyWgammaNp0_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.117421.AlpgenJimmyWgammaNp1_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.117422.AlpgenJimmyWgammaNp2_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.117423.AlpgenJimmyWgammaNp3_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.117424.AlpgenJimmyWgammaNp4_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.117425.AlpgenJimmyWgammaNp5_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-
-    # 'mc11_7TeV.116394.AlpgenJimmyGamNp5_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.116392.AlpgenJimmyGamNp3_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.116393.AlpgenJimmyGamNp4_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.116391.AlpgenJimmyGamNp2_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-
+inDS_test = [  
     ]
 
 inDS_full = [
@@ -62,7 +30,7 @@ inDS_full = [
 
     # #'mc11_7TeV.108323.Pythia_MadGraph_Zeegamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
     # #'mc11_7TeV.108325.Pythia_MadGraph_Ztautaugamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
     # 'mc11_7TeV.108340.st_tchan_enu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.108342.st_tchan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
@@ -70,10 +38,10 @@ inDS_full = [
     # 'mc11_7TeV.116394.AlpgenJimmyGamNp5_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.116392.AlpgenJimmyGamNp3_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.116393.AlpgenJimmyGamNp4_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # 'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.116391.AlpgenJimmyGamNp2_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
 
-    # 'mc11_7TeV.145163.Sherpa_Zeegamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.145163.Sherpa_Zeegamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993',
 
     # # 'mc11_7TeV.126022.Sherpa_Znunugamma_highpt.merge.AOD.e931_s1310_s1300_r3043_r2993',
     # # 'mc11_7TeV.118619.Pythia_MadGraph_Znunugammagamma.merge.AOD.e887_s1372_s1370_r3043_r2993',
@@ -84,8 +52,8 @@ inDS_full = [
     # # 'mc11_7TeV.107714.AlpgenJimmyZnunuNp4_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
     # # 'mc11_7TeV.107715.AlpgenJimmyZnunuNp5_pt20_filt1jet.merge.AOD.e1004_s1372_s1370_r3043_r2993',
 
-    # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
-    # # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    #'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
     ]
 #how to automatically configure GRL ?
 
@@ -93,16 +61,16 @@ inDS_full = [
     
 for i,inDS in enumerate(inDS_full):
 
-    outName = inDS[:95] # make sure the name is not too long
+    outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --excludedSite=ANALY_GRIF-LAL --inDS %s/ --outDS user.jmitrevs.GE_120519.%s SignalGammaElectron.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120613gj.%s SignalGammaElectron_gjets.py " % (inDS, outName)
    
     # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120613.tar"
     # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120613.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120613.tar"
 
     # print command
     # sys.stdout.flush()
@@ -167,9 +135,9 @@ for i,inDS in enumerate(inDS_Wjets):
 
     # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120601.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
     
 inDS_Zjets = [
 
@@ -190,18 +158,18 @@ inDS_Zjets = [
     
 for i,inDS in enumerate(inDS_Zjets):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120519.%s SignalGammaElectron_Zjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120613gj.%s SignalGammaElectron_Zjets_gjets.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120519Zjets.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519Zjets.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120613.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
 
 inDS_Ztau = [
     'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
@@ -218,14 +186,14 @@ inDS_Ztau = [
     
 for i,inDS in enumerate(inDS_Ztau):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120519.%s SignalGammaElectron_Ztaujets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120613gj.%s SignalGammaElectron_Ztaujets_gjets.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120519Zjets.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519Zjets.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120613.tar"
 
     # print command
     # sys.stdout.flush()
