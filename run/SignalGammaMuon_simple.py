@@ -77,6 +77,11 @@ from JetSelectorTools.ConfiguredAthJetCleaningTools import *
 myJetCleaningTool = ConfiguredAthJetCleaningTool_VeryLoose("gmsbJetCleaningTool")
 ToolSvc += myJetCleaningTool
 
+import MCTruthClassifier.MCTruthClassifierBase
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+myMCTruthClassifier=MCTruthClassifier()
+ToolSvc +=myMCTruthClassifier
+
 import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
@@ -124,7 +129,9 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             NumMuons = 1,
                             outputNtuple = True,
                             doTruthStudies = True,
-                            TruthStudiesTool = truthStudies
+                            TruthStudiesTool = truthStudies,
+                            doTruthClassifier = True,
+                            MCTruthClassifier = myMCTruthClassifier
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

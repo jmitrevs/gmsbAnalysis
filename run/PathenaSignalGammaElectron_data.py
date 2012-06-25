@@ -33,18 +33,18 @@ inDS_full = [
     
 for i,inDS in enumerate(inDS_full):
 
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120517.%s SignalGammaElectron_Data.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.1205621a.%s SignalGammaElectron_Data.py " % (inDS, inDS)
     
     # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_data_120621a.tar"
     # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120621a.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120517.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120621a.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
 
     command = "pathena --mergeOutput --excludedSite=ANALY_GOEGRID --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.120522_gej.%s SignalGammaElectron_Data_gjets.py " % (inDS, inDS)
     
@@ -55,7 +55,7 @@ for i,inDS in enumerate(inDS_full):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_data_120522.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
     

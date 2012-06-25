@@ -81,7 +81,7 @@ EL_TCR_MET_MAX = 90*GeV
 EL_TCR_MT_MIN =  100*GeV
 
 EL_QCD_MET_MAX = 20*GeV
-EL_QCD_MT_MAX = 20*GeV
+EL_QCD_MT_MAX = 15*GeV
 
 DELTAR_EL_PH = 0.7
 
@@ -135,7 +135,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       plotsRegion = DEFAULT_PLOTS,
                       doABCD = NoABCD,
                       blind = False,
-                      tttype = ALL):
+                      tttype = ALL,
+                      qcdOtherRoot = "",
+                      debug = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -279,8 +281,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
             sys.exit(1)
 
+        if debug: print "Analizing event with Run =", ev.Run, ", Event =", ev.Event
+
         if filterPhotons and ev.numTruthPh > 0:
             continue
+
+        if debug: print "  pass filterPhotons"
 
         met = math.hypot(ev.Metx, ev.Mety)
         #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
@@ -316,6 +322,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         if onlyStrong and not ev.isStrong:
             continue
 
+        if debug: print "  pass onlyStrong"
+
         if tttype != ALL:
             if lepton == MUON:
                 if tttype == LEPJETS and ev.eventType not in (11, 13, 9):
@@ -328,6 +336,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 elif tttype == DILEP and ev.eventType in (8, 13):
                     continue
 
+        if debug: print "  pass tttype"
 
         photonIndex = 0
         if doABCD:
@@ -357,6 +366,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     foundLL = True
                     if indexLL < 0:
                         indexLL = i
+
+            if debug: print "  foundTT=", foundTT, "foundTL=", foundTL, "foundLT=", foundLT, "foundLL=", foundLL
 
             #print "doABCD=", doABCD, "foundTT=", foundTT
 
@@ -392,7 +403,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 else:
                     photonIndex = indexLL
 
-        #print "passed Req, photonIndex =", photonIndex
+        if debug: print "  passed ABCD, photonIndex =", photonIndex
 
         if plotsRegion != NO_SEL:
 
@@ -426,6 +437,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 ev.PhotonNumBEl[photonIndex]):
                 continue
 
+        if debug: print "  passed some presel"
+
         photon = ROOT.TVector3()
         photon.SetPtEtaPhi(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex])
         if lepton == ELECTRON:
@@ -440,6 +453,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             mu_ph_deltaR = photon.DeltaR(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
                 continue
+
+        if debug: print "  passed lep-ph deltaR"
 
         # scale the gj sampe to represent QCD
         if scaleQCD:
@@ -460,6 +475,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         inXR2 = False
         inSR = False
             
+        if debug: print "  met =", met, "mTmu =", ev.mTmu, "mTel =", ev.mTel
+
         # do CR counts
         if lepton == ELECTRON:
             if met < EL_QCD_MET_MAX and ev.mTel < EL_QCD_MT_MAX:
@@ -666,21 +683,32 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
 
     if measureFakeAndEff:
-        fakeRate = nQCDTight.Clone()
-        fakeRate.Divide(nQCDTight, nQCD, 1.0, 1.0, "B")
+        fakeRate = ROOT.TH1F("fakeRate", "The j->lepton fake rate", 1, 0, 1);
+        fakeRateNum = nQCDTight.Clone()        
+        fakeRateDen = nQCD.Clone()
+        if qcdOtherRoot:
+            backgroundFile = ROOT.TFile(qcdOtherRoot)
+            qcdBackNum = backgroundFile.Get("nQCDTight")
+            qcdBackDen = backgroundFile.Get("nQCD")
+            fakeRateNum.Add(qcdBackNum, -1)
+            fakeRateDen.Add(qcdBackDen, -1)
+
+        fakeRate.Divide(fakeRateNum, fakeRateDen, 1.0, 1.0, "B")
+
         print "**************************************"
         print "  jet to lepton fake rate =",fakeRate.GetBinContent(1),"+-",fakeRate.GetBinError(1)
-        backGroundTight = ROOT.TH1F("backGroundTight", "Number of background events in WCR (tight selection)", 1, 0, 1);
-        backGroundLoose = ROOT.TH1F("backGroundLoose", "Number of background events in WCR (loose selection)", 1, 0, 1);
-        backGroundTight.Fill(0, numBkgTight);
-        backGroundLoose.Fill(0, numBkgTight/fakeRate.GetBinContent(1));
-        eff = nWCRTight.Clone()
-        effDen = nWCR.Clone()
-        eff.Add(backGroundTight, -1)
-        effDen.Add(backGroundLoose, -1)
-        eff.Divide(eff, effDen, 1.0, 1.0, "B")
-        print "  lepton incremental eff =",eff.GetBinContent(1),"+-",eff.GetBinError(1)
-        print "**************************************"
+        if fakeRate.GetBinError(1):
+            backGroundTight = ROOT.TH1F("backGroundTight", "Number of background events in WCR (tight selection)", 1, 0, 1);
+            backGroundLoose = ROOT.TH1F("backGroundLoose", "Number of background events in WCR (loose selection)", 1, 0, 1);
+            backGroundTight.Fill(0, numBkgTight);
+            backGroundLoose.Fill(0, numBkgTight/fakeRate.GetBinContent(1));
+            eff = nWCRTight.Clone()
+            effDen = nWCR.Clone()
+            eff.Add(backGroundTight, -1)
+            effDen.Add(backGroundLoose, -1)
+            eff.Divide(eff, effDen, 1.0, 1.0, "B")
+            print "  lepton incremental eff =",eff.GetBinContent(1),"+-",eff.GetBinError(1)
+            print "**************************************"
         
 
     # nTF = nSIG.Clone()
@@ -764,7 +792,8 @@ def Nqcd(nLoose, nTight, eta, lepton):
         eps_qcd = 0.62
     else:
         #eps_qcd = 0.23
-        eps_qcd = 0.15
+        #eps_qcd = 0.19
+        eps_qcd = 0.20
         eps_sig = ElEffPar.GetEfficiency(eta)
     #print "eta =", eta, "eps_qcd =", eps_qcd, "eps_sig =", eps_sig
     if eps_sig != eps_qcd:

@@ -14,20 +14,20 @@ Lumi = 4708.61
 
 print "Lepton is MUON."
 path = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
-#altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
-altpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleABCD/mergedFiles/"
+altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
+#altpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleABCD/mergedFiles/"
 datapath = "/data3/jmitrevs/lepphoton/muphoton_dataABCD2/mergedFiles/"
 dataloosepath = "/data3/jmitrevs/lepphoton/muphoton_data4/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/muphoton_grid/mergedFiles/"
 
 winoFileName = sigpath + "wino_600_200_mu.root"
 
-WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
-WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
-WlepnuFileName_Np2 = path + "Wmunu_Np2.root"
-WlepnuFileName_Np3 = path + "Wmunu_Np3.root"
-WlepnuFileName_Np4 = path + "Wmunu_Np4.root"
-WlepnuFileName_Np5 = path + "Wmunu_Np5.root"
+WlepnuFileName_Np0 = altpath + "Wmunu_Np0.root"
+WlepnuFileName_Np1 = altpath + "Wmunu_Np1.root"
+WlepnuFileName_Np2 = altpath + "Wmunu_Np2.root"
+WlepnuFileName_Np3 = altpath + "Wmunu_Np3.root"
+WlepnuFileName_Np4 = altpath + "Wmunu_Np4.root"
+WlepnuFileName_Np5 = altpath + "Wmunu_Np5.root"
 
 ZleplepFileName_Np0 = altpath + "Zmumu_Np0.root"
 ZleplepFileName_Np1 = altpath + "Zmumu_Np1.root"
@@ -39,12 +39,12 @@ ZleplepFileName_Np5 = altpath + "Zmumu_Np5.root"
 st_tchan_lepnuFileName   = altpath + "st_tchan_munu.root"
 ZleplepgammaFileName = altpath + "Zmumugamma.root"
 
-WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
-WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
-WtaunuFileName_Np2 = path + "Wtaunu_Np2.root"
-WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
-WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
-WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
+WtaunuFileName_Np0 = altpath + "Wtaunu_Np0.root"
+WtaunuFileName_Np1 = altpath + "Wtaunu_Np1.root"
+WtaunuFileName_Np2 = altpath + "Wtaunu_Np2.root"
+WtaunuFileName_Np3 = altpath + "Wtaunu_Np3.root"
+WtaunuFileName_Np4 = altpath + "Wtaunu_Np4.root"
+WtaunuFileName_Np5 = altpath + "Wtaunu_Np5.root"
 
 ZtautauFileName_Np0 = altpath + "Ztautau_Np0.root"
 ZtautauFileName_Np1 = altpath + "Ztautau_Np1.root"
@@ -358,8 +358,8 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.12 * 0.46726 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.12
+WjetExtraScale = 0.132 * 0.46726 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.132
  
 Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1

@@ -14,6 +14,8 @@ Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
 path = "/data3/jmitrevs/lepphoton/elphoton_ntuple5/mergedFiles/"
+#loosepath = ""
+loosepath = "/data3/jmitrevs/lepphoton/elphoton_ntupleloose/mergedFiles/"
 oldpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
 datapath = "/data3/jmitrevs/lepphoton/elphoton_data6/mergedFiles/"
 dataloosepath = "/data3/jmitrevs/lepphoton/elphoton_datalooser/mergedFiles/"
@@ -28,15 +30,41 @@ WlepnuFileName_Np3 = path + "Wenu_Np3.root"
 WlepnuFileName_Np4 = path + "Wenu_Np4.root"
 WlepnuFileName_Np5 = path + "Wenu_Np5.root"
 
-ZleplepFileName_Np0 = path + "Zee_Np0.root"
-ZleplepFileName_Np1 = path + "Zee_Np1.root"
-ZleplepFileName_Np2 = path + "Zee_Np2.root"
-ZleplepFileName_Np3 = path + "Zee_Np3.root"
-ZleplepFileName_Np4 = path + "Zee_Np4.root"
-ZleplepFileName_Np5 = path + "Zee_Np5.root"
+if loosepath:
+    print "using loosepath"
+    ZleplepFileName_Np0 = loosepath + "Zee_Np0.root"
+    ZleplepFileName_Np1 = loosepath + "Zee_Np1.root"
+    ZleplepFileName_Np2 = loosepath + "Zee_Np2.root"
+    ZleplepFileName_Np3 = loosepath + "Zee_Np3.root"
+    ZleplepFileName_Np4 = loosepath + "Zee_Np4.root"
+    ZleplepFileName_Np5 = loosepath + "Zee_Np5.root"
+    ZleplepgammaFileName = loosepath + "Zeegamma.root"
+    ZtautauFileName_Np0 = loosepath + "Ztautau_Np0.root"
+    ZtautauFileName_Np1 = loosepath + "Ztautau_Np1.root"
+    ZtautauFileName_Np2 = loosepath + "Ztautau_Np2.root"
+    ZtautauFileName_Np3 = loosepath + "Ztautau_Np3.root"
+    ZtautauFileName_Np4 = loosepath + "Ztautau_Np4.root"
+    ZtautauFileName_Np5 = loosepath + "Ztautau_Np5.root"
+    ZtautaugammaFileName = loosepath + "Ztautaugamma.root"
+    diphotonsFileName = loosepath + "diphotons.root"
+else:
+    ZleplepFileName_Np0 = path + "Zee_Np0.root"
+    ZleplepFileName_Np1 = path + "Zee_Np1.root"
+    ZleplepFileName_Np2 = path + "Zee_Np2.root"
+    ZleplepFileName_Np3 = path + "Zee_Np3.root"
+    ZleplepFileName_Np4 = path + "Zee_Np4.root"
+    ZleplepFileName_Np5 = path + "Zee_Np5.root"
+    ZleplepgammaFileName = path + "Zeegamma.root"
+    ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
+    ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
+    ZtautauFileName_Np2 = path + "Ztautau_Np2.root"
+    ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
+    ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
+    ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
+    ZtautaugammaFileName = path + "Ztautaugamma.root"
+    diphotonsFileName = path + "diphotons.root"
 
 st_tchan_lepnuFileName   = path + "st_tchan_enu.root"
-ZleplepgammaFileName = path + "Zeegamma.root"
 
 WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
 WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
@@ -44,13 +72,6 @@ WtaunuFileName_Np2 = path + "Wtaunu_Np2.root"
 WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
 WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
 WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
-
-ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
-ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
-ZtautauFileName_Np2 = path + "Ztautau_Np2.root"
-ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
-ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
-ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
 
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
@@ -69,7 +90,6 @@ WWFileName = path + "WW.root"
 WZFileName = path + "WZ.root"
 ZZFileName = path + "ZZ.root"
 
-ZtautaugammaFileName = path + "Ztautaugamma.root"
 ZnunugammagammaFileName = oldpath + "Znunugammagamma.root"
 
 gammaFileName_Np1 = path + "gamma_Np1.root"
@@ -78,7 +98,6 @@ gammaFileName_Np3 = path + "gamma_Np3.root"
 gammaFileName_Np4 = path + "gamma_Np4.root"
 gammaFileName_Np5 = path + "gamma_Np5.root"
 
-diphotonsFileName = oldpath + "diphotons100.root"
 Zee_altFileName = oldpath + "Zee_pythia.root"
 
 dataFileName = datapath + "eg.root"
@@ -362,13 +381,15 @@ if PRINT_YIELDS:
 #wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
+WjetExtraScale = 0.132 * 0.46726 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.132
 
-Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20   / nOrigWlepnu_Np0
-Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20   / nOrigWlepnu_Np1
-Wlepnu_Np2_scale     =  Lumi  *   378.29 * 1.20   / nOrigWlepnu_Np2
-Wlepnu_Np3_scale     =  Lumi  *   101.43 * 1.20   / nOrigWlepnu_Np3
-Wlepnu_Np4_scale     =  Lumi  *    25.87 * 1.20   / nOrigWlepnu_Np4
-Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20   / nOrigWlepnu_Np5
+Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
+Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
+Wlepnu_Np2_scale     =  Lumi  *   378.29 * 1.20 * WjetExtraScale / nOrigWlepnu_Np2
+Wlepnu_Np3_scale     =  Lumi  *   101.43 * 1.20 * WjetExtraScale / nOrigWlepnu_Np3
+Wlepnu_Np4_scale     =  Lumi  *    25.87 * 1.20 * WjetExtraScale / nOrigWlepnu_Np4
+Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20 * WjetExtraScale / nOrigWlepnu_Np5
 
 Zleplep_Np0_scale     =  Lumi  *  668.32 * 1.25   / nOrigZleplep_Np0
 Zleplep_Np1_scale     =  Lumi  *  134.36 * 1.25   / nOrigZleplep_Np1
@@ -377,12 +398,12 @@ Zleplep_Np3_scale     =  Lumi  *   11.16 * 1.25   / nOrigZleplep_Np3
 Zleplep_Np4_scale     =  Lumi  *    2.88 * 1.25   / nOrigZleplep_Np4
 Zleplep_Np5_scale     =  Lumi  *    0.83 * 1.25   / nOrigZleplep_Np5
 
-Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20   / nOrigWtaunu_Np0
-Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20   / nOrigWtaunu_Np1
-Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20   / nOrigWtaunu_Np2
-Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20   / nOrigWtaunu_Np3
-Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20   / nOrigWtaunu_Np4
-Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20   / nOrigWtaunu_Np5
+Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWtaunu_Np0
+Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20 * WjetExtraScale / nOrigWtaunu_Np1
+Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20 * WjetExtraScale / nOrigWtaunu_Np2
+Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20 * WjetExtraScale / nOrigWtaunu_Np3
+Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20 * WjetExtraScale / nOrigWtaunu_Np4
+Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20 * WjetExtraScale / nOrigWtaunu_Np5
 
 Ztautau_Np0_scale   =  Lumi  *  668.40 * 1.25   / nOrigZtautau_Np0
 Ztautau_Np1_scale   =  Lumi  *  134.81 * 1.25   / nOrigZtautau_Np1
@@ -392,6 +413,7 @@ Ztautau_Np4_scale   =  Lumi  *    2.79 * 1.25   / nOrigZtautau_Np4
 Ztautau_Np5_scale   =  Lumi  *    0.77 * 1.25   / nOrigZtautau_Np5
 
 ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
+ttbarLepjets_scale   =  Lumi  *  89.02311 * ttbarLepjetExtraScale / nOrigttbar
 ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 
 # if using gamma pt > 10 GeV samples

@@ -25,6 +25,7 @@ namespace Trig  { class TrigDecisionTool; }
 class TrigMatchTool;
 namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
 class APReweightND;
+class IMCTruthClassifier;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -117,6 +118,9 @@ private:
   ToolHandle< TrigMatchTool > m_trigMatch;
 
   /** @brief classify the event type */
+  ToolHandle<IMCTruthClassifier> m_MCTruthClassifier;
+  bool m_doTruthClassifier;
+
   ToolHandle<TruthStudies> m_truth;
   bool m_doTruthStudies;
   bool m_filterWJets;
@@ -162,6 +166,8 @@ private:
   std::vector<float>* m_ph_phi;
   std::vector<int>* m_ph_tight;
   std::vector<int>* m_ph_alt; // for ABCD
+  std::vector<int>* m_ph_truth; // for truth classifer
+  std::vector<int>* m_ph_origin; // for truth classifer
 
   // a bit more stuff for AR
   std::vector<int>* m_ph_AR;
@@ -173,6 +179,7 @@ private:
   std::vector<int>* m_ph_numSiEl;
   std::vector<int>* m_ph_numPixEl;
   std::vector<int>* m_ph_numBEl;
+  std::vector<int>* m_ph_expectBLayerHit;
   
   std::vector<float>* m_el_pt;
   std::vector<float>* m_el_eta;

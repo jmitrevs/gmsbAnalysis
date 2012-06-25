@@ -4,6 +4,8 @@ import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
+COMPATIBILITY=False
+
 Wjets = ROOT.TFile("WjetsHist.root")
 Wgamma = ROOT.TFile("WgammaHist.root")
 ttbarDilep = ROOT.TFile("ttbarDilepHist.root")
@@ -15,6 +17,9 @@ Zjets = ROOT.TFile("ZjetsHist.root")
 Zgamma = ROOT.TFile("ZgammaHist.root")
 gammaJets = ROOT.TFile("gammaJetsHist.root")
 total = ROOT.TFile("total.root")
+data = ROOT.TFile("data.root")
+gj = ROOT.TFile("gjHist.root")
+totalMM = ROOT.TFile("totalMM.root")
 
 WjetsSR = Wjets.Get("nSIG")
 WgammaSR = Wgamma.Get("nSIG")
@@ -27,6 +32,9 @@ ZjetsSR = Zjets.Get("nSIG")
 ZgammaSR = Zgamma.Get("nSIG")
 gammaJetsSR = gammaJets.Get("nSIG")
 totalSR = total.Get("nSIG")
+dataSR = data.Get("nSIG")
+gjSR = gj.Get("nSIG")
+totalMMSR = totalMM.Get("nSIG")
 
 WjetsWCR = Wjets.Get("nWCR")
 WgammaWCR = Wgamma.Get("nWCR")
@@ -39,6 +47,9 @@ ZjetsWCR = Zjets.Get("nWCR")
 ZgammaWCR = Zgamma.Get("nWCR")
 gammaJetsWCR = gammaJets.Get("nWCR")
 totalWCR = total.Get("nWCR")
+dataWCR = data.Get("nWCR")
+gjWCR = gj.Get("nWCR")
+totalMMWCR = totalMM.Get("nWCR")
 
 WjetsTCR = Wjets.Get("nTCR")
 WgammaTCR = Wgamma.Get("nTCR")
@@ -51,6 +62,9 @@ ZjetsTCR = Zjets.Get("nTCR")
 ZgammaTCR = Zgamma.Get("nTCR")
 gammaJetsTCR = gammaJets.Get("nTCR")
 totalTCR = total.Get("nTCR")
+dataTCR = data.Get("nTCR")
+gjTCR = gj.Get("nTCR")
+totalMMTCR = totalMM.Get("nTCR")
 
 WjetsQCD = Wjets.Get("nQCD")
 WgammaQCD = Wgamma.Get("nQCD")
@@ -63,6 +77,9 @@ ZjetsQCD = Zjets.Get("nQCD")
 ZgammaQCD = Zgamma.Get("nQCD")
 gammaJetsQCD = gammaJets.Get("nQCD")
 totalQCD = total.Get("nQCD")
+dataQCD = data.Get("nQCD")
+gjQCD = gj.Get("nQCD")
+totalMMQCD = totalMM.Get("nQCD")
 
 WjetsXR1 = Wjets.Get("nXR1")
 WgammaXR1 = Wgamma.Get("nXR1")
@@ -75,6 +92,9 @@ ZjetsXR1 = Zjets.Get("nXR1")
 ZgammaXR1 = Zgamma.Get("nXR1")
 gammaJetsXR1 = gammaJets.Get("nXR1")
 totalXR1 = total.Get("nXR1")
+dataXR1 = data.Get("nXR1")
+gjXR1 = gj.Get("nXR1")
+totalMMXR1 = totalMM.Get("nXR1")
 
 WjetsXR2 = Wjets.Get("nXR2")
 WgammaXR2 = Wgamma.Get("nXR2")
@@ -87,6 +107,9 @@ ZjetsXR2 = Zjets.Get("nXR2")
 ZgammaXR2 = Zgamma.Get("nXR2")
 gammaJetsXR2 = gammaJets.Get("nXR2")
 totalXR2 = total.Get("nXR2")
+dataXR2 = data.Get("nXR2")
+gjXR2 = gj.Get("nXR2")
+totalMMXR2 = totalMM.Get("nXR2")
 
 print "*****************************"
 print "****         SR        ******"
@@ -102,7 +125,11 @@ print "Zjets =", ZjetsSR.GetBinContent(1),"+-", ZjetsSR.GetBinError(1)
 print "Zgamma =", ZgammaSR.GetBinContent(1),"+-", ZgammaSR.GetBinError(1)
 print "gamma+jet =", gammaJetsSR.GetBinContent(1),"+-", gammaJetsSR.GetBinError(1)
 print "total =", totalSR.GetBinContent(1),"+-", totalSR.GetBinError(1)
-
+if not COMPATIBILITY:
+    print "gamma+jet (from data) =", gjSR.GetBinContent(1),"+-", gjSR.GetBinError(1)
+    print "total (from MM) =", totalMMSR.GetBinContent(1),"+-", totalMMSR.GetBinError(1)
+    print "data =", dataSR.GetBinContent(1),"+-",dataSR.GetBinError(1)
+    
 print "*****************************"
 print "****         WCR        ******"
 print "*****************************"
@@ -117,6 +144,10 @@ print "Zjets =", ZjetsWCR.GetBinContent(1),"+-", ZjetsWCR.GetBinError(1)
 print "Zgamma =", ZgammaWCR.GetBinContent(1),"+-", ZgammaWCR.GetBinError(1)
 print "gamma+jet =", gammaJetsWCR.GetBinContent(1),"+-", gammaJetsWCR.GetBinError(1)
 print "total =", totalWCR.GetBinContent(1),"+-", totalWCR.GetBinError(1)
+if not COMPATIBILITY:
+    print "gamma+jet (from data) =", gjWCR.GetBinContent(1),"+-", gjWCR.GetBinError(1)
+    print "total (from MM) =", totalMMWCR.GetBinContent(1),"+-", totalMMWCR.GetBinError(1)
+    print "data =", dataWCR.GetBinContent(1),"+-",dataWCR.GetBinError(1)
 
 print "*****************************"
 print "****         TCR        ******"
@@ -132,6 +163,10 @@ print "Zjets =", ZjetsTCR.GetBinContent(1),"+-", ZjetsTCR.GetBinError(1)
 print "Zgamma =", ZgammaTCR.GetBinContent(1),"+-", ZgammaTCR.GetBinError(1)
 print "gamma+jet =", gammaJetsTCR.GetBinContent(1),"+-", gammaJetsTCR.GetBinError(1)
 print "total =", totalTCR.GetBinContent(1),"+-", totalTCR.GetBinError(1)
+if not COMPATIBILITY:
+    print "gamma+jet (from data) =", gjTCR.GetBinContent(1),"+-", gjTCR.GetBinError(1)
+    print "total (from MM) =", totalMMTCR.GetBinContent(1),"+-", totalMMTCR.GetBinError(1)
+    print "data =", dataTCR.GetBinContent(1),"+-",dataTCR.GetBinError(1)
 
 print "*****************************"
 print "****         QCD        ******"
@@ -147,6 +182,10 @@ print "Zjets =", ZjetsQCD.GetBinContent(1),"+-", ZjetsQCD.GetBinError(1)
 print "Zgamma =", ZgammaQCD.GetBinContent(1),"+-", ZgammaQCD.GetBinError(1)
 print "gamma+jet =", gammaJetsQCD.GetBinContent(1),"+-", gammaJetsQCD.GetBinError(1)
 print "total =", totalQCD.GetBinContent(1),"+-", totalQCD.GetBinError(1)
+if not COMPATIBILITY:
+    print "gamma+jet (from data) =", gjQCD.GetBinContent(1),"+-", gjQCD.GetBinError(1)
+    print "total (from MM) =", totalMMQCD.GetBinContent(1),"+-", totalMMQCD.GetBinError(1)
+    print "data =", dataQCD.GetBinContent(1),"+-",dataQCD.GetBinError(1)
 
 print "*****************************"
 print "****         XR1       ******"
@@ -162,6 +201,10 @@ print "Zjets =", ZjetsXR1.GetBinContent(1),"+-", ZjetsXR1.GetBinError(1)
 print "Zgamma =", ZgammaXR1.GetBinContent(1),"+-", ZgammaXR1.GetBinError(1)
 print "gamma+jet =", gammaJetsXR1.GetBinContent(1),"+-", gammaJetsXR1.GetBinError(1)
 print "total =", totalXR1.GetBinContent(1),"+-", totalXR1.GetBinError(1)
+if not COMPATIBILITY:
+    print "gamma+jet (from data) =", gjXR1.GetBinContent(1),"+-", gjXR1.GetBinError(1)
+    print "total (from MM) =", totalMMXR1.GetBinContent(1),"+-", totalMMXR1.GetBinError(1)
+    print "data =", dataXR1.GetBinContent(1),"+-",dataXR1.GetBinError(1)
 
 print "*****************************"
 print "****         XR2       ******"
@@ -177,5 +220,9 @@ print "Zjets =", ZjetsXR2.GetBinContent(1),"+-", ZjetsXR2.GetBinError(1)
 print "Zgamma =", ZgammaXR2.GetBinContent(1),"+-", ZgammaXR2.GetBinError(1)
 print "gamma+jet =", gammaJetsXR2.GetBinContent(1),"+-", gammaJetsXR2.GetBinError(1)
 print "total =", totalXR2.GetBinContent(1),"+-", totalXR2.GetBinError(1)
+if not COMPATIBILITY:
+    print "gamma+jet (from data) =", gjXR2.GetBinContent(1),"+-", gjXR2.GetBinError(1)
+    print "total (from MM) =", totalMMXR2.GetBinContent(1),"+-", totalMMXR2.GetBinError(1)
+    print "data =", dataXR2.GetBinContent(1),"+-",dataXR2.GetBinError(1)
 
 

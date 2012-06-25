@@ -13,6 +13,7 @@
 #include "egammaEvent/egammaPIDdefs.h"
 #include "egammaEvent/EMShower.h"
 #include "egammaEvent/EMConvert.h"
+#include "egammaEvent/EMTrackMatch.h"
 
 #include "muonEvent/MuonContainer.h"
 
@@ -38,6 +39,9 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "VxVertex/VxTrackAtVertex.h"
+
+#include "MCTruthClassifier/IMCTruthClassifier.h"
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
 #include "MuonEfficiencyCorrections/AnalysisMuonEfficiencyScaleFactors.h"
 #include "PathResolver/PathResolver.h"
@@ -117,6 +121,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("AltSelectionTool",   m_AltSelectionTool);
 
   declareProperty("JetCleaningTool", m_JetCleaningTool);
+
+  declareProperty("doTruthClassifier", m_doTruthClassifier = false);
+  declareProperty("MCTruthClassifier", m_MCTruthClassifier);
 
   declareProperty("TruthStudiesTool", m_truth);
   declareProperty("doTruthStudies", m_doTruthStudies = false);
@@ -204,10 +211,19 @@ StatusCode SignalGammaLepton::initialize(){
   }
 
   // retrieving the truth studies tool
-  if (m_doTruthStudies || m_filterWJets || m_filterTTbar) {
+  if (m_isMC && (m_doTruthStudies || m_filterWJets || m_filterTTbar)) {
     sc = m_truth.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve tool " << m_truth);
+      return sc;
+    }
+  }
+
+  // retrieving the truth studies tool
+  if (m_isMC && m_doTruthClassifier) {
+    sc = m_MCTruthClassifier.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool " << m_MCTruthClassifier);
       return sc;
     }
   }
@@ -406,6 +422,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_phi = new std::vector<float>;
     m_ph_tight = new std::vector<int>;
     m_ph_alt = new std::vector<int>;
+    m_ph_truth = new std::vector<int>;
+    m_ph_origin = new std::vector<int>;
 
     m_ph_AR = new std::vector<int>;
     m_ph_convType = new std::vector<int>;
@@ -416,6 +434,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_numSiEl = new std::vector<int>;
     m_ph_numPixEl = new std::vector<int>;
     m_ph_numBEl = new std::vector<int>;
+    m_ph_expectBLayerHit = new std::vector<int>;
 
     m_el_pt = new std::vector<float>;
     m_el_eta = new std::vector<float>;
@@ -489,6 +508,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonPhi", &m_ph_phi);
     m_tree->Branch("PhotonTight", &m_ph_tight);
     m_tree->Branch("PhotonAlt", &m_ph_alt);
+    m_tree->Branch("PhotonTruth", &m_ph_truth);
+    m_tree->Branch("PhotonOrigin", &m_ph_origin);
 
     m_tree->Branch("PhotonAR", &m_ph_AR);
     m_tree->Branch("PhotonConvType", &m_ph_convType);
@@ -499,6 +520,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonNumSiEl", &m_ph_numSiEl);
     m_tree->Branch("PhotonNumPixEl", &m_ph_numPixEl);
     m_tree->Branch("PhotonNumBEl", &m_ph_numBEl);
+    m_tree->Branch("PhotonExpectBLayerHit", &m_ph_expectBLayerHit);
 
     m_tree->Branch("ElectronPt", &m_el_pt);
     m_tree->Branch("ElectronEta", &m_el_eta);
@@ -569,6 +591,8 @@ StatusCode SignalGammaLepton::execute()
     m_ph_phi->clear();
     m_ph_tight->clear();
     m_ph_alt->clear();
+    m_ph_truth->clear();
+    m_ph_origin->clear();
 
     m_ph_AR->clear();
     m_ph_convType->clear();
@@ -579,6 +603,7 @@ StatusCode SignalGammaLepton::execute()
     m_ph_numSiEl->clear();
     m_ph_numPixEl->clear();
     m_ph_numBEl->clear();
+    m_ph_expectBLayerHit->clear();
 
     m_el_pt->clear();
     m_el_eta->clear();
@@ -977,6 +1002,16 @@ StatusCode SignalGammaLepton::execute()
       }
     }
 
+    ATH_MSG_DEBUG("will do truth classifier");
+    int truth = -1;
+    int origin = -1;
+    if (m_isMC && m_doTruthClassifier) {
+      std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> res =
+	m_MCTruthClassifier->particleTruthClassifier(*ph);
+      truth = res.first;
+      origin = res.second;
+    }
+
     ATH_MSG_DEBUG("will push back stuff");
 
     if (m_outputNtuple) {
@@ -986,11 +1021,13 @@ StatusCode SignalGammaLepton::execute()
       m_ph_phi->push_back((*ph)->phi());
       m_ph_tight->push_back(isTight);
       m_ph_alt->push_back(isAlt);
+      m_ph_truth->push_back(truth);
+      m_ph_origin->push_back(origin);
 
       const EMConvert *convert = (*ph)->detail<EMConvert>();
       
       if (!convert) {
-	ATH_MSG_ERROR("Selected photon had now EMConvert");
+	ATH_MSG_ERROR("Selected photon had no EMConvert");
 	return StatusCode::FAILURE;
       }
       m_ph_AR->push_back(convert->ambiguityResult());
@@ -1002,6 +1039,13 @@ StatusCode SignalGammaLepton::execute()
       m_ph_numSiEl->push_back(numSiEl);
       m_ph_numPixEl->push_back(numPixEl);
       m_ph_numBEl->push_back(numBEl);
+
+      const EMTrackMatch *match = (*ph)->detail<EMTrackMatch>();
+      if (match) {
+	m_ph_expectBLayerHit->push_back(match->expectHitInBLayer());
+      } else {
+	m_ph_expectBLayerHit->push_back(-1);
+      }	
     }
 
     if ((*ph)->conversion()) numConvPhPass++;
