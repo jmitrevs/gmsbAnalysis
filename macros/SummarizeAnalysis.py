@@ -287,3 +287,63 @@ if not compat:
     print "data =", dataXR2.GetBinContent(1),"+-",dataXR2.GetBinError(1)
 
 
+# This prints the latex yield table
+if printTable:
+    print " Yields & WCR & HMT & HMET & SR \\"
+
+    print " \Wgamma & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        WgammaWCR.GetBinContent(1), WgammaWCR.GetBinError(1), WgammaTCR.GetBinContent(1), WgammaTCR.GetBinError(1),
+        WgammaXR2.GetBinContent(1), WgammaXR2.GetBinError(1), WgammaSR.GetBinContent(1), WgammaSR.GetBinError(1))
+
+    print " \Wjets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        WjetsWCR.GetBinContent(1), WjetsWCR.GetBinError(1), WjetsTCR.GetBinContent(1), WjetsTCR.GetBinError(1),
+        WjetsXR2.GetBinContent(1), WjetsXR2.GetBinError(1), WjetsSR.GetBinContent(1), WjetsSR.GetBinError(1))
+
+    print " \ttbargamma & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        ttbargammaWCR.GetBinContent(1), ttbargammaWCR.GetBinError(1), ttbargammaTCR.GetBinContent(1), ttbargammaTCR.GetBinError(1),
+        ttbargammaXR2.GetBinContent(1), ttbargammaXR2.GetBinError(1), ttbargammaSR.GetBinContent(1), ttbargammaSR.GetBinError(1))
+
+    print " \dilep & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        ttbarDilepWCR.GetBinContent(1), ttbarDilepWCR.GetBinError(1), ttbarDilepTCR.GetBinContent(1), ttbarDilepTCR.GetBinError(1),
+        ttbarDilepXR2.GetBinContent(1), ttbarDilepXR2.GetBinError(1), ttbarDilepSR.GetBinContent(1), ttbarDilepSR.GetBinError(1))
+
+    print " \lepjets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        ttbarLepjetsWCR.GetBinContent(1), ttbarLepjetsWCR.GetBinError(1), ttbarLepjetsTCR.GetBinContent(1), ttbarLepjetsTCR.GetBinError(1),
+        ttbarLepjetsXR2.GetBinContent(1), ttbarLepjetsXR2.GetBinError(1), ttbarLepjetsSR.GetBinContent(1), ttbarLepjetsSR.GetBinError(1))
+
+    print " single top & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        stWCR.GetBinContent(1), stWCR.GetBinError(1), stTCR.GetBinContent(1), stTCR.GetBinError(1),
+        stXR2.GetBinContent(1), stXR2.GetBinError(1), stSR.GetBinContent(1), stSR.GetBinError(1))
+
+    print " diboson & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        dibosonWCR.GetBinContent(1), dibosonWCR.GetBinError(1), dibosonTCR.GetBinContent(1), dibosonTCR.GetBinError(1),
+        dibosonXR2.GetBinContent(1), dibosonXR2.GetBinError(1), dibosonSR.GetBinContent(1), dibosonSR.GetBinError(1))
+
+    print " \Zgamma & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        ZgammaWCR.GetBinContent(1), ZgammaWCR.GetBinError(1), ZgammaTCR.GetBinContent(1), ZgammaTCR.GetBinError(1),
+        ZgammaXR2.GetBinContent(1), ZgammaXR2.GetBinError(1), ZgammaSR.GetBinContent(1), ZgammaSR.GetBinError(1))
+
+    print " \Zjets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        ZjetsWCR.GetBinContent(1), ZjetsWCR.GetBinError(1), ZjetsTCR.GetBinContent(1), ZjetsTCR.GetBinError(1),
+        ZjetsXR2.GetBinContent(1), ZjetsXR2.GetBinError(1), ZjetsSR.GetBinContent(1), ZjetsSR.GetBinError(1))
+
+    if lepton == ELECTRON:
+        print " diphoton & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+            diphotonWCR.GetBinContent(1), diphotonWCR.GetBinError(1), diphotonTCR.GetBinContent(1), diphotonTCR.GetBinError(1),
+            diphotonXR2.GetBinContent(1), diphotonXR2.GetBinError(1), diphotonSR.GetBinContent(1), diphotonSR.GetBinError(1))
+
+    print " \gammajets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        gjWCR.GetBinContent(1), gjWCR.GetBinError(1), gjTCR.GetBinContent(1), gjTCR.GetBinError(1),
+        gjXR2.GetBinContent(1), gjXR2.GetBinError(1), gjSR.GetBinContent(1), gjSR.GetBinError(1))
+
+    print "\hline"
+
+    print " total predicted & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        totalWCR.GetBinContent(1), totalWCR.GetBinError(1), totalTCR.GetBinContent(1), totalTCR.GetBinError(1),
+        totalXR2.GetBinContent(1), totalXR2.GetBinError(1), totalSR.GetBinContent(1), totalSR.GetBinError(1))
+
+    print "\hline"
+
+    print " data & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+        dataWCR.GetBinContent(1), dataWCR.GetBinError(1), dataTCR.GetBinContent(1), dataTCR.GetBinError(1),
+        dataXR2.GetBinContent(1), dataXR2.GetBinError(1), dataSR.GetBinContent(1), dataSR.GetBinError(1))
