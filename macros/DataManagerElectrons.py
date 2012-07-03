@@ -13,11 +13,12 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_ntuple5/mergedFiles/"
-#loosepath = ""
-loosepath = "/data3/jmitrevs/lepphoton/elphoton_ntupleloose/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/elphoton_ntuple6/mergedFiles/"
+loosepath = ""
+#loosepath = "/data3/jmitrevs/lepphoton/elphoton_ntupleloose/mergedFiles/"
 oldpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/elphoton_data6/mergedFiles/"
+medpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple5/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/elphoton_data7/mergedFiles/"
 dataloosepath = "/data3/jmitrevs/lepphoton/elphoton_datalooser/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/elphoton_grid/mergedFiles/"
 
@@ -92,11 +93,11 @@ ZZFileName = path + "ZZ.root"
 
 ZnunugammagammaFileName = oldpath + "Znunugammagamma.root"
 
-gammaFileName_Np1 = path + "gamma_Np1.root"
-gammaFileName_Np2 = path + "gamma_Np2.root"
-gammaFileName_Np3 = path + "gamma_Np3.root"
-gammaFileName_Np4 = path + "gamma_Np4.root"
-gammaFileName_Np5 = path + "gamma_Np5.root"
+gammaFileName_Np1 = medpath + "gamma_Np1.root"
+gammaFileName_Np2 = medpath + "gamma_Np2.root"
+gammaFileName_Np3 = medpath + "gamma_Np3.root"
+gammaFileName_Np4 = medpath + "gamma_Np4.root"
+gammaFileName_Np5 = medpath + "gamma_Np5.root"
 
 Zee_altFileName = oldpath + "Zee_pythia.root"
 
@@ -381,8 +382,8 @@ if PRINT_YIELDS:
 #wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.132 * 0.46726 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.132
+WjetExtraScale = 0.6567 * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.6567
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
@@ -461,7 +462,8 @@ gamma_Np4_scale     =  Lumi  *  1355.9 * 6.2450E-01 / nOriggamma_Np4
 gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
 
 # this is for the diphotons50
-diphotons_scale = Lumi * 6.1162 * 8.7509E-01 / nOrigdiphotons
+### k-factor of 1.2 is made up.
+diphotons_scale = Lumi * 6.1162 * 8.7509E-01 * 1.2 / nOrigdiphotons
 
 # Zee pythia
 Zee_alt_scale = Lumi * 834.62 / nOrigZee_alt

@@ -101,7 +101,7 @@ def TagAndProbe(ttree, outfile, lepton, calculate = True, subBack = True):
                         eff_eta_num.Fill(ev.ElMinv/GeV, ev.ElectronEta[probe], weight)
                         eff_phi_num.Fill(ev.ElMinv/GeV, ev.ElectronPhi[probe], weight)
                         eff_pt_num.Fill(ev.ElMinv/GeV, ev.ElectronPt[probe]/GeV, weight)
-        else:
+        elif ev.MuonPt[0] > 25*GeV and ev.MuonPt[1] > 25*GeV:
             for tag, probe in ((0, 1), (1, 0)):
                 #print "tag, probe =",tag,",",probe
                 if ev.MuonTight[tag]:

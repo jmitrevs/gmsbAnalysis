@@ -1,10 +1,45 @@
 #! /usr/bin/env python
+import sys
+import getopt
 
 import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
 COMPATIBILITY=False
+ELECTRON = 0
+MUON = 1
+
+DEFAULTLEPTON = ELECTRON
+
+try:
+    # retrive command line options
+    shortopts  = "eml:c"
+    longopts   = ["lepton="]
+    opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
+except getopt.GetoptError:
+    # print help information and exit:
+    print "ERROR: unknown options in argument %s" % sys.argv[1:]
+    sys.exit(1)
+
+compat = COMPATIBILITY
+lepton = DEFAULTLEPTON
+for o, a in opts:
+    if o in ("-m"):
+        lepton = MUON
+    elif o in ("-e"):
+        lepton = ELECTRON
+    elif o in ("-c"):
+        compat = True
+    elif o in ("-l", "--lepton"):
+        if a == "electron":
+            lepton = ELECTRON
+        elif a == "muon":
+            lepton = MUON
+        else:
+            print "*** Lepton must be 'electron' or 'muon ****"
+            sys.exit(1)
+
 
 Wjets = ROOT.TFile("WjetsHist.root")
 Wgamma = ROOT.TFile("WgammaHist.root")
@@ -20,6 +55,8 @@ total = ROOT.TFile("total.root")
 data = ROOT.TFile("data.root")
 gj = ROOT.TFile("gjHist.root")
 totalMM = ROOT.TFile("totalMM.root")
+if lepton == ELECTRON:
+    diphotons = ROOT.TFile("diphotonsHist.root")
 
 WjetsSR = Wjets.Get("nSIG")
 WgammaSR = Wgamma.Get("nSIG")
@@ -35,6 +72,8 @@ totalSR = total.Get("nSIG")
 dataSR = data.Get("nSIG")
 gjSR = gj.Get("nSIG")
 totalMMSR = totalMM.Get("nSIG")
+if lepton == ELECTRON:
+    diphotonsSR = diphotons.Get("nSIG")
 
 WjetsWCR = Wjets.Get("nWCR")
 WgammaWCR = Wgamma.Get("nWCR")
@@ -50,6 +89,8 @@ totalWCR = total.Get("nWCR")
 dataWCR = data.Get("nWCR")
 gjWCR = gj.Get("nWCR")
 totalMMWCR = totalMM.Get("nWCR")
+if lepton == ELECTRON:
+    diphotonsWCR = diphotons.Get("nWCR")
 
 WjetsTCR = Wjets.Get("nTCR")
 WgammaTCR = Wgamma.Get("nTCR")
@@ -65,6 +106,8 @@ totalTCR = total.Get("nTCR")
 dataTCR = data.Get("nTCR")
 gjTCR = gj.Get("nTCR")
 totalMMTCR = totalMM.Get("nTCR")
+if lepton == ELECTRON:
+    diphotonsTCR = diphotons.Get("nTCR")
 
 WjetsQCD = Wjets.Get("nQCD")
 WgammaQCD = Wgamma.Get("nQCD")
@@ -80,6 +123,8 @@ totalQCD = total.Get("nQCD")
 dataQCD = data.Get("nQCD")
 gjQCD = gj.Get("nQCD")
 totalMMQCD = totalMM.Get("nQCD")
+if lepton == ELECTRON:
+    diphotonsQCD = diphotons.Get("nQCD")
 
 WjetsXR1 = Wjets.Get("nXR1")
 WgammaXR1 = Wgamma.Get("nXR1")
@@ -95,6 +140,8 @@ totalXR1 = total.Get("nXR1")
 dataXR1 = data.Get("nXR1")
 gjXR1 = gj.Get("nXR1")
 totalMMXR1 = totalMM.Get("nXR1")
+if lepton == ELECTRON:
+    diphotonsXR1 = diphotons.Get("nXR1")
 
 WjetsXR2 = Wjets.Get("nXR2")
 WgammaXR2 = Wgamma.Get("nXR2")
@@ -110,6 +157,8 @@ totalXR2 = total.Get("nXR2")
 dataXR2 = data.Get("nXR2")
 gjXR2 = gj.Get("nXR2")
 totalMMXR2 = totalMM.Get("nXR2")
+if lepton == ELECTRON:
+    diphotonsXR2 = diphotons.Get("nXR2")
 
 print "*****************************"
 print "****         SR        ******"
@@ -123,9 +172,11 @@ print "singletop =", stSR.GetBinContent(1),"+-", stSR.GetBinError(1)
 print "diboson =", dibosonSR.GetBinContent(1),"+-", dibosonSR.GetBinError(1)
 print "Zjets =", ZjetsSR.GetBinContent(1),"+-", ZjetsSR.GetBinError(1)
 print "Zgamma =", ZgammaSR.GetBinContent(1),"+-", ZgammaSR.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsSR.GetBinContent(1),"+-", diphotonsSR.GetBinError(1)
 print "gamma+jet =", gammaJetsSR.GetBinContent(1),"+-", gammaJetsSR.GetBinError(1)
 print "total =", totalSR.GetBinContent(1),"+-", totalSR.GetBinError(1)
-if not COMPATIBILITY:
+if not compat:
     print "gamma+jet (from data) =", gjSR.GetBinContent(1),"+-", gjSR.GetBinError(1)
     print "total (from MM) =", totalMMSR.GetBinContent(1),"+-", totalMMSR.GetBinError(1)
     print "data =", dataSR.GetBinContent(1),"+-",dataSR.GetBinError(1)
@@ -142,9 +193,11 @@ print "singletop =", stWCR.GetBinContent(1),"+-", stWCR.GetBinError(1)
 print "diboson =", dibosonWCR.GetBinContent(1),"+-", dibosonWCR.GetBinError(1)
 print "Zjets =", ZjetsWCR.GetBinContent(1),"+-", ZjetsWCR.GetBinError(1)
 print "Zgamma =", ZgammaWCR.GetBinContent(1),"+-", ZgammaWCR.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsWCR.GetBinContent(1),"+-", diphotonsWCR.GetBinError(1)
 print "gamma+jet =", gammaJetsWCR.GetBinContent(1),"+-", gammaJetsWCR.GetBinError(1)
 print "total =", totalWCR.GetBinContent(1),"+-", totalWCR.GetBinError(1)
-if not COMPATIBILITY:
+if not compat:
     print "gamma+jet (from data) =", gjWCR.GetBinContent(1),"+-", gjWCR.GetBinError(1)
     print "total (from MM) =", totalMMWCR.GetBinContent(1),"+-", totalMMWCR.GetBinError(1)
     print "data =", dataWCR.GetBinContent(1),"+-",dataWCR.GetBinError(1)
@@ -161,9 +214,11 @@ print "singletop =", stTCR.GetBinContent(1),"+-", stTCR.GetBinError(1)
 print "diboson =", dibosonTCR.GetBinContent(1),"+-", dibosonTCR.GetBinError(1)
 print "Zjets =", ZjetsTCR.GetBinContent(1),"+-", ZjetsTCR.GetBinError(1)
 print "Zgamma =", ZgammaTCR.GetBinContent(1),"+-", ZgammaTCR.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsTCR.GetBinContent(1),"+-", diphotonsTCR.GetBinError(1)
 print "gamma+jet =", gammaJetsTCR.GetBinContent(1),"+-", gammaJetsTCR.GetBinError(1)
 print "total =", totalTCR.GetBinContent(1),"+-", totalTCR.GetBinError(1)
-if not COMPATIBILITY:
+if not compat:
     print "gamma+jet (from data) =", gjTCR.GetBinContent(1),"+-", gjTCR.GetBinError(1)
     print "total (from MM) =", totalMMTCR.GetBinContent(1),"+-", totalMMTCR.GetBinError(1)
     print "data =", dataTCR.GetBinContent(1),"+-",dataTCR.GetBinError(1)
@@ -180,9 +235,11 @@ print "singletop =", stQCD.GetBinContent(1),"+-", stQCD.GetBinError(1)
 print "diboson =", dibosonQCD.GetBinContent(1),"+-", dibosonQCD.GetBinError(1)
 print "Zjets =", ZjetsQCD.GetBinContent(1),"+-", ZjetsQCD.GetBinError(1)
 print "Zgamma =", ZgammaQCD.GetBinContent(1),"+-", ZgammaQCD.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsQCD.GetBinContent(1),"+-", diphotonsQCD.GetBinError(1)
 print "gamma+jet =", gammaJetsQCD.GetBinContent(1),"+-", gammaJetsQCD.GetBinError(1)
 print "total =", totalQCD.GetBinContent(1),"+-", totalQCD.GetBinError(1)
-if not COMPATIBILITY:
+if not compat:
     print "gamma+jet (from data) =", gjQCD.GetBinContent(1),"+-", gjQCD.GetBinError(1)
     print "total (from MM) =", totalMMQCD.GetBinContent(1),"+-", totalMMQCD.GetBinError(1)
     print "data =", dataQCD.GetBinContent(1),"+-",dataQCD.GetBinError(1)
@@ -199,9 +256,11 @@ print "singletop =", stXR1.GetBinContent(1),"+-", stXR1.GetBinError(1)
 print "diboson =", dibosonXR1.GetBinContent(1),"+-", dibosonXR1.GetBinError(1)
 print "Zjets =", ZjetsXR1.GetBinContent(1),"+-", ZjetsXR1.GetBinError(1)
 print "Zgamma =", ZgammaXR1.GetBinContent(1),"+-", ZgammaXR1.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsXR1.GetBinContent(1),"+-", diphotonsXR1.GetBinError(1)
 print "gamma+jet =", gammaJetsXR1.GetBinContent(1),"+-", gammaJetsXR1.GetBinError(1)
 print "total =", totalXR1.GetBinContent(1),"+-", totalXR1.GetBinError(1)
-if not COMPATIBILITY:
+if not compat:
     print "gamma+jet (from data) =", gjXR1.GetBinContent(1),"+-", gjXR1.GetBinError(1)
     print "total (from MM) =", totalMMXR1.GetBinContent(1),"+-", totalMMXR1.GetBinError(1)
     print "data =", dataXR1.GetBinContent(1),"+-",dataXR1.GetBinError(1)
@@ -218,9 +277,11 @@ print "singletop =", stXR2.GetBinContent(1),"+-", stXR2.GetBinError(1)
 print "diboson =", dibosonXR2.GetBinContent(1),"+-", dibosonXR2.GetBinError(1)
 print "Zjets =", ZjetsXR2.GetBinContent(1),"+-", ZjetsXR2.GetBinError(1)
 print "Zgamma =", ZgammaXR2.GetBinContent(1),"+-", ZgammaXR2.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsXR2.GetBinContent(1),"+-", diphotonsXR2.GetBinError(1)
 print "gamma+jet =", gammaJetsXR2.GetBinContent(1),"+-", gammaJetsXR2.GetBinError(1)
 print "total =", totalXR2.GetBinContent(1),"+-", totalXR2.GetBinError(1)
-if not COMPATIBILITY:
+if not compat:
     print "gamma+jet (from data) =", gjXR2.GetBinContent(1),"+-", gjXR2.GetBinError(1)
     print "total (from MM) =", totalMMXR2.GetBinContent(1),"+-", totalMMXR2.GetBinError(1)
     print "data =", dataXR2.GetBinContent(1),"+-",dataXR2.GetBinError(1)

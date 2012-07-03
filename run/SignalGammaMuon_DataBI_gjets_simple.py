@@ -91,7 +91,7 @@ gmsbSelectionTool.IsMC = False
 gmsbSelectionTool.SmearMC = False
 gmsbSelectionTool.ElectronPt = 25*GeV
 gmsbSelectionTool.PhotonPt = 85*GeV
-gmsbSelectionTool.MuonPt = 25*GeV
+#gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -120,7 +120,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             JetCleaningTool = myJetCleaningTool,
                             applyTrigger = False,
                             matchTrigger = 1,
-                            RequireTight = False,
+                            RequireTightLep = False,
                             triggers = 'EF_mu18',
                             NumPhotons = 1,
                             NumMuons = 1,

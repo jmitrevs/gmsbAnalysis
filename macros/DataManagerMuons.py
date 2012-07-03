@@ -12,72 +12,88 @@ PRINT_YIELDS = True
 
 Lumi = 4708.61
 
+USE_LOOSE_WJETS = True
+
 print "Lepton is MUON."
-path = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
-altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple2/mergedFiles/"
-#altpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleABCD/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/muphoton_dataABCD2/mergedFiles/"
-dataloosepath = "/data3/jmitrevs/lepphoton/muphoton_data4/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
+#path = "/data3/jmitrevs/lepphoton/muphoton_ntupleABCD/mergedFiles/"
+altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/muphoton_data6/mergedFiles/"
+#datapath = "/data3/jmitrevs/lepphoton/muphoton_dataABCD2/mergedFiles/"
+loosepath = ""
+#loosepath = "/data3/jmitrevs/lepphoton/muphoton_ntupleloose/mergedFiles/"
+dataloosepath = "/data3/jmitrevs/lepphoton/muphoton_dataloose3/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/muphoton_grid/mergedFiles/"
 
 winoFileName = sigpath + "wino_600_200_mu.root"
 
-WlepnuFileName_Np0 = altpath + "Wmunu_Np0.root"
-WlepnuFileName_Np1 = altpath + "Wmunu_Np1.root"
-WlepnuFileName_Np2 = altpath + "Wmunu_Np2.root"
-WlepnuFileName_Np3 = altpath + "Wmunu_Np3.root"
-WlepnuFileName_Np4 = altpath + "Wmunu_Np4.root"
-WlepnuFileName_Np5 = altpath + "Wmunu_Np5.root"
+WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
+WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
+WlepnuFileName_Np2 = path + "Wmunu_Np2.root"
+WlepnuFileName_Np3 = path + "Wmunu_Np3.root"
+WlepnuFileName_Np4 = path + "Wmunu_Np4.root"
+WlepnuFileName_Np5 = path + "Wmunu_Np5.root"
 
-ZleplepFileName_Np0 = altpath + "Zmumu_Np0.root"
-ZleplepFileName_Np1 = altpath + "Zmumu_Np1.root"
-ZleplepFileName_Np2 = altpath + "Zmumu_Np2.root"
-ZleplepFileName_Np3 = altpath + "Zmumu_Np3.root"
-ZleplepFileName_Np4 = altpath + "Zmumu_Np4.root"
-ZleplepFileName_Np5 = altpath + "Zmumu_Np5.root"
+if loosepath:
+    print "using loosepath"
+    ZleplepFileName_Np0 = path + "Zmumu_Np0.root"
+    ZleplepFileName_Np1 = loosepath + "Zmumu_Np1.root"
+    ZleplepFileName_Np2 = loosepath + "Zmumu_Np2.root"
+    ZleplepFileName_Np3 = loosepath + "Zmumu_Np3.root"
+    ZleplepFileName_Np4 = loosepath + "Zmumu_Np4.root"
+    ZleplepFileName_Np5 = loosepath + "Zmumu_Np5.root"
+    ZtautaugammaFileName = loosepath + "Ztautaugamma.root"
+    ZleplepgammaFileName = loosepath + "Zmumugamma.root"
+else:
+    ZleplepFileName_Np0 = path + "Zmumu_Np0.root"
+    ZleplepFileName_Np1 = path + "Zmumu_Np1.root"
+    ZleplepFileName_Np2 = path + "Zmumu_Np2.root"
+    ZleplepFileName_Np3 = path + "Zmumu_Np3.root"
+    ZleplepFileName_Np4 = path + "Zmumu_Np4.root"
+    ZleplepFileName_Np5 = path + "Zmumu_Np5.root"
+    ZtautaugammaFileName = path + "Ztautaugamma.root"
+    ZleplepgammaFileName = path + "Zmumugamma.root"
 
-st_tchan_lepnuFileName   = altpath + "st_tchan_munu.root"
-ZleplepgammaFileName = altpath + "Zmumugamma.root"
+st_tchan_lepnuFileName   = path + "st_tchan_munu.root"
 
-WtaunuFileName_Np0 = altpath + "Wtaunu_Np0.root"
-WtaunuFileName_Np1 = altpath + "Wtaunu_Np1.root"
-WtaunuFileName_Np2 = altpath + "Wtaunu_Np2.root"
-WtaunuFileName_Np3 = altpath + "Wtaunu_Np3.root"
-WtaunuFileName_Np4 = altpath + "Wtaunu_Np4.root"
-WtaunuFileName_Np5 = altpath + "Wtaunu_Np5.root"
+WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
+WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
+WtaunuFileName_Np2 = path + "Wtaunu_Np2.root"
+WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
+WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
+WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
 
-ZtautauFileName_Np0 = altpath + "Ztautau_Np0.root"
-ZtautauFileName_Np1 = altpath + "Ztautau_Np1.root"
-ZtautauFileName_Np2 = altpath + "Ztautau_Np2.root"
-ZtautauFileName_Np3 = altpath + "Ztautau_Np3.root"
-ZtautauFileName_Np4 = altpath + "Ztautau_Np4.root"
-ZtautauFileName_Np5 = altpath + "Ztautau_Np5.root"
+ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
+ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
+ZtautauFileName_Np2 = path + "Ztautau_Np2.root"
+ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
+ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
+ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
 
-st_tchan_taunuFileName = altpath + "st_tchan_taunu.root"    
-st_WtFileName   = altpath + "st_Wt.root"    
+st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
+st_WtFileName   = path + "st_Wt.root"    
     
-WgammaFileName_Np0 = altpath + "Wgamma_Np0.root"
-WgammaFileName_Np1 = altpath + "Wgamma_Np1.root"
-WgammaFileName_Np2 = altpath + "Wgamma_Np2.root"
-WgammaFileName_Np3 = altpath + "Wgamma_Np3.root"
-WgammaFileName_Np4 = altpath + "Wgamma_Np4.root"
-WgammaFileName_Np5 = altpath + "Wgamma_Np5.root"
+WgammaFileName_Np0 = path + "Wgamma_Np0.root"
+WgammaFileName_Np1 = path + "Wgamma_Np1.root"
+WgammaFileName_Np2 = path + "Wgamma_Np2.root"
+WgammaFileName_Np3 = path + "Wgamma_Np3.root"
+WgammaFileName_Np4 = path + "Wgamma_Np4.root"
+WgammaFileName_Np5 = path + "Wgamma_Np5.root"
 
-ttbarFileName = altpath + "ttbar.root"
-ttbargammaFileName = altpath + "ttbargamma.root"
+ttbarFileName = path + "ttbar.root"
+ttbargammaFileName = path + "ttbargamma.root"
 
-WWFileName = altpath + "WW.root"
-WZFileName = altpath + "WZ.root"
-ZZFileName = altpath + "ZZ.root"
+WWFileName = path + "WW.root"
+WZFileName = path + "WZ.root"
+ZZFileName = path + "ZZ.root"
 
-ZtautaugammaFileName = altpath + "Ztautaugamma.root"
 # ZnunugammagammaFileName = path + "Znunugammagamma.root"
 
-gammaFileName_Np1 = path + "gamma_Np1.root"
-gammaFileName_Np2 = path + "gamma_Np2.root"
-gammaFileName_Np3 = path + "gamma_Np3.root"
-gammaFileName_Np4 = path + "gamma_Np4.root"
-gammaFileName_Np5 = path + "gamma_Np5.root"
+gammaFileName_Np1 = altpath + "gamma_Np1.root"
+gammaFileName_Np2 = altpath + "gamma_Np2.root"
+gammaFileName_Np3 = altpath + "gamma_Np3.root"
+gammaFileName_Np4 = altpath + "gamma_Np4.root"
+gammaFileName_Np5 = altpath + "gamma_Np5.root"
 
 # diphotonsFileName = path + "diphotons.root"
 
@@ -358,9 +374,16 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.132 * 0.46726 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.132
+WjetExtraScale = 0.191
+ttbarLepjetExtraScale = 0.191
+
+if USE_LOOSE_WJETS:
+    WjetExtraScale *= 0.48201 # from tight/loose in high WCR - 10% unc.
  
+#in SR, this is 0.3778 - 50% uncertainty
+#in TCR, this is 0.5617 - 16% unc
+#in XR2, this is 0.4421 - 15% unc
+
 Wlepnu_Np0_scale     =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.20 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
 Wlepnu_Np2_scale     =  Lumi  *   377.83 * 1.20 * WjetExtraScale / nOrigWlepnu_Np2

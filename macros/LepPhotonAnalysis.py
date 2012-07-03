@@ -71,14 +71,14 @@ EL_MT = 100*GeV
 EL_QCD_MINV_WINDOW = 30*GeV
 EL_MINV_WINDOW = 15*GeV
 
-EL_WCR_MET_MIN = 25*GeV
+EL_WCR_MET_MIN = 35*GeV
 EL_WCR_MET_MAX = 80*GeV
-EL_WCR_MT_MIN = 40*GeV
-EL_WCR_MT_MAX = 80*GeV
+EL_WCR_MT_MIN = 35*GeV
+EL_WCR_MT_MAX = 90*GeV
 
-EL_TCR_MET_MIN = 55*GeV
-EL_TCR_MET_MAX = 90*GeV
-EL_TCR_MT_MIN =  100*GeV
+EL_TCR_MET_MIN = 35*GeV
+EL_TCR_MET_MAX = 80*GeV
+EL_TCR_MT_MIN =  90*GeV
 
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 15*GeV
@@ -96,17 +96,17 @@ MU_MT = 100*GeV
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
 
-MU_WCR_MET_MIN = 25*GeV
+MU_WCR_MET_MIN = 35*GeV
 MU_WCR_MET_MAX = 80*GeV
-MU_WCR_MT_MIN = 40*GeV
-MU_WCR_MT_MAX = 80*GeV
+MU_WCR_MT_MIN = 35*GeV
+MU_WCR_MT_MAX = 90*GeV
 
-MU_TCR_MET_MIN = 55*GeV
-MU_TCR_MET_MAX = 90*GeV
-MU_TCR_MT_MIN =  100*GeV
+MU_TCR_MET_MIN = 35*GeV
+MU_TCR_MET_MAX = 80*GeV
+MU_TCR_MT_MIN =  90*GeV
 
-MU_QCD_MET_MAX = 20*GeV
-MU_QCD_MT_MAX = 20*GeV
+MU_QCD_MET_MAX = 15*GeV
+MU_QCD_MT_MAX = 15*GeV
 
 DELTAR_MU_PH = 0.7
 
@@ -671,11 +671,11 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
     print "  W+jets CR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
     if measureFakeAndEff:
-        print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nQCD.GetBinError(1)
+        print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nWCRTight.GetBinError(1)
     print "  ttbar CR Yield =",nTCR.GetBinContent(1),"+-", nTCR.GetBinError(1)
     print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
     if measureFakeAndEff:
-        print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCD.GetBinError(1)
+        print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCDTight.GetBinError(1)
         
     print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
     print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
@@ -788,12 +788,15 @@ def main():
 
 def Nqcd(nLoose, nTight, eta, lepton):
     if lepton == MUON:
-        eps_sig = 0.973
-        eps_qcd = 0.62
+        #eps_sig = 1.0
+        eps_sig = 0.984
+        #eps_qcd = 0.62
+        #eps_qcd = 0.50
+        eps_qcd = 0.5
     else:
         #eps_qcd = 0.23
-        #eps_qcd = 0.19
-        eps_qcd = 0.20
+        eps_qcd = 0.19
+        #eps_qcd = 0.20
         eps_sig = ElEffPar.GetEfficiency(eta)
     #print "eta =", eta, "eps_qcd =", eps_qcd, "eps_sig =", eps_sig
     if eps_sig != eps_qcd:
