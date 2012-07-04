@@ -146,6 +146,22 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     f = ROOT.TFile(outfile, 'RECREATE')
 
 
+    nBinsEta = 30
+    nBinsPt = 50
+    nBinsHT = 75
+    if plotsRegion == WCR:
+        nBinsEta = 15
+        nBinsPt = 25
+        nBinsHT = 50
+    elif plotsRegion == TCR or plotsRegion == XR2:
+        nBinsEta = 15
+        nBinsPt = 25
+        nBinsHT = 30
+    elif plotsRegion == SR:
+        nBinsEta = 15
+        nBinsPt = 25
+        nBinsHT = 30
+
     ##########################
     # Create the histograms
     ##########################
@@ -161,90 +177,95 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     ######## phdir
     phdir.cd()
 
-    h_ph_eta1 = ROOT.TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco}", 60, -3, 3)
-    h_ph_pt1 = ROOT.TH1F("ph_pt1","Transverse momentum of the leading photons;p_{T} [GeV]", 100, 0, 500)
-    h_ph_eta2 = ROOT.TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco}", 60, -3, 3)
-    h_ph_pt2 = ROOT.TH1F("ph_pt2","Transverse momentum of the second photons;p_{T} [GeV]", 100, 0, 500)
+    h_ph_eta1 = ROOT.TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco};Events", nBinsEta, -3, 3)
+    h_ph_pt1 = ROOT.TH1F("ph_pt1","Transverse momentum of the leading photons;p_{T} [GeV];Events", nBinsPt, 50, 300)
+    h_ph_eta2 = ROOT.TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco};Events", nBinsEta, -3, 3)
+    h_ph_pt2 = ROOT.TH1F("ph_pt2","Transverse momentum of the second photons;p_{T} [GeV];Events", nBinsPt, 50, 300)
 
-    # h_ph_ptB_unconv = ROOT.TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;p_{T} [GeV]", 500, 0, 500)
-    # h_ph_ptEC_unconv = ROOT.TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;p_{T} [GeV]", 500, 0, 500)
+    # h_ph_ptB_unconv = ROOT.TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;p_{T} [GeV];Events", 500, 0, 500)
+    # h_ph_ptEC_unconv = ROOT.TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;p_{T} [GeV];Events", 500, 0, 500)
 
-    # h_ph_ptB_conv = ROOT.TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;p_{T} [GeV]", 500, 0, 500)
-    # h_ph_ptEC_conv = ROOT.TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;p_{T} [GeV]", 500, 0, 500)
-    h_ph_el_minv = ROOT.TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV]", 100, 0, 500)
-    h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV]", 100, 0, 500)
-    h_numPh = ROOT.TH1F("numPh", "The number of photons that pass cuts;N_{photons}", 9, -0.5, 8.5)
+    # h_ph_ptB_conv = ROOT.TH1F("ph_ptB_conv","Transverse momentum of the converted Barrel photons;p_{T} [GeV];Events", 500, 0, 500)
+    # h_ph_ptEC_conv = ROOT.TH1F("ph_ptEC_conv","Transverse momentum of the converted EC photons;p_{T} [GeV];Events", 500, 0, 500)
+    h_ph_el_minv = ROOT.TH1F("ph_el_minv", "The invariant mass of the leading photon and electron;M_{inv} [GeV];Events", 100, 0, 500)
+    h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV];Events", 100, 0, 500)
+    h_numPh = ROOT.TH1F("numPh", "The number of photons that pass cuts;N_{photons};Events", 9, -0.5, 8.5)
 
-    h_ph_lep_deltaR = ROOT.TH1F("ph_lep_deltaR", "The delta-R beteween the lepton and the photon", 100, 0, 10)
+    h_ph_lep_deltaR = ROOT.TH1F("ph_lep_deltaR", "The delta-R beteween the lepton and the photon;Events", 50, 0, 5)
 
-    h_ph_ConvType = ROOT.TH1F("ph_ConvType", "The number of conversion tracks;N_{tracks}", 3, -0.5, 2.5)
-    h_ph_numSi0 = ROOT.TH1F("ph_numSi0", "The number of Si hits in conversion track 0;N_{hits}", 30, -9.5, 20.5)
-    h_ph_numSi1 = ROOT.TH1F("ph_numSi1", "The number of Si hits in conversion track 1;N_{hits}", 30, -9.5, 20.5)
-    h_ph_numPix0 = ROOT.TH1F("ph_numPix0", "The number of PIX hits in conversion track 0;N_{hits}", 30, -9.5, 20.5)
-    h_ph_numPix1 = ROOT.TH1F("ph_numPix1", "The number of PIX hits in conversion track 1;N_{hits}", 30, -9.5, 20.5)
-    h_ph_numSiEl = ROOT.TH1F("ph_numSiEl", "The number of Si hits in electron track;N_{hits}", 30, -9.5, 20.5)
-    h_ph_numPixEl = ROOT.TH1F("ph_numPixEl", "The number of PIX hits in electron track;N_{hits}", 30, -9.5, 20.5)
-    h_ph_numBEl = ROOT.TH1F("ph_numBEl", "The number of PIX hits in electron track;N_{hits}", 30, -9.5, 20.5)
-    h_ph_rejectStudies = ROOT.TH1F("ph_rejectStudies", "1 = Fail with BL, 2 = Fail with PIX", 30, -9.5, 20.5)
+    h_ph_ConvType = ROOT.TH1F("ph_ConvType", "The number of conversion tracks;N_{tracks};Events", 3, -0.5, 2.5)
+    h_ph_numSi0 = ROOT.TH1F("ph_numSi0", "The number of Si hits in conversion track 0;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_numSi1 = ROOT.TH1F("ph_numSi1", "The number of Si hits in conversion track 1;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_numPix0 = ROOT.TH1F("ph_numPix0", "The number of PIX hits in conversion track 0;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_numPix1 = ROOT.TH1F("ph_numPix1", "The number of PIX hits in conversion track 1;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_numSiEl = ROOT.TH1F("ph_numSiEl", "The number of Si hits in electron track;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_numPixEl = ROOT.TH1F("ph_numPixEl", "The number of PIX hits in electron track;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_numBEl = ROOT.TH1F("ph_numBEl", "The number of PIX hits in electron track;N_{hits};Events", 30, -9.5, 20.5)
+    h_ph_rejectStudies = ROOT.TH1F("ph_rejectStudies", "1 = Fail with BL, 2 = Fail with PIX;Events", 30, -9.5, 20.5)
 
 
     ######## mudir
     mudir.cd()
-    h_mu_eta1 = ROOT.TH1F("mu_eta1","Psuedorapidity of the leading muons;#eta_{reco}", 60, -3, 3)
-    h_mu_pt1 = ROOT.TH1F("mu_pt1","Transverse momentum of the leading muons;p_{T} [GeV]", 100, 0, 500)
-    h_mu_eta2 = ROOT.TH1F("mu_eta2","Psuedorapidity of the second muons;#eta_{reco}", 60, -3, 3)
-    h_mu_pt2 = ROOT.TH1F("mu_pt2","Transverse momentum of the second muons;p_{T} [GeV]", 100, 0, 500)
-    h_numMu = ROOT.TH1F("numMu", "The number of muons that pass cuts;N_{muons}", 9, -0.5, 8.5)
-    h_mu_mInv = ROOT.TH1F("mu_mInv", "The invariant mass of leading muons;m_{inv} [GeV]", 120, 0, 120)
+    h_mu_eta1 = ROOT.TH1F("mu_eta1","Psuedorapidity of the leading muons;#eta_{reco};Events", nBinsEta, -3, 3)
+    h_mu_pt1 = ROOT.TH1F("mu_pt1","Transverse momentum of the leading muons;p_{T} [GeV];Events", nBinsPt, 0, 250)
+    h_mu_eta2 = ROOT.TH1F("mu_eta2","Psuedorapidity of the second muons;#eta_{reco};Events", nBinsEta, -3, 3)
+    h_mu_pt2 = ROOT.TH1F("mu_pt2","Transverse momentum of the second muons;p_{T} [GeV];Events", nBinsPt, 0, 250)
+    h_numMu = ROOT.TH1F("numMu", "The number of muons that pass cuts;N_{muons};Events", 9, -0.5, 8.5)
+    h_mu_mInv = ROOT.TH1F("mu_mInv", "The invariant mass of leading muons;m_{inv} [GeV];Events", 120, 0, 120)
 
     ######## eldir
     eldir.cd()
-    h_el_eta1 = ROOT.TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco}", 60, -3, 3)
-    h_el_pt1 = ROOT.TH1F("el_pt1","Transverse momentum of the leading electrons;p_{T} [GeV]", 100, 0, 500)
-    h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco}", 60, -3, 3)
-    h_el_pt2 = ROOT.TH1F("el_pt2","Transverse momentum of the second electrons;p_{T} [GeV]", 100, 0, 500)
-    h_numEl = ROOT.TH1F("numEl", "The number of electrons that pass cuts;N_{electrons}", 9, -0.5, 8.5)
-    h_el_mInv = ROOT.TH1F("el_mInv", "The invariant mass of leading electrons;m_{inv} [GeV]", 120, 0, 120)
+    h_el_eta1 = ROOT.TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco};Events", nBinsEta, -3, 3)
+    h_el_pt1 = ROOT.TH1F("el_pt1","Transverse momentum of the leading electrons;p_{T} [GeV];Events", nBinsPt, 0, 250)
+    h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco};Events", nBinsEta, -3, 3)
+    h_el_pt2 = ROOT.TH1F("el_pt2","Transverse momentum of the second electrons;p_{T} [GeV];Events", nBinsPt, 0, 250)
+    h_numEl = ROOT.TH1F("numEl", "The number of electrons that pass cuts;N_{electrons};Events", 9, -0.5, 8.5)
+    h_el_mInv = ROOT.TH1F("el_mInv", "The invariant mass of leading electrons;m_{inv} [GeV];Events", 120, 0, 120)
 
     ######## jdir
     jdir.cd()
-    h_numJets = ROOT.TH1F("numJets", "The number of jets that pass cuts;N_{jets}", 9, -0.5, 8.5)
+    h_numJets = ROOT.TH1F("numJets", "The number of jets that pass cuts;N_{jets};Events", 9, -0.5, 8.5)
 
     ######## MET
     mdir.cd()
-    h_met = ROOT.TH1F("met", "The MET distribution;Etmiss [GeV]", 100, 0, 500)
-    # h_met0J = ROOT.TH1F("met0J", "The MET distribution of events with zero jets;Etmiss [GeV]", 500, 0, 500)
-    # h_met1J = ROOT.TH1F("met1J", "The MET distribution of events with one jet;Etmiss [GeV]", 500, 0, 500)
-    # h_met2J = ROOT.TH1F("met2J", "The MET distribution of events with two jets;Etmiss [GeV]", 500, 0, 500)
-    # h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;Etmiss [GeV]", 500, 0, 500)
-    # h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;Etmiss [GeV]", 500, 0, 500)
+    h_met = ROOT.TH1F("met", "The MET distribution;E_{T}^{miss} [GeV];Events", 50, 0, 250)
+    # h_met0J = ROOT.TH1F("met0J", "The MET distribution of events with zero jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
+    # h_met1J = ROOT.TH1F("met1J", "The MET distribution of events with one jet;E_{T}^{miss} [GeV];Events", 500, 0, 500)
+    # h_met2J = ROOT.TH1F("met2J", "The MET distribution of events with two jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
+    # h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
+    # h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
 
-    # h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;Etmiss [GeV]", 250, 0, 1250)
+    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events", 100, 0, 500)
+    h_metShort = ROOT.TH1F("metShort", "The MET distribution;E_{T}^{miss} [GeV];Events", 20, 0, 100)
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
-						  "The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						  "The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;E_{T}^{miss} [GeV]",
 						  50, 0, math.pi, 20, 100, 300)
 
     h_deltaPhiElMETvsMET = ROOT.TH2F("deltaPhiElMETvsMET", 
-						  "The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						  "The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;E_{T}^{miss} [GeV]",
 						  50, 0, math.pi, 20, 100, 300)
 
     h_deltaPhiMuMETvsMET = ROOT.TH2F("deltaPhiMuMETvsMET", 
-						  "The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;Etmiss [GeV]",
+						  "The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;E_{T}^{miss} [GeV]",
 						  50, 0, math.pi, 20, 100, 300)
     ############ gldir
     gldir.cd()
-    h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 150, 0, 1500)
-    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV]", 100, 0, 500)
-    h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 100, 0, 500)
-    h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 150, 0, 1500)
+    h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV];Events", nBinsHT, 0, 1500)
+    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV];Events", 50, 0, 250)
+    h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV];Events", 50, 0, 250)
+    h_mTelShort = ROOT.TH1F("mTelShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
+    h_mTmuShort = ROOT.TH1F("mTmuShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
+    h_mTelExtended = ROOT.TH1F("mTelExtended", "The m_{T} distribution;m_{T} [GeV];Events", 100, 0, 500)
+    h_mTmuExtended = ROOT.TH1F("mTmuExtended", "The m_{T} distribution;m_{T} [GeV];Events", 100, 0, 500)
+    h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV];Events", nBinsHT, 0, 1500)
 
-    h_mTelvsMET = ROOT.TH2F("mTelvsMET", "m_{T} vs. MET;Etmiss [GeV];m_{T} [GeV]",
+    h_mTelvsMET = ROOT.TH2F("mTelvsMET", "m_{T} vs. MET;E_{T}^{miss} [GeV];m_{T} [GeV]",
                             50, 0, 500, 50, 0, 500)
-    h_mTmuvsMET = ROOT.TH2F("mTmuvsMET", "m_{T} vs. MET;Etmiss [GeV];m_{T} [GeV]",
+    h_mTmuvsMET = ROOT.TH2F("mTmuvsMET", "m_{T} vs. MET;E_{T}^{miss} [GeV];m_{T} [GeV]",
                             50, 0, 500, 50, 0, 500)
 
-    h_eventType = ROOT.TH1F("eventType", "The event type, based on truth;event type", 
+    h_eventType = ROOT.TH1F("eventType", "The event type, based on truth;event type;Events", 
 					 numEventTypes, 0, numEventTypes);
 
     ######## go back to root
@@ -555,10 +576,16 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     (lepton == MUON and met > MU_MET)):
                     h_mTel.Fill(ev.mTel/GeV, weight)
                     h_mTmu.Fill(ev.mTmu/GeV, weight)
+                    h_mTelShort.Fill(ev.mTel/GeV, weight)
+                    h_mTmuShort.Fill(ev.mTmu/GeV, weight)
+                    h_mTelExtended.Fill(ev.mTel/GeV, weight)
+                    h_mTmuExtended.Fill(ev.mTmu/GeV, weight)
                     
                 if ((lepton == ELECTRON and ev.mTel > EL_MT) or
                     (lepton == MUON and ev.mTmu > MU_MT)):
                     h_met.Fill(met/GeV, weight)
+                    h_metShort.Fill(met/GeV, weight)
+                    h_metExtended.Fill(met/GeV, weight)
                 
         if (plotsRegion == NO_SEL or plotsRegion == PRESEL or
             plotsRegion == SR and inSR and not blind or
@@ -574,7 +601,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             if plotsRegion != SR:
                 h_mTel.Fill(ev.mTel/GeV, weight)
                 h_mTmu.Fill(ev.mTmu/GeV, weight)
+                h_mTelShort.Fill(ev.mTel/GeV, weight)
+                h_mTmuShort.Fill(ev.mTmu/GeV, weight)
+                h_mTelExtended.Fill(ev.mTel/GeV, weight)
+                h_mTmuExtended.Fill(ev.mTmu/GeV, weight)
                 h_met.Fill(met/GeV, weight)
+                h_metShort.Fill(met/GeV, weight)
+                h_metExtended.Fill(met/GeV, weight)
 
             h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
             h_ph_mu_minv.Fill(ev.PhMuMinv/GeV, weight)
@@ -791,11 +824,12 @@ def Nqcd(nLoose, nTight, eta, lepton):
         #eps_sig = 1.0
         eps_sig = 0.984
         #eps_qcd = 0.62
-        #eps_qcd = 0.50
-        eps_qcd = 0.5
+        eps_qcd = 0.50
+        #eps_qcd = 0.45
     else:
         #eps_qcd = 0.23
         eps_qcd = 0.19
+        #eps_qcd = 0.17
         #eps_qcd = 0.20
         eps_sig = ElEffPar.GetEfficiency(eta)
     #print "eta =", eta, "eps_qcd =", eps_qcd, "eps_sig =", eps_sig

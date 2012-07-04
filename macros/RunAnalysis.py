@@ -505,13 +505,13 @@ if __name__ == "__main__":
                 plots = LepPhotonAnalysis.SR
             elif a == "WCR":
                 plots = LepPhotonAnalysis.WCR
-            elif a == "TCR":
+            elif a == "TCR" or a == "HMT":
                 plots = LepPhotonAnalysis.TCR
             elif a == "QCD":
                 plots = LepPhotonAnalysis.QCD
             elif a == "XR1":
                 plots = LepPhotonAnalysis.XR1
-            elif a == "XR2":
+            elif a == "XR2" or a == "HMET":
                 plots = LepPhotonAnalysis.XR2
             else:
                 print "*** plots type unknown ****"

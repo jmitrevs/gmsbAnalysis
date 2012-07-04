@@ -374,8 +374,9 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.191
-ttbarLepjetExtraScale = 0.191
+WjetExtraScale = 0.202
+ttbarLepjetExtraScale = 0.202
+ZmumujetExtraScale = 0.202
 
 if USE_LOOSE_WJETS:
     WjetExtraScale *= 0.48201 # from tight/loose in high WCR - 10% unc.
@@ -391,12 +392,12 @@ Wlepnu_Np3_scale     =  Lumi  *   101.88 * 1.20 * WjetExtraScale / nOrigWlepnu_N
 Wlepnu_Np4_scale     =  Lumi  *    25.75 * 1.20 * WjetExtraScale / nOrigWlepnu_Np4
 Wlepnu_Np5_scale     =  Lumi  *     6.92 * 1.20 * WjetExtraScale / nOrigWlepnu_Np5
 
-Zleplep_Np0_scale     =  Lumi  *  668.68 * 1.25   / nOrigZleplep_Np0
-Zleplep_Np1_scale     =  Lumi  *  134.14 * 1.25   / nOrigZleplep_Np1
-Zleplep_Np2_scale     =  Lumi  *   40.33 * 1.25   / nOrigZleplep_Np2
-Zleplep_Np3_scale     =  Lumi  *   11.19 * 1.25   / nOrigZleplep_Np3
-Zleplep_Np4_scale     =  Lumi  *    2.75 * 1.25   / nOrigZleplep_Np4
-Zleplep_Np5_scale     =  Lumi  *    0.77 * 1.25   / nOrigZleplep_Np5
+Zleplep_Np0_scale     =  Lumi  *  668.68 * 1.25 * ZmumujetExtraScale / nOrigZleplep_Np0
+Zleplep_Np1_scale     =  Lumi  *  134.14 * 1.25 * ZmumujetExtraScale / nOrigZleplep_Np1
+Zleplep_Np2_scale     =  Lumi  *   40.33 * 1.25 * ZmumujetExtraScale / nOrigZleplep_Np2
+Zleplep_Np3_scale     =  Lumi  *   11.19 * 1.25 * ZmumujetExtraScale / nOrigZleplep_Np3
+Zleplep_Np4_scale     =  Lumi  *    2.75 * 1.25 * ZmumujetExtraScale / nOrigZleplep_Np4
+Zleplep_Np5_scale     =  Lumi  *    0.77 * 1.25 * ZmumujetExtraScale / nOrigZleplep_Np5
 
 Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWtaunu_Np0
 Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20 * WjetExtraScale / nOrigWtaunu_Np1

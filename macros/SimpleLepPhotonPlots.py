@@ -33,7 +33,7 @@ def GetHistNames(inFile):
 
 
 
-def SimpleLepPhotonPlots(lepton):
+def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
 
 
     if lepton == ELECTRON:
@@ -116,6 +116,9 @@ def SimpleLepPhotonPlots(lepton):
         gamma_Np4 = DataManager.gammaFile_Np4.Get(histName)
         gamma_Np5 = DataManager.gammaFile_Np5.Get(histName)
 
+        if lepton == ELECTRON:
+            diphotons = DataManager.diphotonsFile.Get(histName)
+
         data = DataManager.dataFile.Get(histName)
         gj = DataManager.gjFile.Get(histName)
         #gj.Add(data, -1.0);
@@ -123,7 +126,6 @@ def SimpleLepPhotonPlots(lepton):
 
         ############################################
 
-        #nRebin = 2
 
         Wlepnu = Wlepnu_Np0.Clone()
         Wlepnu.Add(Wlepnu_Np1)
@@ -141,7 +143,6 @@ def SimpleLepPhotonPlots(lepton):
 
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
-        #Wjets.Rebin(nRebin)
  
         Wgamma = Wgamma_Np0.Clone()
         Wgamma.Add(Wgamma_Np1)
@@ -149,7 +150,6 @@ def SimpleLepPhotonPlots(lepton):
         Wgamma.Add(Wgamma_Np3)
         Wgamma.Add(Wgamma_Np4)
         Wgamma.Add(Wgamma_Np5)
-        #Wgamma.Rebin(nRebin)
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)
@@ -167,23 +167,19 @@ def SimpleLepPhotonPlots(lepton):
 
         Zjets = Zleplep.Clone()
         Zjets.Add(Ztautau)
-        #Zjets.Rebin(nRebin)
 
         Zgamma = Zleplepgamma.Clone()
         Zgamma.Add(Ztautaugamma)
-        #Zgamma.Rebin(nRebin)
 
         diboson = WW.Clone()
         diboson.Add(WZ)
         diboson.Add(ZZ)
-        #diboson.Rebin(nRebin)
 
         gamma = gamma_Np1.Clone()
         gamma.Add(gamma_Np2)
         gamma.Add(gamma_Np3)
         gamma.Add(gamma_Np4)
         gamma.Add(gamma_Np5)
-        #gamma.Rebin(nRebin)
 
 
         st = st_tchan_lepnu.Clone()
@@ -191,20 +187,18 @@ def SimpleLepPhotonPlots(lepton):
         #st.Add(st_schan_lepnu)
         #st.Add(st_schan_taunu)
         st.Add(st_Wt)
-        #st.Rebin(nRebin)
-
-        #ttbar.Rebin(nRebin)
 
         hn = ttbargamma.GetName()
         c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
-        #c_paper.SetLogy()
+        if logy:
+            c_paper.SetLogy()
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbargamma.GetXaxis().GetTitle()+";Events")
 
         bg.SetMinimum(5e-2)
         #bg.SetMaximum(25)
 
-        gamma.SetFillStyle(1001)
+        gj.SetFillStyle(1001)
         Wjets.SetFillStyle(1001)
         Wgamma.SetFillStyle(1001)
         diboson.SetFillStyle(1001)
@@ -213,12 +207,15 @@ def SimpleLepPhotonPlots(lepton):
         ttbargamma.SetFillStyle(1001)
         st.SetFillStyle(1001)
 
-        gamma.SetFillColor(28) # brown
-        gamma.SetLineColor(28)
+        gj.SetFillColor(28) # brown
+        gj.SetLineColor(28)
         Zjets.SetFillColor(43) # tan
         Zjets.SetLineColor(43)
         Zgamma.SetFillColor(42) # tan
         Zgamma.SetLineColor(42)
+        if lepton == ELECTRON:
+            diphotons.SetFillColor(39) # 
+            diphotons.SetLineColor(39)            
         Wjets.SetFillColor(3) # green
         Wjets.SetLineColor(3)
         Wgamma.SetFillColor(7) # cyan
@@ -232,7 +229,7 @@ def SimpleLepPhotonPlots(lepton):
         st.SetFillColor(9) # purple
         st.SetLineColor(9)
 
-        bg.Add(gamma)
+        bg.Add(gj)
         bg.Add(Zjets)
         bg.Add(Zgamma)
         bg.Add(Wjets)
@@ -241,8 +238,12 @@ def SimpleLepPhotonPlots(lepton):
         bg.Add(ttbar)
         bg.Add(ttbargamma)
         bg.Add(st)
-        
-        bg.Draw("HIST")
+
+        if data.Integral() != 0:
+            data.Draw()
+            bg.Draw("HIST same")
+        else:
+            bg.Draw("HIST")
         
         #wino.Rebin(nRebin)
         #wino.Scale(0.5)
@@ -257,8 +258,8 @@ def SimpleLepPhotonPlots(lepton):
         data.Draw("same")
 
         #gj.Rebin(nRebin)
-        gj.SetFillStyle(0)
-        gj.SetLineColor(41)
+        #gj.SetFillStyle(0)
+        #gj.SetLineColor(41)
         #gj.Draw("hist same")
 
         # wino_700_680.SetFillStyle(0)
@@ -270,45 +271,62 @@ def SimpleLepPhotonPlots(lepton):
         # wino_1500_300.SetFillStyle(0)
         # wino_1500_300.SetLineColor(43)
         # wino_1500_300.SetLineWidth(3)
-        wino.Draw("hist same");
+        # wino.Draw("hist same");
         # #wino_700_680.Draw("hist same");
         # #wino_1000_200.Draw("hist same");
         # wino_1500_300.Draw("hist same");
 
+        if drawLegend:
+            legb = ROOT.TLegend(0.65,0.55,0.93,0.92)
+            legb.SetFillColor(0)
+            legb.SetBorderSize(0)
+            legb.SetTextSize(0.045)
+            legb.AddEntry(data,"data","l")
+            legb.AddEntry(gj,"#gamma+jets","f")
+            legb.AddEntry(Zjets,"Z+jets","f")
+            legb.AddEntry(Zgamma,"Z#gamma","f")
+            legb.AddEntry(Wjets,"W+jets","f")
+            legb.AddEntry(Wgamma,"W#gamma","f")
+            legb.AddEntry(diboson,"WW, WZ, ZZ","f")
+            legb.AddEntry(ttbar,"ttbar","f")
+            legb.AddEntry(ttbargamma,"ttbar#gamma","f")
+            legb.AddEntry(st,"singe top","f")
+            #legb.AddEntry(wino,"wino (600, 200)", "l");
+            #legb.AddEntry(wino_700_680,"wino (600, 500)","l");
+            #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
+            #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
 
-        legb = ROOT.TLegend(0.5,0.55,0.93,0.92)
-        legb.SetFillColor(0)
-        legb.SetBorderSize(0)
-        legb.SetTextSize(0.045)
-        legb.AddEntry(data,"data","l")
-        legb.AddEntry(gamma,"#gamma+jets","f")
-        legb.AddEntry(Zjets,"Z+jets","f")
-        legb.AddEntry(Zgamma,"Z#gamma","f")
-        legb.AddEntry(Wjets,"W+jets","f")
-        legb.AddEntry(Wgamma,"W#gamma","f")
-        legb.AddEntry(diboson,"WW, WZ, ZZ","f")
-        legb.AddEntry(ttbar,"ttbar","f")
-        legb.AddEntry(ttbargamma,"ttbar#gamma","f")
-        legb.AddEntry(st,"singe top","f")
-        legb.AddEntry(wino,"wino (600, 200)", "l");
-        #legb.AddEntry(wino_700_680,"wino (600, 500)","l");
-        #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
-        #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
+            legb.Draw()
 
-        legb.Draw()
-
-        if wino.GetDimension() == 1:
-            c_paper.Print(hn+"Plot.eps")
-            c_paper.Print(hn+"Plot.png")
-        c_paper.Print(hn+"Plot.root")
-  
+        if logy:
+            if drawLegend:
+                if wino.GetDimension() == 1:
+                    c_paper.Print(hn+"LogLegPlot.eps")
+                    if allFormats: c_paper.Print(hn+"LogLegPlot.png")
+                if allFormats: c_paper.Print(hn+"LogLegPlot.root")
+            else:
+                if wino.GetDimension() == 1:
+                    c_paper.Print(hn+"LogPlot.eps")
+                    if allFormats: c_paper.Print(hn+"LogPlot.png")
+                if allFormats: c_paper.Print(hn+"LogPlot.root")
+        else:
+            if drawLegend:
+                if wino.GetDimension() == 1:
+                    c_paper.Print(hn+"LegPlot.eps")
+                    if allFormats: c_paper.Print(hn+"LegPlot.png")
+                if allFormats: c_paper.Print(hn+"LegPlot.root")
+            else:
+                if wino.GetDimension() == 1:
+                    c_paper.Print(hn+"Plot.eps")
+                    if allFormats: c_paper.Print(hn+"Plot.png")
+                if allFormats: c_paper.Print(hn+"Plot.root")
 
     
 if __name__ == "__main__":
     try:
         # retrive command line options
-        shortopts  = "eml:"
-        longopts   = ["lepton="]
+        shortopts  = "emga"
+        longopts   = ["lepton=", "log"]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
     except getopt.GetoptError:
         # print help information and exit:
@@ -316,15 +334,24 @@ if __name__ == "__main__":
         sys.exit(1)
 
     lepton = DEFAULTLEPTON
+    legend = False
+    logy = False
+    formats = False
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
             sys.exit(0)
+        elif o in ("-a"):
+            formats = True
         elif o in ("-m"):
             lepton = MUON
         elif o in ("-e"):
             lepton = ELECTRON
-        elif o in ("-l", "--lepton"):
+        elif o in ("-g"):
+            legend = True
+        elif o in ("--log"):
+            logy = True
+        elif o in ("--lepton"):
             if a == "electron":
                 lepton = ELECTRON
             elif a == "muon":
@@ -333,4 +360,4 @@ if __name__ == "__main__":
                 print "*** Lepton must be 'electron' or 'muon ****"
                 sys.exit(1)
     
-    SimpleLepPhotonPlots(lepton)
+    SimpleLepPhotonPlots(lepton, legend, logy, formats)

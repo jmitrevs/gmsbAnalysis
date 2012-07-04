@@ -13,7 +13,8 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "plots_120523/electron/presel/"
+path = ""
+#path = "plots_120703/electron/presel/"
 
 winoFileName = path + "wino_600_200_elHist.root"
 
@@ -73,7 +74,7 @@ gammaFileName_Np3 = path + "gamma_Np3Hist.root"
 gammaFileName_Np4 = path + "gamma_Np4Hist.root"
 gammaFileName_Np5 = path + "gamma_Np5Hist.root"
 
-diphotonsFileName = path + "diphotons100Hist.root"
+diphotonsFileName = path + "diphotonsHist.root"
 Zee_altFileName = path + "Zee_pythiaHist.root"
 
 dataFileName = path + "egHist.root"

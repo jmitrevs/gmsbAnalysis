@@ -10,11 +10,13 @@ COMPATIBILITY=False
 ELECTRON = 0
 MUON = 1
 
+BLIND = True
+
 DEFAULTLEPTON = ELECTRON
 
 try:
     # retrive command line options
-    shortopts  = "eml:c"
+    shortopts  = "eml:ct"
     longopts   = ["lepton="]
     opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
 except getopt.GetoptError:
@@ -24,6 +26,7 @@ except getopt.GetoptError:
 
 compat = COMPATIBILITY
 lepton = DEFAULTLEPTON
+printTable = False
 for o, a in opts:
     if o in ("-m"):
         lepton = MUON
@@ -31,6 +34,8 @@ for o, a in opts:
         lepton = ELECTRON
     elif o in ("-c"):
         compat = True
+    elif o in ("-t"):
+        printTable = True
     elif o in ("-l", "--lepton"):
         if a == "electron":
             lepton = ELECTRON
@@ -179,7 +184,8 @@ print "total =", totalSR.GetBinContent(1),"+-", totalSR.GetBinError(1)
 if not compat:
     print "gamma+jet (from data) =", gjSR.GetBinContent(1),"+-", gjSR.GetBinError(1)
     print "total (from MM) =", totalMMSR.GetBinContent(1),"+-", totalMMSR.GetBinError(1)
-    print "data =", dataSR.GetBinContent(1),"+-",dataSR.GetBinError(1)
+    if not BLIND:
+        print "data =", dataSR.GetBinContent(1),"+-",dataSR.GetBinError(1)
     
 print "*****************************"
 print "****         WCR        ******"
@@ -289,61 +295,68 @@ if not compat:
 
 # This prints the latex yield table
 if printTable:
-    print " Yields & WCR & HMT & HMET & SR \\"
+    print " Yields & WCR & HMT & HMET & SR \\\\ \\hline"
 
-    print " \Wgamma & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\Wgamma & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         WgammaWCR.GetBinContent(1), WgammaWCR.GetBinError(1), WgammaTCR.GetBinContent(1), WgammaTCR.GetBinError(1),
         WgammaXR2.GetBinContent(1), WgammaXR2.GetBinError(1), WgammaSR.GetBinContent(1), WgammaSR.GetBinError(1))
 
-    print " \Wjets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\Wjets & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         WjetsWCR.GetBinContent(1), WjetsWCR.GetBinError(1), WjetsTCR.GetBinContent(1), WjetsTCR.GetBinError(1),
         WjetsXR2.GetBinContent(1), WjetsXR2.GetBinError(1), WjetsSR.GetBinContent(1), WjetsSR.GetBinError(1))
 
-    print " \ttbargamma & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\ttbargamma & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         ttbargammaWCR.GetBinContent(1), ttbargammaWCR.GetBinError(1), ttbargammaTCR.GetBinContent(1), ttbargammaTCR.GetBinError(1),
         ttbargammaXR2.GetBinContent(1), ttbargammaXR2.GetBinError(1), ttbargammaSR.GetBinContent(1), ttbargammaSR.GetBinError(1))
 
-    print " \dilep & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\dilep & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         ttbarDilepWCR.GetBinContent(1), ttbarDilepWCR.GetBinError(1), ttbarDilepTCR.GetBinContent(1), ttbarDilepTCR.GetBinError(1),
         ttbarDilepXR2.GetBinContent(1), ttbarDilepXR2.GetBinError(1), ttbarDilepSR.GetBinContent(1), ttbarDilepSR.GetBinError(1))
 
-    print " \lepjets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\lepjets & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         ttbarLepjetsWCR.GetBinContent(1), ttbarLepjetsWCR.GetBinError(1), ttbarLepjetsTCR.GetBinContent(1), ttbarLepjetsTCR.GetBinError(1),
         ttbarLepjetsXR2.GetBinContent(1), ttbarLepjetsXR2.GetBinError(1), ttbarLepjetsSR.GetBinContent(1), ttbarLepjetsSR.GetBinError(1))
 
-    print " single top & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " single top & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         stWCR.GetBinContent(1), stWCR.GetBinError(1), stTCR.GetBinContent(1), stTCR.GetBinError(1),
         stXR2.GetBinContent(1), stXR2.GetBinError(1), stSR.GetBinContent(1), stSR.GetBinError(1))
 
-    print " diboson & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " diboson & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         dibosonWCR.GetBinContent(1), dibosonWCR.GetBinError(1), dibosonTCR.GetBinContent(1), dibosonTCR.GetBinError(1),
         dibosonXR2.GetBinContent(1), dibosonXR2.GetBinError(1), dibosonSR.GetBinContent(1), dibosonSR.GetBinError(1))
 
-    print " \Zgamma & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\Zgamma & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         ZgammaWCR.GetBinContent(1), ZgammaWCR.GetBinError(1), ZgammaTCR.GetBinContent(1), ZgammaTCR.GetBinError(1),
         ZgammaXR2.GetBinContent(1), ZgammaXR2.GetBinError(1), ZgammaSR.GetBinContent(1), ZgammaSR.GetBinError(1))
 
-    print " \Zjets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\Zjets & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         ZjetsWCR.GetBinContent(1), ZjetsWCR.GetBinError(1), ZjetsTCR.GetBinContent(1), ZjetsTCR.GetBinError(1),
         ZjetsXR2.GetBinContent(1), ZjetsXR2.GetBinError(1), ZjetsSR.GetBinContent(1), ZjetsSR.GetBinError(1))
 
     if lepton == ELECTRON:
-        print " diphoton & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
-            diphotonWCR.GetBinContent(1), diphotonWCR.GetBinError(1), diphotonTCR.GetBinContent(1), diphotonTCR.GetBinError(1),
-            diphotonXR2.GetBinContent(1), diphotonXR2.GetBinError(1), diphotonSR.GetBinContent(1), diphotonSR.GetBinError(1))
+        print " diphoton & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
+            diphotonsWCR.GetBinContent(1), diphotonsWCR.GetBinError(1), diphotonsTCR.GetBinContent(1), diphotonsTCR.GetBinError(1),
+            diphotonsXR2.GetBinContent(1), diphotonsXR2.GetBinError(1), diphotonsSR.GetBinContent(1), diphotonsSR.GetBinError(1))
 
-    print " \gammajets & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
+    print " \\gammajet & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
         gjWCR.GetBinContent(1), gjWCR.GetBinError(1), gjTCR.GetBinContent(1), gjTCR.GetBinError(1),
         gjXR2.GetBinContent(1), gjXR2.GetBinError(1), gjSR.GetBinContent(1), gjSR.GetBinError(1))
 
-    print "\hline"
+    print "\\hline"
 
-    print " total predicted & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
-        totalWCR.GetBinContent(1), totalWCR.GetBinError(1), totalTCR.GetBinContent(1), totalTCR.GetBinError(1),
-        totalXR2.GetBinContent(1), totalXR2.GetBinError(1), totalSR.GetBinContent(1), totalSR.GetBinError(1))
+    print " total predicted & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (
+        totalMMWCR.GetBinContent(1), totalMMWCR.GetBinError(1), totalMMTCR.GetBinContent(1), totalMMTCR.GetBinError(1),
+        totalMMXR2.GetBinContent(1), totalMMXR2.GetBinError(1), totalMMSR.GetBinContent(1), totalMMSR.GetBinError(1))
 
-    print "\hline"
+    print "\\hline"
 
-    print " data & $%.3f \pm %.3f$ & %.$3f \pm %.3f$ & $%.3f \pm %.3f$ & $%.3f \pm .3f$ \\" % (
-        dataWCR.GetBinContent(1), dataWCR.GetBinError(1), dataTCR.GetBinContent(1), dataTCR.GetBinError(1),
-        dataXR2.GetBinContent(1), dataXR2.GetBinError(1), dataSR.GetBinContent(1), dataSR.GetBinError(1))
+    if BLIND:
+        print " data & $%.0f \pm %.2f$ & $%.0f \pm %.2f$ & $%.0f \pm %.2f$ & --- \\\\" % (
+            dataWCR.GetBinContent(1), dataWCR.GetBinError(1), dataTCR.GetBinContent(1), dataTCR.GetBinError(1),
+            dataXR2.GetBinContent(1), dataXR2.GetBinError(1))
+    else:
+        print " data & $%.0f \pm %.2f$ & $%.0f \pm %.2f$ & $%.0f \pm %.2f$ & $%.0f \pm %.2f$ \\\\" % (
+            dataWCR.GetBinContent(1), dataWCR.GetBinError(1), dataTCR.GetBinContent(1), dataTCR.GetBinError(1),
+            dataXR2.GetBinContent(1), dataXR2.GetBinError(1), dataSR.GetBinContent(1), dataSR.GetBinError(1))
+
+    print "\\hline"
