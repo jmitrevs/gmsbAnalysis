@@ -239,6 +239,7 @@ private:
   float m_mTmu;
   float m_meff;
 
+  float m_Wpt;
 
 };
 

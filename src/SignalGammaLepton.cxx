@@ -498,6 +498,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("mTmu", &m_mTmu, "mTmu/F"); 
     m_tree->Branch("meff", &m_meff, "meff/F"); 
 
+    m_tree->Branch("Wpt", &m_Wpt, "Wpt/F"); 
+
     m_tree->Branch("eventType",  &m_type, "eventType/I");
     m_tree->Branch("isStrong",  &m_isStrong, "isStrong/I");
 
@@ -1442,6 +1444,7 @@ StatusCode SignalGammaLepton::execute()
     m_type = m_truth->GetEventType();
     m_isStrong = m_truth->isStrong();
     m_numTruthPh = m_truth->nPhotons();
+    m_Wpt = m_truth->Wpt();
   } else {
     m_numTruthPh = -1;
   }
