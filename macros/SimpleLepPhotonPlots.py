@@ -232,6 +232,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         bg.Add(gj)
         bg.Add(Zjets)
         bg.Add(Zgamma)
+        if lepton == ELECTRON:
+            bg.Add(diphotons)
         bg.Add(Wjets)
         bg.Add(Wgamma)
         bg.Add(diboson)
@@ -285,6 +287,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
             legb.AddEntry(gj,"#gamma+jets","f")
             legb.AddEntry(Zjets,"Z+jets","f")
             legb.AddEntry(Zgamma,"Z#gamma","f")
+            if lepton == ELECTRON:
+                legb.AddEntry(diphotons,"#gamma#gamma","f")
             legb.AddEntry(Wjets,"W+jets","f")
             legb.AddEntry(Wgamma,"W#gamma","f")
             legb.AddEntry(diboson,"WW, WZ, ZZ","f")
