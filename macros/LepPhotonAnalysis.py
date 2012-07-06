@@ -137,6 +137,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       blind = False,
                       tttype = ALL,
                       qcdOtherRoot = "",
+                      reweighAlpgen = False,
                       debug = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
@@ -339,6 +340,22 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 weight *= (ev.MuonTrigWeight - ev.MuonTrigWeightUnc)
             elif applyTrigWeight == HIGH:
                 weight *= (ev.MuonTrigWeight + ev.MuonTrigWeightUnc)
+
+        if reweighAlpgen:
+            if ev.Wpt < -990.0:
+                print >> sys.stderr, "Have an invalid Wpt"
+            elif ev.Wpt < 10*GeV:
+                weight *= 0.90
+            elif ev.Wpt < 20*GeV:
+                weight *= 1.05
+            elif ev.Wpt < 30*GeV:
+                weight *= 1.13
+            elif ev.Wpt < 40*GeV:
+                weight *= 1.15
+            elif ev.Wpt < 250*GeV:
+                weight *= math.exp(0.2165 - 0.0000022075*ev.Wpt)
+            else:
+                weight *= 0.72
 
         if onlyStrong and not ev.isStrong:
             continue

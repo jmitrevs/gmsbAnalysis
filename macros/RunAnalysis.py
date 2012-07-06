@@ -155,42 +155,54 @@ def RunAnalysis(lepton, plots, abcd):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np0.Get(ttreeName), 
                                         makeOutputName(DataManager.WgammaFileName_Np0),
                                         lepton,
-                                        DataManager.Wgamma_Np0_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_Np0_scale, applySF=LepPhotonAnalysis.NOMINAL, 
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
+                                        reweighAlpgen=True)
 
     print
     print "Wgamma_Np1:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np1.Get(ttreeName), 
                                         makeOutputName(DataManager.WgammaFileName_Np1),
                                         lepton,
-                                        DataManager.Wgamma_Np1_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_Np1_scale, applySF=LepPhotonAnalysis.NOMINAL, 
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
+                                        reweighAlpgen=True)
 
     print
     print "Wgamma_Np2:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np2.Get(ttreeName), 
                                         makeOutputName(DataManager.WgammaFileName_Np2),
                                         lepton,
-                                        DataManager.Wgamma_Np2_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_Np2_scale, applySF=LepPhotonAnalysis.NOMINAL, 
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
+                                        reweighAlpgen=True)
 
     print
     print "Wgamma_Np3:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np3.Get(ttreeName), 
                                         makeOutputName(DataManager.WgammaFileName_Np3),
                                         lepton,
-                                        DataManager.Wgamma_Np3_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_Np3_scale, applySF=LepPhotonAnalysis.NOMINAL, 
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
+                                        reweighAlpgen=True)
 
     print
     print "Wgamma_Np4:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np4.Get(ttreeName), 
                                         makeOutputName(DataManager.WgammaFileName_Np4),
                                         lepton,
-                                        DataManager.Wgamma_Np4_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_Np4_scale, applySF=LepPhotonAnalysis.NOMINAL, 
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
+                                        reweighAlpgen=True)
 
     print
     print "Wgamma_Np5:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np5.Get(ttreeName), 
                                         makeOutputName(DataManager.WgammaFileName_Np5),
                                         lepton,
-                                        DataManager.Wgamma_Np5_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_Np5_scale, applySF=LepPhotonAnalysis.NOMINAL,
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
+                                        reweighAlpgen=True)
     print
 
     # print "ttbar:"
