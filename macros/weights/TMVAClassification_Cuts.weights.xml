@@ -4,11 +4,11 @@
     <Info name="TMVA Release" value="4.1.0 [262400]"/>
     <Info name="ROOT Release" value="5.28/00 [334848]"/>
     <Info name="Creator" value="jmitrevs"/>
-    <Info name="Date" value="Mon Jan 30 14:35:26 2012"/>
+    <Info name="Date" value="Fri Jul 13 13:33:14 2012"/>
     <Info name="Host" value="Linux lxbuild147.cern.ch 2.6.18-194.26.1.el5 #1 SMP Wed Nov 10 09:51:11 CET 2010 i686 i686 i386 GNU/Linux"/>
-    <Info name="Dir" value="/data3/jmitrevs/AtlasProduction-17.0.6.3/gmsbAnalysis/macros"/>
+    <Info name="Dir" value="/data3/jmitrevs/AtlasProduction-17.0.6.5/gmsbAnalysis/macros"/>
     <Info name="Training events" value="40178"/>
-    <Info name="TrainingTime" value="1.07899"/>
+    <Info name="TrainingTime" value="1.07904"/>
     <Info name="AnalysisType" value="Classification"/>
   </GeneralInfo>
   <Options>

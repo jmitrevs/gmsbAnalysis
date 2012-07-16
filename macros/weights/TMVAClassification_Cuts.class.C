@@ -10,9 +10,9 @@ Method         : Cuts::Cuts
 TMVA Release   : 4.1.0         [262400]
 ROOT Release   : 5.28/00       [334848]
 Creator        : jmitrevs
-Date           : Mon Jan 30 14:35:26 2012
+Date           : Fri Jul 13 13:33:14 2012
 Host           : Linux lxbuild147.cern.ch 2.6.18-194.26.1.el5 #1 SMP Wed Nov 10 09:51:11 CET 2010 i686 i686 i386 GNU/Linux
-Dir            : /data3/jmitrevs/AtlasProduction-17.0.6.3/gmsbAnalysis/macros
+Dir            : /data3/jmitrevs/AtlasProduction-17.0.6.5/gmsbAnalysis/macros
 Training events: 40178
 Analysis type  : [Classification]
 

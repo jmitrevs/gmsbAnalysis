@@ -242,6 +242,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         bg.Add(st)
 
         if data.Integral() != 0:
+            if not logy:
+                data.SetMinimum(0)
             data.Draw()
             bg.Draw("HIST same")
         else:

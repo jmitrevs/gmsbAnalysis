@@ -17,22 +17,23 @@ USE_LOOSE_WJETS = True
 print "Lepton is MUON."
 path = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
 #path = "/data3/jmitrevs/lepphoton/muphoton_ntupleABCD/mergedFiles/"
+alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
 altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
 datapath = "/data3/jmitrevs/lepphoton/muphoton_data6/mergedFiles/"
 #datapath = "/data3/jmitrevs/lepphoton/muphoton_dataABCD2/mergedFiles/"
-loosepath = ""
-#loosepath = "/data3/jmitrevs/lepphoton/muphoton_ntupleloose/mergedFiles/"
+#loosepath = ""
+loosepath = "/data3/jmitrevs/lepphoton/muphoton_ntupleloose/mergedFiles/"
 dataloosepath = "/data3/jmitrevs/lepphoton/muphoton_dataloose3/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/muphoton_grid/mergedFiles/"
 
 winoFileName = sigpath + "wino_600_200_mu.root"
 
 WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
-WlepnuFileName_Np1 = path + "Wmunu_Np1.root"
-WlepnuFileName_Np2 = path + "Wmunu_Np2.root"
-WlepnuFileName_Np3 = path + "Wmunu_Np3.root"
-WlepnuFileName_Np4 = path + "Wmunu_Np4.root"
-WlepnuFileName_Np5 = path + "Wmunu_Np5.root"
+WlepnuFileName_Np1 = alpgenpath + "Wmunu_Np1.root"
+WlepnuFileName_Np2 = alpgenpath + "Wmunu_Np2.root"
+WlepnuFileName_Np3 = alpgenpath + "Wmunu_Np3.root"
+WlepnuFileName_Np4 = alpgenpath + "Wmunu_Np4.root"
+WlepnuFileName_Np5 = alpgenpath + "Wmunu_Np5.root"
 
 if loosepath:
     print "using loosepath"
@@ -57,11 +58,11 @@ else:
 st_tchan_lepnuFileName   = path + "st_tchan_munu.root"
 
 WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
-WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
-WtaunuFileName_Np2 = path + "Wtaunu_Np2.root"
-WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
-WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
-WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
+WtaunuFileName_Np1 = alpgenpath + "Wtaunu_Np1.root"
+WtaunuFileName_Np2 = alpgenpath + "Wtaunu_Np2.root"
+WtaunuFileName_Np3 = alpgenpath + "Wtaunu_Np3.root"
+WtaunuFileName_Np4 = alpgenpath + "Wtaunu_Np4.root"
+WtaunuFileName_Np5 = alpgenpath + "Wtaunu_Np5.root"
 
 ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
 ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
@@ -73,12 +74,12 @@ ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
     
-WgammaFileName_Np0 = path + "Wgamma_Np0.root"
-WgammaFileName_Np1 = path + "Wgamma_Np1.root"
-WgammaFileName_Np2 = path + "Wgamma_Np2.root"
-WgammaFileName_Np3 = path + "Wgamma_Np3.root"
-WgammaFileName_Np4 = path + "Wgamma_Np4.root"
-WgammaFileName_Np5 = path + "Wgamma_Np5.root"
+WgammaFileName_Np0 = alpgenpath + "Wgamma_Np0.root"
+WgammaFileName_Np1 = alpgenpath + "Wgamma_Np1.root"
+WgammaFileName_Np2 = alpgenpath + "Wgamma_Np2.root"
+WgammaFileName_Np3 = alpgenpath + "Wgamma_Np3.root"
+WgammaFileName_Np4 = alpgenpath + "Wgamma_Np4.root"
+WgammaFileName_Np5 = alpgenpath + "Wgamma_Np5.root"
 
 ttbarFileName = path + "ttbar.root"
 ttbargammaFileName = path + "ttbargamma.root"
@@ -374,9 +375,9 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.202
-ttbarLepjetExtraScale = 0.202
-ZmumujetExtraScale = 0.202
+WjetExtraScale = 0.173
+ttbarLepjetExtraScale = 0.173
+ZmumujetExtraScale = 0.173
 
 if USE_LOOSE_WJETS:
     WjetExtraScale *= 0.48201 # from tight/loose in high WCR - 10% unc.

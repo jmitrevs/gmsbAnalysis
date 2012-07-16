@@ -25,12 +25,12 @@ sigpath = "/data3/jmitrevs/lepphoton/elphoton_grid/mergedFiles/"
 
 winoFileName = sigpath + "wino_600_200_el.root"
 
-WlepnuFileName_Np0 = path + "Wenu_Np0.root"
-WlepnuFileName_Np1 = path + "Wenu_Np1.root"
-WlepnuFileName_Np2 = path + "Wenu_Np2.root"
-WlepnuFileName_Np3 = path + "Wenu_Np3.root"
-WlepnuFileName_Np4 = path + "Wenu_Np4.root"
-WlepnuFileName_Np5 = path + "Wenu_Np5.root"
+WlepnuFileName_Np0 = alpgenpath + "Wenu_Np0.root"
+WlepnuFileName_Np1 = alpgenpath + "Wenu_Np1.root"
+WlepnuFileName_Np2 = alpgenpath + "Wenu_Np2.root"
+WlepnuFileName_Np3 = alpgenpath + "Wenu_Np3.root"
+WlepnuFileName_Np4 = alpgenpath + "Wenu_Np4.root"
+WlepnuFileName_Np5 = alpgenpath + "Wenu_Np5.root"
 
 if loosepath:
     print "using loosepath"
@@ -68,12 +68,12 @@ else:
 
 st_tchan_lepnuFileName   = path + "st_tchan_enu.root"
 
-WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
-WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
-WtaunuFileName_Np2 = path + "Wtaunu_Np2.root"
-WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
-WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
-WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
+WtaunuFileName_Np0 = alpgenpath + "Wtaunu_Np0.root"
+WtaunuFileName_Np1 = alpgenpath + "Wtaunu_Np1.root"
+WtaunuFileName_Np2 = alpgenpath + "Wtaunu_Np2.root"
+WtaunuFileName_Np3 = alpgenpath + "Wtaunu_Np3.root"
+WtaunuFileName_Np4 = alpgenpath + "Wtaunu_Np4.root"
+WtaunuFileName_Np5 = alpgenpath + "Wtaunu_Np5.root"
 
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
@@ -383,8 +383,13 @@ if PRINT_YIELDS:
 #wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.6567 * 0.4812 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.6567
+#WjetExtraScale = 0.6567 * 0.4812 # from fit * tight/loose
+#ttbarLepjetExtraScale = 0.6567
+#WjetExtraScale = 0.346 * 0.4812 # from fit * tight/loose
+#ttbarLepjetExtraScale = 0.346
+
+WjetExtraScale = 0.400 * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.400
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
@@ -462,9 +467,17 @@ gamma_Np3_scale     =  Lumi  *  5861.9 * 4.6724E-01 / nOriggamma_Np3
 gamma_Np4_scale     =  Lumi  *  1355.9 * 6.2450E-01 / nOriggamma_Np4
 gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
 
+### k-factor of 1.2 is from diphoton group, but 1.4 with Higgs cuts?
+diphotons_kfact = 1.2
 # this is for the diphotons50
-### k-factor of 1.2 is made up.
-diphotons_scale = Lumi * 6.1162 * 8.7509E-01 * 1.2 / nOrigdiphotons
+diphotons50_scale = Lumi * 6.1162 * 8.7509E-01 * diphotons_kfact / nOrigdiphotons
+# this is the pythia with radiative photons, too
+diphotonsPythia_scale = Lumi * 1.3709E+05 * 6.0277E-04 * diphotons_kfact / nOrigdiphotons
+# and the sherpa with radiative phtons
+diphotonsSherpa_scale = Lumi * 4.5566E+02 * 1.7217E-01 * diphotons_kfact / nOrigdiphotons
+diphotons_scale = diphotonsSherpa_scale
+
+
 
 # Zee pythia
 Zee_alt_scale = Lumi * 834.62 / nOrigZee_alt

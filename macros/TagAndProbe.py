@@ -33,6 +33,8 @@ DEFAULT_LEPTON = ELECTRON
 DEFAULT_SUBB = False
 DEFAULT_CALCULATE = False
 
+removeCrack = True
+
 def usage():
     print " "
     print "Usage: %s [options] inputFile.root" % sys.argv[0]    
@@ -89,6 +91,10 @@ def TagAndProbe(ttree, outfile, lepton, calculate = True, subBack = True):
         weight = 1.0  # don't currently support weights
 
         if lepton == ELECTRON:
+
+            if removeCrack and (1.37 < abs(ev.ElectronEta2[0]) < 1.52 or 1.37 < abs(ev.ElectronEta2[1]) < 1.52):
+                continue
+
             for tag, probe in ((0, 1), (1, 0)):
                 #print "tag, probe =",tag,",",probe
                 if ev.ElectronTight[tag]:

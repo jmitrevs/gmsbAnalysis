@@ -55,6 +55,10 @@ inDS_full = [
 
     # # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
     # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
+
+    'mc11_7TeV.119081.2DP20_GamJetGamGam_pythia_photon_filter.merge.AOD.e825_s1310_s1300_r3044_r2993',
+    'mc11_7TeV.126389.Sherpa2DP20.merge.AOD.e1028_s1310_s1300_r3108_r3109'
+
     ]
 #how to automatically configure GRL ?
 
@@ -103,18 +107,18 @@ for i,inDS in enumerate(inDS_ttbar):
 inDS_Wjets = [
 
     'mc11_7TeV.107680.AlpgenJimmyWenuNp0_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107681.AlpgenJimmyWenuNp1_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107682.AlpgenJimmyWenuNp2_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107683.AlpgenJimmyWenuNp3_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107684.AlpgenJimmyWenuNp4_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107685.AlpgenJimmyWenuNp5_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107681.AlpgenJimmyWenuNp1_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107682.AlpgenJimmyWenuNp2_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107683.AlpgenJimmyWenuNp3_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107684.AlpgenJimmyWenuNp4_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107685.AlpgenJimmyWenuNp5_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
    
-    'mc11_7TeV.107700.AlpgenJimmyWtaunuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107701.AlpgenJimmyWtaunuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107702.AlpgenJimmyWtaunuNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107700.AlpgenJimmyWtaunuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107701.AlpgenJimmyWtaunuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107702.AlpgenJimmyWtaunuNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
     'mc11_7TeV.107703.AlpgenJimmyWtaunuNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107704.AlpgenJimmyWtaunuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    'mc11_7TeV.107705.AlpgenJimmyWtaunuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107704.AlpgenJimmyWtaunuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    # 'mc11_7TeV.107705.AlpgenJimmyWtaunuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
 
     # 'mc11_7TeV.107280.AlpgenJimmyWbbFullNp0_pt20.merge.AOD.e887_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.107281.AlpgenJimmyWbbFullNp1_pt20.merge.AOD.e887_s1310_s1300_r3043_r2993',
@@ -127,7 +131,7 @@ inDS_Wjets = [
 for i,inDS in enumerate(inDS_Wjets):
  
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.37.%s SignalGammaElectron.py " % (inDS, inDS)
-    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120705.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120705a.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120601.tar"

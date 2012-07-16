@@ -12,7 +12,8 @@ ROOT.gROOT.SetBatch()
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
-FILENAME_ELEFF = 'eeHistHistOut.root'
+FILENAME_ELEFF = 'eeNoCrackHistHistOut.root'
+#FILENAME_ELEFF = 'eeHistHistOut.root'
 
 ELECTRON = 0
 MUON = 1
@@ -32,6 +33,8 @@ numEventTypes = 46
 DEFAULTTTREE = 'GammaLepton'
 DEFAULTWEIGHT = 1.0
 DEFAULT_LEPTON = ELECTRON
+
+removeCrack = True
 
 printAccepted = False
 
@@ -59,6 +62,11 @@ ALL = 0
 LEPJETS = 1
 DILEP = 2
 
+# ONLY STRONG
+# use same ALL as for TTType
+STRONG = 1
+WEAK = 2
+
 #Cuts
 # - electron channel
 EL_PHPTCUT = 100*GeV
@@ -81,7 +89,7 @@ EL_TCR_MET_MAX = 80*GeV
 EL_TCR_MT_MIN =  90*GeV
 
 EL_QCD_MET_MAX = 20*GeV
-EL_QCD_MT_MAX = 15*GeV
+EL_QCD_MT_MAX = 20*GeV
 
 DELTAR_EL_PH = 0.7
 
@@ -105,8 +113,8 @@ MU_TCR_MET_MIN = 35*GeV
 MU_TCR_MET_MAX = 80*GeV
 MU_TCR_MT_MIN =  90*GeV
 
-MU_QCD_MET_MAX = 15*GeV
-MU_QCD_MT_MAX = 15*GeV
+MU_QCD_MET_MAX = 20*GeV
+MU_QCD_MT_MAX = 20*GeV
 
 DELTAR_MU_PH = 0.7
 
@@ -128,7 +136,7 @@ def usage():
 # measureEff is simple W tag and probe; numBackground is passed for iterative improvement.
 
 def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False, 
-                      onlyStrong = False, 
+                      onlyStrong = ALL, 
                       measureFakeAndEff = False, 
                       numBkgTight = 0, scaleQCD = False,
                       applySF = NONE, applyTrigWeight = NONE,
@@ -357,8 +365,25 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             else:
                 weight *= 0.72
 
-        if onlyStrong and not ev.isStrong:
+        if onlyStrong == STRONG and not ev.isStrong:
             continue
+
+        if onlyStrong == WEAK and ev.isStrong:
+            continue
+
+        lepIndex = 0
+
+        if removeCrack and lepton == ELECTRON:
+            for i in range(ev.numEl):
+                if not (1.37 < abs(ev.ElectronEta2[i]) < 1.52):
+                    lepIndex = i
+                    break
+            else:
+                # print "*** electron only in crack ***"
+                continue
+
+        # if lepIndex != 0:
+        #     print "***WARNING***"
 
         if debug: print "  pass onlyStrong"
 
@@ -443,20 +468,32 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if debug: print "  passed ABCD, photonIndex =", photonIndex
 
+        photon = ROOT.TLorentzVector()
+        photon.SetPtEtaPhiM(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex], 0.0)
+        if lepton == ELECTRON:
+            electron = ROOT.TLorentzVector()
+            electron.SetPtEtaPhiM(ev.ElectronPt[lepIndex], ev.ElectronEta[lepIndex], ev.ElectronPhi[lepIndex], 0.0)
+
         if plotsRegion != NO_SEL:
 
             # first the basic lepton and photon selection (but not MET and mT):
             if ((lepton == ELECTRON and
                  (ev.PhotonPt[photonIndex] < EL_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > EL_PHETACUT or
-                  ev.ElectronPt[0] < EL_ELPTCUT or abs(ev.ElectronEta[0]) > EL_ELETACUT)) or
+                  ev.ElectronPt[lepIndex] < EL_ELPTCUT or abs(ev.ElectronEta[lepIndex]) > EL_ELETACUT)) or
                 (lepton == MUON and
                  (ev.PhotonPt[photonIndex] < MU_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > MU_PHETACUT or
-                  ev.MuonPt[0] < MU_MUPTCUT or abs(ev.MuonEta[0]) > MU_MUETACUT))):
+                  ev.MuonPt[lepIndex] < MU_MUPTCUT or abs(ev.MuonEta[lepIndex]) > MU_MUETACUT))):
                 continue
 
             # veto second lepton or Z window cut
             if lepton == ELECTRON and EL_MINV_WINDOW != 0:
-                if ZMASS - EL_MINV_WINDOW < ev.PhElMinv < ZMASS + EL_QCD_MINV_WINDOW:
+                if photonIndex == 0 and lepIndex == 0:
+                    minv = ev.PhElMinv
+                else:
+                    elph = electron + photon
+                    minv = elph.M()
+                    # print "**minv =", minv
+                if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_QCD_MINV_WINDOW:
                     continue
 
             if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
@@ -477,17 +514,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if debug: print "  passed some presel"
 
-        photon = ROOT.TVector3()
-        photon.SetPtEtaPhi(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex])
         if lepton == ELECTRON:
-            electron = ROOT.TVector3()
-            electron.SetPtEtaPhi(ev.ElectronPt[0], ev.ElectronEta[0], ev.ElectronPhi[0])
             el_ph_deltaR = photon.DeltaR(electron)
             if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
                 continue
         else:
-            muon = ROOT.TVector3()
-            muon.SetPtEtaPhi(ev.MuonPt[0], ev.MuonEta[0], ev.MuonPhi[0])
+            muon = ROOT.TLorentzVector()
+            muon.SetPtEtaPhiM(ev.MuonPt[lepIndex], ev.MuonEta[lepIndex], ev.MuonPhi[lepIndex], 105.65836668)
             mu_ph_deltaR = photon.DeltaR(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
                 continue
@@ -497,14 +530,22 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # scale the gj sampe to represent QCD
         if scaleQCD:
             if lepton == ELECTRON:
-                weight *= Nqcd(1, ev.ElectronTight[0], ev.ElectronEta[0], lepton)
+                weight *= Nqcd(1, ev.ElectronTight[lepIndex], ev.ElectronEta[lepIndex], lepton)
             else:
-                weight *= Nqcd(1, ev.MuonTight[0], ev.MuonEta[0], lepton)
+                weight *= Nqcd(1, ev.MuonTight[lepIndex], ev.MuonEta[lepIndex], lepton)
 
+
+        if lepton == ELECTRON:
+            if lepIndex != 0:
+                mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], ev.Metx, ev.Mety)
+            else:
+                mt = ev.mTel
+        else:
+            mt = ev.mTmu
 
         # now plots that should be made before MET and mT cuts
-        h_mTelvsMET.Fill(met/GeV, ev.mTel/GeV, weight)
-        h_mTmuvsMET.Fill(met/GeV, ev.mTmu/GeV, weight)
+        h_mTelvsMET.Fill(met/GeV, mt/GeV, weight)
+        h_mTmuvsMET.Fill(met/GeV, mt/GeV, weight)
 
         inQCD = False
         inTCR = False
@@ -513,65 +554,65 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         inXR2 = False
         inSR = False
             
-        if debug: print "  met =", met, "mTmu =", ev.mTmu, "mTel =", ev.mTel
+        if debug: print "  met =", met, "mTmu =", mt, "mTel =", mt
 
         # do CR counts
         if lepton == ELECTRON:
-            if met < EL_QCD_MET_MAX and ev.mTel < EL_QCD_MT_MAX:
+            if met < EL_QCD_MET_MAX and mt < EL_QCD_MT_MAX:
                 if (ev.PhElMinv < ZMASS - EL_QCD_MINV_WINDOW or
                     ev.PhElMinv > ZMASS + EL_QCD_MINV_WINDOW):
                     # in QCD CR
                     inQCD = True
                     nQCD.Fill(0, weight)
-                    if measureFakeAndEff and ev.ElectronTight[0]:
+                    if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                         nQCDTight.Fill(0, weight)
 
             elif (EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
-                  EL_WCR_MT_MIN < ev.mTel < EL_WCR_MT_MAX):
+                  EL_WCR_MT_MIN < mt < EL_WCR_MT_MAX):
                 inWCR = True
                 nWCR.Fill(0, weight)
-                if measureFakeAndEff and ev.ElectronTight[0]:
+                if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
             elif (EL_TCR_MET_MIN < met < EL_TCR_MET_MAX and
-                  EL_TCR_MT_MIN < ev.mTel):
+                  EL_TCR_MT_MIN < mt):
                 nTCR.Fill(0, weight)
                 inTCR = True
         else:
-            if met < MU_QCD_MET_MAX and ev.mTmu < MU_QCD_MT_MAX:
+            if met < MU_QCD_MET_MAX and mt < MU_QCD_MT_MAX:
                 if (ev.PhElMinv < ZMASS - MU_QCD_MINV_WINDOW or
                     ev.PhElMinv > ZMASS + MU_QCD_MINV_WINDOW):
                     inQCD = True
                     nQCD.Fill(0, weight)
-                    if measureFakeAndEff and ev.MuonTight[0]:
+                    if measureFakeAndEff and ev.MuonTight[lepIndex]:
                         nQCDTight.Fill(0, weight)
             elif (MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
-                  MU_WCR_MT_MIN < ev.mTmu < MU_WCR_MT_MAX):
+                  MU_WCR_MT_MIN < mt < MU_WCR_MT_MAX):
                 inWCR = True
                 nWCR.Fill(0, weight)
-                if measureFakeAndEff and ev.MuonTight[0]:
+                if measureFakeAndEff and ev.MuonTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
             elif (MU_TCR_MET_MIN < met < MU_TCR_MET_MAX and
-                  MU_TCR_MT_MIN < ev.mTmu):
+                  MU_TCR_MT_MIN < mt):
                 nTCR.Fill(0, weight)
                 inTCR = True
 
         # do the XR
         if lepton == ELECTRON:
             if (EL_WCR_MET_MAX < met and
-                EL_WCR_MT_MIN < ev.mTel < EL_WCR_MT_MAX):
+                EL_WCR_MT_MIN < mt < EL_WCR_MT_MAX):
                 inXR2 = True
                 nXR2.Fill(0, weight)
-            if (EL_WCR_MT_MAX < ev.mTel and
+            if (EL_WCR_MT_MAX < mt and
                 EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
                 not inTCR):
                 inXR1 = True
                 nXR1.Fill(0, weight)
         else:
             if (MU_WCR_MET_MAX < met and
-                MU_WCR_MT_MIN < ev.mTmu < MU_WCR_MT_MAX):
+                MU_WCR_MT_MIN < mt < MU_WCR_MT_MAX):
                 inXR2 = True
                 nXR2.Fill(0, weight)
-            if (MU_WCR_MT_MAX < ev.mTmu and
+            if (MU_WCR_MT_MAX < mt and
                 MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
                 not inTCR):
                 inXR1 = True
@@ -580,9 +621,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         ## our selection
         if ((lepton == ELECTRON and
-             (met > EL_MET and ev.mTel > EL_MT)) or
+             (met > EL_MET and mt > EL_MT)) or
             (lepton == MUON and
-             (met > MU_MET and ev.mTmu > MU_MT))):
+             (met > MU_MET and mt > MU_MT))):
             inSR = True
             nSIG.Fill(0, weight)
 
@@ -591,15 +632,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             if plotsRegion == SR:
                 if ((lepton == ELECTRON and met > EL_MET) or
                     (lepton == MUON and met > MU_MET)):
-                    h_mTel.Fill(ev.mTel/GeV, weight)
-                    h_mTmu.Fill(ev.mTmu/GeV, weight)
-                    h_mTelShort.Fill(ev.mTel/GeV, weight)
-                    h_mTmuShort.Fill(ev.mTmu/GeV, weight)
-                    h_mTelExtended.Fill(ev.mTel/GeV, weight)
-                    h_mTmuExtended.Fill(ev.mTmu/GeV, weight)
+                    h_mTel.Fill(mt/GeV, weight)
+                    h_mTmu.Fill(mt/GeV, weight)
+                    h_mTelShort.Fill(mt/GeV, weight)
+                    h_mTmuShort.Fill(mt/GeV, weight)
+                    h_mTelExtended.Fill(mt/GeV, weight)
+                    h_mTmuExtended.Fill(mt/GeV, weight)
                     
-                if ((lepton == ELECTRON and ev.mTel > EL_MT) or
-                    (lepton == MUON and ev.mTmu > MU_MT)):
+                if ((lepton == ELECTRON and mt > EL_MT) or
+                    (lepton == MUON and mt > MU_MT)):
                     h_met.Fill(met/GeV, weight)
                     h_metShort.Fill(met/GeV, weight)
                     h_metExtended.Fill(met/GeV, weight)
@@ -616,12 +657,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 print "Accepted event with Run =", ev.Run, ", Event =", ev.Event
 
             if plotsRegion != SR:
-                h_mTel.Fill(ev.mTel/GeV, weight)
-                h_mTmu.Fill(ev.mTmu/GeV, weight)
-                h_mTelShort.Fill(ev.mTel/GeV, weight)
-                h_mTmuShort.Fill(ev.mTmu/GeV, weight)
-                h_mTelExtended.Fill(ev.mTel/GeV, weight)
-                h_mTmuExtended.Fill(ev.mTmu/GeV, weight)
+                h_mTel.Fill(mt/GeV, weight)
+                h_mTmu.Fill(mt/GeV, weight)
+                h_mTelShort.Fill(mt/GeV, weight)
+                h_mTmuShort.Fill(mt/GeV, weight)
+                h_mTelExtended.Fill(mt/GeV, weight)
+                h_mTmuExtended.Fill(mt/GeV, weight)
                 h_met.Fill(met/GeV, weight)
                 h_metShort.Fill(met/GeV, weight)
                 h_metExtended.Fill(met/GeV, weight)
@@ -703,14 +744,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
                 h_el_eta2.Fill(ev.ElectronEta[1], weight)
             if ev.numEl >= 1:
-                h_el_pt1.Fill(ev.ElectronPt[0]/GeV, weight)
-                h_el_eta1.Fill(ev.ElectronEta[0], weight)
+                h_el_pt1.Fill(ev.ElectronPt[lepIndex]/GeV, weight)
+                h_el_eta1.Fill(ev.ElectronEta[lepIndex], weight)
             if ev.numMu >= 2:
                 h_mu_pt2.Fill(ev.MuonPt[1]/GeV, weight)
                 h_mu_eta2.Fill(ev.MuonEta[1], weight)
             if ev.numMu >= 1:
-                h_mu_pt1.Fill(ev.MuonPt[0]/GeV, weight)
-                h_mu_eta1.Fill(ev.MuonEta[0], weight)
+                h_mu_pt1.Fill(ev.MuonPt[lepIndex]/GeV, weight)
+                h_mu_eta1.Fill(ev.MuonEta[lepIndex], weight)
         
 
     f.Write()
@@ -844,8 +885,12 @@ def Nqcd(nLoose, nTight, eta, lepton):
         eps_qcd = 0.50
         #eps_qcd = 0.45
     else:
-        #eps_qcd = 0.23
+        #eps_qcd = 0.24
+        # eps_qcd = 0.23
+        #eps_qcd = 0.22
+        #eps_qcd = 0.20
         eps_qcd = 0.19
+        #eps_qcd = 0.18
         #eps_qcd = 0.17
         #eps_qcd = 0.20
         eps_sig = ElEffPar.GetEfficiency(eta)
@@ -867,6 +912,21 @@ class EffParametrization:
 
 fpar = ROOT.TFile(FILENAME_ELEFF)
 ElEffPar = EffParametrization(fpar.Get("eff_eta"))
+
+
+def deltaPhi(phiA, phiB):
+    diff = (phiB - phiA) % (2.0 * math.pi)
+    if diff >= math.pi:
+        diff = (2.0 * math.pi) - diff
+    return diff
+
+def mT(pt, phi, metx, mety):
+    if metx == 0.0 and mety == 0.0:
+        return 0.0
+    else:
+        metphi = math.atan2(mety, metx)
+        phidiff = deltaPhi(phi, metphi)
+        return math.sqrt(2 * pt * math.hypot(metx, mety) * (1 - math.cos(phidiff)))
 
 if __name__ == "__main__":
     main()
