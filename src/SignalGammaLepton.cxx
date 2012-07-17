@@ -302,8 +302,11 @@ StatusCode SignalGammaLepton::initialize(){
 
   // this gets created no matter what
   m_histograms["CutFlow"] = new TH1D("CutFlow", "CutFlow", NUM_CUTS, 0, NUM_CUTS);
+  m_histograms["OrigStrong"] = new TH1F("OrigStrong", "The type of production before selection", 2, 0, 2);
+
   // always output the cutflow
   m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/CutFlow" , m_histograms["CutFlow"]).ignore();
+  m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/OrigStrong" , m_histograms["OrigStrong"]).ignore();
 
   if (m_outputHistograms) {
     m_histograms["ph_numConv"] = new TH1F("ph_numConv","Number of converted photons;number converted photons", 4, -0.5, 3.5);
@@ -669,8 +672,27 @@ StatusCode SignalGammaLepton::execute()
 
   m_HT = 0.0;
 
-  m_histograms["CutFlow"]->Fill(0.0, m_weight);
+  /////////////////////////////////////////////////////
+  // Now some truth studies
+  /////////////////////////////////////////////////////
 
+  m_type = TruthStudies::unknown;
+  if (m_doTruthStudies) {
+    sc = m_truth->execute();
+    if ( sc.isFailure() ) {
+      ATH_MSG_WARNING("TruthStudies Failed");
+      return sc;
+    }
+    m_type = m_truth->GetEventType();
+    m_isStrong = m_truth->isStrong();
+    m_numTruthPh = m_truth->nPhotons();
+    m_Wpt = m_truth->Wpt();
+  } else {
+    m_numTruthPh = -1;
+  }
+
+  m_histograms["CutFlow"]->Fill(0.0, m_weight);
+  m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
 
   if (larError) {
     return StatusCode::SUCCESS; // reject event
@@ -1430,24 +1452,24 @@ StatusCode SignalGammaLepton::execute()
 
   const double totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight;
 
-  /////////////////////////////////////////////////////
-  // Now some truth studies
-  /////////////////////////////////////////////////////
+  // /////////////////////////////////////////////////////
+  // // Now some truth studies
+  // /////////////////////////////////////////////////////
 
-  m_type = TruthStudies::unknown;
-  if (m_doTruthStudies) {
-    sc = m_truth->execute();
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("TruthStudies Failed");
-      return sc;
-    }
-    m_type = m_truth->GetEventType();
-    m_isStrong = m_truth->isStrong();
-    m_numTruthPh = m_truth->nPhotons();
-    m_Wpt = m_truth->Wpt();
-  } else {
-    m_numTruthPh = -1;
-  }
+  // m_type = TruthStudies::unknown;
+  // if (m_doTruthStudies) {
+  //   sc = m_truth->execute();
+  //   if ( sc.isFailure() ) {
+  //     ATH_MSG_WARNING("TruthStudies Failed");
+  //     return sc;
+  //   }
+  //   m_type = m_truth->GetEventType();
+  //   m_isStrong = m_truth->isStrong();
+  //   m_numTruthPh = m_truth->nPhotons();
+  //   m_Wpt = m_truth->Wpt();
+  // } else {
+  //   m_numTruthPh = -1;
+  // }
 
   if (m_outputHistograms) {
 

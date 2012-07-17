@@ -15,7 +15,7 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_grid/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/min_grid/mergedFiles/"
 
 for mgl in range(0, 1600, 100):
     for mC1 in range(0, mgl, 50) + [mgl-20]:
@@ -31,5 +31,5 @@ for mgl in range(0, 1600, 100):
             keyStrong = "%.0f, %.0f, 1" % (mgl, mC1)
             nWeak = OrigStrongwino.GetBinContent(1)
             nStrong = OrigStrongwino.GetBinContent(2)
-            print 'nOrigEvents["%s"] = %e' % (keyWeak, nWeak)
-            print 'nOrigEvents["%s"] = %e' % (keyStrong, nStrong)
+            print 'nOrigEvents["%s"] = %d' % (keyWeak, nWeak)
+            print 'nOrigEvents["%s"] = %d' % (keyStrong, nStrong)

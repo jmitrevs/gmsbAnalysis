@@ -1,11 +1,10 @@
 #! /usr/bin/env python
-
 '''
-Module to store all the source files, yields, etc, for electron channel.
+Module to run the analysis over all the grid ponts
 '''
 
 from glob import glob
-import sys
+import os, sys, getopt
 import ROOT
 # ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 # ROOT.SetAtlasStyle()
@@ -57,6 +56,9 @@ def RunAnalysis(lepton, plots):
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
 
+    f = ROOT.TFile("output_gl_wino.root")
+    ttree = f.Get("SignalUncertainties")
+    xsecs = signalXsecs(ttree)
 
     ttreeName = LepPhotonAnalysis.DEFAULTTTREE
   
@@ -70,10 +72,11 @@ def RunAnalysis(lepton, plots):
                 winoFileName = filelist[0]
                 winoFile = ROOT.TFile(winoFileName)
 
-                for strong in (0 1):
+                for strong in (0, 1):
                     nOrig = signalOrigEvents.getNEvents(mgl, mC1, strong)
-                    xsec = signalXsecs.getXsec(mgl, mC1, strong)
-                    scale = Lumi * xsec / nOrig
+                    xsec = xsecs.getXsec(mgl, mC1, strong)
+                    feff = signalOrigEvents.getFilterEff(mgl, mC1, strong)
+                    scale = Lumi * xsec * feff / nOrig
 
                     print "wino_%d_%d_%d:" % (mgl, mC1, strong)
                     LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
@@ -100,7 +103,6 @@ if __name__ == "__main__":
 
     lepton = DEFAULTLEPTON
     plots = LepPhotonAnalysis.DEFAULT_PLOTS
-    abcd = DEFAULTABCD
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -137,4 +139,5 @@ if __name__ == "__main__":
             else:
                 print "*** plots type unknown ****"
                 sys.exit(1)
+
     RunAnalysis(lepton, plots)
