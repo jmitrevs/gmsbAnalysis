@@ -190,7 +190,8 @@ def RunAnalysis(lepton):
                                         1.0,
                                         measureFakeAndEff=True,
                                         numBkgTight=34.5,
-                                        qcdOtherRoot = "total.root")
+                                        qcdOtherRoot = "total.root",
+                                        qcdOtherRootSimulate = "totalSimul.root")
     print "gj:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.gjFile.Get(ttreeName), 
                                         makeOutputName(DataManager.gjFileName),

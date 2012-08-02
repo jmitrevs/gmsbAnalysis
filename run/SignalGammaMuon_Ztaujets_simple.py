@@ -106,7 +106,8 @@ truthStudies = TruthStudies(name = "TruthStudies",
                             Ptcut = 40*GeV,
                             doDeltaRLepton = True,
                             DeltaRLepton = 0.1,
-                            OutputLevel = INFO
+                            OutputLevel = INFO,
+                            WptID = 23
                             )
 ToolSvc += truthStudies
 print truthStudies

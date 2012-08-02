@@ -76,7 +76,7 @@ WtaunuFileName_Np3 = regpath + "Wtaunu_Np3.root"
 WtaunuFileName_Np4 = regpath + "Wtaunu_Np4.root"
 WtaunuFileName_Np5 = regpath + "Wtaunu_Np5.root"
 
-st_tchan_taunuFileName = regpath + "st_tchan_taunu.root"    
+st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
     
 WgammaFileName_Np0 = alpgenpath + "Wgamma_Np0.root"
@@ -91,7 +91,8 @@ ttbargammaFileName = regpath + "ttbargamma.root"
 
 WWFileName = path + "WW.root"
 WZFileName = path + "WZ.root"
-ZZFileName = regpath + "ZZ.root"
+ZZ_llnunuFileName = path + "ZZ_llnunu.root"
+ZZ_llllFileName = path + "ZZ_llll.root"
 
 ZnunugammagammaFileName = oldpath + "Znunugammagamma.root"
 
@@ -156,7 +157,8 @@ st_WtFile   = ROOT.TFile(st_WtFileName)
 
 WWFile = ROOT.TFile(WWFileName)
 WZFile = ROOT.TFile(WZFileName)
-ZZFile = ROOT.TFile(ZZFileName)
+ZZ_llnunuFile = ROOT.TFile(ZZ_llnunuFileName)
+ZZ_llllFile = ROOT.TFile(ZZ_llllFileName)
 
 ZleplepgammaFile = ROOT.TFile(ZleplepgammaFileName)
 ZtautaugammaFile = ROOT.TFile(ZtautaugammaFileName)
@@ -223,7 +225,8 @@ cutFlowst_Wt   = st_WtFile.Get("Global/CutFlow")
 
 cutFlowWW   = WWFile.Get("Global/CutFlow")
 cutFlowWZ   = WZFile.Get("Global/CutFlow")
-cutFlowZZ   = ZZFile.Get("Global/CutFlow")
+cutFlowZZ_llnunu   = ZZ_llnunuFile.Get("Global/CutFlow")
+cutFlowZZ_llll   = ZZ_llllFile.Get("Global/CutFlow")
 
 cutFlowZleplepgamma = ZleplepgammaFile.Get("Global/CutFlow")
 cutFlowZtautaugamma = ZtautaugammaFile.Get("Global/CutFlow")
@@ -290,7 +293,8 @@ nOrigst_Wt = cutFlowst_Wt.GetBinContent(1)
 
 nOrigWW = cutFlowWW.GetBinContent(1)
 nOrigWZ = cutFlowWZ.GetBinContent(1)
-nOrigZZ = cutFlowZZ.GetBinContent(1)
+nOrigZZ_llnunu = cutFlowZZ_llnunu.GetBinContent(1)
+nOrigZZ_llll = cutFlowZZ_llll.GetBinContent(1)
 
 nOrigZleplepgamma = cutFlowZleplepgamma.GetBinContent(1)
 nOrigZtautaugamma = cutFlowZtautaugamma.GetBinContent(1)
@@ -360,7 +364,8 @@ if PRINT_YIELDS:
     
     print "\tnOrigWW =", nOrigWW
     print "\tnOrigWZ =", nOrigWZ
-    print "\tnOrigZZ =", nOrigZZ
+    print "\tnOrigZZ_llnunu =", nOrigZZ_llnunu
+    print "\tnOrigZZ_llll =", nOrigZZ_llll
     
     print "\tnOrigZleplepgamma =", nOrigZleplepgamma
     print "\tnOrigZtautaugamma =", nOrigZtautaugamma
@@ -384,8 +389,13 @@ if PRINT_YIELDS:
 #wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.6567 * 0.4812 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.6567
+#WjetExtraScale = 0.6567 * 0.4812 # from fit * tight/loose
+#ttbarLepjetExtraScale = 0.6567
+#WjetExtraScale = 0.346 * 0.4812 # from fit * tight/loose
+#ttbarLepjetExtraScale = 0.346
+
+WjetExtraScale = 0.400 * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.400
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
@@ -429,6 +439,7 @@ ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 
 # if using gamma pt > 40 GeV sample
 Wgamma_kFact = 1.39
+#Wgamma_kFact = 1.0
 #Wgamma_kFact = 1.488
 Wgamma_Np0_scale     =  Lumi  *  1.7837 * Wgamma_kFact   / nOrigWgamma_Np0
 Wgamma_Np1_scale     =  Lumi  *  4.3796 * Wgamma_kFact   / nOrigWgamma_Np1
@@ -449,13 +460,24 @@ Ztautaugamma_scale   =  Lumi  *  0.81710 * Zgamma_kFact  / nOrigZtautaugamma
 #inly have MadGraph
 Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
 
-st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
-st_tchan_taunu_scale = Lumi * 7.10 / nOrigst_tchan_taunu
+# MC@NLO
+# st_tchan_lepnu_scale = Lumi * 7.12 / nOrigst_tchan_lepnu
+# st_tchan_taunu_scale = Lumi * 7.10 / nOrigst_tchan_taunu
+
+# t-channel Acer, Wt MC@NLO
+st_tchan_lepnu_scale = Lumi * 8.06 * 0.865 / nOrigst_tchan_lepnu
+st_tchan_taunu_scale = Lumi * 8.05 * 0.866 / nOrigst_tchan_taunu
 st_Wt_scale = Lumi * 14.59 / nOrigst_Wt
 
-WW_scale = Lumi * 43.81 * 0.38947 / nOrigWW  # include k-factor
-WZ_scale = Lumi * 19.09 * 0.30986 / nOrigWZ
-ZZ_scale = Lumi *  6.21 * 0.21319 / nOrigZZ
+# Madgraph
+# WW_scale = Lumi * 43.81 * 0.38947 / nOrigWW  # include k-factor
+# WZ_scale = Lumi * 19.09 * 0.30986 / nOrigWZ
+# ZZ_scale = Lumi *  6.21 * 0.21319 / nOrigZZ
+
+WW_scale = Lumi * 3.6690 * 1.09 / nOrigWW  # include k-factor
+WZ_scale = Lumi * 6.2579 * 1.08 / nOrigWZ
+ZZ_llnunu_scale = Lumi * 0.33788 * 1.17 / nOrigZZ_llnunu #llnunu
+ZZ_llll_scale = Lumi * 4.6244 * 1.14 / nOrigZZ_llll # llll
 
 gamma_Np1_scale     =  Lumi  *  74235 * 1.0933E-01 / nOriggamma_Np1
 gamma_Np2_scale     =  Lumi  *  21574 * 3.1052E-01 / nOriggamma_Np2
@@ -463,9 +485,17 @@ gamma_Np3_scale     =  Lumi  *  5861.9 * 4.6724E-01 / nOriggamma_Np3
 gamma_Np4_scale     =  Lumi  *  1355.9 * 6.2450E-01 / nOriggamma_Np4
 gamma_Np5_scale     =  Lumi  *  351.86 * 7.6173E-01 / nOriggamma_Np5
 
+### k-factor of 1.2 is from diphoton group, but 1.4 with Higgs cuts?
+diphotons_kfact = 1.2
 # this is for the diphotons50
-### k-factor of 1.2 is made up.
-diphotons_scale = Lumi * 6.1162 * 8.7509E-01 * 1.2 / nOrigdiphotons
+diphotons50_scale = Lumi * 6.1162 * 8.7509E-01 * diphotons_kfact / nOrigdiphotons
+# this is the pythia with radiative photons, too
+diphotonsPythia_scale = Lumi * 1.3709E+05 * 6.0277E-04 * diphotons_kfact / nOrigdiphotons
+# and the sherpa with radiative phtons
+diphotonsSherpa_scale = Lumi * 4.5566E+02 * 1.7217E-01 * diphotons_kfact / nOrigdiphotons
+diphotons_scale = diphotonsSherpa_scale
+
+
 
 # Zee pythia
 Zee_alt_scale = Lumi * 834.62 / nOrigZee_alt
@@ -524,7 +554,8 @@ if PRINT_YIELDS:
 
     print "\tWW_scale =", WW_scale
     print "\tWZ_scale =", WZ_scale
-    print "\tZZ_scale =", ZZ_scale
+    print "\tZZ_llnunu_scale =", ZZ_llnunu_scale
+    print "\tZZ_llll_scale =", ZZ_llll_scale
     
     print "\tZleplepgamma_scale =", Zleplepgamma_scale
     print "\tZtautaugamma_scale =", Ztautaugamma_scale
@@ -594,7 +625,8 @@ nAfterPreselectst_Wt = cutFlowst_Wt.GetBinContent(binToLookAt)
 
 nAfterPreselectWW = cutFlowWW.GetBinContent(binToLookAt)
 nAfterPreselectWZ = cutFlowWZ.GetBinContent(binToLookAt)
-nAfterPreselectZZ = cutFlowZZ.GetBinContent(binToLookAt)
+nAfterPreselectZZ_llnunu = cutFlowZZ_llnunu.GetBinContent(binToLookAt)
+nAfterPreselectZZ_llll = cutFlowZZ_llll.GetBinContent(binToLookAt)
 
 nAfterPreselectZleplepgamma = cutFlowZleplepgamma.GetBinContent(binToLookAt)
 nAfterPreselectZtautaugamma = cutFlowZtautaugamma.GetBinContent(binToLookAt)
@@ -664,7 +696,8 @@ if PRINT_YIELDS:
 
     print "Yield WW =", nAfterPreselectWW * WW_scale
     print "Yield WZ =", nAfterPreselectWZ * WZ_scale
-    print "Yield ZZ =", nAfterPreselectZZ * ZZ_scale
+    print "Yield ZZ_llnunu =", nAfterPreselectZZ_llnunu * ZZ_llnunu_scale
+    print "Yield ZZ_llll =", nAfterPreselectZZ_llll * ZZ_llll_scale
 
     print "Yield Zleplepgamma =", nAfterPreselectZleplepgamma * Zleplepgamma_scale
     print "Yield Ztautaugamma =", nAfterPreselectZtautaugamma * Ztautaugamma_scale

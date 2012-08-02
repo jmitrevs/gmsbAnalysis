@@ -13,8 +13,8 @@ PRINT_YIELDS = True
 Lumi = 4708.61 # really electron only
 
 print "Lepton is MUON."
-path = ""
-#path = "/data3/jmitrevs/lepPhotonResults/plots_120612/muon/PRESEL/"
+#path = ""
+path = "input/back_k2/Mu/"
 
 winoFileName = path + "wino_600_200_muHist.root"
 
@@ -60,11 +60,14 @@ WgammaFileName_Np4 = path + "Wgamma_Np4Hist.root"
 WgammaFileName_Np5 = path + "Wgamma_Np5Hist.root"
 
 ttbarFileName = path + "ttbarHist.root"
+ttbarDilepFileName = path + "ttbarDilepHist.root"
+ttbarLepjetsFileName = path + "ttbarLepjetsHist.root"
 ttbargammaFileName = path + "ttbargammaHist.root"
 
 WWFileName = path + "WWHist.root"
 WZFileName = path + "WZHist.root"
-ZZFileName = path + "ZZHist.root"
+ZZ_llllFileName = path + "ZZ_llllHist.root"
+ZZ_llnunuFileName = path + "ZZ_llnunuHist.root"
 
 ZtautaugammaFileName = path + "ZtautaugammaHist.root"
 # ZnunugammagammaFileName = path + "ZnunugammagammaHist.root"
@@ -78,6 +81,7 @@ gammaFileName_Np5 = path + "gamma_Np5Hist.root"
 # diphotonsFileName = path + "diphotonsHist.root"
 
 dataFileName = path + "mugHist.root"
+totalFileName = path + "totalMMHist.root"
 gjFileName = path + "gjHist.root"
     
 ###########################################
@@ -121,6 +125,8 @@ WgammaFile_Np4 = ROOT.TFile(WgammaFileName_Np4)
 WgammaFile_Np5 = ROOT.TFile(WgammaFileName_Np5)
 
 ttbarFile = ROOT.TFile(ttbarFileName)
+ttbarLepjetsFile = ROOT.TFile(ttbarLepjetsFileName)
+ttbarDilepFile = ROOT.TFile(ttbarDilepFileName)
 ttbargammaFile = ROOT.TFile(ttbargammaFileName)
 
 st_tchan_lepnuFile   = ROOT.TFile(st_tchan_lepnuFileName)
@@ -130,7 +136,8 @@ st_WtFile   = ROOT.TFile(st_WtFileName)
 
 WWFile = ROOT.TFile(WWFileName)
 WZFile = ROOT.TFile(WZFileName)
-ZZFile = ROOT.TFile(ZZFileName)
+ZZ_llllFile = ROOT.TFile(ZZ_llllFileName)
+ZZ_llnunuFile = ROOT.TFile(ZZ_llnunuFileName)
 
 ZleplepgammaFile = ROOT.TFile(ZleplepgammaFileName)
 ZtautaugammaFile = ROOT.TFile(ZtautaugammaFileName)
@@ -145,6 +152,7 @@ gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
 #diphotonsFile = ROOT.TFile(diphotonsFileName)
 
 dataFile = ROOT.TFile(dataFileName)
+totalFile = ROOT.TFile(totalFileName)
 gjFile = ROOT.TFile(gjFileName)
 
 ##############################

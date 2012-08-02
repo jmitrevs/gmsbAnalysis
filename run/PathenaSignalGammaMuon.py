@@ -20,7 +20,7 @@ inDS_full = [
     # 'mc11_7TeV.117420.AlpgenJimmyWgammaNp0_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.117421.AlpgenJimmyWgammaNp1_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.117422.AlpgenJimmyWgammaNp2_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
-    'mc11_7TeV.117423.AlpgenJimmyWgammaNp3_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
+    # 'mc11_7TeV.117423.AlpgenJimmyWgammaNp3_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.117424.AlpgenJimmyWgammaNp4_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     # 'mc11_7TeV.117425.AlpgenJimmyWgammaNp5_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
 
@@ -62,6 +62,14 @@ inDS_full = [
 
     # # # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
     # # # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
+
+    'mc11_7TeV.117361.st_tchan_munu_AcerMC.merge.AOD.e835_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.117362.st_tchan_taunu_AcerMC.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.126892.Sherpa_CT10_llnunu_WW.merge.AOD.e1255_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126893.Sherpa_CT10_lllnu_WZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126894.Sherpa_CT10_llll_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
+
 ]
 
 #how to automatically configure GRL ?
@@ -72,14 +80,14 @@ for i,inDS in enumerate(inDS_full):
    
     outName = inDS[:95] # make sure the name is not too long
    
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120705a.%s SignalGammaMuon.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120726.%s SignalGammaMuon.py " % (inDS, outName)
     
     # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120705.tar"
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
     # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120705.tar"
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120705.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
 
     print command
     sys.stdout.flush()
@@ -137,9 +145,9 @@ for i,inDS in enumerate(inDS_Wjets):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120705.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
 
 inDS_Zjets = [
 

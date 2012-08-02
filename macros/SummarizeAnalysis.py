@@ -56,10 +56,10 @@ diboson = ROOT.TFile("dibosonHist.root")
 Zjets = ROOT.TFile("ZjetsHist.root")
 Zgamma = ROOT.TFile("ZgammaHist.root")
 gammaJets = ROOT.TFile("gammaJetsHist.root")
-total = ROOT.TFile("total.root")
+total = ROOT.TFile("totalHist.root")
 data = ROOT.TFile("data.root")
 gj = ROOT.TFile("gjHist.root")
-totalMM = ROOT.TFile("totalMM.root")
+totalMM = ROOT.TFile("totalMMHist.root")
 if lepton == ELECTRON:
     diphotons = ROOT.TFile("diphotonsHist.root")
 

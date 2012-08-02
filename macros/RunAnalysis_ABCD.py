@@ -49,7 +49,7 @@ def RunAnalysis(lepton, plots, abcd):
     if lepton == ELECTRON:
         import DataManagerElectrons_ABCD as DataManager
     elif lepton == MUON:
-        import DataManagerMuons as DataManager
+        import DataManagerMuons_ABCD as DataManager
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
 
@@ -280,12 +280,17 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.WZ_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, doABCD=abcd)
 
     print
-    print "ZZ:"
-    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZZFile.Get(ttreeName), 
-                                        makeOutputName(DataManager.ZZFileName),
+    print "ZZ_llnunu:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZZ_llnunuFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.ZZ_llnunuFileName),
                                         lepton,
-                                        DataManager.ZZ_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, doABCD=abcd)
-
+                                        DataManager.ZZ_llnunu_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+    print
+    print "ZZ_llll:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ZZ_llllFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.ZZ_llllFileName),
+                                        lepton,
+                                        DataManager.ZZ_llll_scale, applySF=LepPhotonAnalysis.NOMINAL, applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
     print
 
 

@@ -104,17 +104,24 @@ MU_MT = 100*GeV
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
 
+# tight (default)
 MU_WCR_MET_MIN = 35*GeV
 MU_WCR_MET_MAX = 80*GeV
 MU_WCR_MT_MIN = 35*GeV
 MU_WCR_MT_MAX = 90*GeV
 
+# loose
+# MU_WCR_MET_MIN = 25*GeV
+# MU_WCR_MET_MAX = 80*GeV
+# MU_WCR_MT_MIN = 25*GeV
+# MU_WCR_MT_MAX = 90*GeV
+
 MU_TCR_MET_MIN = 35*GeV
 MU_TCR_MET_MAX = 80*GeV
 MU_TCR_MT_MIN =  90*GeV
 
-MU_QCD_MET_MAX = 20*GeV
-MU_QCD_MT_MAX = 20*GeV
+MU_QCD_MET_MAX = 10*GeV
+MU_QCD_MT_MAX = 25*GeV
 
 DELTAR_MU_PH = 0.7
 
@@ -145,6 +152,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       blind = False,
                       tttype = ALL,
                       qcdOtherRoot = "",
+                      qcdOtherRootSimulate = "",
                       reweighAlpgen = False,
                       debug = False):
 
@@ -308,8 +316,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # lets apply the cuts
         # double-check quality
         if ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
-            print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
-            sys.exit(1)
+            # print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
+            # sys.exit(1)
+            continue
 
         if debug: print "Analizing event with Run =", ev.Run, ", Event =", ev.Event
 
@@ -656,7 +665,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             if printAccepted:
                 print "Accepted event with Run =", ev.Run, ", Event =", ev.Event
 
-            if plotsRegion != SR:
+            if plotsRegion != SR:  # think this is a bug, if statement not needed
                 h_mTel.Fill(mt/GeV, weight)
                 h_mTmu.Fill(mt/GeV, weight)
                 h_mTelShort.Fill(mt/GeV, weight)
@@ -784,6 +793,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             fakeRateNum.Add(qcdBackNum, -1)
             fakeRateDen.Add(qcdBackDen, -1)
 
+        if qcdOtherRootSimulate:
+            backgroundFileSimulate = ROOT.TFile(qcdOtherRootSimulate)
+            print "fakeRateNum =",fakeRateNum.GetBinContent(1), "fakeRateDen=",fakeRateDen.GetBinContent(1) 
+            qcdBackNumSim = backgroundFileSimulate.Get("nQCD")
+            print "qcdBackNumSim =",qcdBackNumSim.GetBinContent(1) 
+            fakeRateNum.Add(qcdBackNumSim, -1)
+            #fakeRateDen.Add(qcdBackNumSim, -1.016)
+            fakeRateDen.Add(qcdBackNumSim, -1.07)
+
         fakeRate.Divide(fakeRateNum, fakeRateDen, 1.0, 1.0, "B")
 
         print "**************************************"
@@ -882,14 +900,16 @@ def Nqcd(nLoose, nTight, eta, lepton):
         #eps_sig = 1.0
         eps_sig = 0.984
         #eps_qcd = 0.62
-        eps_qcd = 0.50
-        #eps_qcd = 0.45
+        #eps_qcd = 0.50
+        eps_qcd = 0.45
+        #eps_qcd = 0.40
+        #eps_qcd = 0.35
     else:
         #eps_qcd = 0.24
-        # eps_qcd = 0.23
+        eps_qcd = 0.23
         #eps_qcd = 0.22
         #eps_qcd = 0.20
-        eps_qcd = 0.19
+        #eps_qcd = 0.19
         #eps_qcd = 0.18
         #eps_qcd = 0.17
         #eps_qcd = 0.20
