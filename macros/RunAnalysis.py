@@ -21,6 +21,9 @@ MUON = 1
 DEFAULTLEPTON = ELECTRON
 DEFAULTABCD = LepPhotonAnalysis.NoABCD
 
+REWEIGHW = True
+REWEIGHZ = True
+
 def GetHistNames(inFile):
     
     histNames = []
@@ -56,6 +59,7 @@ def RunAnalysis(lepton, plots, abcd):
 
     ttreeName = LepPhotonAnalysis.DEFAULTTTREE
   
+    reweighZ = REWEIGHZ and (lepton == ELECTRON) 
 
     print "Wlepnu_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WlepnuFile_Np0.Get(ttreeName), 
@@ -73,7 +77,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wlepnu_Np1_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wlepnu_Np2:"
@@ -83,7 +87,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wlepnu_Np2_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wlepnu_Np3:"
@@ -93,7 +97,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wlepnu_Np3_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wlepnu_Np4:"
@@ -103,7 +107,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wlepnu_Np4_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wlepnu_Np5:"
@@ -113,7 +117,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wlepnu_Np5_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
     print
     print "Wtaunu_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WtaunuFile_Np0.Get(ttreeName), 
@@ -131,7 +135,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wtaunu_Np1_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wtaunu_Np2:"
@@ -141,7 +145,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wtaunu_Np2_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wtaunu_Np3:"
@@ -151,7 +155,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wtaunu_Np3_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wtaunu_Np4:"
@@ -161,7 +165,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wtaunu_Np4_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wtaunu_Np5:"
@@ -171,7 +175,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Wtaunu_Np5_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
     print
     print "Wgamma_Np0:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.WgammaFile_Np0.Get(ttreeName), 
@@ -179,7 +183,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         lepton,
                                         DataManager.Wgamma_Np0_scale, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wgamma_Np1:"
@@ -188,7 +192,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         lepton,
                                         DataManager.Wgamma_Np1_scale, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wgamma_Np2:"
@@ -197,7 +201,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         lepton,
                                         DataManager.Wgamma_Np2_scale, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wgamma_Np3:"
@@ -206,7 +210,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         lepton,
                                         DataManager.Wgamma_Np3_scale, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wgamma_Np4:"
@@ -215,7 +219,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         lepton,
                                         DataManager.Wgamma_Np4_scale, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
 
     print
     print "Wgamma_Np5:"
@@ -224,7 +228,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         lepton,
                                         DataManager.Wgamma_Np5_scale, applySF=LepPhotonAnalysis.NOMINAL,
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
-                                        reweighAlpgen=True)
+                                        reweighAlpgen=REWEIGHW)
     print
 
     # print "ttbar:"
@@ -338,7 +342,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Zleplep_Np0_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Zleplep_Np1:"
@@ -348,7 +352,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Zleplep_Np1_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Zleplep_Np2:"
@@ -358,7 +362,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Zleplep_Np2_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Zleplep_Np3:"
@@ -368,7 +372,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Zleplep_Np3_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Zleplep_Np4:"
@@ -378,7 +382,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Zleplep_Np4_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Zleplep_Np5:"
@@ -388,7 +392,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Zleplep_Np5_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
     print
     # if lepton == ELECTRON:
     #     print "Zee_alt:"
@@ -405,7 +409,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Ztautau_Np0_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Ztautau_Np1:"
@@ -415,7 +419,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Ztautau_Np1_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Ztautau_Np2:"
@@ -425,7 +429,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Ztautau_Np2_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Ztautau_Np3:"
@@ -435,7 +439,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Ztautau_Np3_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Ztautau_Np4:"
@@ -445,7 +449,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Ztautau_Np4_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
 
     print
     print "Ztautau_Np5:"
@@ -455,7 +459,7 @@ def RunAnalysis(lepton, plots, abcd):
                                         DataManager.Ztautau_Np5_scale,
                                         removeOverlap, applySF=LepPhotonAnalysis.NOMINAL, 
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots,
-                                        reweighAlpgen = (lepton == ELECTRON))
+                                        reweighAlpgen = reweighZ)
     print
 
     print "gamma_Np1:"

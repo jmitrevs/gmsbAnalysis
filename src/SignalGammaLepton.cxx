@@ -427,6 +427,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_alt = new std::vector<int>;
     m_ph_truth = new std::vector<int>;
     m_ph_origin = new std::vector<int>;
+    m_ph_isEM = new std::vector<int>;
 
     m_ph_AR = new std::vector<int>;
     m_ph_convType = new std::vector<int>;
@@ -515,6 +516,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonAlt", &m_ph_alt);
     m_tree->Branch("PhotonTruth", &m_ph_truth);
     m_tree->Branch("PhotonOrigin", &m_ph_origin);
+    m_tree->Branch("PhotonIsEM", &m_ph_isEM);
 
     m_tree->Branch("PhotonAR", &m_ph_AR);
     m_tree->Branch("PhotonConvType", &m_ph_convType);
@@ -598,6 +600,7 @@ StatusCode SignalGammaLepton::execute()
     m_ph_alt->clear();
     m_ph_truth->clear();
     m_ph_origin->clear();
+    m_ph_isEM->clear();
 
     m_ph_AR->clear();
     m_ph_convType->clear();
@@ -1047,6 +1050,7 @@ StatusCode SignalGammaLepton::execute()
       m_ph_alt->push_back(isAlt);
       m_ph_truth->push_back(truth);
       m_ph_origin->push_back(origin);
+      m_ph_isEM->push_back((*ph)->isem());
 
       const EMConvert *convert = (*ph)->detail<EMConvert>();
       

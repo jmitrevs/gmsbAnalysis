@@ -20,7 +20,7 @@ alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
 altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
 datapath = "/data3/jmitrevs/lepphoton/muphoton_data6/mergedFiles/"
 loosepath = ""
-loosepath = "/data3/jmitrevs/lepphoton/muphoton_ntupleloose/mergedFiles/"
+#loosepath = "/data3/jmitrevs/lepphoton/muphoton_ntupleloose/mergedFiles/"
 dataloosepath = "/data3/jmitrevs/lepphoton/muphoton_dataloose3/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/muphoton_grid/mergedFiles/"
 
@@ -43,6 +43,14 @@ if loosepath:
     ZleplepFileName_Np5 = loosepath + "Zmumu_Np5.root"
     ZtautaugammaFileName = loosepath + "Ztautaugamma.root"
     ZleplepgammaFileName = loosepath + "Zmumugamma.root"
+
+    WgammaFileName_Np0 = loosepath + "Wgamma_Np0.root"
+    WgammaFileName_Np1 = loosepath + "Wgamma_Np1.root"
+    WgammaFileName_Np2 = loosepath + "Wgamma_Np2.root"
+    WgammaFileName_Np3 = loosepath + "Wgamma_Np3.root"
+    WgammaFileName_Np4 = loosepath + "Wgamma_Np4.root"
+    WgammaFileName_Np5 = loosepath + "Wgamma_Np5.root"
+
 else:
     ZleplepFileName_Np0 = path + "Zmumu_Np0.root"
     ZleplepFileName_Np1 = path + "Zmumu_Np1.root"
@@ -52,6 +60,13 @@ else:
     ZleplepFileName_Np5 = path + "Zmumu_Np5.root"
     ZtautaugammaFileName = path + "Ztautaugamma.root"
     ZleplepgammaFileName = path + "Zmumugamma.root"
+
+    WgammaFileName_Np0 = alpgenpath + "Wgamma_Np0.root"
+    WgammaFileName_Np1 = alpgenpath + "Wgamma_Np1.root"
+    WgammaFileName_Np2 = alpgenpath + "Wgamma_Np2.root"
+    WgammaFileName_Np3 = alpgenpath + "Wgamma_Np3.root"
+    WgammaFileName_Np4 = alpgenpath + "Wgamma_Np4.root"
+    WgammaFileName_Np5 = alpgenpath + "Wgamma_Np5.root"
 
 st_tchan_lepnuFileName   = path + "st_tchan_munu.root"
 
@@ -71,13 +86,6 @@ ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
 
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
-    
-WgammaFileName_Np0 = alpgenpath + "Wgamma_Np0.root"
-WgammaFileName_Np1 = alpgenpath + "Wgamma_Np1.root"
-WgammaFileName_Np2 = alpgenpath + "Wgamma_Np2.root"
-WgammaFileName_Np3 = alpgenpath + "Wgamma_Np3.root"
-WgammaFileName_Np4 = alpgenpath + "Wgamma_Np4.root"
-WgammaFileName_Np5 = alpgenpath + "Wgamma_Np5.root"
 
 ttbarFileName = path + "ttbar.root"
 ttbargammaFileName = path + "ttbargamma.root"

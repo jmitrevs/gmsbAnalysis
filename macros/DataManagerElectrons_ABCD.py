@@ -58,16 +58,16 @@ else:
     ZleplepFileName_Np4 = path + "Zee_Np4.root"
     ZleplepFileName_Np5 = path + "Zee_Np5.root"
     ZleplepgammaFileName = regpath + "Zeegamma.root"
-    ZtautauFileName_Np0 = regpath + "Ztautau_Np0.root"
-    ZtautauFileName_Np1 = regpath + "Ztautau_Np1.root"
-    ZtautauFileName_Np2 = regpath + "Ztautau_Np2.root"
-    ZtautauFileName_Np3 = regpath + "Ztautau_Np3.root"
-    ZtautauFileName_Np4 = regpath + "Ztautau_Np4.root"
-    ZtautauFileName_Np5 = regpath + "Ztautau_Np5.root"
-    ZtautaugammaFileName = regpath + "Ztautaugamma.root"
-    diphotonsFileName = regpath + "diphotons.root"
+    ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
+    ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
+    ZtautauFileName_Np2 = path + "Ztautau_Np2.root"
+    ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
+    ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
+    ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
+    ZtautaugammaFileName = path + "Ztautaugamma.root"
+    diphotonsFileName = path + "diphotons.root"
 
-st_tchan_lepnuFileName   = regpath + "st_tchan_enu.root"
+st_tchan_lepnuFileName   = path + "st_tchan_enu.root"
 
 WtaunuFileName_Np0 = regpath + "Wtaunu_Np0.root"
 WtaunuFileName_Np1 = regpath + "Wtaunu_Np1.root"
@@ -79,12 +79,12 @@ WtaunuFileName_Np5 = regpath + "Wtaunu_Np5.root"
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
     
-WgammaFileName_Np0 = alpgenpath + "Wgamma_Np0.root"
-WgammaFileName_Np1 = alpgenpath + "Wgamma_Np1.root"
-WgammaFileName_Np2 = alpgenpath + "Wgamma_Np2.root"
-WgammaFileName_Np3 = alpgenpath + "Wgamma_Np3.root"
-WgammaFileName_Np4 = alpgenpath + "Wgamma_Np4.root"
-WgammaFileName_Np5 = alpgenpath + "Wgamma_Np5.root"
+WgammaFileName_Np0 = path + "Wgamma_Np0.root"
+WgammaFileName_Np1 = path + "Wgamma_Np1.root"
+WgammaFileName_Np2 = path + "Wgamma_Np2.root"
+WgammaFileName_Np3 = path + "Wgamma_Np3.root"
+WgammaFileName_Np4 = path + "Wgamma_Np4.root"
+WgammaFileName_Np5 = path + "Wgamma_Np5.root"
 
 ttbarFileName = path + "ttbar.root"
 ttbargammaFileName = regpath + "ttbargamma.root"
@@ -102,7 +102,7 @@ gammaFileName_Np3 = medpath + "gamma_Np3.root"
 gammaFileName_Np4 = medpath + "gamma_Np4.root"
 gammaFileName_Np5 = medpath + "gamma_Np5.root"
 
-Zee_altFileName = oldpath + "Zee_pythia.root"
+Wenu_altFileName = path + "Wenu_pythia.root"
 
 dataFileName = datapath + "eg.root"
 gjFileName = dataloosepath + "gj.root"
@@ -171,7 +171,7 @@ gammaFile_Np4 = ROOT.TFile(gammaFileName_Np4)
 gammaFile_Np5 = ROOT.TFile(gammaFileName_Np5)
 
 diphotonsFile = ROOT.TFile(diphotonsFileName)
-Zee_altFile = ROOT.TFile(Zee_altFileName)
+Wenu_altFile = ROOT.TFile(Wenu_altFileName)
 
 dataFile = ROOT.TFile(dataFileName)
 gjFile = ROOT.TFile(gjFileName)
@@ -239,7 +239,7 @@ cutFlowgamma_Np4 = gammaFile_Np4.Get("Global/CutFlow")
 cutFlowgamma_Np5 = gammaFile_Np5.Get("Global/CutFlow")
 
 cutFlowdiphotons = diphotonsFile.Get("Global/CutFlow");
-cutFlowZee_alt = Zee_altFile.Get("Global/CutFlow");
+cutFlowWenu_alt = Wenu_altFile.Get("Global/CutFlow");
 
 cutFlowdata = dataFile.Get("Global/CutFlow");
 cutFlowgj = gjFile.Get("Global/CutFlow");
@@ -307,7 +307,7 @@ nOriggamma_Np4 = cutFlowgamma_Np4.GetBinContent(1)
 nOriggamma_Np5 = cutFlowgamma_Np5.GetBinContent(1)
 
 nOrigdiphotons = cutFlowdiphotons.GetBinContent(1)
-nOrigZee_alt = cutFlowZee_alt.GetBinContent(1)
+nOrigWenu_alt = cutFlowWenu_alt.GetBinContent(1)
 
 nOrigdata = cutFlowdata.GetBinContent(1)
 nOriggj = cutFlowgj.GetBinContent(1)
@@ -377,7 +377,7 @@ if PRINT_YIELDS:
     print "\tnOriggamma_Np4 =", nOriggamma_Np4
     print "\tnOriggamma_Np5 =", nOriggamma_Np5
     print "\tnOrigdiphotons =", nOrigdiphotons
-    print "\tnOrigZee_alt =", nOrigZee_alt
+    print "\tnOrigWenu_alt =", nOrigWenu_alt
     print
     print "\tnOrigdata =", nOrigdata
     print "\tnOriggj (before subtraction) =", nOriggj
@@ -498,7 +498,7 @@ diphotons_scale = diphotonsSherpa_scale
 
 
 # Zee pythia
-Zee_alt_scale = Lumi * 834.62 / nOrigZee_alt
+Wenu_alt_scale = Lumi * 834.62 / nOrigWenu_alt
 
 
 if PRINT_YIELDS:
@@ -569,7 +569,7 @@ if PRINT_YIELDS:
 
 
     print "\tdiphotons_scale =", diphotons_scale
-    print "\tZee_alt_scale =", Zee_alt_scale
+    print "\tWenu_alt_scale =", Wenu_alt_scale
     print
 
 #########################################################
@@ -639,7 +639,7 @@ nAfterPreselectgamma_Np4 = cutFlowgamma_Np4.GetBinContent(binToLookAt)
 nAfterPreselectgamma_Np5 = cutFlowgamma_Np5.GetBinContent(binToLookAt)
 
 nAfterPreselectdiphotons = cutFlowdiphotons.GetBinContent(binToLookAt)
-nAfterPreselectZee_alt = cutFlowZee_alt.GetBinContent(binToLookAt)
+nAfterPreselectWenu_alt = cutFlowWenu_alt.GetBinContent(binToLookAt)
 
 nAfterPreselectdata = cutFlowdata.GetBinContent(binToLookAt)
 nAfterPreselectgj = cutFlowgj.GetBinContent(binToLookAt)
@@ -710,7 +710,7 @@ if PRINT_YIELDS:
     print "Yield gamma_Np5 =", nAfterPreselectgamma_Np5 * gamma_Np5_scale
 
     print "Yield diphotons =", nAfterPreselectdiphotons
-    print "Yield Zee_alt =", nAfterPreselectZee_alt
+    print "Yield Wenu_alt =", nAfterPreselectWenu_alt
 
     print "Yield data (not correct if blinded) =", nAfterPreselectdata
     print "Yield gj before tight subtraction (not correct if blinded) =", nAfterPreselectgj

@@ -168,6 +168,7 @@ private:
   std::vector<int>* m_ph_alt; // for ABCD
   std::vector<int>* m_ph_truth; // for truth classifer
   std::vector<int>* m_ph_origin; // for truth classifer
+  std::vector<int>* m_ph_isEM;
 
   // a bit more stuff for AR
   std::vector<int>* m_ph_AR;

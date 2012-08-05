@@ -79,9 +79,9 @@ EL_MT = 100*GeV
 EL_QCD_MINV_WINDOW = 30*GeV
 EL_MINV_WINDOW = 15*GeV
 
-EL_WCR_MET_MIN = 35*GeV
+EL_WCR_MET_MIN = 20*GeV
 EL_WCR_MET_MAX = 80*GeV
-EL_WCR_MT_MIN = 35*GeV
+EL_WCR_MT_MIN = 25*GeV
 EL_WCR_MT_MAX = 90*GeV
 
 EL_TCR_MET_MIN = 35*GeV
@@ -120,7 +120,7 @@ MU_TCR_MET_MIN = 35*GeV
 MU_TCR_MET_MAX = 80*GeV
 MU_TCR_MT_MIN =  90*GeV
 
-MU_QCD_MET_MAX = 10*GeV
+MU_QCD_MET_MAX = 25*GeV
 MU_QCD_MT_MAX = 25*GeV
 
 DELTAR_MU_PH = 0.7
@@ -154,7 +154,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       qcdOtherRoot = "",
                       qcdOtherRootSimulate = "",
                       reweighAlpgen = False,
-                      debug = False):
+                      debug = False,
+                      doTruth = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -220,6 +221,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     h_ph_numBEl = ROOT.TH1F("ph_numBEl", "The number of PIX hits in electron track;N_{hits};Events", 30, -9.5, 20.5)
     h_ph_rejectStudies = ROOT.TH1F("ph_rejectStudies", "1 = Fail with BL, 2 = Fail with PIX;Events", 30, -9.5, 20.5)
 
+    h_ph_truth = ROOT.TH1F("ph_truth", "The truth classication", 25, 0, 25);
+    h_ph_origin = ROOT.TH1F("ph_origin", "The truth origin", 50, 0, 50);
 
     ######## mudir
     mudir.cd()
@@ -733,6 +736,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             h_ph_numPixEl.Fill(ev.PhotonNumPixEl[photonIndex], weight)
             h_ph_numBEl.Fill(ev.PhotonNumBEl[photonIndex], weight)
 
+            if doTruth:
+                h_ph_truth.Fill(ev.PhotonTruth[photonIndex], weight)
+                h_ph_origin.Fill(ev.PhotonOrigin[photonIndex], weight)
+
             h_el_mInv.Fill(ev.ElMinv/GeV, weight)
             h_mu_mInv.Fill(ev.MuMinv/GeV, weight)
 
@@ -901,13 +908,16 @@ def Nqcd(nLoose, nTight, eta, lepton):
         eps_sig = 0.984
         #eps_qcd = 0.62
         #eps_qcd = 0.50
-        eps_qcd = 0.45
+        #eps_qcd = 0.45
         #eps_qcd = 0.40
         #eps_qcd = 0.35
+        eps_qcd = 0.32
+        #eps_qcd = 0.30
     else:
         #eps_qcd = 0.24
-        eps_qcd = 0.23
+        #eps_qcd = 0.23
         #eps_qcd = 0.22
+        eps_qcd = 0.21
         #eps_qcd = 0.20
         #eps_qcd = 0.19
         #eps_qcd = 0.18
