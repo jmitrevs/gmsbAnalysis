@@ -102,7 +102,7 @@ gammaFileName_Np3 = medpath + "gamma_Np3.root"
 gammaFileName_Np4 = medpath + "gamma_Np4.root"
 gammaFileName_Np5 = medpath + "gamma_Np5.root"
 
-Wenu_altFileName = path + "Wenu_pythia.root"
+Wenu_altFileName = path + "Wenu_sherpa.root"
 
 dataFileName = datapath + "eg.root"
 gjFileName = dataloosepath + "gj.root"

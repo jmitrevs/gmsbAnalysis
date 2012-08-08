@@ -14,7 +14,7 @@ Lumi = 4708.61 # really electron only
 
 print "Lepton is MUON."
 #path = ""
-path = "input/back_k2/Mu/"
+path = "input/back_ABCD/Mu/"
 
 winoFileName = path + "wino_600_200_muHist.root"
 

@@ -105,7 +105,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         
         WW   = DataManager.WWFile.Get(histName)
         WZ   = DataManager.WZFile.Get(histName)
-        ZZ   = DataManager.ZZFile.Get(histName)
+        ZZ_llll   = DataManager.ZZ_llllFile.Get(histName)
+        ZZ_llnunu   = DataManager.ZZ_llnunuFile.Get(histName)
         
         Zleplepgamma = DataManager.ZleplepgammaFile.Get(histName)
         Ztautaugamma = DataManager.ZtautaugammaFile.Get(histName)
@@ -173,7 +174,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
 
         diboson = WW.Clone()
         diboson.Add(WZ)
-        diboson.Add(ZZ)
+        diboson.Add(ZZ_llll)
+        diboson.Add(ZZ_llnunu)
 
         gamma = gamma_Np1.Clone()
         gamma.Add(gamma_Np2)

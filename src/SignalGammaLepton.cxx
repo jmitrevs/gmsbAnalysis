@@ -423,11 +423,12 @@ StatusCode SignalGammaLepton::initialize(){
     m_ph_eta = new std::vector<float>;
     m_ph_eta2 = new std::vector<float>;
     m_ph_phi = new std::vector<float>;
+    m_ph_etcone20 = new std::vector<float>;
     m_ph_tight = new std::vector<int>;
     m_ph_alt = new std::vector<int>;
     m_ph_truth = new std::vector<int>;
     m_ph_origin = new std::vector<int>;
-    m_ph_isEM = new std::vector<int>;
+    m_ph_isEM = new std::vector<unsigned int>;
 
     m_ph_AR = new std::vector<int>;
     m_ph_convType = new std::vector<int>;
@@ -512,6 +513,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("PhotonEta", &m_ph_eta);
     m_tree->Branch("PhotonEta2", &m_ph_eta2);
     m_tree->Branch("PhotonPhi", &m_ph_phi);
+    m_tree->Branch("PhotonEtcone20", &m_ph_etcone20);
     m_tree->Branch("PhotonTight", &m_ph_tight);
     m_tree->Branch("PhotonAlt", &m_ph_alt);
     m_tree->Branch("PhotonTruth", &m_ph_truth);
@@ -596,6 +598,7 @@ StatusCode SignalGammaLepton::execute()
     m_ph_eta->clear();
     m_ph_eta2->clear();
     m_ph_phi->clear();
+    m_ph_etcone20->clear();
     m_ph_tight->clear();
     m_ph_alt->clear();
     m_ph_truth->clear();
@@ -1046,11 +1049,17 @@ StatusCode SignalGammaLepton::execute()
       m_ph_eta->push_back((*ph)->eta());
       m_ph_eta2->push_back((*ph)->cluster()->etaBE(2));
       m_ph_phi->push_back((*ph)->phi());
+
+      const EMShower* egdetail = (*ph)->detail<EMShower>();
+      float iso = egdetail->etcone20_ptcorrected();
+
+      m_ph_etcone20->push_back(iso);
       m_ph_tight->push_back(isTight);
       m_ph_alt->push_back(isAlt);
       m_ph_truth->push_back(truth);
       m_ph_origin->push_back(origin);
-      m_ph_isEM->push_back((*ph)->isem());
+      unsigned int isem = (*ph)->isem();
+      m_ph_isEM->push_back(isem & 0x0FFFFFFF);
 
       const EMConvert *convert = (*ph)->detail<EMConvert>();
       

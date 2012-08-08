@@ -79,7 +79,14 @@ EL_MT = 100*GeV
 EL_QCD_MINV_WINDOW = 30*GeV
 EL_MINV_WINDOW = 15*GeV
 
-EL_WCR_MET_MIN = 20*GeV
+# tight (default)
+# EL_WCR_MET_MIN = 35*GeV
+# EL_WCR_MET_MAX = 80*GeV
+# EL_WCR_MT_MIN = 35*GeV
+# EL_WCR_MT_MAX = 90*GeV
+
+# loose
+EL_WCR_MET_MIN = 25*GeV
 EL_WCR_MET_MAX = 80*GeV
 EL_WCR_MT_MIN = 25*GeV
 EL_WCR_MT_MAX = 90*GeV
@@ -129,6 +136,45 @@ VETO_SECOND_LEPTON = False
 VETO_SECOND_SFLEPTON_MINV = False
 VETO_TRTSA_PHOTON_E_BLAYER = True
 
+#loose = 0xc5fc01
+##loose = 0xf7fc01 # this is OK
+##loose = 0xeffc01
+#loose = 0xc5cc01
+loose = 0xc5fc01
+tight = 0xfffc01
+
+#bits = [0x020000, 0x080000, 0x100000, 0x200000] 
+bits = [0x20000] 
+
+def isLoose(isEM):
+    return (isEM & loose) == 0
+
+def isTight(isEM): 
+    return (isEM & tight) == 0
+
+def isAntiTight(isEM):
+    isL = isLoose(isEM)
+
+    # if not isL:
+    #     return False
+
+    # fail = 0
+    # for i in bits:
+    #     if isEM & i:
+    #         fail += 1
+
+    # return fail > 0
+    isT = isTight(isEM)
+    return isL and not isT
+
+def isIsolated(iso):
+    return iso < 5*GeV
+
+def isNotIsolated(iso):
+    return iso > 5*GeV
+
+
+
 def usage():
     print " "
     print "Usage: %s [options] inputFile.root" % sys.argv[0]    
@@ -149,6 +195,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       applySF = NONE, applyTrigWeight = NONE,
                       plotsRegion = DEFAULT_PLOTS,
                       doABCD = NoABCD,
+                      doAltABCD = False,
                       blind = False,
                       tttype = ALL,
                       qcdOtherRoot = "",
@@ -425,22 +472,42 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             indexLT = -1
             indexTT = -1
             for i in range(ev.numPh):
-                if ev.PhotonTight[i] and ev.PhotonAlt[i]:
-                    foundTT = True
-                    if indexTT < 0:
-                        indexTT = i
-                if not ev.PhotonTight[i] and ev.PhotonAlt[i]:
-                    foundLT = True
-                    if indexLT < 0:
-                        indexLT = i
-                if ev.PhotonTight[i] and not ev.PhotonAlt[i]:
-                    foundTL = True
-                    if indexTL < 0:
-                        indexTL = i
-                if not ev.PhotonTight[i] and not ev.PhotonAlt[i]:
-                    foundLL = True
-                    if indexLL < 0:
-                        indexLL = i
+                if not doAltABCD:
+                    if ev.PhotonTight[i] and ev.PhotonAlt[i]:
+                        foundTT = True
+                        if indexTT < 0:
+                            indexTT = i
+                    if not ev.PhotonTight[i] and ev.PhotonAlt[i]:
+                        foundLT = True
+                        if indexLT < 0:
+                            indexLT = i
+                    if ev.PhotonTight[i] and not ev.PhotonAlt[i]:
+                        foundTL = True
+                        if indexTL < 0:
+                            indexTL = i
+                    if not ev.PhotonTight[i] and not ev.PhotonAlt[i]:
+                        foundLL = True
+                        if indexLL < 0:
+                            indexLL = i
+                else:
+                    isem = ev.PhotonIsEM[i] & 0x0FFFFFFF
+                    iso = ev.PhotonEtcone20[i]
+                    if isTight(isem) and isIsolated(iso):
+                        foundTT = True
+                        if indexTT < 0:
+                            indexTT = i
+                    if isAntiTight(isem) and isIsolated(iso):
+                        foundLT = True
+                        if indexLT < 0:
+                            indexLT = i
+                    if isTight(isem) and isNotIsolated(iso):
+                        foundTL = True
+                        if indexTL < 0:
+                            indexTL = i
+                    if isAntiTight(isem) and isNotIsolated(iso):
+                        foundLL = True
+                        if indexLL < 0:
+                            indexLL = i
 
             if debug: print "  foundTT=", foundTT, "foundTL=", foundTL, "foundLT=", foundLT, "foundLL=", foundLL
 

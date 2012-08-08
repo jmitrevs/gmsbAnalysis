@@ -110,7 +110,7 @@ gammaFileName_Np3 = medpath + "gamma_Np3.root"
 gammaFileName_Np4 = medpath + "gamma_Np4.root"
 gammaFileName_Np5 = medpath + "gamma_Np5.root"
 
-Wenu_altFileName = path + "Wenu_pythia.root"
+Wenu_altFileName = path + "Wenu_sherpa.root"
 
 dataFileName = datapath + "eg.root"
 gjFileName = dataloosepath + "gj.root"
@@ -402,8 +402,8 @@ wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 #WjetExtraScale = 0.346 * 0.4812 # from fit * tight/loose
 #ttbarLepjetExtraScale = 0.346
 
-WjetExtraScale = 0.400 * 0.4812 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.400
+WjetExtraScale = 0.111 * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.111
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
