@@ -87,6 +87,7 @@ ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
 
+Wgamma_sherpaFileName = path + "Wgamma_sherpa.root"
 ttbarFileName = path + "ttbar.root"
 ttbargammaFileName = path + "ttbargamma.root"
 
@@ -148,6 +149,7 @@ WgammaFile_Np3 = ROOT.TFile(WgammaFileName_Np3)
 WgammaFile_Np4 = ROOT.TFile(WgammaFileName_Np4)
 WgammaFile_Np5 = ROOT.TFile(WgammaFileName_Np5)
 
+Wgamma_sherpaFile = ROOT.TFile(Wgamma_sherpaFileName)
 ttbarFile = ROOT.TFile(ttbarFileName)
 ttbargammaFile = ROOT.TFile(ttbargammaFileName)
 
@@ -215,6 +217,7 @@ cutFlowWgamma_Np3 = WgammaFile_Np3.Get("Global/CutFlow")
 cutFlowWgamma_Np4 = WgammaFile_Np4.Get("Global/CutFlow")
 cutFlowWgamma_Np5 = WgammaFile_Np5.Get("Global/CutFlow")
 
+cutFlowWgamma_sherpa = Wgamma_sherpaFile.Get("Global/CutFlow")
 cutFlowttbar = ttbarFile.Get("Global/CutFlow")
 cutFlowttbargamma = ttbargammaFile.Get("Global/CutFlow")
 
@@ -282,6 +285,7 @@ nOrigWgamma_Np3 = cutFlowWgamma_Np3.GetBinContent(1)
 nOrigWgamma_Np4 = cutFlowWgamma_Np4.GetBinContent(1)
 nOrigWgamma_Np5 = cutFlowWgamma_Np5.GetBinContent(1)
 
+nOrigWgamma_sherpa = cutFlowWgamma_sherpa.GetBinContent(1)
 nOrigttbar = cutFlowttbar.GetBinContent(1)
 nOrigttbargamma = cutFlowttbargamma.GetBinContent(1)
 
@@ -352,6 +356,7 @@ if PRINT_YIELDS:
     print "\tnOrigWgamma_Np4 =", nOrigWgamma_Np4
     print "\tnOrigWgamma_Np5 =", nOrigWgamma_Np5
     
+    print "\tnOrigWgamma_sherpa =", nOrigWgamma_sherpa
     print "\tnOrigttbar =", nOrigttbar
     print "\tnOrigttbargamma =", nOrigttbargamma
     
@@ -449,6 +454,10 @@ Wgamma_Np3_scale     =  Lumi  *  0.87283 * Wgamma_kFact   / nOrigWgamma_Np3
 Wgamma_Np4_scale     =  Lumi  *  0.27846 * Wgamma_kFact   / nOrigWgamma_Np4
 Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 
+# Sherpa Wgamma pt > 80 GeV, 0.1 deltaR
+Wgamma_sherpa_kFact  = 1.06
+Wgamma_sherpa_scale  = Lumi * 5.5701E-01 * Wgamma_sherpa_kFact / nOrigWgamma_sherpa
+
 # if using MadGraph
 #Zleplepgamma_scale   =  Lumi  *  9.63   / nOrigZleplepgamma
 
@@ -533,6 +542,7 @@ if PRINT_YIELDS:
     print "\tWgamma_Np4_scale =", Wgamma_Np4_scale
     print "\tWgamma_Np5_scale =", Wgamma_Np5_scale
     
+    print "\tWgamma_sherpa_scale =", Wgamma_sherpa_scale
     print "\tttbar_scale =", ttbar_scale
     print "\tttbargamma_scale =", ttbargamma_scale
     
@@ -603,6 +613,7 @@ nAfterPreselectWgamma_Np3 = cutFlowWgamma_Np3.GetBinContent(binToLookAt)
 nAfterPreselectWgamma_Np4 = cutFlowWgamma_Np4.GetBinContent(binToLookAt)
 nAfterPreselectWgamma_Np5 = cutFlowWgamma_Np5.GetBinContent(binToLookAt)
 
+nAfterPreselectWgamma_sherpa = cutFlowWgamma_sherpa.GetBinContent(binToLookAt)
 nAfterPreselectttbar = cutFlowttbar.GetBinContent(binToLookAt)
 nAfterPreselectttbargamma = cutFlowttbargamma.GetBinContent(binToLookAt)
 
@@ -673,6 +684,7 @@ if PRINT_YIELDS:
     print "Yield Wgamma_Np4 =", nAfterPreselectWgamma_Np4 * Wgamma_Np4_scale
     print "Yield Wgamma_Np5 =", nAfterPreselectWgamma_Np5 * Wgamma_Np5_scale
     
+    print "Yield Wgamma_sherpa =", nAfterPreselectWgamma_sherpa * Wgamma_sherpa_scale
     print "Yield ttbar =", nAfterPreselectttbar * ttbar_scale
     print "Yield ttbargamma =", nAfterPreselectttbargamma * ttbargamma_scale
     

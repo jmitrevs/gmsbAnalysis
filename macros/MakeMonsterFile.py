@@ -10,11 +10,22 @@ ROOT.gROOT.SetBatch()
 #ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 #ROOT.SetAtlasStyle()
 
-DEFAULTNAME = "LepPhoton.root"
+from signalXsecsCombined import signalXsecsCombined
+
+
 
 Blind = True
 
+SIGMA = -1.0
+#DEFAULTNAME = "LepPhoton.root"
+#DEFAULTNAME = "LepPhoton_AllUncertsXsecPlus1Sigma.root"
+DEFAULTNAME = "LepPhoton_AllUncertsXsecMinus1Sigma.root"
+
 def MakeMonsterFile(outfile=DEFAULTNAME):
+
+    f = ROOT.TFile("output_gl_wino.root")
+    ttree = f.Get("SignalUncertainties")
+    xsecs = signalXsecsCombined(ttree)
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
@@ -167,6 +178,8 @@ def MakeMonsterFile(outfile=DEFAULTNAME):
                         f.cd()
                         hwino = wino0.Clone('hwino_%d_%dNom_%s' % (mgl, mC1, suffix))
                         hwino.Add(wino1)
+                        if SIGMA:
+                            hwino.Scale(1.0 + SIGMA * xsecs.getXsecRelError(mgl, mC1))
                         wino.append(hwino)
             f.Write()
     

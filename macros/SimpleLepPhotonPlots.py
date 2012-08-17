@@ -14,6 +14,8 @@ MUON = 1
 
 DEFAULTLEPTON = ELECTRON
 
+USE_WGAMMA_SHERPA = True
+
 def GetHistNames(inFile):
     
     histNames = []
@@ -85,12 +87,15 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         Ztautau_Np4 = DataManager.ZtautauFile_Np4.Get(histName)
         Ztautau_Np5 = DataManager.ZtautauFile_Np5.Get(histName)
         
-        Wgamma_Np0 = DataManager.WgammaFile_Np0.Get(histName)
-        Wgamma_Np1 = DataManager.WgammaFile_Np1.Get(histName)
-        Wgamma_Np2 = DataManager.WgammaFile_Np2.Get(histName)
-        Wgamma_Np3 = DataManager.WgammaFile_Np3.Get(histName)
-        Wgamma_Np4 = DataManager.WgammaFile_Np4.Get(histName)
-        Wgamma_Np5 = DataManager.WgammaFile_Np5.Get(histName)
+        if USE_WGAMMA_SHERPA:
+            Wgamma = DataManager.Wgamma_sherpaFile.Get(histName)
+        else:
+            Wgamma_Np0 = DataManager.WgammaFile_Np0.Get(histName)
+            Wgamma_Np1 = DataManager.WgammaFile_Np1.Get(histName)
+            Wgamma_Np2 = DataManager.WgammaFile_Np2.Get(histName)
+            Wgamma_Np3 = DataManager.WgammaFile_Np3.Get(histName)
+            Wgamma_Np4 = DataManager.WgammaFile_Np4.Get(histName)
+            Wgamma_Np5 = DataManager.WgammaFile_Np5.Get(histName)
         
         ttbar = DataManager.ttbarFile.Get(histName)
         ttbargamma = DataManager.ttbargammaFile.Get(histName)
@@ -145,12 +150,13 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
  
-        Wgamma = Wgamma_Np0.Clone()
-        Wgamma.Add(Wgamma_Np1)
-        Wgamma.Add(Wgamma_Np2)
-        Wgamma.Add(Wgamma_Np3)
-        Wgamma.Add(Wgamma_Np4)
-        Wgamma.Add(Wgamma_Np5)
+        if not USE_WGAMMA_SHERPA:
+            Wgamma = Wgamma_Np0.Clone()
+            Wgamma.Add(Wgamma_Np1)
+            Wgamma.Add(Wgamma_Np2)
+            Wgamma.Add(Wgamma_Np3)
+            Wgamma.Add(Wgamma_Np4)
+            Wgamma.Add(Wgamma_Np5)
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)

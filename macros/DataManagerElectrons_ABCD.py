@@ -13,14 +13,15 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_ntupleABCD/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/elphoton_ntupleABCDLowPt/mergedFiles/"
+oldABCD = "/data3/jmitrevs/lepphoton/elphoton_ntupleABCD/mergedFiles/"
 regpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple6/mergedFiles/"
-alpgenpath = "/data3/jmitrevs/lepphoton/elphoton_ntupleABCD/mergedFiles/"
+alpgenpath = "/data3/jmitrevs/lepphoton/elphoton_ntupleABCDLowPt/mergedFiles/"
 loosepath = ""
 #loosepath = "/data3/jmitrevs/lepphoton/elphoton_ntupleloose/mergedFiles/"
 oldpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple4/mergedFiles/"
 medpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple5/mergedFiles/"
-datapath = "/data3/jmitrevs/lepphoton/elphoton_dataABCD/mergedFiles/"
+datapath = "/data3/jmitrevs/lepphoton/elphoton_dataABCDLowPt/mergedFiles/"
 dataloosepath = "/data3/jmitrevs/lepphoton/elphoton_datalooser/mergedFiles/"
 sigpath = "/data3/jmitrevs/lepphoton/elphoton_grid/mergedFiles/"
 
@@ -64,17 +65,17 @@ else:
     ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
     ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
     ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
-    ZtautaugammaFileName = path + "Ztautaugamma.root"
+    ZtautaugammaFileName = regpath + "Ztautaugamma.root"
     diphotonsFileName = path + "diphotons.root"
 
 st_tchan_lepnuFileName   = path + "st_tchan_enu.root"
 
-WtaunuFileName_Np0 = regpath + "Wtaunu_Np0.root"
-WtaunuFileName_Np1 = regpath + "Wtaunu_Np1.root"
-WtaunuFileName_Np2 = regpath + "Wtaunu_Np2.root"
-WtaunuFileName_Np3 = regpath + "Wtaunu_Np3.root"
-WtaunuFileName_Np4 = regpath + "Wtaunu_Np4.root"
-WtaunuFileName_Np5 = regpath + "Wtaunu_Np5.root"
+WtaunuFileName_Np0 = path + "Wtaunu_Np0.root"
+WtaunuFileName_Np1 = path + "Wtaunu_Np1.root"
+WtaunuFileName_Np2 = path + "Wtaunu_Np2.root"
+WtaunuFileName_Np3 = path + "Wtaunu_Np3.root"
+WtaunuFileName_Np4 = path + "Wtaunu_Np4.root"
+WtaunuFileName_Np5 = path + "Wtaunu_Np5.root"
 
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
@@ -102,7 +103,7 @@ gammaFileName_Np3 = medpath + "gamma_Np3.root"
 gammaFileName_Np4 = medpath + "gamma_Np4.root"
 gammaFileName_Np5 = medpath + "gamma_Np5.root"
 
-Wenu_altFileName = path + "Wenu_sherpa.root"
+Wenu_altFileName = oldABCD + "Wenu_sherpa.root"
 
 dataFileName = datapath + "eg.root"
 gjFileName = dataloosepath + "gj.root"
@@ -394,8 +395,8 @@ wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 #WjetExtraScale = 0.346 * 0.4812 # from fit * tight/loose
 #ttbarLepjetExtraScale = 0.346
 
-WjetExtraScale = 0.400 * 0.4812 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.400
+WjetExtraScale = 0.111# * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.111
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1

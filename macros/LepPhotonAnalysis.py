@@ -56,6 +56,7 @@ LL = 1
 LT = 2
 TL = 3
 TT = 4
+lT = 5  #loose, not necessarily anti-tight, and isolated
 
 # TTType (note all should be LEPJETS or DILEP):
 ALL = 0
@@ -76,22 +77,30 @@ EL_ELETACUT = 2.47
 EL_MET = 100*GeV
 EL_MT = 100*GeV
 
-EL_QCD_MINV_WINDOW = 30*GeV
+EL_QCD_MINV_WINDOW = 15*GeV
 EL_MINV_WINDOW = 15*GeV
 
 # tight (default)
-# EL_WCR_MET_MIN = 35*GeV
-# EL_WCR_MET_MAX = 80*GeV
-# EL_WCR_MT_MIN = 35*GeV
-# EL_WCR_MT_MAX = 90*GeV
-
-# loose
-EL_WCR_MET_MIN = 25*GeV
+EL_WCR_MET_MIN = 35*GeV
 EL_WCR_MET_MAX = 80*GeV
-EL_WCR_MT_MIN = 25*GeV
+EL_WCR_MT_MIN = 35*GeV
 EL_WCR_MT_MAX = 90*GeV
-
 EL_TCR_MET_MIN = 35*GeV
+
+# # loose
+# EL_WCR_MET_MIN = 25*GeV
+# EL_WCR_MET_MAX = 80*GeV
+# EL_WCR_MT_MIN = 25*GeV
+# EL_WCR_MT_MAX = 90*GeV
+# EL_TCR_MET_MIN = 25*GeV
+
+# # Wgamma selection
+# EL_WCR_MET_MIN = 25*GeV
+# EL_WCR_MET_MAX = 1000000*GeV
+# EL_WCR_MT_MIN = 40*GeV
+# EL_WCR_MT_MAX = 90000000*GeV
+# EL_TCR_MET_MIN = 25*GeV
+
 EL_TCR_MET_MAX = 80*GeV
 EL_TCR_MT_MIN =  90*GeV
 
@@ -102,6 +111,7 @@ DELTAR_EL_PH = 0.7
 
 # - muon channel
 MU_PHPTCUT = 85*GeV
+#MU_PHPTCUT = 100*GeV
 MU_PHETACUT = 2.37
 MU_MUPTCUT = 25*GeV
 MU_MUETACUT = 2.4
@@ -116,14 +126,22 @@ MU_WCR_MET_MIN = 35*GeV
 MU_WCR_MET_MAX = 80*GeV
 MU_WCR_MT_MIN = 35*GeV
 MU_WCR_MT_MAX = 90*GeV
+MU_TCR_MET_MIN = 35*GeV
 
-# loose
+# # loose
 # MU_WCR_MET_MIN = 25*GeV
 # MU_WCR_MET_MAX = 80*GeV
 # MU_WCR_MT_MIN = 25*GeV
 # MU_WCR_MT_MAX = 90*GeV
+#MU_TCR_MET_MIN = 25*GeV
 
-MU_TCR_MET_MIN = 35*GeV
+# Wgamma
+# MU_WCR_MET_MIN = 25*GeV
+# MU_WCR_MET_MAX = 80000000*GeV
+# MU_WCR_MT_MIN = 40*GeV
+# MU_WCR_MT_MAX = 900000000*GeV
+# MU_TCR_MET_MIN = 25*GeV
+
 MU_TCR_MET_MAX = 80*GeV
 MU_TCR_MT_MIN =  90*GeV
 
@@ -202,7 +220,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       qcdOtherRootSimulate = "",
                       reweighAlpgen = False,
                       debug = False,
-                      doTruth = False):
+                      doTruth = False,
+                      onlyOrigin = -1):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -230,6 +249,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     ##########################
     # Create the histograms
     ##########################
+
+    ROOT.TH1.SetDefaultSumw2()
 
     # First create the directories
     phdir = f.mkdir("Photon")
@@ -340,6 +361,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     ######## initialize counts
 
+    nPRESEL = ROOT.TH1F("nPRESEL", "Number of events in the PRESEL", 1, 0, 1);
     nWCR = ROOT.TH1F("nWCR", "Number of events in the WCR", 1, 0, 1);
     nTCR = ROOT.TH1F("nTCR", "Number of events in the TCR", 1, 0, 1);
     nQCD = ROOT.TH1F("nQCD", "Number of events in the QCD", 1, 0, 1);
@@ -347,7 +369,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     nXR1 = ROOT.TH1F("nXR1", "Number of events in the XR1", 1, 0, 1);
     nXR2 = ROOT.TH1F("nXR2", "Number of events in the XR2", 1, 0, 1);
 
-
+    nPRESEL.Sumw2()
     nWCR.Sumw2()
     nTCR.Sumw2()
     nQCD.Sumw2()
@@ -371,6 +393,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             continue
 
         if debug: print "Analizing event with Run =", ev.Run, ", Event =", ev.Event
+
 
         if filterPhotons and ev.numTruthPh > 0:
             continue
@@ -429,6 +452,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if onlyStrong == WEAK and ev.isStrong:
             continue
+        if debug: print "  pass onlyStrong"
+
 
         lepIndex = 0
 
@@ -444,7 +469,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # if lepIndex != 0:
         #     print "***WARNING***"
 
-        if debug: print "  pass onlyStrong"
 
         if tttype != ALL:
             if lepton == MUON:
@@ -467,12 +491,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             foundTL = False
             foundLT = False
             foundTT = False
+            foundlT = False
             indexLL = -1
             indexTL = -1
             indexLT = -1
             indexTT = -1
+            indexlT = -1
             for i in range(ev.numPh):
                 if not doAltABCD:
+                    if ev.PhotonAlt[i]:
+                        foundlT = True
+                        if indexlT < 0:
+                            indexlT = i
                     if ev.PhotonTight[i] and ev.PhotonAlt[i]:
                         foundTT = True
                         if indexTT < 0:
@@ -492,7 +522,11 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 else:
                     isem = ev.PhotonIsEM[i] & 0x0FFFFFFF
                     iso = ev.PhotonEtcone20[i]
-                    if isTight(isem) and isIsolated(iso):
+                    if isIsolated(iso):
+                        foundlT = True
+                        if indexlT < 0:
+                            indexlT = i
+                    if ev.PhotonTight[i] and isIsolated(iso):
                         foundTT = True
                         if indexTT < 0:
                             indexTT = i
@@ -500,7 +534,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                         foundLT = True
                         if indexLT < 0:
                             indexLT = i
-                    if isTight(isem) and isNotIsolated(iso):
+                    if ev.PhotonTight[i] and isNotIsolated(iso):
                         foundTL = True
                         if indexTL < 0:
                             indexTL = i
@@ -512,6 +546,25 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             if debug: print "  foundTT=", foundTT, "foundTL=", foundTL, "foundLT=", foundLT, "foundLL=", foundLL
 
             #print "doABCD=", doABCD, "foundTT=", foundTT
+
+            # if foundLL and foundLT:
+            #     print "Found both LL and LT"
+            #     continue
+            # if foundLL and foundTL:
+            #     print "Found both LL and TL"
+            #     continue
+            # if foundLL and foundTT:
+            #     print "Found both LL and TT"
+            #     continue
+            # if foundLT and foundTL:
+            #     print "Found both LT and TL"
+            #     continue
+            # if foundLT and foundTT:
+            #     print "Found both LT and TT"
+            #     continue
+            # if foundTL and foundTT:
+            #     print "Found both TL and TT"
+            #     continue
 
             # precedence
             if foundTT:
@@ -545,7 +598,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 else:
                     photonIndex = indexLL
 
+            if doABCD == lT:
+                if not foundlT:
+                    continue
+                else:
+                    photonIndex = indexlT
+
         if debug: print "  passed ABCD, photonIndex =", photonIndex
+
+        if onlyOrigin >= 0:
+            if ev.PhotonOrigin[photonIndex] != onlyOrigin:
+                continue
+
 
         photon = ROOT.TLorentzVector()
         photon.SetPtEtaPhiM(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex], 0.0)
@@ -572,7 +636,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     elph = electron + photon
                     minv = elph.M()
                     # print "**minv =", minv
-                if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_QCD_MINV_WINDOW:
+                if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_MINV_WINDOW:
                     continue
 
             if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
@@ -586,7 +650,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 (lepton == MUON and ZMASS - MU_MINV_WINDOW < ev.MuMinv < ZMASS + MU_MINV_WINDOW)):
                 continue
 
-            if (VETO_TRTSA_PHOTON_E_BLAYER and ev.numPh == 1 and
+            if (VETO_TRTSA_PHOTON_E_BLAYER and # ev.numPh == 1 and
                 ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0 and
                 ev.PhotonNumBEl[photonIndex]):
                 continue
@@ -634,6 +698,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         inSR = False
             
         if debug: print "  met =", met, "mTmu =", mt, "mTel =", mt
+
+        nPRESEL.Fill(0, weight)
 
         # do CR counts
         if lepton == ELECTRON:
@@ -853,7 +919,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         
     print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
     print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
-
+    print "  PRESEL Yield =",nPRESEL.GetBinContent(1),"+-", nPRESEL.GetBinError(1)
 
 
     if measureFakeAndEff:

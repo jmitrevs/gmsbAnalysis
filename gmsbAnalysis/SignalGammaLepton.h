@@ -3,6 +3,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
+//#include "AthenaKernel/ICutFlowSvc.h"
 //#include "AthenaKernel/IUserDataSvc.h"
 
 #include "gmsbTools/TruthStudies.h"
@@ -136,6 +137,7 @@ private:
   //FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
 
   // user data
+  //ServiceHandle<ICutFlowSvc> m_cutFlowSvc;
   //ServiceHandle<IUserDataSvc> m_userdatasvc;
 
   AccumulateUncert accUnc;  // for leading photon
@@ -228,6 +230,10 @@ private:
   // MET
   float m_metx;
   float m_mety;
+  float m_metxPlus;
+  float m_metyPlus;
+  float m_metxMinus;
+  float m_metyMinus;
 
   float m_ph_el_minv;
   float m_ph_mu_minv;

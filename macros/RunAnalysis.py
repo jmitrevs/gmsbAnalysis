@@ -230,6 +230,13 @@ def RunAnalysis(lepton, plots, abcd):
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
                                         reweighAlpgen=REWEIGHW)
     print
+    print "Wgamma_sherpa:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Wgamma_sherpaFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.Wgamma_sherpaFileName),
+                                        lepton,
+                                        DataManager.Wgamma_sherpa_scale, applySF=LepPhotonAnalysis.NOMINAL,
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+    print
 
     # print "ttbar:"
     # LepPhotonAnalysis.LepPhotonAnalysis(DataManager.ttbarFile.Get(ttreeName), 

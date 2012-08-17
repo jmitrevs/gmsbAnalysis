@@ -13,8 +13,8 @@ PRINT_YIELDS = True
 Lumi = 4708.61 # really electron only
 
 print "Lepton is MUON."
-#path = ""
-path = "input/back_ABCD/Mu/"
+path = ""
+#path = "input/back_ABCD/Mu/"
 
 winoFileName = path + "wino_600_200_muHist.root"
 
@@ -58,6 +58,8 @@ WgammaFileName_Np2 = path + "Wgamma_Np2Hist.root"
 WgammaFileName_Np3 = path + "Wgamma_Np3Hist.root"
 WgammaFileName_Np4 = path + "Wgamma_Np4Hist.root"
 WgammaFileName_Np5 = path + "Wgamma_Np5Hist.root"
+
+Wgamma_sherpaFileName = path + "Wgamma_sherpaHist.root"
 
 ttbarFileName = path + "ttbarHist.root"
 ttbarDilepFileName = path + "ttbarDilepHist.root"
@@ -123,6 +125,8 @@ WgammaFile_Np2 = ROOT.TFile(WgammaFileName_Np2)
 WgammaFile_Np3 = ROOT.TFile(WgammaFileName_Np3)
 WgammaFile_Np4 = ROOT.TFile(WgammaFileName_Np4)
 WgammaFile_Np5 = ROOT.TFile(WgammaFileName_Np5)
+
+Wgamma_sherpaFile = ROOT.TFile(Wgamma_sherpaFileName)
 
 ttbarFile = ROOT.TFile(ttbarFileName)
 ttbarLepjetsFile = ROOT.TFile(ttbarLepjetsFileName)

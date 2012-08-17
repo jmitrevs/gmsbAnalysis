@@ -45,6 +45,11 @@ seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
 seq.GRLTriggerAlg1.GoodRunsListArray = ['Susy_ph_met']
 seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 
+from gmsbAnalysis.gmsbAnalysisConf import CutFlowHelper
+seq += CutFlowHelper(name = "CutFlowHelper",
+                     isMC = False)
+include( "gmsbTools/gmsbTools_SkimEG.py" )
+
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

@@ -63,13 +63,13 @@ inDS_full = [
     # # # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
     # # # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
 
-    'mc11_7TeV.117361.st_tchan_munu_AcerMC.merge.AOD.e835_s1310_s1300_r3043_r2993',
-    'mc11_7TeV.117362.st_tchan_taunu_AcerMC.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    'mc11_7TeV.126892.Sherpa_CT10_llnunu_WW.merge.AOD.e1255_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126893.Sherpa_CT10_lllnu_WZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126894.Sherpa_CT10_llll_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
-
+    # 'mc11_7TeV.117361.st_tchan_munu_AcerMC.merge.AOD.e835_s1310_s1300_r3043_r2993',
+    # 'mc11_7TeV.117362.st_tchan_taunu_AcerMC.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # 'mc11_7TeV.126892.Sherpa_CT10_llnunu_WW.merge.AOD.e1255_s1372_s1370_r3108_r3109',
+    # 'mc11_7TeV.126893.Sherpa_CT10_lllnu_WZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
+    # 'mc11_7TeV.126894.Sherpa_CT10_llll_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
+    # 'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
+    'mc11_7TeV.126744.Sherpa_munugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109'
 ]
 
 #how to automatically configure GRL ?
@@ -80,39 +80,44 @@ for i,inDS in enumerate(inDS_full):
    
     outName = inDS[:95] # make sure the name is not too long
    
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120726.%s SignalGammaMuon.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120813.%s SignalGammaMuon.py " % (inDS, outName)
     
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120813.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
     
 
 inDS_ttbar = [
-    'mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993',
+    #'mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.AOD.e835_s1272_s1274_r3043_r2993',
+    'mc11_7TeV.105860.TTbar_PowHeg_Jimmy.merge.AOD.e873_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.105861.TTbar_PowHeg_Pythia.merge.AOD.e873_s1372_s1370_r3043_r2993',
+    'mc11_7TeV.117209.AcerMCttbar_MorePS.merge.AOD.e1029_a131_s1353_a145_r2993',
+    'mc11_7TeV.117210.AcerMCttbar_LessPS.merge.AOD.e1029_a131_s1353_a145_r2993'
+
     ]
 
     
 for i,inDS in enumerate(inDS_ttbar):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120625.%s SignalGammaMuon_ttbar.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120814.%s SignalGammaMuon_ttbar.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120418.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120418.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120625.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120813.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
 
 inDS_Wjets = [

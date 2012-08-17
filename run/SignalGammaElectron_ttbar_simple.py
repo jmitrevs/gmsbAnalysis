@@ -45,6 +45,13 @@
 # # seq.GRLTriggerAlg1.GoodRunsListArray = ['susy_7TeV']
 # seq.GRLTriggerAlg1.TriggerSelection = 'EF_2g20_loose'
 
+from AthenaCommon.AlgSequence import AthSequencer
+seq = AthSequencer("AthFilterSeq")
+from gmsbAnalysis.gmsbAnalysisConf import CutFlowHelper
+seq += CutFlowHelper(name = "CutFlowHelper",
+                     isMC = True)
+include( "gmsbTools/gmsbTools_SkimEG.py" )
+
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
