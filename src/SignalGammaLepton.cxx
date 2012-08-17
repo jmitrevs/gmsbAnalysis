@@ -75,7 +75,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_trigMatch("TrigMatchTool/TrigMatchTool"),
   m_fakeMetEstimator("fest_periodF_v1.root")
-  //m_fakeMetEstimatorEmulNoHole("fest_periodD_v1.root"),
+  //m_cutFlowSvc( "CutFlowSvc/CutFlowSvc", name )
   //m_userdatasvc("UserDataSvc", name)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
@@ -461,6 +461,14 @@ StatusCode SignalGammaLepton::initialize(){
       ATH_MSG_ERROR("Unable to register tree to THistSvc");
       return sc;
     }
+
+    // TTree* cutFlowTree = m_cutFlowSvc->dumpCutFlowToTTree("CutFlow");
+    // StatusCode sc = m_thistSvc->regTree(std::string("/")+m_histFileName+"/CutFlow", cutFlowTree);
+    // if(sc.isFailure()) {
+    //   ATH_MSG_ERROR("Unable to register cut flow tree to THistSvc");
+    //   return sc;
+    // }
+
     // first add Event info stuff
     m_tree->Branch("Run",  &m_runNumber,   "Run/i");    // run number
     m_tree->Branch("Event",&m_eventNumber, "Event/i");  // event number
@@ -697,7 +705,7 @@ StatusCode SignalGammaLepton::execute()
     m_numTruthPh = -1;
   }
 
-  m_histograms["CutFlow"]->Fill(0.0, m_weight);
+  //m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
 
   if (larError) {
