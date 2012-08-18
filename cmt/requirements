@@ -36,6 +36,7 @@ use TrkParticleBase		TrkParticleBase-*		Tracking/TrkEvent
 use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
 use TrigMuonEvent      TrigMuonEvent-*          Trigger/TrigEvent
 use ReweightUtils      ReweightUtils-*          PhysicsAnalysis/AnalysisCommon
+use DanGMSBAnaTools    DanGMSBAnaTools-*
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx
