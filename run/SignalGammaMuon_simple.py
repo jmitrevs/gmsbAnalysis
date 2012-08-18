@@ -122,6 +122,9 @@ truthStudies = TruthStudies(name = "TruthStudies",
 ToolSvc += truthStudies
 print truthStudies
 
+# add the MET systematics
+include ( "gmsbAnalysis/METSystematics.py" )
+
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             isMC = True,
@@ -138,7 +141,11 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             doTruthStudies = True,
                             TruthStudiesTool = truthStudies,
                             #doTruthClassifier = True,
-                            #MCTruthClassifier = myMCTruthClassifier
+                            #MCTruthClassifier = myMCTruthClassifier,
+                            DoEtMissSystematics = True,
+                            DoEtMissMuonSystematics = True,
+                            EtMissSystematicsTool = myEtMissSystematicsTool,
+                            EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

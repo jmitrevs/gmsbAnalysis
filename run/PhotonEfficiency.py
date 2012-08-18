@@ -38,8 +38,8 @@ InputList = glob('/data3/jmitrevs/suspect_data/wino_600_200/*pool.root*')
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = InputList
 #athenaCommonFlags.SkipEvents=2
-#athenaCommonFlags.EvtMax=-1
-athenaCommonFlags.EvtMax=100
+athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=100
 
 
 # # use closest DB replica

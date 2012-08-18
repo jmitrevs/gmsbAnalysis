@@ -154,8 +154,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
 
 
-  declareProperty("DoEtMissSystematics", m_do_met_systematics=true);
-  declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=true);
+  declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
+  declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
   declareProperty("EtMissSystematicsUseEta45", m_topo_systematics_use_eta45=true);
   declareProperty("EtMissSystematicsTool", m_topoSystematicsTool );
   declareProperty("EtMissMuonSystematicsTool", m_muonSystematicsTool );
@@ -266,7 +266,7 @@ StatusCode SignalGammaLepton::initialize(){
   }
 
   // Get a handle on the muon systematics tool
-  if(m_do_muon_systematics) {
+  if(m_do_met_muon_systematics) {
     sc = m_muonSystematicsTool.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_FATAL("Can't get handle on muon systematics tools");
@@ -1769,7 +1769,7 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const VxContainer* vx_cont
   StatusCode sc = StatusCode::SUCCESS;
 
   const CaloClusterContainer* topo_con= 0;
-  sc=m_storeGate->retrieve( topo_con, m_topoClusterContainerName );
+  sc=evtStore()->retrieve( topo_con, m_topoClusterContainerName );
   if( sc.isFailure()  ||  !topo_con ) {
     ATH_MSG_WARNING("No CaloClusterContainer, " << m_topoClusterContainerName << ", found in storegate!");
     return sc;
@@ -1824,8 +1824,6 @@ StatusCode SignalGammaLepton::recordEtMissMuonSystematics() {
 
   ATH_MSG_DEBUG("Starting NtupleDumper recordMuonSystematics()");
   
-  StatusCode sc = StatusCode::SUCCESS;
-
   //Setup container info for the met systematics tool
   StatusCode sc = m_muonSystematicsTool->getEventInfo();
   if(sc.isFailure()) {
