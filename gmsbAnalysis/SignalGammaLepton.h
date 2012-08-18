@@ -27,6 +27,8 @@ class TrigMatchTool;
 namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
 class APReweightND;
 class IMCTruthClassifier;
+class ITopoSystematicsTool;
+class IEtMissMuonSystematicsTool;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -47,8 +49,12 @@ private:
   float GetSignalElecSF(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
   float GetSignalElecSFUnc(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
 
+  StatusCode recordEtMissSystematics(const VxContainer* vx_container);
+  StatusCode recordEtMissMuonSystematics();
+
   /** MET selecton */
   std::string m_METContainerName;
+  std::string m_topoClusterContainerName;
 
   bool m_isMC;
   unsigned int m_numPhotonsReq;
@@ -127,6 +133,13 @@ private:
   bool m_filterWJets;
   enum ttbarfilt_t {NO_TTBARFILT = 0, LEPJETS, DILEP};
   int m_filterTTbar; // really the enum above
+
+  // for MET systematics
+  ToolHandle<ITopoSystematicsTool> m_topoSystematicsTool;
+  ToolHandle<IEtMissMuonSystematicsTool> m_muonSystematicsTool;
+  bool m_do_met_systematics;
+  bool m_do_met_muon_systematics;
+  bool m_topo_systematics_use_eta45;
 
   /** @breif whether to blind or not */
   bool m_blind;
@@ -230,10 +243,21 @@ private:
   // MET
   float m_metx;
   float m_mety;
-  float m_metxPlus;
-  float m_metyPlus;
-  float m_metxMinus;
-  float m_metyMinus;
+  float m_metx_noMuon;
+  float m_mety_noMuon;
+  float m_metx_full_noMuon;
+  float m_mety_full_noMuon;
+  float m_metx_MuonBoy;
+  float m_mety_MuonBoy;
+  float m_metx_RefTrack;
+  float m_mety_RefTrack;
+  float m_metxPlus_noMuon;
+  float m_metyPlus_noMuon;
+  float m_metxMinus_noMuon;
+  float m_metyMinus_noMuon;
+
+  float m_metx_muon_smear;
+  float m_mety_muon_smear;
 
   float m_ph_el_minv;
   float m_ph_mu_minv;
