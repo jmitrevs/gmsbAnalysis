@@ -1778,8 +1778,8 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const VxContainer* vx_cont
   MissingET* met_plus=0;
   MissingET* met_minus=0;
   
-  met_plus = m_topoSystematicsTool->getMissingEtUncert(orig_met,true,topo_con,vx_container);
-  met_minus = m_topoSystematicsTool->getMissingEtUncert(orig_met,false,topo_con,vx_container);
+  met_plus = m_topoSystematicsTool->getMissingEtUncert(true,topo_con,vx_container);
+  met_minus = m_topoSystematicsTool->getMissingEtUncert(false,topo_con,vx_container);
 
   if(m_topo_systematics_use_eta45) {
     
