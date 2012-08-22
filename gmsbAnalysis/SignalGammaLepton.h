@@ -51,10 +51,12 @@ private:
 
   StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
   StatusCode recordEtMissMuonSystematics();
+  StatusCode recordTruthMET();
 
   /** MET selecton */
   std::string m_METContainerName;
   std::string m_topoClusterContainerName;
+  std::string m_missingEtTruth;
 
   bool m_isMC;
   unsigned int m_numPhotonsReq;
@@ -139,6 +141,7 @@ private:
   ToolHandle<IEtMissMuonSystematicsTool> m_muonSystematicsTool;
   bool m_do_met_systematics;
   bool m_do_met_muon_systematics;
+  bool m_do_truth_met;
   bool m_topo_systematics_use_eta45;
 
   /** @breif whether to blind or not */
@@ -258,6 +261,18 @@ private:
 
   float m_metx_muon_smear;
   float m_mety_muon_smear;
+
+  float m_set_noMuon;
+  float m_set_full_noMuon;
+  float m_set_MuonBoy;
+  float m_set_RefTrack;
+  float m_setPlus_noMuon;
+  float m_setMinus_noMuon;
+  float m_set_muon_smear;
+
+  std::vector<float> *m_metx_truth;
+  std::vector<float> *m_mety_truth;
+  std::vector<float> *m_set_truth;
 
   float m_ph_el_minv;
   float m_ph_mu_minv;

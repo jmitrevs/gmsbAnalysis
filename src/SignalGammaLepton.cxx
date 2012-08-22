@@ -22,6 +22,7 @@
 #include "JetUtils/JetCaloQualityUtils.h"
 
 #include "MissingETEvent/MissingET.h"
+#include "MissingETEvent/MissingEtTruth.h"
 
 #include "VxVertex/VxContainer.h"
 
@@ -103,6 +104,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   // this is effectively hardcoded it probably won't work otherwse
   declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
+  declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
   declareProperty("CaloClusterContainer", m_topoClusterContainerName= "CaloCalTopoCluster");
@@ -156,6 +158,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
   declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
+  declareProperty("DoTruthMet", m_do_truth_met=false);
   declareProperty("EtMissSystematicsUseEta45", m_topo_systematics_use_eta45=true);
   declareProperty("EtMissSystematicsTool", m_topoSystematicsTool );
   declareProperty("EtMissMuonSystematicsTool", m_muonSystematicsTool );
@@ -329,6 +332,17 @@ StatusCode SignalGammaLepton::initialize(){
     m_trigWeighter = 0;
   }
 
+  m_metxPlus_noMuon = 0;
+  m_metyPlus_noMuon = 0;
+  m_metxMinus_noMuon = 0;
+  m_metyMinus_noMuon = 0;
+
+  m_metx_muon_smear = 0;
+  m_mety_muon_smear = 0;
+
+  m_setPlus_noMuon = 0;
+  m_setMinus_noMuon = 0;
+  m_set_muon_smear = 0;
 
   // this gets created no matter what
   m_histograms["CutFlow"] = new TH1D("CutFlow", "CutFlow", NUM_CUTS, 0, NUM_CUTS);
@@ -484,6 +498,10 @@ StatusCode SignalGammaLepton::initialize(){
     m_mu_tight = new std::vector<int>;
     m_mu_alt = new std::vector<int>;
 
+    m_metx_truth = new std::vector<float>;
+    m_mety_truth = new std::vector<float>;
+    m_set_truth = new std::vector<float>;
+
     // the TTree
     m_tree = new TTree("GammaLepton","TTree for GammaLepton analysis");
     sc = m_thistSvc->regTree(std::string("/")+m_histFileName+"/GammaLepton", m_tree);
@@ -536,6 +554,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("Metx_muon_smear", &m_metx_muon_smear, "Metx_muon_smear/F"); 
     m_tree->Branch("Mety_muon_smear", &m_mety_muon_smear, "Mety_muon_smear/F"); 
 
+    m_tree->Branch("Set_noMuon", &m_set_noMuon, "Set_noMuon/F")
+    m_tree->Branch("Set_full_noMuon", &m_set_full_noMuon, "Set_full_noMuon/F")
+    m_tree->Branch("Set_MuonBoy", &m_set_MuonBoy, "Set_MuonBoy/F")
+    m_tree->Branch("Set_RefTrack", &m_set_RefTrack, "Set_RefTrack/F")
+    m_tree->Branch("SetPlus_noMuon", &m_setPlus_noMuon, "SetPlus_noMuon/F")
+    m_tree->Branch("SetMinus_noMuon", &m_setMinus_noMuon, "SetMinus_noMuon/F")
+    m_tree->Branch("Set_muon_smear", &m_set_muon_smear, "Set_muon_smear/F")
 
     m_tree->Branch("PhElMinv", &m_ph_el_minv, "PhElMinv/F"); // invariant mass photon electron
     m_tree->Branch("PhMuMinv", &m_ph_mu_minv, "PhMuMinv/F"); // invariant mass photon muon
@@ -599,6 +624,10 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("MuonPhi", &m_mu_phi);
     m_tree->Branch("MuonTight", &m_mu_tight);
     m_tree->Branch("MuonAlt", &m_mu_alt);
+
+    m_tree->Branch("MetxTruth", &m_metx_truth);
+    m_tree->Branch("MetyTruth", &m_mety_truth);
+    m_tree->Branch("SetTruth", &m_set_truth);
   }
 
   return StatusCode::SUCCESS;
@@ -684,6 +713,10 @@ StatusCode SignalGammaLepton::execute()
     m_mu_phi->clear();
     m_mu_tight->clear();
     m_mu_alt->clear();
+
+    m_metx_truth->clear();
+    m_mety_truth->clear();
+    m_set_truth->clear();
   }
   
   m_runNumber = evtInfo->event_ID()->run_number();
@@ -1291,10 +1324,15 @@ StatusCode SignalGammaLepton::execute()
 
   m_metx_full_noMuon = metCont->etx();
   m_mety_full_noMuon = metCont->ety();
+  m_set_full_noMuon = metCont->sumet();
   m_metx_MuonBoy = met_muonboyContainer->etx();
   m_mety_MuonBoy = met_muonboyContainer->ety();
+  m_set_MuonBoy = met_muonboyContainer->sumet();
   m_metx_RefTrack = met_refmuontrackContainer->etx();
   m_mety_RefTrack = met_refmuontrackContainer->ety();
+  m_set_RefTrack = met_refmuontrackContainer->sumet();
+
+  m_set_noMuon = 0.0;
 
   const MissingEtRegions* caloReg = metCont->getRegions();
   if ( caloReg != 0 ) {
@@ -1304,6 +1342,9 @@ StatusCode SignalGammaLepton::execute()
     double etMiss_topo_lochad_endcap_ety = caloReg->eyReg(MissingEtRegions::EndCap);  
     double etMiss_topo_lochad_forward_etx = caloReg->exReg(MissingEtRegions::Forward);
     double etMiss_topo_lochad_forward_ety = caloReg->eyReg(MissingEtRegions::Forward);
+    m_set_noMuon = caloReg->etSumReg(MissingEtRegions::Central) +
+      caloReg->etSumReg(MissingEtRegions::EndCap) +
+      caloReg->etSumReg(MissingEtRegions::Forward);
 
     etMiss_eta4p5_etx = etMiss_topo_lochad_central_etx + etMiss_topo_lochad_endcap_etx + etMiss_topo_lochad_forward_etx;
     etMiss_eta4p5_ety = etMiss_topo_lochad_central_ety + etMiss_topo_lochad_endcap_ety + etMiss_topo_lochad_forward_ety;
@@ -1344,6 +1385,19 @@ StatusCode SignalGammaLepton::execute()
 
   if (m_do_met_muon_systematics) {
     StatusCode sc = recordEtMissMuonSystematics();
+    if (sc.isFailure()){
+      return sc;
+    }
+  }
+
+  if (m_do_met_muon_systematics) {
+    StatusCode sc = recordEtMissMuonSystematics();
+    if (sc.isFailure()){
+      return sc;
+    }
+  }
+  if (m_isMC && m_do_truth_met) {
+    StatusCode sc = recordTruthMET();
     if (sc.isFailure()){
       return sc;
     }
@@ -1842,6 +1896,48 @@ StatusCode SignalGammaLepton::recordEtMissMuonSystematics() {
   MissingET* met_smear = m_muonSystematicsTool->getMissingEtMuonUncert(MuonSmear::Nominal);
   m_metx_muon_smear=met_smear->etx();
   m_mety_muon_smear=met_smear->ety();
+  
+  return sc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+/// recordTruthMET(): 
+StatusCode SignalGammaLepton::recordTruthMET()
+{
+
+  ATH_MSG_DEBUG("Starting NtupleDumper recordTruthMET()");
+
+  StatusCode sc = StatusCode::SUCCESS;
     
+  // Read MET_Truth_PileUp form storage
+  const MissingEtTruth* met_truth_pileupTES =0;
+  sc=m_storeGate->retrieve( met_truth_pileupTES, m_missingEtTruth );
+  if( sc.isFailure()  ||  !met_truth_pileupTES ) {
+    ATH_MSG_WARNING("No AOD MissingEtTruthPileUp container found in TDS"); 
+    return sc;
+  } 
+  
+  ATH_MSG_DEBUG("MissingEtTruthPileUp successfully retrieved");
+
+  //Typess for MET_Truth_PileUp
+  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::Int) );
+  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::Int) );
+  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::Int) );
+  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::NonInt) );
+  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::NonInt) );
+  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::NonInt) );
+  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntCentral) );
+  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntCentral) );
+  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntCentral) );
+  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntFwd) );
+  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntFwd) );
+  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntFwd) );
+  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntOutCover) );
+  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntOutCover) );
+  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntOutCover) );
+  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::Muons) );
+  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::Muons) );
+  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::Muons) );
+
   return sc;
 }
