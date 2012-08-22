@@ -554,13 +554,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("Metx_muon_smear", &m_metx_muon_smear, "Metx_muon_smear/F"); 
     m_tree->Branch("Mety_muon_smear", &m_mety_muon_smear, "Mety_muon_smear/F"); 
 
-    m_tree->Branch("Set_noMuon", &m_set_noMuon, "Set_noMuon/F")
-    m_tree->Branch("Set_full_noMuon", &m_set_full_noMuon, "Set_full_noMuon/F")
-    m_tree->Branch("Set_MuonBoy", &m_set_MuonBoy, "Set_MuonBoy/F")
-    m_tree->Branch("Set_RefTrack", &m_set_RefTrack, "Set_RefTrack/F")
-    m_tree->Branch("SetPlus_noMuon", &m_setPlus_noMuon, "SetPlus_noMuon/F")
-    m_tree->Branch("SetMinus_noMuon", &m_setMinus_noMuon, "SetMinus_noMuon/F")
-    m_tree->Branch("Set_muon_smear", &m_set_muon_smear, "Set_muon_smear/F")
+    m_tree->Branch("Set_noMuon", &m_set_noMuon, "Set_noMuon/F");
+    m_tree->Branch("Set_full_noMuon", &m_set_full_noMuon, "Set_full_noMuon/F");
+    m_tree->Branch("Set_MuonBoy", &m_set_MuonBoy, "Set_MuonBoy/F");
+    m_tree->Branch("Set_RefTrack", &m_set_RefTrack, "Set_RefTrack/F");
+    m_tree->Branch("SetPlus_noMuon", &m_setPlus_noMuon, "SetPlus_noMuon/F");
+    m_tree->Branch("SetMinus_noMuon", &m_setMinus_noMuon, "SetMinus_noMuon/F");
+    m_tree->Branch("Set_muon_smear", &m_set_muon_smear, "Set_muon_smear/F");
 
     m_tree->Branch("PhElMinv", &m_ph_el_minv, "PhElMinv/F"); // invariant mass photon electron
     m_tree->Branch("PhMuMinv", &m_ph_mu_minv, "PhMuMinv/F"); // invariant mass photon muon
