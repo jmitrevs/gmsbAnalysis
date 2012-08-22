@@ -42,12 +42,13 @@ def makeOutputName(infileName, strong):
     outfile = os.path.splitext(inFileNoPath)[0] + "_" + str(strong) + "_Hist.root"
     return outfile
 
-def RunAnalysis(lepton, plots):
+def RunAnalysis(lepton, plots, metType):
 
 
     if lepton == ELECTRON:
         print "Lepton is ELECTRON."
-        path = "/data3/jmitrevs/lepphoton/elphoton_grid2/mergedFiles/"
+        #path = "/data3/jmitrevs/lepphoton/elphoton_grid2/mergedFiles/"
+        path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSys/mergedFiles/"
         Lumi = 4812.34
     elif lepton == MUON:
         print "Lepton is Muon."
@@ -78,6 +79,8 @@ def RunAnalysis(lepton, plots):
                     feff = signalOrigEvents.getFilterEff(mgl, mC1, strong)
                     scale = Lumi * xsec * feff / nOrig
 
+                    print "nOrig =", nOrig, "xsec =", xsec, "feff =", feff, "scale =", scale 
+
                     print "wino_%d_%d_%d:" % (mgl, mC1, strong)
                     LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
                                                         makeOutputName(winoFileName, strong),
@@ -86,7 +89,8 @@ def RunAnalysis(lepton, plots):
                                                         onlyStrong=(strong+1), 
                                                         applySF=LepPhotonAnalysis.NOMINAL, 
                                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL,
-                                                        plotsRegion=plots)
+                                                        plotsRegion=plots,
+                                                        metType = metType)
                     print
 
 
@@ -103,6 +107,7 @@ if __name__ == "__main__":
 
     lepton = DEFAULTLEPTON
     plots = LepPhotonAnalysis.DEFAULT_PLOTS
+    metType = 0
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -140,4 +145,4 @@ if __name__ == "__main__":
                 print "*** plots type unknown ****"
                 sys.exit(1)
 
-    RunAnalysis(lepton, plots)
+    RunAnalysis(lepton, plots, metType)

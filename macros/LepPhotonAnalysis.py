@@ -101,6 +101,7 @@ EL_TCR_MET_MIN = 35*GeV
 # EL_WCR_MT_MAX = 90000000*GeV
 # EL_TCR_MET_MIN = 25*GeV
 
+
 EL_TCR_MET_MAX = 80*GeV
 EL_TCR_MT_MIN =  90*GeV
 
@@ -121,7 +122,7 @@ MU_MT = 100*GeV
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
 
-# tight (default)
+# # tight (default)
 MU_WCR_MET_MIN = 35*GeV
 MU_WCR_MET_MAX = 80*GeV
 MU_WCR_MT_MIN = 35*GeV
@@ -142,6 +143,14 @@ MU_TCR_MET_MIN = 35*GeV
 # MU_WCR_MT_MAX = 900000000*GeV
 # MU_TCR_MET_MIN = 25*GeV
 
+# test for events
+# MU_WCR_MET_MIN = 50*GeV
+# MU_WCR_MET_MAX = 100*GeV
+# MU_WCR_MT_MIN = 100*GeV
+# MU_WCR_MT_MAX = 900000000*GeV
+# MU_TCR_MET_MIN = 25*GeV
+
+
 MU_TCR_MET_MAX = 80*GeV
 MU_TCR_MT_MIN =  90*GeV
 
@@ -154,6 +163,12 @@ VETO_SECOND_LEPTON = False
 VETO_SECOND_SFLEPTON_MINV = False
 VETO_TRTSA_PHOTON_E_BLAYER = True
 
+MET_DEFAULT = 0
+MET_PLUS = 1
+MET_MINUS = 2
+MET_MUON = 3
+MET_FULL = 4
+
 #loose = 0xc5fc01
 ##loose = 0xf7fc01 # this is OK
 ##loose = 0xeffc01
@@ -161,8 +176,8 @@ VETO_TRTSA_PHOTON_E_BLAYER = True
 loose = 0xc5fc01
 tight = 0xfffc01
 
-#bits = [0x020000, 0x080000, 0x100000, 0x200000] 
-bits = [0x20000] 
+bits = [0x020000, 0x080000, 0x100000] 
+#bits = [0x20000] 
 
 def isLoose(isEM):
     return (isEM & loose) == 0
@@ -175,13 +190,12 @@ def isAntiTight(isEM):
 
     # if not isL:
     #     return False
-
     # fail = 0
     # for i in bits:
     #     if isEM & i:
     #         fail += 1
-
     # return fail > 0
+
     isT = isTight(isEM)
     return isL and not isT
 
@@ -221,11 +235,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       reweighAlpgen = False,
                       debug = False,
                       doTruth = False,
-                      onlyOrigin = -1):
+                      onlyOrigin = -1,
+                      metType = MET_DEFAULT):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
         return
+
+    if metType != MET_DEFAULT:
+        print "Using metType =",metType
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
@@ -400,7 +418,30 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if debug: print "  pass filterPhotons"
 
-        met = math.hypot(ev.Metx, ev.Mety)
+        if metType == MET_DEFAULT:
+            metx = ev.Metx
+            mety = ev.Mety
+            # metx = ev.Metx_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
+            # mety = ev.Mety_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack 
+        elif metType == MET_PLUS:
+            metx = ev.MetxPlus_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
+            mety = ev.MetyPlus_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack 
+        elif metType == MET_MINUS:
+            metx = ev.MetxMinus_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
+            mety = ev.MetyMinus_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack 
+        elif metType == MET_MUON:
+            metx = ev.Metx_noMuon + ev.Metx_muon_smear - ev.Metx_RefTrack 
+            mety = ev.Mety_noMuon + ev.Mety_muon_smear - ev.Mety_RefTrack 
+        elif metType == MET_FULL:
+            metx = ev.Metx_full_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
+            mety = ev.Mety_full_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack
+        else:
+            print >> sys.stderr, "Have an invalid metType =", metType
+            sys.exit(1)
+
+
+        met = math.hypot(metx, mety)
+            
         #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
         #print "weight =", ev.Weight * glWeight
 
@@ -678,13 +719,20 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 weight *= Nqcd(1, ev.MuonTight[lepIndex], ev.MuonEta[lepIndex], lepton)
 
 
-        if lepton == ELECTRON:
-            if lepIndex != 0:
-                mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], ev.Metx, ev.Mety)
+        if metType == MET_DEFAULT:
+            if lepton == ELECTRON:
+                if lepIndex != 0:
+                    mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], ev.Metx, ev.Mety)
+                else:
+                    mt = ev.mTel
             else:
-                mt = ev.mTel
+                mt = ev.mTmu
         else:
-            mt = ev.mTmu
+            if lepton == ELECTRON:
+                mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], metx, mety)
+            else:
+                mt = mT(ev.MuonPt[lepIndex], ev.MuonPhi[lepIndex], metx, mety)
+                 
 
         # now plots that should be made before MET and mT cuts
         h_mTelvsMET.Fill(met/GeV, mt/GeV, weight)

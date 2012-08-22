@@ -14,7 +14,7 @@ MUON = 1
 
 DEFAULTLEPTON = ELECTRON
 
-USE_WGAMMA_SHERPA = True
+USE_WGAMMA_SHERPA = False
 
 def GetHistNames(inFile):
     

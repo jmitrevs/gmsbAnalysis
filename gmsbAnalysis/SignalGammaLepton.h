@@ -49,7 +49,7 @@ private:
   float GetSignalElecSF(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
   float GetSignalElecSFUnc(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
 
-  StatusCode recordEtMissSystematics(const VxContainer* vx_container);
+  StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
   StatusCode recordEtMissMuonSystematics();
 
   /** MET selecton */

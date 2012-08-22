@@ -1336,7 +1336,7 @@ StatusCode SignalGammaLepton::execute()
 
   // for met systematics
   if (m_do_met_systematics) {
-    StatusCode sc = recordEtMissSystematics(vxContainer);
+    StatusCode sc = recordEtMissSystematics(metCont, vxContainer);
     if (sc.isFailure()){
       return sc;
     }
@@ -1762,7 +1762,7 @@ float SignalGammaLepton::GetSignalElecSFUnc(float el_cl_eta, float et, int set, 
 
 ////////////////////////////////////////////////////////////////////////////
 /// recordEtMissSystematics(): 
-StatusCode SignalGammaLepton::recordEtMissSystematics(const VxContainer* vx_container) {
+StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container) {
 
   ATH_MSG_DEBUG("Starting NtupleDumper recordEtMissSystematics()");
   
@@ -1778,31 +1778,37 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const VxContainer* vx_cont
   MissingET* met_plus=0;
   MissingET* met_minus=0;
   
-  met_plus = m_topoSystematicsTool->getMissingEtUncert(true,topo_con,vx_container);
-  met_minus = m_topoSystematicsTool->getMissingEtUncert(false,topo_con,vx_container);
+  met_plus = m_topoSystematicsTool->getMissingEtUncert(old_met, true,topo_con,vx_container);
+  met_minus = m_topoSystematicsTool->getMissingEtUncert(old_met, false,topo_con,vx_container);
 
   if(m_topo_systematics_use_eta45) {
     
     // Regions for lochad topo plus
     const MissingEtRegions* caloPlusReg = met_plus->getRegions();
     if ( caloPlusReg != 0 ) { 
-      m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::Central);
+      m_metxPlus_noMuon=caloPlusReg->exReg(MissingEtRegions::Central);
       m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::EndCap);
       m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::Forward);
-      m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::Central);
+      m_metyPlus_noMuon=caloPlusReg->eyReg(MissingEtRegions::Central);
       m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::EndCap);
       m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::Forward);
-    } 
+    } else {
+      ATH_MSG_ERROR("not found plus regions");
+      return StatusCode::FAILURE;
+    }
 
     // Regions for lochad topo minus
     const MissingEtRegions* caloMinusReg = met_minus->getRegions();
     if ( caloMinusReg != 0 ) { 
-      m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::Central);
+      m_metxMinus_noMuon=caloMinusReg->exReg(MissingEtRegions::Central);
       m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::EndCap);
       m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::Forward);
-      m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::Central);
+      m_metyMinus_noMuon=caloMinusReg->eyReg(MissingEtRegions::Central);
       m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::EndCap);
       m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::Forward);
+    } else {
+      ATH_MSG_ERROR("not found minus regions");
+      return StatusCode::FAILURE;
     }
 
   } else {
@@ -1813,6 +1819,8 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const VxContainer* vx_cont
     m_metxMinus_noMuon=met_minus->etx();
     m_metyMinus_noMuon=met_minus->ety();
   }
+
+  //ATH_MSG_WARNING("METx_noMuon = " << m_metx_noMuon << ", METPlusx = " << m_metxPlus_noMuon);
   return sc;
 }
 

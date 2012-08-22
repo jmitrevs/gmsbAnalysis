@@ -96,6 +96,10 @@ st_WtFileName   = path + "st_Wt.root"
     
 Wgamma_sherpaFileName = path + "Wgamma_sherpa.root"
 ttbarFileName = path + "ttbar.root"
+ttbar_ph_jmFileName = path + "ttbar_powheg_jimmy.root"
+ttbar_ph_pyFileName = path + "ttbar_powheg_pythia.root"
+ttbar_ac_mpsFileName = path + "ttbar_acer_moreps.root"
+ttbar_ac_lpsFileName = path + "ttbar_acer_lessps.root"
 ttbargammaFileName = path + "ttbargamma.root"
 
 WWFileName = path + "WW.root"
@@ -158,6 +162,10 @@ WgammaFile_Np5 = ROOT.TFile(WgammaFileName_Np5)
 
 Wgamma_sherpaFile = ROOT.TFile(Wgamma_sherpaFileName)
 ttbarFile = ROOT.TFile(ttbarFileName)
+ttbar_ph_jmFile = ROOT.TFile(ttbar_ph_jmFileName)
+ttbar_ph_pyFile = ROOT.TFile(ttbar_ph_pyFileName)
+ttbar_ac_mpsFile = ROOT.TFile(ttbar_ac_mpsFileName)
+ttbar_ac_lpsFile = ROOT.TFile(ttbar_ac_lpsFileName)
 ttbargammaFile = ROOT.TFile(ttbargammaFileName)
 
 st_tchan_lepnuFile   = ROOT.TFile(st_tchan_lepnuFileName)
@@ -227,6 +235,10 @@ cutFlowWgamma_Np5 = WgammaFile_Np5.Get("Global/CutFlow")
 
 cutFlowWgamma_sherpa = Wgamma_sherpaFile.Get("Global/CutFlow")
 cutFlowttbar = ttbarFile.Get("Global/CutFlow")
+cutFlowttbar_ph_jm = ttbar_ph_jmFile.Get("Global/CutFlow")
+cutFlowttbar_ph_py = ttbar_ph_pyFile.Get("Global/CutFlow")
+cutFlowttbar_ac_mps = ttbar_ac_mpsFile.Get("Global/CutFlow")
+cutFlowttbar_ac_lps = ttbar_ac_lpsFile.Get("Global/CutFlow")
 cutFlowttbargamma = ttbargammaFile.Get("Global/CutFlow")
 
 cutFlowst_tchan_lepnu = st_tchan_lepnuFile.Get("Global/CutFlow")
@@ -296,6 +308,10 @@ nOrigWgamma_Np5 = cutFlowWgamma_Np5.GetBinContent(1)
 
 nOrigWgamma_sherpa = cutFlowWgamma_sherpa.GetBinContent(1)
 nOrigttbar = cutFlowttbar.GetBinContent(1)
+nOrigttbar_ph_jm = cutFlowttbar_ph_jm.GetBinContent(1)
+nOrigttbar_ph_py = cutFlowttbar_ph_py.GetBinContent(1)
+nOrigttbar_ac_mps = cutFlowttbar_ac_mps.GetBinContent(1)
+nOrigttbar_ac_lps = cutFlowttbar_ac_lps.GetBinContent(1)
 nOrigttbargamma = cutFlowttbargamma.GetBinContent(1)
 
 nOrigst_tchan_lepnu = cutFlowst_tchan_lepnu.GetBinContent(1)
@@ -368,6 +384,10 @@ if PRINT_YIELDS:
     
     print "\tnOrigWgamma_sherpa =", nOrigWgamma_sherpa
     print "\tnOrigttbar =", nOrigttbar
+    print "\tnOrigttbar_ph_jm =", nOrigttbar_ph_jm
+    print "\tnOrigttbar_ph_py =", nOrigttbar_ph_py
+    print "\tnOrigttbar_ac_mps =", nOrigttbar_ac_mps
+    print "\tnOrigttbar_ac_lps =", nOrigttbar_ac_lps
     print "\tnOrigttbargamma =", nOrigttbargamma
     
     print "\tnOrigst_tchan_lepnu =", nOrigst_tchan_lepnu
@@ -407,8 +427,11 @@ wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 #WjetExtraScale = 0.346 * 0.4812 # from fit * tight/loose
 #ttbarLepjetExtraScale = 0.346
 
-WjetExtraScale = 0.111 * 0.4812 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.111
+# WjetExtraScale = 0.111 * 0.4812 # from fit * tight/loose
+# ttbarLepjetExtraScale = 0.111
+
+WjetExtraScale = 0.25 * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.25
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
@@ -438,8 +461,16 @@ Ztautau_Np3_scale   =  Lumi  *   11.25 * 1.25   / nOrigZtautau_Np3
 Ztautau_Np4_scale   =  Lumi  *    2.79 * 1.25   / nOrigZtautau_Np4
 Ztautau_Np5_scale   =  Lumi  *    0.77 * 1.25   / nOrigZtautau_Np5
 
-ttbar_scale          =  Lumi  *  89.02311 / nOrigttbar
-ttbarLepjets_scale   =  Lumi  *  89.02311 * ttbarLepjetExtraScale / nOrigttbar
+ttbar_scale          =  Lumi  *  79.01 * 1.146 / nOrigttbar
+ttbarLepjets_scale   =  Lumi  *  79.01 * 1.146 * ttbarLepjetExtraScale / nOrigttbar
+ttbar_ph_jm_scale          =  Lumi  *  80.85 * 1.120 / nOrigttbar_ph_jm
+ttbar_ph_jmLepjets_scale   =  Lumi  *  80.85 * 1.120 * ttbarLepjetExtraScale / nOrigttbar_ph_jm
+ttbar_ph_py_scale          =  Lumi  *  80.07 * 1.131 / nOrigttbar_ph_py
+ttbar_ph_pyLepjets_scale   =  Lumi  *  80.07 * 1.131 * ttbarLepjetExtraScale / nOrigttbar_ph_py
+ttbar_ac_mps_scale          =  Lumi  * 61.96 * 1.462 / nOrigttbar_ac_mps
+ttbar_ac_mpsLepjets_scale   =  Lumi  * 61.96 * 1.462 * ttbarLepjetExtraScale / nOrigttbar_ac_mps
+ttbar_ac_lps_scale          =  Lumi  * 61.65 * 1.469 / nOrigttbar_ac_lps
+ttbar_ac_lpsLepjets_scale   =  Lumi  * 61.65 * 1.469 * ttbarLepjetExtraScale / nOrigttbar_ac_lps
 ttbargamma_scale     =  Lumi  *  0.84 * 2.55 / nOrigttbargamma
 
 # if using gamma pt > 10 GeV samples
@@ -563,6 +594,10 @@ if PRINT_YIELDS:
     
     print "\tWgamma_sherpa_scale =", Wgamma_sherpa_scale
     print "\tttbar_scale =", ttbar_scale
+    print "\tttbar_ph_jm_scale =", ttbar_ph_jm_scale
+    print "\tttbar_ph_py_scale =", ttbar_ph_py_scale
+    print "\tttbar_ac_mps_scale =", ttbar_ac_mps_scale
+    print "\tttbar_ac_lps_scale =", ttbar_ac_lps_scale
     print "\tttbargamma_scale =", ttbargamma_scale
     
     print "\tst_tchan_lepnu_scale =", st_tchan_lepnu_scale
@@ -635,6 +670,10 @@ nAfterPreselectWgamma_Np5 = cutFlowWgamma_Np5.GetBinContent(binToLookAt)
 
 nAfterPreselectWgamma_sherpa = cutFlowWgamma_sherpa.GetBinContent(binToLookAt)
 nAfterPreselectttbar = cutFlowttbar.GetBinContent(binToLookAt)
+nAfterPreselectttbar_ph_jm = cutFlowttbar_ph_jm.GetBinContent(binToLookAt)
+nAfterPreselectttbar_ph_py = cutFlowttbar_ph_py.GetBinContent(binToLookAt)
+nAfterPreselectttbar_ac_mps = cutFlowttbar_ac_mps.GetBinContent(binToLookAt)
+nAfterPreselectttbar_ac_lps = cutFlowttbar_ac_lps.GetBinContent(binToLookAt)
 nAfterPreselectttbargamma = cutFlowttbargamma.GetBinContent(binToLookAt)
 
 nAfterPreselectst_tchan_lepnu = cutFlowst_tchan_lepnu.GetBinContent(binToLookAt)
@@ -707,6 +746,10 @@ if PRINT_YIELDS:
     
     print "Yield Wgamma_sherpa =", nAfterPreselectWgamma_sherpa * Wgamma_sherpa_scale
     print "Yield ttbar =", nAfterPreselectttbar * ttbar_scale
+    print "Yield ttbar_ph_jm =", nAfterPreselectttbar_ph_jm * ttbar_ph_jm_scale
+    print "Yield ttbar_ph_py =", nAfterPreselectttbar_ph_py * ttbar_ph_py_scale
+    print "Yield ttbar_ac_mps =", nAfterPreselectttbar_ac_mps * ttbar_ac_mps_scale
+    print "Yield ttbar_ac_lps =", nAfterPreselectttbar_ac_lps * ttbar_ac_lps_scale
     print "Yield ttbargamma =", nAfterPreselectttbargamma * ttbargamma_scale
     
     print "Yield st_tchan_lepnu =", nAfterPreselectst_tchan_lepnu * st_tchan_lepnu_scale

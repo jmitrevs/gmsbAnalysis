@@ -11,10 +11,11 @@ for lepton in ("electron", "muon"):
         if not os.path.exists(path):
             os.makedirs(path)
 
-        os.system("./RunAnalysis.py -l " + lepton + " -p " + i + " > /dev/null")
         if lepton == "electron":
+            os.system("./RunAnalysis.py -l " + lepton + " -p " + i + " > /dev/null")
             os.system("./mergeOutput.sh")
         else:
+            os.system("./RunAnalysis.py -l " + lepton + " -p " + i + " > /dev/null")
             os.system("./mergeOutput_mu.sh")
         os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " > /dev/null")
         os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -g > /dev/null")
