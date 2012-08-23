@@ -60,7 +60,8 @@ WgammaFileName_Np3 = path + "Wgamma_Np3Hist.root"
 WgammaFileName_Np4 = path + "Wgamma_Np4Hist.root"
 WgammaFileName_Np5 = path + "Wgamma_Np5Hist.root"
 
-Wgamma_sherpaFileName = path + "Wgamma_sherpaHist.root"
+Wgamma_lepnu_sherpaFileName = path + "Wgamma_enu_sherpaHist.root"
+Wgamma_taunu_sherpaFileName = path + "Wgamma_taunu_sherpaHist.root"
 
 ttbarFileName = path + "ttbarHist.root"
 ttbarDilepFileName = path + "ttbarDilepHist.root"
@@ -128,7 +129,8 @@ WgammaFile_Np3 = ROOT.TFile(WgammaFileName_Np3)
 WgammaFile_Np4 = ROOT.TFile(WgammaFileName_Np4)
 WgammaFile_Np5 = ROOT.TFile(WgammaFileName_Np5)
 
-Wgamma_sherpaFile = ROOT.TFile(Wgamma_sherpaFileName)
+Wgamma_lepnu_sherpaFile = ROOT.TFile(Wgamma_lepnu_sherpaFileName)
+Wgamma_taunu_sherpaFile = ROOT.TFile(Wgamma_taunu_sherpaFileName)
 
 ttbarFile = ROOT.TFile(ttbarFileName)
 ttbarLepjetsFile = ROOT.TFile(ttbarLepjetsFileName)

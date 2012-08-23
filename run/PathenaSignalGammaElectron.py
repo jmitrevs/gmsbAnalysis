@@ -71,25 +71,25 @@ inDS_full = [
     'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
 
     # 'mc11_7TeV.126872.Pythia_MadGraph_Wgamma.merge.AOD.e1250_s1372_s1370_r3108_r3109',
-    # 'mc11_7TeV.126741.Sherpa_enugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126741.Sherpa_enugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
     'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109'
     ]
 #how to automatically configure GRL ?
 
 
     
-for i,inDS in enumerate(inDS_test):
+for i,inDS in enumerate(inDS_full):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120819a.%s SignalGammaElectron.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120823.%s SignalGammaElectron.py " % (inDS, outName)
    
-    # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
-    # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
+    if i == 0:
+        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
+    else:
+        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120819.tar"
+    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120819.tar"
 
     print command
     sys.stdout.flush()
@@ -107,18 +107,18 @@ inDS_ttbar = [
     
 for i,inDS in enumerate(inDS_ttbar):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120819.%s SignalGammaElectron_ttbar.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120823.%s SignalGammaElectron_ttbar.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120819.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
 
 
 inDS_Wjets = [

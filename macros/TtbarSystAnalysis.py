@@ -68,6 +68,11 @@ DILEP = 2
 WEAK = 1
 STRONG = 2
 
+# ttbar systematics
+# use NONE for no syst
+TTBAR_NOPHOTON = 1
+TTBAR_ELASPHOTON = 2
+
 #Cuts
 # - electron channel
 EL_PHPTCUT = 100*GeV
@@ -236,7 +241,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       debug = False,
                       doTruth = False,
                       onlyOrigin = -1,
-                      metType = MET_DEFAULT):
+                      metType = MET_DEFAULT,
+                      ttbarSyst = NONE):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -244,6 +250,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     if metType != MET_DEFAULT:
         print "Using metType =",metType
+
+    if ttbarSyst != NONE:
+        print "Doing ttbarSyst =",ttbarSyst
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
@@ -405,7 +414,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     for ev in ttree:
         # lets apply the cuts
         # double-check quality
-        if ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
+        if ttbarSyst == NONE and (ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON)):
             # print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
             # sys.exit(1)
             continue
@@ -498,14 +507,36 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         lepIndex = 0
 
-        if removeCrack and lepton == ELECTRON:
-            for i in range(ev.numEl):
-                if not (1.37 < abs(ev.ElectronEta2[i]) < 1.52):
-                    lepIndex = i
-                    break
+        elAsPhotonIndex = -1
+        if ttbarSyst == TTBAR_ELASPHOTON:
+            if lepton == MUON:
+                for i in range(ev.numEl):
+                    if ev.ElectronPt[i] > MU_PHPTCUT and (removeCrack and not (1.37 < abs(ev.ElectronEta2[i]) < 1.52) or
+                                                          not removeCrack):
+                        elAsPhotonIndex = i
+                        break
             else:
-                # print "*** electron only in crack ***"
+                lepIndex = -1
+                for i in range(ev.numEl):
+                    if removeCrack and not (1.37 < abs(ev.ElectronEta2[i]) < 1.52) or not removeCrack:
+                        if elAsPhotonIndex < 0 and ev.ElectronPt[i] > EL_PHPTCUT: # this assumes phptcut is bigger than elptcut
+                            elAsPhotonIndex = i
+                        elif lepIndex < 0 and ev.ElectronPt[i] > EL_ELPTCUT:
+                            lepIndex = i
+
+            if lepIndex < 0 or elAsPhotonIndex < 0:
                 continue
+           
+        else:
+
+            if removeCrack and lepton == ELECTRON:
+                for i in range(ev.numEl):
+                    if not (1.37 < abs(ev.ElectronEta2[i]) < 1.52):
+                        lepIndex = i
+                        break
+                else:
+                    # print "*** electron only in crack ***"
+                    continue
 
         # if lepIndex != 0:
         #     print "***WARNING***"

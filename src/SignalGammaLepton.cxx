@@ -158,7 +158,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
   declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
-  declareProperty("DoTruthMet", m_do_truth_met=false);
+  declareProperty("DoTruthMet", m_do_truth_met=true);
   declareProperty("EtMissSystematicsUseEta45", m_topo_systematics_use_eta45=true);
   declareProperty("EtMissSystematicsTool", m_topoSystematicsTool );
   declareProperty("EtMissMuonSystematicsTool", m_muonSystematicsTool );
@@ -1846,6 +1846,9 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, 
       m_metyPlus_noMuon=caloPlusReg->eyReg(MissingEtRegions::Central);
       m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::EndCap);
       m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::Forward);
+      m_setPlus_noMuon=caloPlusReg->etSumReg(MissingEtRegions::Central)
+	+caloPlusReg->etSumReg(MissingEtRegions::EndCap)
+	+caloPlusReg->etSumReg(MissingEtRegions::Forward);
     } else {
       ATH_MSG_ERROR("not found plus regions");
       return StatusCode::FAILURE;
@@ -1860,6 +1863,9 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, 
       m_metyMinus_noMuon=caloMinusReg->eyReg(MissingEtRegions::Central);
       m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::EndCap);
       m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::Forward);
+      m_setMinus_noMuon=caloMinusReg->etSumReg(MissingEtRegions::Central)
+	+caloMinusReg->etSumReg(MissingEtRegions::EndCap)
+	+caloMinusReg->etSumReg(MissingEtRegions::Forward);
     } else {
       ATH_MSG_ERROR("not found minus regions");
       return StatusCode::FAILURE;
@@ -1869,9 +1875,11 @@ StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, 
     // Plus met
     m_metxPlus_noMuon=met_plus->etx();
     m_metyPlus_noMuon=met_plus->ety();
+    m_setPlus_noMuon=met_plus->sumet();
     // Minus met
     m_metxMinus_noMuon=met_minus->etx();
     m_metyMinus_noMuon=met_minus->ety();
+    m_setMinus_noMuon=met_minus->sumet();
   }
 
   //ATH_MSG_WARNING("METx_noMuon = " << m_metx_noMuon << ", METPlusx = " << m_metxPlus_noMuon);
@@ -1896,6 +1904,7 @@ StatusCode SignalGammaLepton::recordEtMissMuonSystematics() {
   MissingET* met_smear = m_muonSystematicsTool->getMissingEtMuonUncert(MuonSmear::Nominal);
   m_metx_muon_smear=met_smear->etx();
   m_mety_muon_smear=met_smear->ety();
+  m_set_muon_smear=met_smear->sumet();
   
   return sc;
 }
@@ -1911,7 +1920,7 @@ StatusCode SignalGammaLepton::recordTruthMET()
     
   // Read MET_Truth_PileUp form storage
   const MissingEtTruth* met_truth_pileupTES =0;
-  sc=m_storeGate->retrieve( met_truth_pileupTES, m_missingEtTruth );
+  sc=evtStore()->retrieve( met_truth_pileupTES, m_missingEtTruth );
   if( sc.isFailure()  ||  !met_truth_pileupTES ) {
     ATH_MSG_WARNING("No AOD MissingEtTruthPileUp container found in TDS"); 
     return sc;

@@ -21,8 +21,8 @@ MUON = 1
 DEFAULTLEPTON = ELECTRON
 DEFAULTABCD = LepPhotonAnalysis.NoABCD
 
-REWEIGHW = False
-REWEIGHZ = False
+REWEIGHW = True
+REWEIGHZ = True
 
 DO_TTBAR_SYST = False
 
@@ -233,12 +233,19 @@ def RunAnalysis(lepton, plots, abcd, metType):
                                         applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, 
                                         reweighAlpgen=REWEIGHW, metType = metType)
     print
-    print "Wgamma_sherpa:"
-    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Wgamma_sherpaFile.Get(ttreeName), 
-                                        makeOutputName(DataManager.Wgamma_sherpaFileName),
+    print "Wgamma_lepnu_sherpa:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Wgamma_lepnu_sherpaFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.Wgamma_lepnu_sherpaFileName),
                                         lepton,
-                                        DataManager.Wgamma_sherpa_scale, applySF=LepPhotonAnalysis.NOMINAL,
-                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots)
+                                        DataManager.Wgamma_lepnu_sherpa_scale, applySF=LepPhotonAnalysis.NOMINAL,
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, metType = metType)
+    print
+    print "Wgamma_taunu_sherpa:"
+    LepPhotonAnalysis.LepPhotonAnalysis(DataManager.Wgamma_taunu_sherpaFile.Get(ttreeName), 
+                                        makeOutputName(DataManager.Wgamma_taunu_sherpaFileName),
+                                        lepton,
+                                        DataManager.Wgamma_taunu_sherpa_scale, applySF=LepPhotonAnalysis.NOMINAL,
+                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL, plotsRegion=plots, metType = metType)
     print
 
     # print "ttbar:"

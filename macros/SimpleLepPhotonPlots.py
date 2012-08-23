@@ -14,7 +14,7 @@ MUON = 1
 
 DEFAULTLEPTON = ELECTRON
 
-USE_WGAMMA_SHERPA = False
+USE_WGAMMA_SHERPA = True
 
 def GetHistNames(inFile):
     
@@ -88,7 +88,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         Ztautau_Np5 = DataManager.ZtautauFile_Np5.Get(histName)
         
         if USE_WGAMMA_SHERPA:
-            Wgamma = DataManager.Wgamma_sherpaFile.Get(histName)
+            Wgamma_lepnu = DataManager.Wgamma_lepnu_sherpaFile.Get(histName)
+            Wgamma_taunu = DataManager.Wgamma_taunu_sherpaFile.Get(histName)
         else:
             Wgamma_Np0 = DataManager.WgammaFile_Np0.Get(histName)
             Wgamma_Np1 = DataManager.WgammaFile_Np1.Get(histName)
@@ -150,7 +151,10 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
  
-        if not USE_WGAMMA_SHERPA:
+        if USE_WGAMMA_SHERPA:
+            Wgamma = Wgamma_lepnu.Clone()
+            Wgamma.Add(Wgamma_taunu)
+        else:
             Wgamma = Wgamma_Np0.Clone()
             Wgamma.Add(Wgamma_Np1)
             Wgamma.Add(Wgamma_Np2)

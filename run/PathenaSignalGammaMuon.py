@@ -80,14 +80,14 @@ for i,inDS in enumerate(inDS_full):
    
     outName = inDS[:95] # make sure the name is not too long
    
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120819.%s SignalGammaMuon.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120823.%s SignalGammaMuon.py " % (inDS, outName)
     
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120726.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120819.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
 
     print command
     sys.stdout.flush()
@@ -106,18 +106,18 @@ inDS_ttbar = [
     
 for i,inDS in enumerate(inDS_ttbar):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120819.%s SignalGammaMuon_ttbar.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120823.%s SignalGammaMuon_ttbar.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120418.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120418.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120819.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
 
 inDS_Wjets = [
