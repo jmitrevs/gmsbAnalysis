@@ -521,7 +521,7 @@ Znunugammagamma_scale   =  Lumi  *  0.014597 * 2  / nOrigZnunugammagamma
 # t-channel Acer, Wt MC@NLO
 st_tchan_lepnu_scale = Lumi * 8.06 * 0.865 / nOrigst_tchan_lepnu
 st_tchan_taunu_scale = Lumi * 8.05 * 0.866 / nOrigst_tchan_taunu
-st_Wt_scale = Lumi * 14.59 / nOrigst_Wt
+st_Wt_scale = Lumi * 14.59 * 1.079 / nOrigst_Wt
 
 # Madgraph
 # WW_scale = Lumi * 43.81 * 0.38947 / nOrigWW  # include k-factor
