@@ -438,12 +438,12 @@ wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 WjetExtraScale = 0.25 * 0.4812 # from fit * tight/loose
 ttbarLepjetExtraScale = 0.25
 
-Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
-Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
-Wlepnu_Np2_scale     =  Lumi  *   378.29 * 1.20 * WjetExtraScale / nOrigWlepnu_Np2
-Wlepnu_Np3_scale     =  Lumi  *   101.43 * 1.20 * WjetExtraScale / nOrigWlepnu_Np3
-Wlepnu_Np4_scale     =  Lumi  *    25.87 * 1.20 * WjetExtraScale / nOrigWlepnu_Np4
-Wlepnu_Np5_scale     =  Lumi  *     7.00 * 1.20 * WjetExtraScale / nOrigWlepnu_Np5
+Wlepnu_Np0_scale     =  Lumi  *  6930.50 * 1.195 * WjetExtraScale / nOrigWlepnu_Np0
+Wlepnu_Np1_scale     =  Lumi  *  1305.30 * 1.195 * WjetExtraScale / nOrigWlepnu_Np1
+Wlepnu_Np2_scale     =  Lumi  *   378.13 * 1.195 * WjetExtraScale / nOrigWlepnu_Np2
+Wlepnu_Np3_scale     =  Lumi  *   101.86 * 1.195 * WjetExtraScale / nOrigWlepnu_Np3
+Wlepnu_Np4_scale     =  Lumi  *    25.68 * 1.195 * WjetExtraScale / nOrigWlepnu_Np4
+Wlepnu_Np5_scale     =  Lumi  *     6.99 * 1.195 * WjetExtraScale / nOrigWlepnu_Np5
 
 Zleplep_Np0_scale     =  Lumi  *  668.32 * 1.25   / nOrigZleplep_Np0
 Zleplep_Np1_scale     =  Lumi  *  134.36 * 1.25   / nOrigZleplep_Np1
@@ -452,12 +452,12 @@ Zleplep_Np3_scale     =  Lumi  *   11.16 * 1.25   / nOrigZleplep_Np3
 Zleplep_Np4_scale     =  Lumi  *    2.88 * 1.25   / nOrigZleplep_Np4
 Zleplep_Np5_scale     =  Lumi  *    0.83 * 1.25   / nOrigZleplep_Np5
 
-Wtaunu_Np0_scale   =  Lumi  *  6919.60 * 1.20 * WjetExtraScale / nOrigWtaunu_Np0
-Wtaunu_Np1_scale   =  Lumi  *  1303.20 * 1.20 * WjetExtraScale / nOrigWtaunu_Np1
-Wtaunu_Np2_scale   =  Lumi  *   378.18 * 1.20 * WjetExtraScale / nOrigWtaunu_Np2
-Wtaunu_Np3_scale   =  Lumi  *   101.43 * 1.20 * WjetExtraScale / nOrigWtaunu_Np3
-Wtaunu_Np4_scale   =  Lumi  *    25.87 * 1.20 * WjetExtraScale / nOrigWtaunu_Np4
-Wtaunu_Np5_scale   =  Lumi  *     6.92 * 1.20 * WjetExtraScale / nOrigWtaunu_Np5
+Wtaunu_Np0_scale   =  Lumi  *  6931.80 * 1.195 * WjetExtraScale / nOrigWtaunu_Np0
+Wtaunu_Np1_scale   =  Lumi  *  1304.90 * 1.195 * WjetExtraScale / nOrigWtaunu_Np1
+Wtaunu_Np2_scale   =  Lumi  *   377.93 * 1.195 * WjetExtraScale / nOrigWtaunu_Np2
+Wtaunu_Np3_scale   =  Lumi  *   101.96 * 1.195 * WjetExtraScale / nOrigWtaunu_Np3
+Wtaunu_Np4_scale   =  Lumi  *    25.71 * 1.195 * WjetExtraScale / nOrigWtaunu_Np4
+Wtaunu_Np5_scale   =  Lumi  *     7.00 * 1.195 * WjetExtraScale / nOrigWtaunu_Np5
 
 Ztautau_Np0_scale   =  Lumi  *  668.40 * 1.25   / nOrigZtautau_Np0
 Ztautau_Np1_scale   =  Lumi  *  134.81 * 1.25   / nOrigZtautau_Np1
