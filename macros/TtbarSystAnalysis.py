@@ -400,13 +400,6 @@ def TtbarSystAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     nXR1.Sumw2()
     nXR2.Sumw2()
 
-    if measureFakeAndEff:
-        nWCRTight = ROOT.TH1F("nWCRTight", "Number of tight events in the WCR", 1, 0, 1);
-        nQCDTight = ROOT.TH1F("nQCDTight", "Number of tight events in the QCD", 1, 0, 1);
-        nWCRTight.Sumw2()
-        nQCDTight.Sumw2()    
-
-
     for ev in ttree:
         # lets apply the cuts
         # double-check quality
@@ -585,7 +578,7 @@ def TtbarSystAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
 
             # veto second lepton or Z window cut
-            if lepton == ELECTRON and EL_MINV_WINDOW != 0:
+            if lepton == ELECTRON and EL_MINV_WINDOW != 0 and ttbarSyst != TTBAR_NOPHOTON:
                 elph = electron + photon
                 minv = elph.M()
                 # print "**minv =", minv
@@ -613,19 +606,21 @@ def TtbarSystAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 continue
 
         if debug: print "  passed some presel"
+        el_ph_deltaR = -1.0
+        mu_ph_deltaR = -1.0
+        if ttbarSyst != TTBAR_NOPHOTON:
+            if lepton == ELECTRON:
+                el_ph_deltaR = photon.DeltaR(electron)
+                if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
+                    continue
+            else:
+                muon = ROOT.TLorentzVector()
+                muon.SetPtEtaPhiM(ev.MuonPt[lepIndex], ev.MuonEta[lepIndex], ev.MuonPhi[lepIndex], 105.65836668)
+                mu_ph_deltaR = photon.DeltaR(muon)
+                if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
+                    continue
 
-        if lepton == ELECTRON:
-            el_ph_deltaR = photon.DeltaR(electron)
-            if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
-                continue
-        else:
-            muon = ROOT.TLorentzVector()
-            muon.SetPtEtaPhiM(ev.MuonPt[lepIndex], ev.MuonEta[lepIndex], ev.MuonPhi[lepIndex], 105.65836668)
-            mu_ph_deltaR = photon.DeltaR(muon)
-            if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
-                continue
-
-        if debug: print "  passed lep-ph deltaR"
+            if debug: print "  passed lep-ph deltaR"
 
         if metType == MET_DEFAULT:
             if lepton == ELECTRON:
@@ -771,7 +766,7 @@ def TtbarSystAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             h_eventType.Fill(ev.eventType, weight)
 
             rejectStudies = -9
-            if ttbarSyst == NULL:
+            if ttbarSyst == NONE:
                 if ev.PhotonConvType[photonIndex] == 0:
                     # unconverted
                     if ev.PhotonNumBEl[photonIndex] > 0:

@@ -10,16 +10,18 @@ import ROOT
 
 PRINT_YIELDS = True
 
-Lumi = 4708.61
+#Lumi = 4708.61
+Lumi = 4713.11
+#Lumi = 4655.74
 
 USE_LOOSE_WJETS = True
 
 print "Lepton is MUON."
-# path = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
-# alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
+path = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
+alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
 
-path = "/data3/jmitrevs/lepphoton/muphoton_ntupleMetSyst/mergedFiles/"
-alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleMetSyst/mergedFiles/"
+#path = "/data3/jmitrevs/lepphoton/muphoton_ntupleMetSyst2/mergedFiles/"
+#alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleMetSyst2/mergedFiles/"
 
 altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
 
@@ -428,8 +430,8 @@ wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 # ZmumujetExtraScale = 0.111
 
 WjetExtraScale = 0.15
-#ttbarLepjetExtraScale = 0.15
-ttbarLepjetExtraScale = 1.0
+ttbarLepjetExtraScale = 0.15
+#ttbarLepjetExtraScale = 1.0
 ZmumujetExtraScale = 0.15
 
 if USE_LOOSE_WJETS:
@@ -523,7 +525,7 @@ Ztautaugamma_scale   =  Lumi  *  0.81710 * Zgamma_kFact  / nOrigZtautaugamma
 # t-channel Acer, Wt MC@NLO
 st_tchan_lepnu_scale = Lumi * 8.06 * 0.865 / nOrigst_tchan_lepnu
 st_tchan_taunu_scale = Lumi * 8.05 * 0.866 / nOrigst_tchan_taunu
-st_Wt_scale = Lumi * 14.59 * 10.079 / nOrigst_Wt
+st_Wt_scale = Lumi * 14.59 * 1.079 / nOrigst_Wt
 
 # Madgraph
 # WW_scale = Lumi * 43.81 * 0.38947 / nOrigWW  # include k-factor

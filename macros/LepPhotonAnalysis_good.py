@@ -77,7 +77,7 @@ EL_ELETACUT = 2.47
 EL_MET = 100*GeV
 EL_MT = 100*GeV
 
-EL_QCD_MINV_WINDOW = 15*GeV
+EL_QCD_MINV_WINDOW = 30*GeV
 EL_MINV_WINDOW = 15*GeV
 
 # tight (default)
@@ -87,20 +87,12 @@ EL_WCR_MT_MIN = 35*GeV
 EL_WCR_MT_MAX = 90*GeV
 EL_TCR_MET_MIN = 35*GeV
 
-# # loose
+# loose
 # EL_WCR_MET_MIN = 25*GeV
 # EL_WCR_MET_MAX = 80*GeV
 # EL_WCR_MT_MIN = 25*GeV
 # EL_WCR_MT_MAX = 90*GeV
 # EL_TCR_MET_MIN = 25*GeV
-
-# # Wgamma selection
-# EL_WCR_MET_MIN = 25*GeV
-# EL_WCR_MET_MAX = 1000000*GeV
-# EL_WCR_MT_MIN = 40*GeV
-# EL_WCR_MT_MAX = 90000000*GeV
-# EL_TCR_MET_MIN = 25*GeV
-
 
 EL_TCR_MET_MAX = 80*GeV
 EL_TCR_MT_MIN =  90*GeV
@@ -127,30 +119,14 @@ MU_WCR_MET_MIN = 35*GeV
 MU_WCR_MET_MAX = 80*GeV
 MU_WCR_MT_MIN = 35*GeV
 MU_WCR_MT_MAX = 90*GeV
-MU_TCR_MET_MIN = 35*GeV
 
 # # loose
 # MU_WCR_MET_MIN = 25*GeV
 # MU_WCR_MET_MAX = 80*GeV
 # MU_WCR_MT_MIN = 25*GeV
 # MU_WCR_MT_MAX = 90*GeV
-#MU_TCR_MET_MIN = 25*GeV
 
-# Wgamma
-# MU_WCR_MET_MIN = 25*GeV
-# MU_WCR_MET_MAX = 80000000*GeV
-# MU_WCR_MT_MIN = 40*GeV
-# MU_WCR_MT_MAX = 900000000*GeV
-# MU_TCR_MET_MIN = 25*GeV
-
-# # test for events
-# MU_WCR_MET_MIN = 50*GeV
-# MU_WCR_MET_MAX = 100*GeV
-# MU_WCR_MT_MIN = 100*GeV
-# MU_WCR_MT_MAX = 90000*GeV
-# MU_TCR_MET_MIN = 25*GeV
-
-
+MU_TCR_MET_MIN = 35*GeV
 MU_TCR_MET_MAX = 80*GeV
 MU_TCR_MT_MIN =  90*GeV
 
@@ -163,12 +139,6 @@ VETO_SECOND_LEPTON = False
 VETO_SECOND_SFLEPTON_MINV = False
 VETO_TRTSA_PHOTON_E_BLAYER = True
 
-MET_DEFAULT = 0
-MET_PLUS = 1
-MET_MINUS = 2
-MET_MUON = 3
-MET_FULL = 4
-
 #loose = 0xc5fc01
 ##loose = 0xf7fc01 # this is OK
 ##loose = 0xeffc01
@@ -176,8 +146,8 @@ MET_FULL = 4
 loose = 0xc5fc01
 tight = 0xfffc01
 
-bits = [0x020000, 0x080000, 0x100000] 
-#bits = [0x20000] 
+#bits = [0x020000, 0x080000, 0x100000, 0x200000] 
+bits = [0x20000] 
 
 def isLoose(isEM):
     return (isEM & loose) == 0
@@ -190,12 +160,13 @@ def isAntiTight(isEM):
 
     # if not isL:
     #     return False
+
     # fail = 0
     # for i in bits:
     #     if isEM & i:
     #         fail += 1
-    # return fail > 0
 
+    # return fail > 0
     isT = isTight(isEM)
     return isL and not isT
 
@@ -234,16 +205,11 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                       qcdOtherRootSimulate = "",
                       reweighAlpgen = False,
                       debug = False,
-                      doTruth = False,
-                      onlyOrigin = -1,
-                      metType = MET_DEFAULT):
+                      doTruth = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
         return
-
-    if metType != MET_DEFAULT:
-        print "Using metType =",metType
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
@@ -281,7 +247,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     ######## phdir
     phdir.cd()
 
-    h_ph_phi1 = ROOT.TH1F("ph_phi1","#phi of the leading photons;#phi_{reco};Events", 16, -math.pi, math.pi)
     h_ph_eta1 = ROOT.TH1F("ph_eta1","Psuedorapidity of the leading photons;#eta_{reco};Events", nBinsEta, -3, 3)
     h_ph_pt1 = ROOT.TH1F("ph_pt1","Transverse momentum of the leading photons;p_{T} [GeV];Events", nBinsPt, 50, 300)
     h_ph_eta2 = ROOT.TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco};Events", nBinsEta, -3, 3)
@@ -296,8 +261,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     h_ph_mu_minv = ROOT.TH1F("ph_mu_minv", "The invariant mass of the leading photon and muon;M_{inv} [GeV];Events", 100, 0, 500)
     h_numPh = ROOT.TH1F("numPh", "The number of photons that pass cuts;N_{photons};Events", 9, -0.5, 8.5)
 
-    h_ph_lep_deltaR = ROOT.TH1F("ph_lep_deltaR", "The delta-R beteween the lepton and the photon;#DeltaR(l,#gamma);Events", 25, 0, 5)
-    h_ph_lep_deltaPhi = ROOT.TH1F("ph_lep_deltaPhi", "The delta-Phi beteween the lepton and the photon;#Delta#phi(l,#gamma);Events", 30, -math.pi, math.pi)
+    h_ph_lep_deltaR = ROOT.TH1F("ph_lep_deltaR", "The delta-R beteween the lepton and the photon;#DeltaR(l,#gamma);Events", 50, 0, 5)
 
     h_ph_ConvType = ROOT.TH1F("ph_ConvType", "The number of conversion tracks;N_{tracks};Events", 3, -0.5, 2.5)
     h_ph_numSi0 = ROOT.TH1F("ph_numSi0", "The number of Si hits in conversion track 0;N_{hits};Events", 30, -9.5, 20.5)
@@ -314,8 +278,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     ######## mudir
     mudir.cd()
-    h_mu_eta1_phi1 = ROOT.TH2F("mu_eta1_phi1","#eta vs. #phi of the leading muons;#eta_{reco};#phi_{reco};Events", 20, -3, 3, 16, -math.pi, math.pi)
-    h_mu_phi1 = ROOT.TH1F("mu_phi1","#phi of the leading muons;#phi_{reco};Events", 16, -math.pi, math.pi)
     h_mu_eta1 = ROOT.TH1F("mu_eta1","Psuedorapidity of the leading muons;#eta_{reco};Events", nBinsEta, -3, 3)
     h_mu_pt1 = ROOT.TH1F("mu_pt1","Transverse momentum of the leading muons;p_{T} [GeV];Events", nBinsPt, 0, 250)
     h_mu_eta2 = ROOT.TH1F("mu_eta2","Psuedorapidity of the second muons;#eta_{reco};Events", nBinsEta, -3, 3)
@@ -325,7 +287,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     ######## eldir
     eldir.cd()
-    h_el_phi1 = ROOT.TH1F("el_phi1","#phi of the leading electrons;#phi_{reco};Events", 16, -math.pi, math.pi)
     h_el_eta1 = ROOT.TH1F("el_eta1","Psuedorapidity of the leading electrons;#eta_{reco};Events", nBinsEta, -3, 3)
     h_el_pt1 = ROOT.TH1F("el_pt1","Transverse momentum of the leading electrons;p_{T} [GeV];Events", nBinsPt, 0, 250)
     h_el_eta2 = ROOT.TH1F("el_eta2","Psuedorapidity of the second electrons;#eta_{reco};Events", nBinsEta, -3, 3)
@@ -351,18 +312,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
 						  "The DeltaPhi(Photon,MET) distribution vs. MET;#Delta#phi;E_{T}^{miss} [GeV]",
-						  50, 0, math.pi, 16, 0, 300)
+						  50, 0, math.pi, 20, 100, 300)
 
     h_deltaPhiElMETvsMET = ROOT.TH2F("deltaPhiElMETvsMET", 
 						  "The DeltaPhi(Electron,MET) distribution vs. MET;#Delta#phi;E_{T}^{miss} [GeV]",
-						  50, 0, math.pi, 16, 0, 300)
+						  50, 0, math.pi, 20, 100, 300)
 
     h_deltaPhiMuMETvsMET = ROOT.TH2F("deltaPhiMuMETvsMET", 
 						  "The DeltaPhi(Muon,MET) distribution vs. MET;#Delta#phi;E_{T}^{miss} [GeV]",
-						  50, 0, math.pi, 16, 0, 300)
-
-    h_deltaPhiMuMET = ROOT.TH1F("deltaPhiMuMET", 
-                                "The DeltaPhi(Muon,MET) distribution;#Delta#phi(l,MET);Events", 30, -math.pi, math.pi)
+						  50, 0, math.pi, 20, 100, 300)
     ############ gldir
     gldir.cd()
     h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV];Events", nBinsHT, 0, 1500)
@@ -420,36 +378,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if debug: print "Analizing event with Run =", ev.Run, ", Event =", ev.Event
 
-
         if filterPhotons and ev.numTruthPh > 0:
             continue
 
         if debug: print "  pass filterPhotons"
 
-        if metType == MET_DEFAULT:
-            metx = ev.Metx
-            mety = ev.Mety
-            # metx = ev.Metx_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
-            # mety = ev.Mety_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack 
-        elif metType == MET_PLUS:
-            metx = ev.MetxPlus_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
-            mety = ev.MetyPlus_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack 
-        elif metType == MET_MINUS:
-            metx = ev.MetxMinus_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
-            mety = ev.MetyMinus_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack 
-        elif metType == MET_MUON:
-            metx = ev.Metx_noMuon + ev.Metx_muon_smear - ev.Metx_RefTrack 
-            mety = ev.Mety_noMuon + ev.Mety_muon_smear - ev.Mety_RefTrack 
-        elif metType == MET_FULL:
-            metx = ev.Metx_full_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
-            mety = ev.Mety_full_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack
-        else:
-            print >> sys.stderr, "Have an invalid metType =", metType
-            sys.exit(1)
-
-
-        met = math.hypot(metx, mety)
-            
+        met = math.hypot(ev.Metx, ev.Mety)
         #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
         #print "weight =", ev.Weight * glWeight
 
@@ -501,8 +435,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if onlyStrong == WEAK and ev.isStrong:
             continue
-        if debug: print "  pass onlyStrong"
-
 
         lepIndex = 0
 
@@ -518,6 +450,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # if lepIndex != 0:
         #     print "***WARNING***"
 
+        if debug: print "  pass onlyStrong"
 
         if tttype != ALL:
             if lepton == MUON:
@@ -655,11 +588,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if debug: print "  passed ABCD, photonIndex =", photonIndex
 
-        if onlyOrigin >= 0:
-            if ev.PhotonOrigin[photonIndex] != onlyOrigin:
-                continue
-
-
         photon = ROOT.TLorentzVector()
         photon.SetPtEtaPhiM(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex], 0.0)
         if lepton == ELECTRON:
@@ -685,7 +613,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     elph = electron + photon
                     minv = elph.M()
                     # print "**minv =", minv
-                if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_MINV_WINDOW:
+                if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_QCD_MINV_WINDOW:
                     continue
 
             if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
@@ -699,7 +627,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 (lepton == MUON and ZMASS - MU_MINV_WINDOW < ev.MuMinv < ZMASS + MU_MINV_WINDOW)):
                 continue
 
-            if (VETO_TRTSA_PHOTON_E_BLAYER and # ev.numPh == 1 and
+            if (VETO_TRTSA_PHOTON_E_BLAYER and ev.numPh == 1 and
                 ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0 and
                 ev.PhotonNumBEl[photonIndex]):
                 continue
@@ -708,19 +636,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if lepton == ELECTRON:
             el_ph_deltaR = photon.DeltaR(electron)
-            el_ph_deltaPhi = photon.DeltaPhi(electron)
             if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
                 continue
         else:
             muon = ROOT.TLorentzVector()
             muon.SetPtEtaPhiM(ev.MuonPt[lepIndex], ev.MuonEta[lepIndex], ev.MuonPhi[lepIndex], 105.65836668)
             mu_ph_deltaR = photon.DeltaR(muon)
-            mu_ph_deltaPhi = photon.DeltaPhi(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
                 continue
-
-            # if abs(mu_ph_deltaPhi) < 2.93:
-            #     continue
 
         if debug: print "  passed lep-ph deltaR"
 
@@ -732,20 +655,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 weight *= Nqcd(1, ev.MuonTight[lepIndex], ev.MuonEta[lepIndex], lepton)
 
 
-        if metType == MET_DEFAULT:
-            if lepton == ELECTRON:
-                if lepIndex != 0:
-                    mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], ev.Metx, ev.Mety)
-                else:
-                    mt = ev.mTel
+        if lepton == ELECTRON:
+            if lepIndex != 0:
+                mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], ev.Metx, ev.Mety)
             else:
-                mt = ev.mTmu
+                mt = ev.mTel
         else:
-            if lepton == ELECTRON:
-                mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], metx, mety)
-            else:
-                mt = mT(ev.MuonPt[lepIndex], ev.MuonPhi[lepIndex], metx, mety)
-                 
+            mt = ev.mTmu
 
         # now plots that should be made before MET and mT cuts
         h_mTelvsMET.Fill(met/GeV, mt/GeV, weight)
@@ -942,35 +858,26 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
             if lepton == ELECTRON:
                 h_ph_lep_deltaR.Fill(el_ph_deltaR, weight)
-                h_ph_lep_deltaPhi.Fill(el_ph_deltaPhi, weight)                
             else:
                 h_ph_lep_deltaR.Fill(mu_ph_deltaR, weight)
-                h_ph_lep_deltaPhi.Fill(mu_ph_deltaPhi, weight)
 
             if ev.numPh >= 2:
                 h_ph_pt2.Fill(ev.PhotonPt[1]/GeV, weight)
                 h_ph_eta2.Fill(ev.PhotonEta[1], weight)
             h_ph_pt1.Fill(ev.PhotonPt[photonIndex]/GeV, weight)
             h_ph_eta1.Fill(ev.PhotonEta[photonIndex], weight)
-            h_ph_phi1.Fill(ev.PhotonPhi[photonIndex], weight)
             if ev.numEl >= 2:
                 h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
                 h_el_eta2.Fill(ev.ElectronEta[1], weight)
             if ev.numEl >= 1:
                 h_el_pt1.Fill(ev.ElectronPt[lepIndex]/GeV, weight)
                 h_el_eta1.Fill(ev.ElectronEta[lepIndex], weight)
-                h_el_phi1.Fill(ev.ElectronPhi[lepIndex], weight)
             if ev.numMu >= 2:
                 h_mu_pt2.Fill(ev.MuonPt[1]/GeV, weight)
                 h_mu_eta2.Fill(ev.MuonEta[1], weight)
             if ev.numMu >= 1:
                 h_mu_pt1.Fill(ev.MuonPt[lepIndex]/GeV, weight)
                 h_mu_eta1.Fill(ev.MuonEta[lepIndex], weight)
-                h_mu_phi1.Fill(ev.MuonPhi[lepIndex], weight)
-                h_mu_eta1_phi1.Fill(ev.MuonEta[lepIndex], ev.MuonPhi[lepIndex], weight)
-                # print "ev.deltaPhiMuMET =",ev.deltaPhiMuMET
-                h_deltaPhiMuMETvsMET.Fill(ev.deltaPhiMuMET, met/GeV, weight)
-                h_deltaPhiMuMET.Fill(ev.deltaPhiMuMET, weight)
         
 
     f.Write()
