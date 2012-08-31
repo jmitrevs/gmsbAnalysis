@@ -1043,6 +1043,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     # print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
     # print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
+    return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
+
 # This function calls the LepPhotonAnalysis function 
 def main():
     

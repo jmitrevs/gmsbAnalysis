@@ -2,6 +2,7 @@
 '''
 Module to run the analysis over all the grid ponts
 '''
+from __future__ import division
 
 from glob import glob
 import os, sys, getopt
@@ -12,12 +13,12 @@ import ROOT
 import signalOrigEvents
 from signalXsecs import signalXsecs
 import LepPhotonAnalysis
+import math
 
 ELECTRON = 0
 MUON = 1
 
 DEFAULTLEPTON = ELECTRON
-
 
 
 def GetHistNames(inFile):
@@ -42,18 +43,20 @@ def makeOutputName(infileName, strong):
     outfile = os.path.splitext(inFileNoPath)[0] + "_" + str(strong) + "_Hist.root"
     return outfile
 
-def RunAnalysis(lepton, plots, metType):
+def RunAnalysis(lepton, plots, metType, printRes=False):
 
+    SRs = []
 
     if lepton == ELECTRON:
         print "Lepton is ELECTRON."
         #path = "/data3/jmitrevs/lepphoton/elphoton_grid2/mergedFiles/"
-        path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSys/mergedFiles/"
-        Lumi = 4812.34
+        path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSyst2/mergedFiles/"
+        Lumi = 4816.68
     elif lepton == MUON:
         print "Lepton is Muon."
-        path = "/data3/jmitrevs/lepphoton/muphoton_grid2/mergedFiles/"
-        Lumi = 4708.61
+        #path = "/data3/jmitrevs/lepphoton/muphoton_grid2/mergedFiles/"
+        path = "/data3/jmitrevs/lepphoton/muphoton_gridMetSyst/mergedFiles/"
+        Lumi = 4713.11
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
 
@@ -81,24 +84,36 @@ def RunAnalysis(lepton, plots, metType):
 
                     print "nOrig =", nOrig, "xsec =", xsec, "feff =", feff, "scale =", scale 
 
-                    print "wino_%d_%d_%d:" % (mgl, mC1, strong)
-                    LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
-                                                        makeOutputName(winoFileName, strong),
-                                                        lepton,
-                                                        scale,
-                                                        onlyStrong=(strong+1), 
-                                                        applySF=LepPhotonAnalysis.NOMINAL, 
-                                                        applyTrigWeight=LepPhotonAnalysis.NOMINAL,
-                                                        plotsRegion=plots,
-                                                        metType = metType)
+                    key = "%d, %d" % (mgl, mC1)
+                    print "wino_%d_%d_%d" % (mgl, mC1, strong)
+                    sr = LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
+                                                             makeOutputName(winoFileName, strong),
+                                                             lepton,
+                                                             scale,
+                                                             onlyStrong=(strong+1), 
+                                                             applySF=LepPhotonAnalysis.NOMINAL, 
+                                                             applyTrigWeight=LepPhotonAnalysis.NOMINAL,
+                                                             plotsRegion=plots,
+                                                             metType = metType)
+
+                    if strong:
+                        oldsr = SRs[-1]
+                        SRs[-1] = (oldsr[0] + sr[0], math.hypot(oldsr[1], sr[1]), oldsr[2]+nOrig/feff, key)
+                    else:
+                        SRs.append(sr + (nOrig/feff, key))
                     print
 
+    if printRes:
+        for v in SRs:
+            print "%s & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (v[3], v[0], v[1], v[0]/v[2]*1e5, v[1]/v[2]*1e5)
+
+    return SRs
 
 if __name__ == "__main__":
     try:
         # retrive command line options
         shortopts  = "eml:p:"
-        longopts   = ["lepton=", "plots="]
+        longopts   = ["lepton=", "plots=", "doMetSyst"]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
     except getopt.GetoptError:
         # print help information and exit:
@@ -108,6 +123,9 @@ if __name__ == "__main__":
     lepton = DEFAULTLEPTON
     plots = LepPhotonAnalysis.DEFAULT_PLOTS
     metType = 0
+
+    doMetSyst = False
+
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -124,6 +142,8 @@ if __name__ == "__main__":
             else:
                 print "*** Lepton must be 'electron' or 'muon ****"
                 sys.exit(1)
+        elif o in ("--doMetSyst"):
+            doMetSyst = True
         elif o in ("-p", "--plots"):
             if a == "NO_SEL":
                 plots = LepPhotonAnalysis.NO_SEL
@@ -145,4 +165,19 @@ if __name__ == "__main__":
                 print "*** plots type unknown ****"
                 sys.exit(1)
 
-    RunAnalysis(lepton, plots, metType)
+    if doMetSyst:
+        default = RunAnalysis(lepton, plots, LepPhotonAnalysis.MET_DEFAULT)
+        plus = RunAnalysis(lepton, plots, LepPhotonAnalysis.MET_PLUS)
+        minus = RunAnalysis(lepton, plots, LepPhotonAnalysis.MET_MINUS)
+        muon = RunAnalysis(lepton, plots, LepPhotonAnalysis.MET_MUON)
+
+        for i in range(len(default)):
+            errPlus = (plus[i][0] - default[i][0])/default[i][0] * 100
+            errMinus = (minus[i][0] - default[i][0])/default[i][0] * 100
+            errMuon = abs(muon[i][0] - default[i][0])/default[i][0] * 100
+
+            print "%s & $%+.1f\,\%%$ & $%+.1f\,\%%$ & $%.1f\,\%%$ \\\\" % (default[i][3], errPlus, errMinus, errMuon)
+
+    else:
+        RunAnalysis(lepton, plots, metType, True)
+

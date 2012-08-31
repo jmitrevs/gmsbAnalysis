@@ -618,7 +618,7 @@ def RunAnalysis(lepton, plots, abcd, metType):
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.dataFile.Get(ttreeName), 
                                         makeOutputName(DataManager.dataFileName),
                                         lepton,
-                                        1.0, plotsRegion=plots, doABCD=abcd, blind=True)
+                                        1.0, plotsRegion=plots, doABCD=abcd, blind=False)
     print
 
     # print "gj:"
