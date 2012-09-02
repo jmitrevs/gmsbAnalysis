@@ -13,8 +13,8 @@ inDS_test = [
     #'mc11_7TeV.117421.AlpgenJimmyWgammaNp1_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     #'mc11_7TeV.126741.Sherpa_enugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
     #'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
-
+    #'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
+    'mc11_7TeV.117362.st_tchan_taunu_AcerMC.merge.AOD.e825_s1310_s1300_r3043_r2993'
     ]
 
 inDS_full = [
@@ -28,39 +28,39 @@ inDS_full = [
     'mc11_7TeV.117424.AlpgenJimmyWgammaNp4_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
     'mc11_7TeV.117425.AlpgenJimmyWgammaNp5_pt20.merge.AOD.e873_s1310_s1300_r3043_r2993',
 
-    # 'mc11_7TeV.105985.WW_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.105986.ZZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.105987.WZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # 'mc11_7TeV.105985.WW_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # 'mc11_7TeV.105986.ZZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # 'mc11_7TeV.105987.WZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
 
 
-    #'mc11_7TeV.108323.Pythia_MadGraph_Zeegamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
-    #'mc11_7TeV.108325.Pythia_MadGraph_Ztautaugamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
+    # #'mc11_7TeV.108323.Pythia_MadGraph_Zeegamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
+    # #'mc11_7TeV.108325.Pythia_MadGraph_Ztautaugamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
     'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    # 'mc11_7TeV.108340.st_tchan_enu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.108342.st_tchan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
+    # # 'mc11_7TeV.108340.st_tchan_enu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # 'mc11_7TeV.108342.st_tchan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
     'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
 
-    # # 'mc11_7TeV.116394.AlpgenJimmyGamNp5_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.116392.AlpgenJimmyGamNp3_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.116393.AlpgenJimmyGamNp4_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.116391.AlpgenJimmyGamNp2_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.116394.AlpgenJimmyGamNp5_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.116392.AlpgenJimmyGamNp3_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.116393.AlpgenJimmyGamNp4_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.116390.AlpgenJimmyGamNp1_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.116391.AlpgenJimmyGamNp2_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
 
     'mc11_7TeV.145163.Sherpa_Zeegamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993',
 
-    # # 'mc11_7TeV.126022.Sherpa_Znunugamma_highpt.merge.AOD.e931_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.118619.Pythia_MadGraph_Znunugammagamma.merge.AOD.e887_s1372_s1370_r3043_r2993',
-    # # 'mc11_7TeV.107710.AlpgenJimmyZnunuNp0_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.107711.AlpgenJimmyZnunuNp1_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.107712.AlpgenJimmyZnunuNp2_pt20_filt1jet.merge.AOD.e887_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.107713.AlpgenJimmyZnunuNp3_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.107714.AlpgenJimmyZnunuNp4_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
-    # # 'mc11_7TeV.107715.AlpgenJimmyZnunuNp5_pt20_filt1jet.merge.AOD.e1004_s1372_s1370_r3043_r2993',
+    # # # 'mc11_7TeV.126022.Sherpa_Znunugamma_highpt.merge.AOD.e931_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.118619.Pythia_MadGraph_Znunugammagamma.merge.AOD.e887_s1372_s1370_r3043_r2993',
+    # # # 'mc11_7TeV.107710.AlpgenJimmyZnunuNp0_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.107711.AlpgenJimmyZnunuNp1_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.107712.AlpgenJimmyZnunuNp2_pt20_filt1jet.merge.AOD.e887_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.107713.AlpgenJimmyZnunuNp3_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.107714.AlpgenJimmyZnunuNp4_pt20_filt1jet.merge.AOD.e859_s1310_s1300_r3043_r2993',
+    # # # 'mc11_7TeV.107715.AlpgenJimmyZnunuNp5_pt20_filt1jet.merge.AOD.e1004_s1372_s1370_r3043_r2993',
 
-    # # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
-    # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    # # # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
+    # # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
 
-    # 'mc11_7TeV.119081.2DP20_GamJetGamGam_pythia_photon_filter.merge.AOD.e825_s1310_s1300_r3044_r2993',
+    # # 'mc11_7TeV.119081.2DP20_GamJetGamGam_pythia_photon_filter.merge.AOD.e825_s1310_s1300_r3044_r2993',
     'mc11_7TeV.126389.Sherpa2DP20.merge.AOD.e1028_s1310_s1300_r3108_r3109',
 
     'mc11_7TeV.117360.st_tchan_enu_AcerMC.merge.AOD.e835_s1310_s1300_r3043_r2993',
@@ -71,8 +71,8 @@ inDS_full = [
     'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
 
     # 'mc11_7TeV.126872.Pythia_MadGraph_Wgamma.merge.AOD.e1250_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126741.Sherpa_enugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109'
+    # 'mc11_7TeV.126741.Sherpa_enugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
+    # 'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109'
     ]
 #how to automatically configure GRL ?
 
@@ -82,14 +82,17 @@ for i,inDS in enumerate(inDS_full):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120823.%s SignalGammaElectron.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron.py " % (inDS, outName)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEiso_120901.%s SignalGammaElectron_test.py " % (inDS, outName)
+
+    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
    
     if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
+        command += " --outTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
     else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
+        command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120819.tar"
+    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120828.tar"
 
     print command
     sys.stdout.flush()
@@ -107,14 +110,17 @@ inDS_ttbar = [
     
 for i,inDS in enumerate(inDS_ttbar):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120823.%s SignalGammaElectron_ttbar.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron_ttbar.py " % (inDS, inDS)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEiso_120901.%s SignalGammaElectron_ttbar_test.py " % (inDS, inDS)
    
+    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)
+
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120519.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120823.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
     print command
     sys.stdout.flush()
@@ -147,19 +153,20 @@ inDS_Wjets = [
 
 for i,inDS in enumerate(inDS_Wjets):
  
-    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.37.%s SignalGammaElectron.py " % (inDS, inDS)
-    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120821.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120902.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
    
+    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)
+
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
 inDS_Zjets = [
 
@@ -180,18 +187,20 @@ inDS_Zjets = [
     
 for i,inDS in enumerate(inDS_Zjets):
  
-    command = "pathena --mergeOutput --excludedSite=ANALY_QMUL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120821.%s SignalGammaElectron_Zjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_QMUL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron_Zjets.py " % (inDS, inDS)
+
+    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120731Zjets.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120731Zjets.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
 
 inDS_Ztau = [
     'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
@@ -208,17 +217,19 @@ inDS_Ztau = [
     
 for i,inDS in enumerate(inDS_Ztau):
  
-    command = "pathena --mergeOutput --excludedSite=ANALY_QMUL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120821.%s SignalGammaElectron_Ztaujets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_QMUL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron_Ztaujets.py " % (inDS, inDS)
+
+    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_120801.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120801.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120821.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
     

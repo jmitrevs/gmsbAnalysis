@@ -5,6 +5,7 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
 
 #include "egammaEvent/ElectronContainer.h"
 #include "egammaEvent/Electron.h"
@@ -48,6 +49,8 @@
 #include "PathResolver/PathResolver.h"
 #include "ReweightUtils/APReweightND.h"
 #include "ReweightUtils/APEvtWeight.h"
+
+#include "PileupReweighting/TPileupReweighting.h"
 
 #include "DanGMSBAnaTools/ITopoSystematicsTool.h"
 #include "DanGMSBAnaTools/IEtMissMuonSystematicsTool.h"
@@ -167,6 +170,14 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("outputHistograms", m_outputHistograms = true);
   declareProperty("outputNtuple", m_outputNtuple = false);
 
+  declareProperty("ElSFSet", m_set = 6); // 5, 6, 7 = loose++, mediu,++, tight++
+
+  declareProperty("doOverpalElectrons", m_doOverlapElectrons = true);
+  declareProperty("ApplyPileupReweighting", m_applyPileupReweighting = 1, 
+		  "0 is none, 1 is standard, 2 is syst");
+  declareProperty("PileupConfigFile", m_pileupConfig = "full.prw.root");
+  declareProperty("PileupLumiCalcFile", m_lumiCalcFile = "ilumicalc_histograms_None_178044-191933_e.root");
+
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SignalGammaLepton::initialize(){
@@ -281,6 +292,39 @@ StatusCode SignalGammaLepton::initialize(){
   //   ATH_MSG_ERROR("Unable to retrieve pointer to UserDataSvc");
   //   return StatusCode::FAILURE;
   // }
+
+  if (m_applyPileupReweighting && m_isMC) {
+    if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
+      m_pileupTool = new Root::TPileupReweighting("gmsbPileupTool");
+      if (m_applyPileupReweighting == 2) { 
+	// for systematics
+	m_pileupTool->SetDataScaleFactors(0.9);
+      }
+      std::string pileupConfig = PathResolver::find_file(m_pileupConfig, "DATAPATH");
+      if (pileupConfig == "") {
+	ATH_MSG_ERROR("pileup config file " << m_pileupConfig << " not found. Exiting");
+	return StatusCode::FAILURE;
+      }
+      std::string lumiCalcFile = PathResolver::find_file(m_lumiCalcFile, "DATAPATH");
+      if (lumiCalcFile == "") {
+	ATH_MSG_ERROR("lumiCalcFile " << m_lumiCalcFile << " not found. Exiting");
+	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_DEBUG("Using lumiCalcFile " << m_lumiCalcFile);
+      }
+      
+      m_pileupTool->AddConfigFile(pileupConfig);
+      m_pileupTool->AddLumiCalcFile(lumiCalcFile);
+      m_pileupTool->SetUnrepresentedDataAction(2); 
+      m_pileupTool->Initialize();
+
+    } else {
+      ATH_MSG_ERROR("Unsupported m_applyPileupReweighting of " << m_applyPileupReweighting);
+      return StatusCode::FAILURE;
+    }
+  } else {
+    m_pileupTool = 0;
+  }
 
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
@@ -522,6 +566,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("Event",&m_eventNumber, "Event/i");  // event number
     m_tree->Branch("LumiBlock", &m_lumiBlock,"LumiBlock/i"); // lum block num
     m_tree->Branch("Weight", &m_weight, "Weight/F"); // weight
+    m_tree->Branch("PileupWeight", &m_pileupWeight, "pileupWeight/F"); // weight
 
     // now event (vs object) variables
     m_tree->Branch("numPh",  &m_numPh, "numPh/i");
@@ -641,6 +686,8 @@ StatusCode SignalGammaLepton::execute()
 
   m_weight = 1.0;
 
+  m_pileupWeight = 1.0;
+
   // The missing ET object
   const MissingET* metCont(0);
   StatusCode sc = evtStore()->retrieve( metCont, m_METContainerName );
@@ -741,6 +788,11 @@ StatusCode SignalGammaLepton::execute()
       ATH_MSG_WARNING("did not find aMcEventContainer, m_McEventContainerName = " << m_McEventContainerName);
     }
 
+    if (m_pileupTool) {
+      const unsigned int channelNumber = evtInfo->event_type()->mc_channel_number();
+      const float aveIntPerBC = evtInfo->averageInteractionsPerCrossing();
+      m_pileupWeight = m_pileupTool->GetCombinedWeight(m_runNumber, channelNumber, aveIntPerBC);
+    }
   }
 
   ATH_MSG_DEBUG("About to prepare selection: " << m_runNumber << " " << m_lumiBlock << " " 
@@ -841,7 +893,13 @@ StatusCode SignalGammaLepton::execute()
 
   const PhotonContainer *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
   const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
-  const ElectronContainer *electrons = m_OverlapRemovalTool2->finalStateElectrons();
+  
+  const ElectronContainer *electrons = 0;
+  if (m_doOverlapElectrons) {
+    electrons = m_OverlapRemovalTool2->finalStateElectrons();
+  } else {
+    electrons = m_PreparationTool->selectedElectrons(); // only for debugging
+  }
 
   const Analysis::MuonContainer *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
   const Analysis::MuonContainer *muons = m_OverlapRemovalTool2->finalStateMuons();
@@ -1569,8 +1627,8 @@ StatusCode SignalGammaLepton::execute()
     
     if (m_numElectronsReq > 0) {
       // require an electron. Only really valid when 1 electron is requested
-      m_el_sf = GetSignalElecSF(leadingEl->cluster()->eta(), leadingElPt);
-      m_el_sf_unc = GetSignalElecSF(leadingEl->cluster()->eta(), leadingElPt);
+      m_el_sf = GetSignalElecSF(leadingEl->cluster()->eta(), leadingElPt, m_set);
+      m_el_sf_unc = GetSignalElecSFUnc(leadingEl->cluster()->eta(), leadingElPt, m_set);
     }
     
     if (m_numMuonsReq > 0) {
@@ -1600,7 +1658,7 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("mu sf = " << m_mu_sf << " +- " << m_mu_sf_unc); 
   ATH_MSG_DEBUG("mu trigh weight = " << m_mu_trig_weight << " +- " << m_mu_trig_weight_unc); 
 
-  const double totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight;
+  const double totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight * m_pileupWeight;
 
   // /////////////////////////////////////////////////////
   // // Now some truth studies

@@ -145,7 +145,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             DoEtMissSystematics = True,
                             DoEtMissMuonSystematics = True,
                             EtMissSystematicsTool = myEtMissSystematicsTool,
-                            EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool
+                            EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
+                            PileupLumiCalcFile = "ilumicalc_histograms_None_178044-191933_mu.root"
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

@@ -131,7 +131,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             NumMuons = 1,
                             outputNtuple = True,
                             doTruthStudies = True,
-                            TruthStudiesTool = truthStudies
+                            TruthStudiesTool = truthStudies,
+                            PileupLumiCalcFile = "ilumicalc_histograms_None_178044-191933_mu.root"
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG

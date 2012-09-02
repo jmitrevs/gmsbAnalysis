@@ -30,6 +30,10 @@ class IMCTruthClassifier;
 class ITopoSystematicsTool;
 class IEtMissMuonSystematicsTool;
 
+namespace Root {
+  class TPileupReweighting;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
 public:
@@ -46,12 +50,14 @@ private:
   bool isInLArHole(Jet* jet) const;
 
   // both should really be const.
-  float GetSignalElecSF(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
-  float GetSignalElecSFUnc(float el_cl_eta, float et, int set = 6, int rel = 6, int mode = 0, int range = 0);
+  float GetSignalElecSF(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
+  float GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
 
   StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
   StatusCode recordEtMissMuonSystematics();
   StatusCode recordTruthMET();
+
+  int m_set; 			// electron scale factor set 
 
   /** MET selecton */
   std::string m_METContainerName;
@@ -144,6 +150,8 @@ private:
   bool m_do_truth_met;
   bool m_topo_systematics_use_eta45;
 
+  bool m_doOverlapElectrons; // for debugging
+
   /** @breif whether to blind or not */
   bool m_blind;
   double m_blindMET;
@@ -170,6 +178,11 @@ private:
 
   std::string m_muonTrigWeightsFile;
   APReweightND *m_trigWeighter;
+
+  int m_applyPileupReweighting; // 0 = none, 1 = nominal, 2 = syst
+  std::string m_pileupConfig;
+  std::string m_lumiCalcFile;
+  Root::TPileupReweighting *m_pileupTool;
 
   // The variables if one outputs an ntuple
   TTree* m_tree;
@@ -238,6 +251,8 @@ private:
   // The weight for the muon trigger
   float m_mu_trig_weight;
   float m_mu_trig_weight_unc;
+
+  float m_pileupWeight;
 
   TruthStudies::EventType m_type;
   int m_isStrong;
