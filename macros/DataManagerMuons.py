@@ -17,13 +17,17 @@ Lumi = 4713.11
 USE_LOOSE_WJETS = True
 
 print "Lepton is MUON."
-path = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
-alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
+#path = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
+#alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
 
 #path = "/data3/jmitrevs/lepphoton/muphoton_ntupleMetSyst2/mergedFiles/"
 #alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleMetSyst2/mergedFiles/"
 
+path = "/data3/jmitrevs/lepphoton/muphoton_ntuple_purw/mergedFiles/"
+alpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple_purw/mergedFiles/"
+
 altpath = "/data3/jmitrevs/lepphoton/muphoton_ntuple3/mergedFiles/"
+altalpgenpath = "/data3/jmitrevs/lepphoton/muphoton_ntupleAlpgen/mergedFiles/"
 
 datapath = "/data3/jmitrevs/lepphoton/muphoton_data6/mergedFiles/"
 
@@ -38,7 +42,8 @@ winoFileName = sigpath + "wino_600_200_mu.root"
 WlepnuFileName_Np0 = path + "Wmunu_Np0.root"
 WlepnuFileName_Np1 = alpgenpath + "Wmunu_Np1.root"
 WlepnuFileName_Np2 = alpgenpath + "Wmunu_Np2.root"
-WlepnuFileName_Np3 = alpgenpath + "Wmunu_Np3.root"
+#WlepnuFileName_Np3 = alpgenpath + "Wmunu_Np3.root"
+WlepnuFileName_Np3 = altalpgenpath + "Wmunu_Np3.root"
 WlepnuFileName_Np4 = alpgenpath + "Wmunu_Np4.root"
 WlepnuFileName_Np5 = alpgenpath + "Wmunu_Np5.root"
 
@@ -86,18 +91,18 @@ WtaunuFileName_Np3 = alpgenpath + "Wtaunu_Np3.root"
 WtaunuFileName_Np4 = alpgenpath + "Wtaunu_Np4.root"
 WtaunuFileName_Np5 = alpgenpath + "Wtaunu_Np5.root"
 
-ZtautauFileName_Np0 = path + "Ztautau_Np0.root"
-ZtautauFileName_Np1 = path + "Ztautau_Np1.root"
-ZtautauFileName_Np2 = path + "Ztautau_Np2.root"
-ZtautauFileName_Np3 = path + "Ztautau_Np3.root"
-ZtautauFileName_Np4 = path + "Ztautau_Np4.root"
-ZtautauFileName_Np5 = path + "Ztautau_Np5.root"
+ZtautauFileName_Np0 = altpath + "Ztautau_Np0.root"
+ZtautauFileName_Np1 = altpath + "Ztautau_Np1.root"
+ZtautauFileName_Np2 = altpath + "Ztautau_Np2.root"
+ZtautauFileName_Np3 = altpath + "Ztautau_Np3.root"
+ZtautauFileName_Np4 = altpath + "Ztautau_Np4.root"
+ZtautauFileName_Np5 = altpath + "Ztautau_Np5.root"
 
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
 
-Wgamma_lepnu_sherpaFileName = path + "Wgamma_munu_sherpa.root"
-Wgamma_taunu_sherpaFileName = path + "Wgamma_taunu_sherpa.root"
+Wgamma_lepnu_sherpaFileName = altpath + "Wgamma_munu_sherpa.root"
+Wgamma_taunu_sherpaFileName = altpath + "Wgamma_taunu_sherpa.root"
 ttbargammaFileName = path + "ttbargamma.root"
 ttbarFileName = path + "ttbar.root"
 ttbar_ph_jmFileName = altpath + "ttbar_powheg_jimmy.root"

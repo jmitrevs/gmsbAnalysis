@@ -461,6 +461,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         weight = ev.Weight * glWeight
 
+        try:
+            weight *= ev.PileupWeight
+        except AttributeError:
+            pass
+
+
         if applySF == NOMINAL:
             if lepton == ELECTRON:
                 weight *= ev.PhotonSF * ev.ElectronSF

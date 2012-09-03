@@ -51,7 +51,8 @@ def RunAnalysis(lepton, plots, metType, printRes=False):
         print "Lepton is ELECTRON."
         #path = "/data3/jmitrevs/lepphoton/elphoton_grid2/mergedFiles/"
         #path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSyst2/mergedFiles/"
-        path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSyst4/mergedFiles/"
+        #path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSyst4/mergedFiles/"
+        path = "/data3/jmitrevs/lepphoton/elphoton_grid_test/mergedFiles/"
         Lumi = 4816.68
     elif lepton == MUON:
         print "Lepton is Muon."

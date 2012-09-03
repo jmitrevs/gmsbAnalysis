@@ -13,8 +13,9 @@ inDS_test = [
    
     #'mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993',
     #'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126744.Sherpa_munugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109'
+    #'mc11_7TeV.126744.Sherpa_munugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
+    #'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
 
     ]
 
@@ -32,12 +33,12 @@ inDS_full = [
     # # 'mc11_7TeV.105987.WZ_Herwig.merge.AOD.e825_s1310_s1300_r3043_r2993',
 
     # #'mc11_7TeV.108325.Pythia_MadGraph_Ztautaugamma.merge.AOD.e887_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    # 'mc11_7TeV.145164.Sherpa_Zmumugamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993', 
+    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.145164.Sherpa_Zmumugamma_highpt.merge.AOD.e923_s1310_s1300_r3043_r2993', 
 
     # # 'mc11_7TeV.108341.st_tchan_munu_McAtNlo_Jimmy.merge.AOD.e825_s1310_s1300_r3043_r2993',
     # # 'mc11_7TeV.108342.st_tchan_taunu_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.AOD.e835_s1310_s1300_r3043_r2993',
 
  
     # # # 'mc11_7TeV.116394.AlpgenJimmyGamNp5_JetFilter_Nj2Et20.merge.AOD.e825_s1310_s1300_r3043_r2993',
@@ -60,12 +61,12 @@ inDS_full = [
     # # # # 'mc11_7TeV.115040.Pythia_photos_diphotons100.merge.AOD.e997_s1372_s1370_r3043_r2993',
     # # # # 'mc11_7TeV.115039.Pythia_photos_diphotons50.merge.AOD.e997_s1372_s1370_r3043_r2993',
 
-    # 'mc11_7TeV.117361.st_tchan_munu_AcerMC.merge.AOD.e835_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.117362.st_tchan_taunu_AcerMC.merge.AOD.e825_s1310_s1300_r3043_r2993',
-    # 'mc11_7TeV.126892.Sherpa_CT10_llnunu_WW.merge.AOD.e1255_s1372_s1370_r3108_r3109',
-    # 'mc11_7TeV.126893.Sherpa_CT10_lllnu_WZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
-    # 'mc11_7TeV.126894.Sherpa_CT10_llll_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
-    # 'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
+    'mc11_7TeV.117361.st_tchan_munu_AcerMC.merge.AOD.e835_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.117362.st_tchan_taunu_AcerMC.merge.AOD.e825_s1310_s1300_r3043_r2993',
+    'mc11_7TeV.126892.Sherpa_CT10_llnunu_WW.merge.AOD.e1255_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126893.Sherpa_CT10_lllnu_WZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126894.Sherpa_CT10_llll_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109',
+    'mc11_7TeV.126895.Sherpa_CT10_llnunu_ZZ.merge.AOD.e1228_s1372_s1370_r3108_r3109', 
 
     # # 'mc11_7TeV.126744.Sherpa_munugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
     # # 'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109'
@@ -76,21 +77,21 @@ inDS_full = [
 
 
     
-for i,inDS in enumerate(inDS_full):
+for i,inDS in enumerate(inDS_test):
    
     outName = inDS[:90] # make sure the name is not too long
    
-    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120823.%s SignalGammaMuon.py " % (inDS, outName)
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GMiso_120901.%s SignalGammaMuon_test.py " % (inDS, outName)
+    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-IRFU --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120902.%s SignalGammaMuon.py " % (inDS, outName)
+    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GMiso_120901.%s SignalGammaMuon_test.py " % (inDS, outName)
 
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
     
-    if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120901.tar"
-    else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120901.tar"
+    # if i == 0:
+    #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120901.tar"
+    # else:
+    #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120901.tar"
 
-    # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120828.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
     print command
     sys.stdout.flush()
@@ -109,15 +110,15 @@ inDS_ttbar = [
     
 for i,inDS in enumerate(inDS_ttbar):
  
-    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120823.%s SignalGammaMuon_ttbar.py " % (inDS, inDS)
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GMiso_120901.%s SignalGammaMuon_ttbar_test.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120902.%s SignalGammaMuon_ttbar.py " % (inDS, inDS)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GMiso_120901.%s SignalGammaMuon_ttbar_test.py " % (inDS, inDS)
    
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120418.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120418.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120901.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
     # print command
     # sys.stdout.flush()
@@ -133,28 +134,28 @@ inDS_Wjets = [
     'mc11_7TeV.107694.AlpgenJimmyWmunuNp4_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
     'mc11_7TeV.107695.AlpgenJimmyWmunuNp5_pt20.merge.AOD.e825_s1299_s1300_r3043_r2993',
     
-    # #'mc11_7TeV.107700.AlpgenJimmyWtaunuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107701.AlpgenJimmyWtaunuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107702.AlpgenJimmyWtaunuNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107703.AlpgenJimmyWtaunuNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107704.AlpgenJimmyWtaunuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107705.AlpgenJimmyWtaunuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    #'mc11_7TeV.107700.AlpgenJimmyWtaunuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107701.AlpgenJimmyWtaunuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107702.AlpgenJimmyWtaunuNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107703.AlpgenJimmyWtaunuNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107704.AlpgenJimmyWtaunuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107705.AlpgenJimmyWtaunuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
 ]
 
 for i,inDS in enumerate(inDS_Wjets):
    
     outName = inDS[:95] # make sure the name is not too long
    
-    # command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GML_120821.%s SignalGammaMuon_WjetsLoose.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GML_120902.%s SignalGammaMuon_WjetsLoose.py " % (inDS, inDS)
 
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
     
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120821.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120821.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120828.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
     # print command
     # sys.stdout.flush()
@@ -162,12 +163,12 @@ for i,inDS in enumerate(inDS_Wjets):
 
 inDS_Zjets = [
 
-    # 'mc11_7TeV.107660.AlpgenJimmyZmumuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107661.AlpgenJimmyZmumuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107660.AlpgenJimmyZmumuNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107661.AlpgenJimmyZmumuNp1_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
     'mc11_7TeV.107662.AlpgenJimmyZmumuNp2_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107663.AlpgenJimmyZmumuNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107664.AlpgenJimmyZmumuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
-    # 'mc11_7TeV.107665.AlpgenJimmyZmumuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107663.AlpgenJimmyZmumuNp3_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107664.AlpgenJimmyZmumuNp4_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
+    'mc11_7TeV.107665.AlpgenJimmyZmumuNp5_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
     
 ]
 
@@ -175,16 +176,16 @@ for i,inDS in enumerate(inDS_Zjets):
    
     outName = inDS[:95] # make sure the name is not too long
    
-    # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120821.%s SignalGammaMuon_Zjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120902.%s SignalGammaMuon_Zjets.py " % (inDS, inDS)
 
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
     
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120520Zjets.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120520Zjets.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120828.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
     # print command
     # sys.stdout.flush()
@@ -204,14 +205,14 @@ for i,inDS in enumerate(inDS_Zjets):
    
     outName = inDS[:95] # make sure the name is not too long
    
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120821.%s SignalGammaMuon_Ztaujets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120902.%s SignalGammaMuon_Ztaujets.py " % (inDS, inDS)
     
     # if i == 0:
     #     command += " --outTarBall=/data3/jmitrevs/submission_gammamu_120520Zjets.tar"
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120520Zjets.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120821.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120902.tar"
 
     # print command
     # sys.stdout.flush()

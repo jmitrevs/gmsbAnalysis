@@ -15,11 +15,14 @@ Lumi = 4816.68 # old (but done again)
 #Lumi = 4758.05
 
 print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/elphoton_ntuple6/mergedFiles/"
-alpgenpath = "/data3/jmitrevs/lepphoton/elphoton_ntupleAlpgen/mergedFiles/"
+#path = "/data3/jmitrevs/lepphoton/elphoton_ntuple6/mergedFiles/"
+#alpgenpath = "/data3/jmitrevs/lepphoton/elphoton_ntupleAlpgen/mergedFiles/"
 
 #path = "/data3/jmitrevs/lepphoton/elphoton_ntupleMetSyst/mergedFiles/"
 #alpgenpath = "/data3/jmitrevs/lepphoton/elphoton_ntupleMetSyst/mergedFiles/"
+
+path = "/data3/jmitrevs/lepphoton/elphoton_ntuple_purw/mergedFiles/"
+alpgenpath = "/data3/jmitrevs/lepphoton/elphoton_ntuple_purw/mergedFiles/"
 
 altpath = "/data3/jmitrevs/lepphoton/elphoton_ntupleAlpgen/mergedFiles/"
 altpath2 = "/data3/jmitrevs/lepphoton/elphoton_ntuple6/mergedFiles/"
@@ -95,7 +98,7 @@ st_tchan_lepnuFileName   = path + "st_tchan_enu.root"
 
 WtaunuFileName_Np0 = altpath + "Wtaunu_Np0.root"
 WtaunuFileName_Np1 = alpgenpath + "Wtaunu_Np1.root"
-WtaunuFileName_Np2 = alpgenpath + "Wtaunu_Np2.root"
+WtaunuFileName_Np2 = altpath + "Wtaunu_Np2.root"
 WtaunuFileName_Np3 = alpgenpath + "Wtaunu_Np3.root"
 WtaunuFileName_Np4 = alpgenpath + "Wtaunu_Np4.root"
 WtaunuFileName_Np5 = alpgenpath + "Wtaunu_Np5.root"
@@ -103,8 +106,8 @@ WtaunuFileName_Np5 = alpgenpath + "Wtaunu_Np5.root"
 st_tchan_taunuFileName = path + "st_tchan_taunu.root"    
 st_WtFileName   = path + "st_Wt.root"    
     
-Wgamma_lepnu_sherpaFileName = path + "Wgamma_enu_sherpa.root"
-Wgamma_taunu_sherpaFileName = path + "Wgamma_taunu_sherpa.root"
+Wgamma_lepnu_sherpaFileName = altpath2 + "Wgamma_enu_sherpa.root"
+Wgamma_taunu_sherpaFileName = altpath2 + "Wgamma_taunu_sherpa.root"
 ttbarFileName = path + "ttbar.root"
 # ttbar_ph_jmFileName = altpath + "ttbar_powheg_jimmy.root"
 # ttbar_ph_pyFileName = altpath + "ttbar_powheg_pythia.root"
