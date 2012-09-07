@@ -458,6 +458,73 @@ Wlepnu_Np3_scale     =  Lumi  *   101.86 * 1.195 * WjetExtraScale / nOrigWlepnu_
 Wlepnu_Np4_scale     =  Lumi  *    25.68 * 1.195 * WjetExtraScale / nOrigWlepnu_Np4
 Wlepnu_Np5_scale     =  Lumi  *     6.99 * 1.195 * WjetExtraScale / nOrigWlepnu_Np5
 
+# alt scales for syst
+# #ptminup
+# Wlepnu_Np0_scale     =  Lumi  *  7350.*1.2054 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *   996.7*1.2054 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *   256.1*1.2054 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *   59.46*1.2054 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *   12.52*1.2054 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *   2.861*1.2054 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #ptmindown
+# Wlepnu_Np0_scale     =  Lumi  *  6878.*1.19448 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1328.*1.19448 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  401.7*1.19448 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  112.1*1.19448 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  28.55*1.19448 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  8.585*1.19448 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #Iqoptup
+# Wlepnu_Np0_scale     =  Lumi  *  6894.*1.20012 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1299.*1.20012 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  382.8*1.20012* WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  105.*1.20012 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  27.17*1.20012 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  7.8090*1.20012 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #Iqoptdown
+# Wlepnu_Np0_scale     =  Lumi  *  6890.*1.19683 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1309.*1.19683 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  393.7*1.19683 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  109.7*1.19683 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  28.64*1.19683 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  8.693*1.19683 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #scale up
+# Wlepnu_Np0_scale     =  Lumi  *  7530.*1.15439 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1160.*1.15439 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  285.5*1.15439 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  67.28*1.15439 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  14.62*1.15439 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  3.685*1.15439 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #scale down
+# Wlepnu_Np0_scale     =  Lumi  *  6366.*1.20409 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1546.*1.20409 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  542.4*1.20409 * 1.195 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  168.3*1.20409 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  48.75*1.20409 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  15.64*1.20409 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #qfact up ktfact down
+# Wlepnu_Np0_scale     =  Lumi  *  7530.*1.07903 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1506.*1.07903 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  466.*1.07903 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  141.2*1.07903 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  38.63*1.07903 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  12.04*1.07903 * WjetExtraScale / nOrigWlepnu_Np5
+
+# #qfact down ktfact up
+# Wlepnu_Np0_scale     =  Lumi  *  6368.*1.31086 * WjetExtraScale / nOrigWlepnu_Np0
+# Wlepnu_Np1_scale     =  Lumi  *  1181.*1.31086 * WjetExtraScale / nOrigWlepnu_Np1
+# Wlepnu_Np2_scale     =  Lumi  *  327.1*1.31086 * WjetExtraScale / nOrigWlepnu_Np2
+# Wlepnu_Np3_scale     =  Lumi  *  80.38*1.31086 * WjetExtraScale / nOrigWlepnu_Np3
+# Wlepnu_Np4_scale     =  Lumi  *  18.33*1.31086 * WjetExtraScale / nOrigWlepnu_Np4
+# Wlepnu_Np5_scale     =  Lumi  *  4.675*1.31086 * WjetExtraScale / nOrigWlepnu_Np5
+
+# end of syst scales
+
 Zleplep_Np0_scale     =  Lumi  *  668.32 * 1.25   / nOrigZleplep_Np0
 Zleplep_Np1_scale     =  Lumi  *  134.36 * 1.25   / nOrigZleplep_Np1
 Zleplep_Np2_scale     =  Lumi  *   40.54 * 1.25   / nOrigZleplep_Np2

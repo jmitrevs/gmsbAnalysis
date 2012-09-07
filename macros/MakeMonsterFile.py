@@ -10,22 +10,22 @@ ROOT.gROOT.SetBatch()
 #ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 #ROOT.SetAtlasStyle()
 
-from signalXsecsCombined import signalXsecsCombined
+from signalXsecs import signalXsecs
 
 
 
-Blind = True
+Blind = False
 
-SIGMA = -1.0
-#DEFAULTNAME = "LepPhoton.root"
+SIGMA = 0
+DEFAULTNAME = "LepPhoton.root"
 #DEFAULTNAME = "LepPhoton_AllUncertsXsecPlus1Sigma.root"
-DEFAULTNAME = "LepPhoton_AllUncertsXsecMinus1Sigma.root"
+#DEFAULTNAME = "LepPhoton_AllUncertsXsecMinus1Sigma.root"
 
 def MakeMonsterFile(outfile=DEFAULTNAME):
 
     f = ROOT.TFile("output_gl_wino.root")
     ttree = f.Get("SignalUncertainties")
-    xsecs = signalXsecsCombined(ttree)
+    xsecs = signalXsecs(ttree)
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
@@ -167,19 +167,22 @@ def MakeMonsterFile(outfile=DEFAULTNAME):
             wino = []
             for mgl in range(0, 1600, 100):
                 for mC1 in range(0, mgl, 50) + [mgl-20]:
-                    filelist = glob(sigpath + 'wino_%d_%d_[01]_Hist.root' % (mgl, mC1))
-                    if len(filelist) == 2:
-                        winoFileName0 = filelist[0]
+                    filelistW = glob(sigpath + 'wino_%d_%d_0_Hist.root' % (mgl, mC1))
+                    filelistS = glob(sigpath + 'wino_%d_%d_1_Hist.root' % (mgl, mC1))
+                    if len(filelistW) == 1 and len(filelistS) == 1:
+                        winoFileName0 = filelistW[0]
                         winoFile0 = ROOT.TFile(winoFileName0)
                         wino0 = winoFile0.Get(histName)
-                        winoFileName1 = filelist[1]
+                        winoFileName1 = filelistS[0]
                         winoFile1 = ROOT.TFile(winoFileName1)
                         wino1 = winoFile1.Get(histName)
                         f.cd()
                         hwino = wino0.Clone('hwino_%d_%dNom_%s' % (mgl, mC1, suffix))
-                        hwino.Add(wino1)
+                        hwino1 = wino1.Clone('hwino1_%d_%dNom_%s' % (mgl, mC1, suffix))
                         if SIGMA:
-                            hwino.Scale(1.0 + SIGMA * xsecs.getXsecRelError(mgl, mC1))
+                            hwino.Scale(1.0 + SIGMA * xsecs.getXsecRelError(mgl, mC1, False))
+                            hwino1.Scale(1.0 + SIGMA * xsecs.getXsecRelError(mgl, mC1, True))
+                        hwino.Add(hwino1)
                         wino.append(hwino)
             f.Write()
     

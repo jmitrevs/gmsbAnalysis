@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import division
+
 # code to make all the plots in a file
 
 import sys
@@ -1056,6 +1058,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     # print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
     return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
+    #return (nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1))
 
 # This function calls the LepPhotonAnalysis function 
 def main():

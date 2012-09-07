@@ -155,7 +155,7 @@ inDS_Wjets = [
 
 for i,inDS in enumerate(inDS_Wjets):
  
-    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-LAL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120902.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEL_120902.%s SignalGammaElectron_WjetsLoose.py " % (inDS, inDS)
    
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)
 
@@ -189,7 +189,7 @@ inDS_Zjets = [
     
 for i,inDS in enumerate(inDS_Zjets):
  
-    command = "pathena --mergeOutput --excludedSite=ANALY_QMUL --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron_Zjets.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron_Zjets.py " % (inDS, inDS)
 
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)
    
@@ -200,9 +200,9 @@ for i,inDS in enumerate(inDS_Zjets):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
 
 inDS_Ztau = [
     # 'mc11_7TeV.107670.AlpgenJimmyZtautauNp0_pt20.merge.AOD.e835_s1299_s1300_r3043_r2993',
@@ -230,8 +230,8 @@ for i,inDS in enumerate(inDS_Ztau):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
     
     

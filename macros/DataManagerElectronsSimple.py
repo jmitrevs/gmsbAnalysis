@@ -14,8 +14,8 @@ PRINT_YIELDS = True
 Lumi = 4812.34 # really electron only
 
 print "Lepton is ELECTRON."
-path = ""
-#path = "input/back_ABCD/El/"
+#path = ""
+path = "input/back/El/"
 
 winoFileName = path + "wino_600_200_elHist.root"
 
