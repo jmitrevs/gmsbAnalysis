@@ -11,6 +11,8 @@ ROOT.SetAtlasStyle()
 
 import EfficiencyCalc
 
+ROOT.TH1.SetDefaultSumw2()
+
 
 ELECTRON = 0
 MUON = 1
@@ -81,6 +83,7 @@ def Zegamma(ttree, outfile, lepton):
     h_el_eta = ROOT.TH1F("el_eta","Psuedorapidity of the leading photons;#eta_{reco};Events", 20, -3, 3)
     h_el_pt = ROOT.TH1F("el_pt","Transverse momentum of the leading photons;p_{T} [GeV];Events", 20, 0, 100)
 
+
     ee.Sumw2()
     eg.Sumw2()
     ee1bin.Sumw2()
@@ -103,6 +106,8 @@ def Zegamma(ttree, outfile, lepton):
             ee.Fill(mass/GeV, weight)
             if abs(ZMASS - mass) < ZWINDOW:
                 ee1bin.Fill(0, weight)
+                h_el_eta.Fill(ev.ElectronEta[0], weight)
+                h_el_pt.Fill(ev.ElectronPt[0]/GeV, weight)
                 h_el_eta.Fill(ev.ElectronEta[1], weight)
                 h_el_pt.Fill(ev.ElectronPt[1]/GeV, weight)
 
@@ -117,6 +122,10 @@ def Zegamma(ttree, outfile, lepton):
 
     fakeRate.Divide(eg1bin, ee1bin, 1.0, 2.0, "B")
     print "***** Overal fake rate =", fakeRate.GetBinContent(1),"+-", fakeRate.GetBinError(1)
+    h_fake_pt = h_ph_pt.Clone("fake_pt")
+    h_fake_eta = h_ph_eta.Clone("fake_eta")
+    h_fake_pt.Divide(h_ph_pt, h_el_pt, 1.0, 1.0, "B")
+    h_fake_eta.Divide(h_ph_eta, h_el_eta, 1.0, 1.0, "B")
     f.Write()
 
 

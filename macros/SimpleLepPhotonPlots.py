@@ -3,6 +3,7 @@
 # code to make all the plots in a file
 import sys
 import getopt
+import math
 
 import ROOT
 ROOT.gROOT.SetBatch()
@@ -55,9 +56,81 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
 
     ##########################################################
 
+    #
+    # errors
+    # 3.9
+    
+    stdErr2 = .039**2   # lumi
+    stdErr2 += .046**2  # photon
+    stdErr2 += .044**2  # pileup
+
+    if lepton == ELECTRON:
+        stdErr2 += 0.019**2
+        stdErr2 += 0.02**2
+    else:
+        stdErr2 += 0.02**2
+    
+    WgammaErr2 = stdErr2
+    WjetsErr2 = stdErr2
+    ttbargammaErr2 = stdErr2
+    dilepErr2 = stdErr2
+    lepjetsErr2 = stdErr2
+    stErr2 = stdErr2
+    dibosonErr2 = stdErr2
+    diphotonErr2 = stdErr2
+    ZgammaErr2 = stdErr2
+    ZjetsErr2 = stdErr2
+    qcdErr2 = stdErr2
+
+    WgammaErr2 += .27**2
+    ttbargammaErr2 += .27**2
+    ZjetsErr2 += .05**2
+    ZgammaErr2 += .15**2
+    stErr2 += .08**2
+    diphotonErr2 += 1
+    lepjetsErr2 += 25
+
+    if lepton == ELECTRON:
+        WjetsErr2 += .5**2
+        dilepErr2 += .136**2
+
+        WgammaErr2 += .25**2
+        ttbargammaErr2 += .15**2
+        dilepErr2 += .17**2
+        WjetsErr2 += .28**2
+        stErr2 += .2**2
+        dibosonErr2 += .05**2
+        ZgammaErr2 += .164**2
+        qcdErr2 += .15**2
+
+    else:
+        WjetsErr2 += .97**2
+        dilepErr2 += .148**2
+        qcdErr2 += .5**2
+
+        WgammaErr2 += .12**2
+        ttbargammaErr2 += .13**2
+        dilepErr2 += .18**2
+        WjetsErr2 += .35**2
+        stErr2 += .3**2
+        dibosonErr2 += .04**2
+        ZgammaErr2 += .1**2
+
+        WgammaErr2 += .024**2
+        ttbargammaErr2 += .031**2
+        dilepErr2 += .025**2
+        dibosonErr2 += .032**2
+        ZgammaErr2 += .231**2
+
+    ############################################
+
+
     for histName in histNames:
 
-        wino = DataManager.winoFile.Get(histName)
+        winoStrong0 = DataManager.winoStrong0File.Get(histName)
+        winoWeak0 = DataManager.winoWeak0File.Get(histName)
+        winoStrong1 = DataManager.winoStrong1File.Get(histName)
+        winoWeak1 = DataManager.winoWeak1File.Get(histName)
         
         Wlepnu_Np0 = DataManager.WlepnuFile_Np0.Get(histName)
         Wlepnu_Np1 = DataManager.WlepnuFile_Np1.Get(histName)
@@ -131,8 +204,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         #gj.Add(data, -1.0);
         data.Sumw2()
 
+
         ############################################
 
+        winoStrong = winoStrong0.Clone()
+        winoStrong.Add(winoStrong1)
+
+        winoWeak = winoWeak0.Clone()
+        winoWeak.Add(winoWeak1)
 
         Wlepnu = Wlepnu_Np0.Clone()
         Wlepnu.Add(Wlepnu_Np1)
@@ -150,6 +229,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
 
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
+
+        addUnc(Wjets, WjetsErr2)
  
         if USE_WGAMMA_SHERPA:
             Wgamma = Wgamma_lepnu.Clone()
@@ -161,6 +242,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
             Wgamma.Add(Wgamma_Np3)
             Wgamma.Add(Wgamma_Np4)
             Wgamma.Add(Wgamma_Np5)
+
+        addUnc(Wgamma, WgammaErr2)
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)
@@ -179,19 +262,25 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         Zjets = Zleplep.Clone()
         Zjets.Add(Ztautau)
 
+        addUnc(Zjets, ZjetsErr2)
+
         Zgamma = Zleplepgamma.Clone()
         Zgamma.Add(Ztautaugamma)
+
+        addUnc(Zgamma, ZgammaErr2)
 
         diboson = WW.Clone()
         diboson.Add(WZ)
         diboson.Add(ZZ_llll)
         diboson.Add(ZZ_llnunu)
 
-        gamma = gamma_Np1.Clone()
-        gamma.Add(gamma_Np2)
-        gamma.Add(gamma_Np3)
-        gamma.Add(gamma_Np4)
-        gamma.Add(gamma_Np5)
+        addUnc(diboson, dibosonErr2)
+
+        # gamma = gamma_Np1.Clone()
+        # gamma.Add(gamma_Np2)
+        # gamma.Add(gamma_Np3)
+        # gamma.Add(gamma_Np4)
+        # gamma.Add(gamma_Np5)
 
 
         st = st_tchan_lepnu.Clone()
@@ -200,12 +289,21 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         #st.Add(st_schan_taunu)
         st.Add(st_Wt)
 
+        addUnc(st, stErr2)
+
         hn = ttbargamma.GetName()
         c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
         if logy:
             c_paper.SetLogy()
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbargamma.GetXaxis().GetTitle()+";Events")
+
+        addUnc(ttbargamma, ttbargammaErr2)
+        addUnc(ttbar, dilepErr2)
+        addUnc(gj, qcdErr2)
+
+        if lepton == ELECTRON:
+            addUnc(diphotons, diphotonErr2)
 
         bg.SetMinimum(5e-2)
         #bg.SetMaximum(25)
@@ -261,14 +359,24 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         else:
             bg.Draw("HIST")
         
+        suHist = bg.GetStack().Last().Clone()
+        suHist.SetMarkerSize(0)
+        suHist.SetFillColor(1)
+        suHist.SetFillStyle(3245)
+        suHist.Draw("E2 same");
+
         #wino.Rebin(nRebin)
         #wino.Scale(0.5)
         #wino.Scale(10)
 
         
-        wino.SetFillStyle(0)
-        wino.SetLineColor(12)
-        wino.SetLineWidth(3)
+        winoStrong.SetFillStyle(0)
+        winoStrong.SetLineColor(12)
+        winoStrong.SetLineWidth(3)
+
+        winoWeak.SetFillStyle(0)
+        winoWeak.SetLineColor(35)
+        winoWeak.SetLineWidth(3)
 
         #data.Rebin(nRebin)
         data.Draw("same")
@@ -287,13 +395,13 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         # wino_1500_300.SetFillStyle(0)
         # wino_1500_300.SetLineColor(43)
         # wino_1500_300.SetLineWidth(3)
-        # wino.Draw("hist same");
-        # #wino_700_680.Draw("hist same");
+        winoWeak.Draw("hist same");
+        winoStrong.Draw("hist same");
         # #wino_1000_200.Draw("hist same");
         # wino_1500_300.Draw("hist same");
 
         if drawLegend:
-            legb = ROOT.TLegend(0.65,0.55,0.93,0.92)
+            legb = ROOT.TLegend(0.60,0.50,0.93,0.92)
             legb.SetFillColor(0)
             legb.SetBorderSize(0)
             legb.SetTextSize(0.045)
@@ -309,8 +417,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
             legb.AddEntry(ttbar,"ttbar","f")
             legb.AddEntry(ttbargamma,"ttbar#gamma","f")
             legb.AddEntry(st,"singe top","f")
-            #legb.AddEntry(wino,"wino (600, 200)", "l");
-            #legb.AddEntry(wino_700_680,"wino (600, 500)","l");
+            legb.AddEntry(winoWeak,"wino (1500, 200)", "l");
+            legb.AddEntry(winoStrong,"wino (600, 500)","l");
             #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
             #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
 
@@ -318,27 +426,33 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
 
         if logy:
             if drawLegend:
-                if wino.GetDimension() == 1:
+                if winoWeak.GetDimension() == 1:
                     c_paper.Print(hn+"LogLegPlot.eps")
                     if allFormats: c_paper.Print(hn+"LogLegPlot.png")
                 if allFormats: c_paper.Print(hn+"LogLegPlot.root")
             else:
-                if wino.GetDimension() == 1:
+                if winoWeak.GetDimension() == 1:
                     c_paper.Print(hn+"LogPlot.eps")
                     if allFormats: c_paper.Print(hn+"LogPlot.png")
                 if allFormats: c_paper.Print(hn+"LogPlot.root")
         else:
             if drawLegend:
-                if wino.GetDimension() == 1:
+                if winoWeak.GetDimension() == 1:
                     c_paper.Print(hn+"LegPlot.eps")
                     if allFormats: c_paper.Print(hn+"LegPlot.png")
                 if allFormats: c_paper.Print(hn+"LegPlot.root")
             else:
-                if wino.GetDimension() == 1:
+                if winoWeak.GetDimension() == 1:
                     c_paper.Print(hn+"Plot.eps")
                     if allFormats: c_paper.Print(hn+"Plot.png")
                 if allFormats: c_paper.Print(hn+"Plot.root")
 
+
+def addUnc(hist, unc2):
+    for te in range(hist.GetNbinsX()):
+        i = te+1
+        realUnc = math.hypot(hist.GetBinError(i), hist.GetBinContent(i)*math.sqrt(unc2))
+        hist.SetBinError(i, realUnc)
     
 if __name__ == "__main__":
     try:

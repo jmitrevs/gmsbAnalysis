@@ -39,9 +39,9 @@ def GetHistNames(inFile):
 
     return histNames
 
-def makeOutputName(infileName):
+def makeOutputName(infileName, extra = ""):
     inFileNoPath = os.path.split(infileName)[1]
-    outfile = os.path.splitext(inFileNoPath)[0] + "Hist.root"
+    outfile = os.path.splitext(inFileNoPath)[0] + extra + "Hist.root"
     return outfile
 
 def RunAnalysis(lepton):
@@ -241,7 +241,7 @@ def RunAnalysis(lepton):
 
     print "gj:"
     LepPhotonAnalysis.LepPhotonAnalysis(DataManager.gjFile.Get(ttreeName), 
-                                        makeOutputName(DataManager.gjFileName),
+                                        makeOutputName(DataManager.gjFileName, "_meas"),
                                         lepton,
                                         1.0,
                                         measureFakeAndEff=True,

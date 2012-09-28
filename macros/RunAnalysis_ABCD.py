@@ -21,10 +21,10 @@ MUON = 1
 DEFAULTLEPTON = ELECTRON
 DEFAULTABCD = LepPhotonAnalysis.NoABCD
 
-DOALTABCD = True
+DOALTABCD = False
 
-REWEIGHW = True
-REWEIGHZ = True
+REWEIGHW = False
+REWEIGHZ = False
 
 # note: negative values mean don't make any cut
 ONLY_ORIGIN = -1
@@ -566,6 +566,8 @@ if __name__ == "__main__":
                 abcd = LepPhotonAnalysis.LL
             elif a == "lT":
                 abcd = LepPhotonAnalysis.lT
+            elif a == "Tl":
+                abcd = LepPhotonAnalysis.Tl
             else:
                 print "*** abcd unknown ****"
                 sys.exit(1)

@@ -165,6 +165,23 @@ totalMMXR2 = totalMM.Get("nXR2")
 if lepton == ELECTRON:
     diphotonsXR2 = diphotons.Get("nXR2")
 
+WjetsPRESEL = Wjets.Get("nPRESEL")
+WgammaPRESEL = Wgamma.Get("nPRESEL")
+ttbarDilepPRESEL = ttbarDilep.Get("nPRESEL")
+ttbarLepjetsPRESEL = ttbarLepjets.Get("nPRESEL")
+ttbargammaPRESEL = ttbargamma.Get("nPRESEL")
+stPRESEL = st.Get("nPRESEL")
+dibosonPRESEL = diboson.Get("nPRESEL")
+ZjetsPRESEL = Zjets.Get("nPRESEL")
+ZgammaPRESEL = Zgamma.Get("nPRESEL")
+gammaJetsPRESEL = gammaJets.Get("nPRESEL")
+totalPRESEL = total.Get("nPRESEL")
+dataPRESEL = data.Get("nPRESEL")
+gjPRESEL = gj.Get("nPRESEL")
+totalMMPRESEL = totalMM.Get("nPRESEL")
+if lepton == ELECTRON:
+    diphotonsPRESEL = diphotons.Get("nPRESEL")
+
 print "*****************************"
 print "****         SR        ******"
 print "*****************************"
@@ -291,6 +308,27 @@ if not compat:
     print "gamma+jet (from data) =", gjXR2.GetBinContent(1),"+-", gjXR2.GetBinError(1)
     print "total (from MM) =", totalMMXR2.GetBinContent(1),"+-", totalMMXR2.GetBinError(1)
     print "data =", dataXR2.GetBinContent(1),"+-",dataXR2.GetBinError(1)
+
+print "*****************************"
+print "****       PRESEL      ******"
+print "*****************************"
+print "Wjets =", WjetsPRESEL.GetBinContent(1),"+-", WjetsPRESEL.GetBinError(1)
+print "Wgamma =", WgammaPRESEL.GetBinContent(1),"+-", WgammaPRESEL.GetBinError(1)
+print "ttbarDilep =", ttbarDilepPRESEL.GetBinContent(1),"+-", ttbarDilepPRESEL.GetBinError(1)
+print "ttbarLepjets =", ttbarLepjetsPRESEL.GetBinContent(1),"+-", ttbarLepjetsPRESEL.GetBinError(1)
+print "ttbargamma =", ttbargammaPRESEL.GetBinContent(1),"+-", ttbargammaPRESEL.GetBinError(1)
+print "singletop =", stPRESEL.GetBinContent(1),"+-", stPRESEL.GetBinError(1)
+print "diboson =", dibosonPRESEL.GetBinContent(1),"+-", dibosonPRESEL.GetBinError(1)
+print "Zjets =", ZjetsPRESEL.GetBinContent(1),"+-", ZjetsPRESEL.GetBinError(1)
+print "Zgamma =", ZgammaPRESEL.GetBinContent(1),"+-", ZgammaPRESEL.GetBinError(1)
+if not compat and lepton == ELECTRON:
+    print "diphotons =", diphotonsPRESEL.GetBinContent(1),"+-", diphotonsPRESEL.GetBinError(1)
+print "gamma+jet =", gammaJetsPRESEL.GetBinContent(1),"+-", gammaJetsPRESEL.GetBinError(1)
+print "total =", totalPRESEL.GetBinContent(1),"+-", totalPRESEL.GetBinError(1)
+if not compat:
+    print "gamma+jet (from data) =", gjPRESEL.GetBinContent(1),"+-", gjPRESEL.GetBinError(1)
+    print "total (from MM) =", totalMMPRESEL.GetBinContent(1),"+-", totalMMPRESEL.GetBinError(1)
+    print "data =", dataPRESEL.GetBinContent(1),"+-",dataPRESEL.GetBinError(1)
 
 
 # This prints the latex yield table

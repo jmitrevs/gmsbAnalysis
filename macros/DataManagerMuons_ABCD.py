@@ -382,9 +382,9 @@ if PRINT_YIELDS:
 wino_scale = Lumi * 1.566 * 0.23765 / nOrigwino
 #wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 
-WjetExtraScale = 0.111
-ttbarLepjetExtraScale = 0.111
-ZmumujetExtraScale = 0.111
+WjetExtraScale = 0.15
+ttbarLepjetExtraScale = 0.15
+ZmumujetExtraScale = 0.15
 
 if USE_LOOSE_WJETS:
     WjetExtraScale *= 0.48201 # from tight/loose in high WCR - 10% unc.

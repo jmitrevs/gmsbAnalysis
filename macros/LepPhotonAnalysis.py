@@ -59,6 +59,7 @@ LT = 2
 TL = 3
 TT = 4
 lT = 5  #loose, not necessarily anti-tight, and isolated
+Tl = 6
 
 # TTType (note all should be LEPJETS or DILEP):
 ALL = 0
@@ -295,6 +296,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     h_ph_eta2 = ROOT.TH1F("ph_eta2","Psuedorapidity of the second photons;#eta_{reco};Events", nBinsEta, -3, 3)
     h_ph_pt2 = ROOT.TH1F("ph_pt2","Transverse momentum of the second photons;p_{T} [GeV];Events", nBinsPt, 50, 300)
 
+    h_ph_iso = ROOT.TH1F("ph_iso","The isolation energy of photons;Iso [GeV];Events", 25, -5.0, 20.0)
+
     # h_ph_ptB_unconv = ROOT.TH1F("ph_ptB_unconv","Transverse momentum of the unconverted Barrel photons;p_{T} [GeV];Events", 500, 0, 500)
     # h_ph_ptEC_unconv = ROOT.TH1F("ph_ptEC_unconv","Transverse momentum of the unconverted EC photons;p_{T} [GeV];Events", 500, 0, 500)
 
@@ -354,7 +357,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     # h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
 
-    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events", 100, 0, 500)
+    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, 0, 500)
     h_metShort = ROOT.TH1F("metShort", "The MET distribution;E_{T}^{miss} [GeV];Events", 20, 0, 100)
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
@@ -378,8 +381,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 250)
     h_mTelShort = ROOT.TH1F("mTelShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
     h_mTmuShort = ROOT.TH1F("mTmuShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
-    h_mTelExtended = ROOT.TH1F("mTelExtended", "The m_{T} distribution;m_{T} [GeV];Events", 100, 0, 500)
-    h_mTmuExtended = ROOT.TH1F("mTmuExtended", "The m_{T} distribution;m_{T} [GeV];Events", 100, 0, 500)
+    h_mTelExtended = ROOT.TH1F("mTelExtended", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 500)
+    h_mTmuExtended = ROOT.TH1F("mTmuExtended", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 500)
     h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV];Events", nBinsHT, 0, 1500)
 
     h_mTelvsMET = ROOT.TH2F("mTelvsMET", "m_{T} vs. MET;E_{T}^{miss} [GeV];m_{T} [GeV]",
@@ -389,6 +392,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     h_eventType = ROOT.TH1F("eventType", "The event type, based on truth;event type;Events", 
 					 numEventTypes, 0, numEventTypes);
+
+    # These are reco values
+    h_Wpt = ROOT.TH1F("Wpt","Transverse momentum of the leading electron + E_{T}^{miss};p_{T} [GeV];Events", nBinsPt, 0, 350)
+    h_WptAlt = ROOT.TH1F("WptAlt","Transverse momentum of the leading electron + photon + E_{T}^{miss};p_{T} [GeV];Events", nBinsPt, 0, 350)
 
     ######## go back to root
     f.cd()
@@ -457,7 +464,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
 
         met = math.hypot(metx, mety)
-            
+
+        met4vec = ROOT.TLorentzVector(metx,mety,0,0)
+
         #print "MET =", met, "lepton =", lepton, "ev.PhotonPt[0] = ", ev.PhotonPt[0]
         #print "weight =", ev.Weight * glWeight
 
@@ -495,7 +504,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 weight *= (ev.MuonTrigWeight + ev.MuonTrigWeightUnc)
 
         if reweighAlpgen:
-            if ev.Wpt < -990.0:
+            if ev.Wpt < -9999999.0:
                 print >> sys.stderr, "Have an invalid Wpt"
             elif ev.Wpt < 10*GeV:
                 weight *= 0.90
@@ -555,12 +564,18 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             foundLT = False
             foundTT = False
             foundlT = False
+            foundTl = False
             indexLL = -1
             indexTL = -1
             indexLT = -1
             indexTT = -1
             indexlT = -1
+            indexTl = -1
             for i in range(ev.numPh):
+                if ev.PhotonTight[i]:
+                    foundTl = True
+                    if indexTl < 0:
+                        indexTl = i
                 if not doAltABCD:
                     if ev.PhotonAlt[i]:
                         foundlT = True
@@ -667,6 +682,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 else:
                     photonIndex = indexlT
 
+            if doABCD == Tl:
+                if not foundTl:
+                    continue
+                else:
+                    photonIndex = indexTl
+
         if debug: print "  passed ABCD, photonIndex =", photonIndex
 
         if onlyOrigin >= 0:
@@ -679,6 +700,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         if lepton == ELECTRON:
             electron = ROOT.TLorentzVector()
             electron.SetPtEtaPhiM(ev.ElectronPt[lepIndex], ev.ElectronEta[lepIndex], ev.ElectronPhi[lepIndex], 0.0)
+
+
+        iso = -999.0
+        try:
+            iso = ev.PhotonEtcone20[photonIndex]
+        except AttributeError:
+            pass
+
+
 
         if plotsRegion != NO_SEL:
 
@@ -759,7 +789,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 mt = mT(ev.ElectronPt[lepIndex], ev.ElectronPhi[lepIndex], metx, mety)
             else:
                 mt = mT(ev.MuonPt[lepIndex], ev.MuonPhi[lepIndex], metx, mety)
-                 
+
+
+        #these are reco values
+        if lepton == ELECTRON:
+            W = met4vec + electron
+        else:
+            W = met4vec + muon
+        Walt = W+photon
+
 
         # now plots that should be made before MET and mT cuts
         h_mTelvsMET.Fill(met/GeV, mt/GeV, weight)
@@ -856,14 +894,11 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     h_mTmu.Fill(mt/GeV, weight)
                     h_mTelShort.Fill(mt/GeV, weight)
                     h_mTmuShort.Fill(mt/GeV, weight)
-                    h_mTelExtended.Fill(mt/GeV, weight)
-                    h_mTmuExtended.Fill(mt/GeV, weight)
                     
                 if ((lepton == ELECTRON and mt > EL_MT) or
                     (lepton == MUON and mt > MU_MT)):
                     h_met.Fill(met/GeV, weight)
                     h_metShort.Fill(met/GeV, weight)
-                    h_metExtended.Fill(met/GeV, weight)
                 
         if (plotsRegion == NO_SEL or plotsRegion == PRESEL or
             plotsRegion == SR and inSR and not blind or
@@ -881,11 +916,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 h_mTmu.Fill(mt/GeV, weight)
                 h_mTelShort.Fill(mt/GeV, weight)
                 h_mTmuShort.Fill(mt/GeV, weight)
-                h_mTelExtended.Fill(mt/GeV, weight)
-                h_mTmuExtended.Fill(mt/GeV, weight)
                 h_met.Fill(met/GeV, weight)
                 h_metShort.Fill(met/GeV, weight)
-                h_metExtended.Fill(met/GeV, weight)
+
+            h_mTelExtended.Fill(mt/GeV, weight)
+            h_mTmuExtended.Fill(mt/GeV, weight)
+            h_metExtended.Fill(met/GeV, weight)
 
             h_ph_el_minv.Fill(ev.PhElMinv/GeV, weight)
             h_ph_mu_minv.Fill(ev.PhMuMinv/GeV, weight)
@@ -943,6 +979,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             h_ph_numSiEl.Fill(ev.PhotonNumSiEl[photonIndex], weight)
             h_ph_numPixEl.Fill(ev.PhotonNumPixEl[photonIndex], weight)
             h_ph_numBEl.Fill(ev.PhotonNumBEl[photonIndex], weight)
+            h_ph_iso.Fill(iso/GeV, weight)
+            h_Wpt.Fill(W.Pt()/GeV, weight)
+            h_WptAlt.Fill(Walt.Pt()/GeV, weight)
 
             if doTruth:
                 h_ph_truth.Fill(ev.PhotonTruth[photonIndex], weight)
@@ -1057,8 +1096,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     # print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
     # print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
-    return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
-    #return (nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1))
+    #return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
+    return (nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1))
 
 # This function calls the LepPhotonAnalysis function 
 def main():

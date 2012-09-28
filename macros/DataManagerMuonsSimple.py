@@ -13,10 +13,13 @@ PRINT_YIELDS = True
 Lumi = 4708.61 # really electron only
 
 print "Lepton is MUON."
-#path = ""
-path = "input/back/Mu/"
+path = ""
+#path = "input/back/Mu/"
 
-winoFileName = path + "wino_600_200_muHist.root"
+winoWeak0FileName = path + "wino_1500_200_0_Hist.root"
+winoWeak1FileName = path + "wino_1500_200_1_Hist.root"
+winoStrong0FileName = path + "wino_600_500_0_Hist.root"
+winoStrong1FileName = path + "wino_600_500_1_Hist.root"
 
 WlepnuFileName_Np0 = path + "Wmunu_Np0Hist.root"
 WlepnuFileName_Np1 = path + "Wmunu_Np1Hist.root"
@@ -90,7 +93,10 @@ gjFileName = path + "gjHist.root"
 ###########################################
 
     
-winoFile = ROOT.TFile(winoFileName)
+winoWeak0File = ROOT.TFile(winoWeak0FileName)
+winoStrong0File = ROOT.TFile(winoStrong0FileName)
+winoWeak1File = ROOT.TFile(winoWeak1FileName)
+winoStrong1File = ROOT.TFile(winoStrong1FileName)
 
 WlepnuFile_Np0 = ROOT.TFile(WlepnuFileName_Np0)
 WlepnuFile_Np1 = ROOT.TFile(WlepnuFileName_Np1)

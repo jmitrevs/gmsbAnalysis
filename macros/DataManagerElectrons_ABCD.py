@@ -395,8 +395,8 @@ wino_scale = Lumi * 1.1548 * 0.23765 / nOrigwino # LO
 #WjetExtraScale = 0.346 * 0.4812 # from fit * tight/loose
 #ttbarLepjetExtraScale = 0.346
 
-WjetExtraScale = 0.111# * 0.4812 # from fit * tight/loose
-ttbarLepjetExtraScale = 0.111
+WjetExtraScale = 0.25# * 0.4812 # from fit * tight/loose
+ttbarLepjetExtraScale = 0.25
 
 Wlepnu_Np0_scale     =  Lumi  *  6921.60 * 1.20 * WjetExtraScale / nOrigWlepnu_Np0
 Wlepnu_Np1_scale     =  Lumi  *  1304.30 * 1.20 * WjetExtraScale / nOrigWlepnu_Np1
