@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import division
+
 # code to make all the plots in a file
 import sys
 import getopt
@@ -36,7 +38,7 @@ def GetHistNames(inFile):
 
 
 
-def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
+def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSignal):
 
 
     if lepton == ELECTRON:
@@ -82,8 +84,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
     ZjetsErr2 = stdErr2
     qcdErr2 = stdErr2
 
-    WgammaErr2 += .27**2
-    ttbargammaErr2 += .27**2
+    WgammaErr2 += .30**2
+    ttbargammaErr2 += .40**2
     ZjetsErr2 += .05**2
     ZgammaErr2 += .15**2
     stErr2 += .08**2
@@ -116,7 +118,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         dibosonErr2 += .04**2
         ZgammaErr2 += .1**2
 
-        WgammaErr2 += .024**2
+        WgammaErr2 += .027**2
         ttbargammaErr2 += .031**2
         dilepErr2 += .025**2
         dibosonErr2 += .032**2
@@ -203,12 +205,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         gj = DataManager.gjFile.Get(histName)
         #gj.Add(data, -1.0);
         data.Sumw2()
-
+        ratioHist = data.Clone()
 
         ############################################
 
         winoStrong = winoStrong0.Clone()
         winoStrong.Add(winoStrong1)
+
+        print "here1"
 
         winoWeak = winoWeak0.Clone()
         winoWeak.Add(winoWeak1)
@@ -227,11 +231,15 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         Wtaunu.Add(Wtaunu_Np4)
         Wtaunu.Add(Wtaunu_Np5)
 
+        print "here1b"
+
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
 
         addUnc(Wjets, WjetsErr2)
  
+        print "here1c"
+
         if USE_WGAMMA_SHERPA:
             Wgamma = Wgamma_lepnu.Clone()
             Wgamma.Add(Wgamma_taunu)
@@ -244,6 +252,10 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
             Wgamma.Add(Wgamma_Np5)
 
         addUnc(Wgamma, WgammaErr2)
+
+        print "here1d"
+
+        print "here2"
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)
@@ -289,14 +301,28 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         #st.Add(st_schan_taunu)
         st.Add(st_Wt)
 
+        print "here3"
+
         addUnc(st, stErr2)
 
         hn = ttbargamma.GetName()
-        c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
-        if logy:
-            c_paper.SetLogy()
+        if addRatio:
+            c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,610,500,600)
+            p_ratio = ROOT.TPad(hn +"_ratio", hn +"_ratio", 0,0,1,.35)
+            p_ratio.Draw()
+            p_plot = ROOT.TPad(hn +"_plot", hn +"_plot", 0,.35,1,1)
+            p_plot.Draw()
+            if logy:
+                p_plot.SetLogy()
+            p_plot.cd()
+        else:
+            c_paper = ROOT.TCanvas(hn +"_canvas", hn+"_canvas",700,410,500,400)
+            if logy:
+                c_paper.SetLogy()
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbargamma.GetXaxis().GetTitle()+";Events")
+
+        print "here4"
 
         addUnc(ttbargamma, ttbargammaErr2)
         addUnc(ttbar, dilepErr2)
@@ -316,6 +342,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         ttbar.SetFillStyle(1001)
         ttbargamma.SetFillStyle(1001)
         st.SetFillStyle(1001)
+
+        print "here5"
 
         gj.SetFillColor(28) # brown
         gj.SetLineColor(28)
@@ -350,6 +378,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         bg.Add(ttbar)
         bg.Add(ttbargamma)
         bg.Add(st)
+
+        #if winoWeak.GetDimension() == 1 and addRatio:
 
         if data.Integral() != 0:
             if not logy:
@@ -395,8 +425,9 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
         # wino_1500_300.SetFillStyle(0)
         # wino_1500_300.SetLineColor(43)
         # wino_1500_300.SetLineWidth(3)
-        winoWeak.Draw("hist same");
-        winoStrong.Draw("hist same");
+        if addSignal:
+            winoWeak.Draw("hist same");
+            winoStrong.Draw("hist same");
         # #wino_1000_200.Draw("hist same");
         # wino_1500_300.Draw("hist same");
 
@@ -417,12 +448,47 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats):
             legb.AddEntry(ttbar,"ttbar","f")
             legb.AddEntry(ttbargamma,"ttbar#gamma","f")
             legb.AddEntry(st,"singe top","f")
-            legb.AddEntry(winoWeak,"wino (1500, 200)", "l");
-            legb.AddEntry(winoStrong,"wino (600, 500)","l");
+            if addSignal:
+                legb.AddEntry(winoWeak,"wino (1500, 200)", "l");
+                legb.AddEntry(winoStrong,"wino (600, 500)","l");
             #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
             #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
 
             legb.Draw()
+
+        if winoWeak.GetDimension() == 1 and addRatio:
+            p_ratio.cd()
+            print "Margin =",p_ratio.GetBottomMargin()
+            p_ratio.SetBottomMargin(0.3)
+            ratioHist.GetYaxis().SetTitle("Ratio")
+            ratioHist.GetYaxis().SetLabelSize(0.08)
+            ratioHist.GetXaxis().SetLabelSize(0.08)
+            print "GetTitleXSize", ratioHist.GetXaxis().GetTitleSize()
+            print "GetTitleYSize", ratioHist.GetYaxis().GetTitleSize()
+            print "GetTitleXOffset", ratioHist.GetXaxis().GetTitleOffset()
+            print "GetTitleYOffset", ratioHist.GetYaxis().GetTitleOffset()
+            ratioHist.GetYaxis().SetTitleSize(0.09)
+            ratioHist.GetXaxis().SetTitleSize(0.09)
+            ratioHist.GetYaxis().SetTitleOffset(0.8)
+            ratioHist.GetXaxis().SetTitleOffset(1.2)
+            ratioErrorHist = suHist.Clone()
+            ratioHist.Divide(ratioHist, ratioErrorHist, 1, 1, "B")
+            for i in range(ratioErrorHist.GetNbinsX() + 1):
+                cont = ratioErrorHist.GetBinContent(i)
+                err = ratioErrorHist.GetBinError(i)
+                if cont != 0:
+                    ratioErrorHist.SetBinError(i,err/cont)
+                else:
+                    ratioErrorHist.SetBinError(i,0)
+                ratioErrorHist.SetBinContent(i,1)
+            ratioHist.SetMinimum(-1)
+            ratioHist.SetMaximum(5)
+            ratioHist.Draw()
+            line = ROOT.TF1("line", "1", -1e10, 1e10)
+            line.SetLineWidth(1)
+            line.Draw("same")
+            ratioErrorHist.Draw("E2 same")
+            ratioHist.Draw("same")
 
         if logy:
             if drawLegend:
@@ -457,7 +523,7 @@ def addUnc(hist, unc2):
 if __name__ == "__main__":
     try:
         # retrive command line options
-        shortopts  = "emga"
+        shortopts  = "emgars"
         longopts   = ["lepton=", "log"]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
     except getopt.GetoptError:
@@ -469,12 +535,18 @@ if __name__ == "__main__":
     legend = False
     logy = False
     formats = False
+    addRatio = False
+    addSignal = False
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
             sys.exit(0)
         elif o in ("-a"):
             formats = True
+        elif o in ("-r"):
+            addRatio = True
+        elif o in ("-s"):
+            addSignal = True
         elif o in ("-m"):
             lepton = MUON
         elif o in ("-e"):
@@ -492,4 +564,4 @@ if __name__ == "__main__":
                 print "*** Lepton must be 'electron' or 'muon ****"
                 sys.exit(1)
     
-    SimpleLepPhotonPlots(lepton, legend, logy, formats)
+    SimpleLepPhotonPlots(lepton, legend, logy, formats, addRatio, addSignal)

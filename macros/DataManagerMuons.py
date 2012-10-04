@@ -574,7 +574,8 @@ Wgamma_Np4_scale     =  Lumi  *  0.27846 * Wgamma_kFact   / nOrigWgamma_Np4
 Wgamma_Np5_scale     =  Lumi  *  0.08504 * Wgamma_kFact   / nOrigWgamma_Np5
 
 # Sherpa Wgamma pt > 80 GeV, 0.1 deltaR
-Wgamma_sherpa_kFact  = 0.982
+#Wgamma_sherpa_kFact  = 0.982  # from rescaled
+Wgamma_sherpa_kFact  = 1.003  # from unrescaled
 Wgamma_lepnu_sherpa_scale  = Lumi * 5.5701E-01 * Wgamma_sherpa_kFact / nOrigWgamma_lepnu_sherpa
 Wgamma_taunu_sherpa_scale  = Lumi * 5.6035E-01 * Wgamma_sherpa_kFact / nOrigWgamma_taunu_sherpa
 

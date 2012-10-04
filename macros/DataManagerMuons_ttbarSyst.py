@@ -12,8 +12,8 @@ PRINT_YIELDS = True
 
 Lumi = 4812.34 # really electron only
 
-print "Lepton is ELECTRON."
-path = "/data3/jmitrevs/lepphoton/muphoton_ttbarSyst/mergedFiles/"
+print "Lepton is Muon."
+path = "/data3/jmitrevs/lepphoton/muphoton_ttbarSyst2/mergedFiles/"
 
 ttbarFileName = path + "ttbar.root"
 ttbar_ph_jmFileName = path + "ttbar_powheg_jimmy.root"
