@@ -251,6 +251,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     f = ROOT.TFile(outfile, 'RECREATE')
 
 
+    mtBinMin = 0
+    metBinMin = 0
+    mtBinMax = 250
+    metBinMax = 250
+    mtBinExtMax = 500
+    metBinExtMax = 500
+
     nBinsEta = 30
     nBinsPt = 50
     nBinsHT = 75
@@ -350,14 +357,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     ######## MET
     mdir.cd()
-    h_met = ROOT.TH1F("met", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, 0, 250)
+    h_met = ROOT.TH1F("met", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, metBinMin, metBinMax)
     # h_met0J = ROOT.TH1F("met0J", "The MET distribution of events with zero jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met1J = ROOT.TH1F("met1J", "The MET distribution of events with one jet;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met2J = ROOT.TH1F("met2J", "The MET distribution of events with two jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
 
-    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, 0, 500)
+    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, metBinMin, metBinExtMax)
     h_metShort = ROOT.TH1F("metShort", "The MET distribution;E_{T}^{miss} [GeV];Events", 20, 0, 100)
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
@@ -377,7 +384,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     ############ gldir
     gldir.cd()
     h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV];Events", nBinsHT, 0, 1500)
-    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 250)
+    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, mtBinMin, 250)
     h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 250)
     h_mTelShort = ROOT.TH1F("mTelShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
     h_mTmuShort = ROOT.TH1F("mTmuShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
@@ -909,7 +916,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
             # Accepted avent
             if printAccepted:
-                print "Accepted event with Run =", ev.Run, ", Event =", ev.Event
+                print "Accepted event with Run =", ev.Run, "Event =", ev.Event, "met =", met, "mT =", mt, "meff =", ev.meff
 
             if plotsRegion != SR:  # think this is a bug, if statement not needed
                 h_mTel.Fill(mt/GeV, weight)
@@ -1096,8 +1103,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     # print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
     # print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
-    #return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
-    return (nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1))
+    return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
+    #return (nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1))
 
 # This function calls the LepPhotonAnalysis function 
 def main():

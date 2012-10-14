@@ -18,10 +18,10 @@ for lepton in ("electron", "muon"):
             os.system("./mergeOutput_mu.sh")
         os.system("./RunAnalysis_grid.py -l " + lepton + " -p " + i + " > /dev/null")
 
-        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -r > /dev/null")
-        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -r -g > /dev/null")
-        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -r --log > /dev/null")
-        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -r -g --log > /dev/null")
+        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -s -r > /dev/null")
+        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -s -r -g > /dev/null")
+        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -s -r --log > /dev/null")
+        os.system("./SimpleLepPhotonPlots.py --lepton=" + lepton + " -s -r -g --log > /dev/null")
         os.system("mv *Plot.eps " + path)
 
 

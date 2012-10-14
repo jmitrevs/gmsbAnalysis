@@ -16,10 +16,10 @@ from signalXsecs import signalXsecs
 
 Blind = False
 
-SIGMA = 0
-DEFAULTNAME = "LepPhoton.root"
+SIGMA = -1
+#DEFAULTNAME = "LepPhoton.root"
 #DEFAULTNAME = "LepPhoton_AllUncertsXsecPlus1Sigma.root"
-#DEFAULTNAME = "LepPhoton_AllUncertsXsecMinus1Sigma.root"
+DEFAULTNAME = "LepPhoton_AllUncertsXsecMinus1Sigma.root"
 
 def MakeMonsterFile(outfile=DEFAULTNAME):
 
