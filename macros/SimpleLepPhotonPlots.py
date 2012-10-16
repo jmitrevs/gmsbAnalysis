@@ -458,22 +458,25 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
 
         if drawLegend:
-            ATLASLabel(0.62,0.45,"Internal");
+            ATLASLabel(0.62,0.46,"Internal");
 
             l = ROOT.TLatex()
             l.SetNDC()
             l.SetTextColor(1);
             l.SetTextFont(42);
+            l.SetTextSize(0.038)
             if lepton == ELECTRON:
-                l.DrawLatex(0.62,0.35,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.62,0.39,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.62,0.32,"#sqrt{s}=7 TeV,  e channel");
+
             else:
-                l.DrawLatex(0.62,0.35,"#int Ldt = 4.7 fb^{-1}");
-            l.DrawLatex(0.62,0.25,"#sqrt{s}=7 TeV");
+                l.DrawLatex(0.62,0.39,"#int Ldt = 4.7 fb^{-1}");
+                l.DrawLatex(0.62,0.32,"#sqrt{s}=7 TeV,  #mu channel");
 
             legb = ROOT.TLegend(0.62,0.50,0.93,0.92)
             legb.SetFillColor(0)
             legb.SetBorderSize(0)
-            legb.SetTextSize(0.04)
+            legb.SetTextSize(0.038)
             legb.AddEntry(data,"data","l")
             
             if lepton == ELECTRON and combineTypes:
@@ -506,6 +509,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
             l.SetNDC()
             l.SetTextColor(1);
             l.SetTextFont(42);
+            l.SetTextSize(0.038)
             if lepton == ELECTRON:
                 l.DrawLatex(0.62,0.80,"#int Ldt = 4.8 fb^{-1}");
             else:
@@ -517,7 +521,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
             p_ratio.cd()
             print "Margin =",p_ratio.GetBottomMargin()
             p_ratio.SetBottomMargin(0.3)
-            ratioHist.GetYaxis().SetTitle("Ratio")
+            ratioHist.GetYaxis().SetTitle("Data/MC")
             ratioHist.GetYaxis().SetLabelSize(0.08)
             ratioHist.GetXaxis().SetLabelSize(0.08)
             print "GetTitleXSize", ratioHist.GetXaxis().GetTitleSize()
@@ -581,13 +585,14 @@ def ATLASLabel(x,y,text = "", color=1):
     l = ROOT.TLatex()
     l.SetNDC()
     l.SetTextFont(72)
+    l.SetTextSize(0.038)
     l.SetTextColor(color)
 
 
     #delx = 0.115*696*ROOT.gPad.GetWh()/(472*ROOT.gPad.GetWw())
     #print ROOT.gPad.GetWh(),ROOT.gPad.GetWw(),delx
     
-    delx = 0.13
+    delx = 0.1
                                     
     l.DrawLatex(x,y,"ATLAS")
 
@@ -595,6 +600,7 @@ def ATLASLabel(x,y,text = "", color=1):
         p = ROOT.TLatex()
         p.SetNDC()
         p.SetTextFont(42)
+        p.SetTextSize(0.038)
         p.SetTextColor(color)
         p.DrawLatex(x+delx,y,text)
         
