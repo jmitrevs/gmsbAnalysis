@@ -12,6 +12,8 @@ ROOT.gROOT.SetBatch()
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
+import histUtils
+
 ELECTRON = 0
 MUON = 1
 
@@ -399,18 +401,21 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
         # let's try to find the range
         dataMaxBin = data.GetMaximumBin()
-        maxData = data.GetBinContent(dataMaxBin) + 1.25 * data.GetBinError(dataMaxBin)
+        maxData = data.GetBinContent(dataMaxBin) + 1.4 * data.GetBinError(dataMaxBin)
         suMaxBin = suHist.GetMaximumBin()
-        maxSu = suHist.GetBinContent(suMaxBin) + 1.25 * suHist.GetBinError(suMaxBin)
+        maxSu = suHist.GetBinContent(suMaxBin) + 1.4 * suHist.GetBinError(suMaxBin)
 
         maxVal = max(maxData, maxSu)
+
+        dataGraph = histUtils.MakePoissonConfidenceLevelErrors(data)
 
         if data.Integral() != 0:
             if not logy:
                 data.SetMinimum(0)
                 if maxVal > 0:
                     data.SetMaximum(maxVal)
-            data.Draw()
+
+            data.Draw("AXIS")
             bg.Draw("HIST same")
         else:
             bg.Draw("HIST")
@@ -434,7 +439,11 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
         winoWeak.SetLineWidth(3)
 
         #data.Rebin(nRebin)
-        data.Draw("same")
+        if dataGraph != None:
+            dataGraph.SetLineWidth(2)
+            dataGraph.Draw("p")
+        else:
+            data.Draw("same")
 
         #gj.Rebin(nRebin)
         #gj.SetFillStyle(0)
@@ -458,7 +467,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
 
         if drawLegend:
-            ATLASLabel(0.62,0.46,"Internal");
+            ATLASLabel(0.65,0.46,"Internal");
 
             l = ROOT.TLatex()
             l.SetNDC()
@@ -466,14 +475,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
             l.SetTextFont(42);
             l.SetTextSize(0.038)
             if lepton == ELECTRON:
-                l.DrawLatex(0.62,0.39,"#int Ldt = 4.8 fb^{-1}");
-                l.DrawLatex(0.62,0.32,"#sqrt{s}=7 TeV,  e channel");
+                l.DrawLatex(0.65,0.39,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.65,0.32,"#sqrt{s} = 7 TeV,  e channel");
 
             else:
-                l.DrawLatex(0.62,0.39,"#int Ldt = 4.7 fb^{-1}");
-                l.DrawLatex(0.62,0.32,"#sqrt{s}=7 TeV,  #mu channel");
+                l.DrawLatex(0.65,0.39,"#int Ldt = 4.7 fb^{-1}");
+                l.DrawLatex(0.65,0.32,"#sqrt{s} = 7 TeV,  #mu channel");
 
-            legb = ROOT.TLegend(0.62,0.50,0.93,0.92)
+            legb = ROOT.TLegend(0.65,0.50,0.93,0.92)
             legb.SetFillColor(0)
             legb.SetBorderSize(0)
             legb.SetTextSize(0.038)
@@ -504,36 +513,35 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
             legb.Draw()
         else:
-            ATLASLabel(0.62,0.90,"Internal");
+            ATLASLabel(0.65,0.90,"Internal");
             l = ROOT.TLatex()
             l.SetNDC()
             l.SetTextColor(1);
             l.SetTextFont(42);
             l.SetTextSize(0.038)
             if lepton == ELECTRON:
-                l.DrawLatex(0.62,0.80,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.65,0.80,"#int Ldt = 4.8 fb^{-1}");
             else:
-                l.DrawLatex(0.62,0.80,"#int Ldt = 4.7 fb^{-1}");
-            l.DrawLatex(0.62,0.70,"#sqrt{s}=7 TeV");
+                l.DrawLatex(0.65,0.80,"#int Ldt = 4.7 fb^{-1}");
+            l.DrawLatex(0.65,0.70,"#sqrt{s}=7 TeV");
 
 
         if winoWeak.GetDimension() == 1 and addRatio:
             p_ratio.cd()
             print "Margin =",p_ratio.GetBottomMargin()
             p_ratio.SetBottomMargin(0.3)
-            ratioHist.GetYaxis().SetTitle("Data/MC")
-            ratioHist.GetYaxis().SetLabelSize(0.08)
-            ratioHist.GetXaxis().SetLabelSize(0.08)
-            print "GetTitleXSize", ratioHist.GetXaxis().GetTitleSize()
-            print "GetTitleYSize", ratioHist.GetYaxis().GetTitleSize()
-            print "GetTitleXOffset", ratioHist.GetXaxis().GetTitleOffset()
-            print "GetTitleYOffset", ratioHist.GetYaxis().GetTitleOffset()
-            ratioHist.GetYaxis().SetTitleSize(0.09)
-            ratioHist.GetXaxis().SetTitleSize(0.09)
-            ratioHist.GetYaxis().SetTitleOffset(0.8)
-            ratioHist.GetXaxis().SetTitleOffset(1.2)
             ratioErrorHist = suHist.Clone()
-            ratioHist.Divide(ratioHist, ratioErrorHist, 1, 1, "B")
+            ratioErrorHist.GetYaxis().SetTitle("Data/MC")
+            ratioErrorHist.GetYaxis().SetLabelSize(0.08)
+            ratioErrorHist.GetXaxis().SetLabelSize(0.08)
+            print "GetTitleXSize", ratioErrorHist.GetXaxis().GetTitleSize()
+            print "GetTitleYSize", ratioErrorHist.GetYaxis().GetTitleSize()
+            print "GetTitleXOffset", ratioErrorHist.GetXaxis().GetTitleOffset()
+            print "GetTitleYOffset", ratioErrorHist.GetYaxis().GetTitleOffset()
+            ratioErrorHist.GetYaxis().SetTitleSize(0.09)
+            ratioErrorHist.GetXaxis().SetTitleSize(0.09)
+            ratioErrorHist.GetYaxis().SetTitleOffset(0.8)
+            ratioErrorHist.GetXaxis().SetTitleOffset(1.2)
             for i in range(ratioErrorHist.GetNbinsX() + 1):
                 cont = ratioErrorHist.GetBinContent(i)
                 err = ratioErrorHist.GetBinError(i)
@@ -542,14 +550,19 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
                 else:
                     ratioErrorHist.SetBinError(i,0)
                 ratioErrorHist.SetBinContent(i,1)
-            ratioHist.SetMinimum(-1)
-            ratioHist.SetMaximum(3)
-            ratioHist.Draw()
+            ratioErrorHist.SetMinimum(-1)
+            ratioErrorHist.SetMaximum(3)
+            ratioErrorHist.Draw("E2")
             line = ROOT.TF1("line", "1", -1e10, 1e10)
             line.SetLineWidth(1)
             line.Draw("same")
-            ratioErrorHist.Draw("E2 same")
-            ratioHist.Draw("same")
+            ratioGraph = histUtils.MakePoissonConfidenceLevelErrors_ratio(data, suHist)
+            if ratioGraph != None:
+                ratioGraph.SetLineWidth(2)
+                ratioGraph.Draw("p")
+            else:
+                ratioHist.Divide(ratioHist, ratioErrorHist, 1, 1, "B")
+                ratioHist.Draw("same")
 
         if logy:
             if drawLegend:
