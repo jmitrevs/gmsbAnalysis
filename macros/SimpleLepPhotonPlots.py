@@ -401,9 +401,9 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
         # let's try to find the range
         dataMaxBin = data.GetMaximumBin()
-        maxData = data.GetBinContent(dataMaxBin) + 1.4 * data.GetBinError(dataMaxBin)
+        maxData = 1.05 * data.GetBinContent(dataMaxBin) + 1.6 * data.GetBinError(dataMaxBin)
         suMaxBin = suHist.GetMaximumBin()
-        maxSu = suHist.GetBinContent(suMaxBin) + 1.4 * suHist.GetBinError(suMaxBin)
+        maxSu = 1.05 * suHist.GetBinContent(suMaxBin) + 1.6 * suHist.GetBinError(suMaxBin)
 
         maxVal = max(maxData, maxSu)
 
@@ -475,12 +475,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
             l.SetTextFont(42);
             l.SetTextSize(0.038)
             if lepton == ELECTRON:
-                l.DrawLatex(0.65,0.39,"#int Ldt = 4.8 fb^{-1}");
-                l.DrawLatex(0.65,0.32,"#sqrt{s} = 7 TeV,  e channel");
+                l.DrawLatex(0.45,0.87,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.45,0.81,"#sqrt{s} = 7 TeV");
+                l.DrawLatex(0.45,0.76,"e channel");
 
             else:
-                l.DrawLatex(0.65,0.39,"#int Ldt = 4.7 fb^{-1}");
-                l.DrawLatex(0.65,0.32,"#sqrt{s} = 7 TeV,  #mu channel");
+                l.DrawLatex(0.45,0.87,"#int Ldt = 4.7 fb^{-1}");
+                l.DrawLatex(0.45,0.81,"#sqrt{s} = 7 TeV");
+                l.DrawLatex(0.45,0.76,"#mu channel");
 
             legb = ROOT.TLegend(0.65,0.50,0.93,0.92)
             legb.SetFillColor(0)
@@ -525,13 +527,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
                 l.DrawLatex(0.65,0.80,"#int Ldt = 4.7 fb^{-1}");
             l.DrawLatex(0.65,0.70,"#sqrt{s}=7 TeV");
 
+        data.Draw("axis,same");
 
         if winoWeak.GetDimension() == 1 and addRatio:
             p_ratio.cd()
             print "Margin =",p_ratio.GetBottomMargin()
             p_ratio.SetBottomMargin(0.3)
             ratioErrorHist = suHist.Clone()
-            ratioErrorHist.GetYaxis().SetTitle("Data/MC")
+            ratioErrorHist.GetYaxis().SetTitle("Data / MC")
             ratioErrorHist.GetYaxis().SetLabelSize(0.08)
             ratioErrorHist.GetXaxis().SetLabelSize(0.08)
             print "GetTitleXSize", ratioErrorHist.GetXaxis().GetTitleSize()

@@ -263,22 +263,70 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     nBinsHT = 75
     nBinsmT = 50
     nBinsMET = 50
+
+    binSizeExtMET = "10 GeV"
+    binSizeExtmt = "10 GeV"
+    binSizeMET = "5 GeV"
+    binSizemt = "5 GeV"
+
     if plotsRegion == WCR:
         nBinsEta = 15
         nBinsPt = 25
         nBinsHT = 50
-    elif plotsRegion == TCR or plotsRegion == XR2:
+        mtBinMin = 20
+        mtBinMax = 170
+        metBinMax = 150
+        mtBinExtMax = 320
+        metBinExtMax = 300
+        binSizeExtMET = "10 GeV"
+        binSizeExtmt = "10 GeV"
+        binSizeMET = "5 GeV"
+        binSizemt = "5 GeV"
+    elif plotsRegion == TCR:
         nBinsEta = 15
         nBinsPt = 25
         nBinsHT = 30
-        nBinsMET = 25
-        nBinsmT = 25
+        nBinsMET = 18
+        nBinsmT = 16
+        mtBinMin = 40
+        mtBinExtMax = 360
+        metBinExtMax = 360
+        binSizeExtMET = "20 GeV"
+        binSizeExtmt = "20 GeV"
+        mtBinMax = 200
+        metBinMax = 180
+        binSizeMET = "10 GeV"
+        binSizemt = "10 GeV"
+    elif plotsRegion == XR2:
+        nBinsEta = 15
+        nBinsPt = 25
+        nBinsHT = 30
+        nBinsMET = 18
+        nBinsmT = 20
+        metBinMin = 40
+        mtBinExtMax = 400
+        metBinExtMax = 400
+        binSizeExtMET = "20 GeV"
+        binSizeExtmt = "20 GeV"
+        mtBinMax = 200
+        metBinMax = 220
+        binSizeMET = "10 GeV"
+        binSizemt = "10 GeV"
     elif plotsRegion == SR:
         nBinsEta = 10
         nBinsPt = 10
         nBinsHT = 10
-        nBinsmT = 25
-        nBinsMET = 25
+        nBinsmT = 22
+        nBinsMET = 22
+        mtBinMin = 60
+        metBinMin = 60
+        binSizeExtMET = "20 GeV"
+        binSizeExtmt = "20 GeV"
+        mtBinMax = 280
+        metBinMax = 280
+        binSizeMET = "10 GeV"
+        binSizemt = "10 GeV"
+
 
     ##########################
     # Create the histograms
@@ -357,14 +405,14 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
     ######## MET
     mdir.cd()
-    h_met = ROOT.TH1F("met", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, metBinMin, metBinMax)
+    h_met = ROOT.TH1F("met", "The MET distribution;E_{T}^{miss} [GeV];Events / " + binSizeMET, nBinsMET, metBinMin, metBinMax)
     # h_met0J = ROOT.TH1F("met0J", "The MET distribution of events with zero jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met1J = ROOT.TH1F("met1J", "The MET distribution of events with one jet;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met2J = ROOT.TH1F("met2J", "The MET distribution of events with two jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met3J = ROOT.TH1F("met3J", "The MET distribution of events with three jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
     # h_met4J = ROOT.TH1F("met4J", "The MET distribution of events with four jets;E_{T}^{miss} [GeV];Events", 500, 0, 500)
 
-    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events", nBinsMET, metBinMin, metBinExtMax)
+    h_metExtended = ROOT.TH1F("metExtended", "The MET distribution;E_{T}^{miss} [GeV];Events / " + binSizeExtMET, nBinsMET, metBinMin, metBinExtMax)
     h_metShort = ROOT.TH1F("metShort", "The MET distribution;E_{T}^{miss} [GeV];Events", 20, 0, 100)
 
     h_deltaPhiPhMETvsMET = ROOT.TH2F("deltaPhiPhMETvsMET", 
@@ -384,12 +432,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
     ############ gldir
     gldir.cd()
     h_HT = ROOT.TH1F("HT", "The H_{T} distribution;H_{T} [GeV];Events", nBinsHT, 0, 1500)
-    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, mtBinMin, 250)
-    h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 250)
+    h_mTel = ROOT.TH1F("mTel", "The m_{T} distribution;m_{T} [GeV];Events / " + binSizemt, nBinsmT, mtBinMin, mtBinMax)
+    h_mTmu = ROOT.TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV];Events / " + binSizemt, nBinsmT, mtBinMin, mtBinMax)
     h_mTelShort = ROOT.TH1F("mTelShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
     h_mTmuShort = ROOT.TH1F("mTmuShort", "The m_{T} distribution;m_{T} [GeV];Events", 20, 0, 100)
-    h_mTelExtended = ROOT.TH1F("mTelExtended", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 500)
-    h_mTmuExtended = ROOT.TH1F("mTmuExtended", "The m_{T} distribution;m_{T} [GeV];Events", nBinsmT, 0, 500)
+    h_mTelExtended = ROOT.TH1F("mTelExtended", "The m_{T} distribution;m_{T} [GeV];Events / " + binSizeExtmt, nBinsmT, mtBinMin, mtBinExtMax)
+    h_mTmuExtended = ROOT.TH1F("mTmuExtended", "The m_{T} distribution;m_{T} [GeV];Events / " + binSizeExtmt, nBinsmT, mtBinMin, mtBinExtMax)
     h_meff = ROOT.TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV];Events", nBinsHT, 0, 1500)
 
     h_mTelvsMET = ROOT.TH2F("mTelvsMET", "m_{T} vs. MET;E_{T}^{miss} [GeV];m_{T} [GeV]",
