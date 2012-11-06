@@ -101,14 +101,14 @@ def RunAnalysis(lepton, plots, metType, printRes=False):
 
                     if strong:
                         oldsr = SRs[-1]
-                        SRs[-1] = (oldsr[0] + sr[0], math.hypot(oldsr[1], sr[1]), oldsr[2]+nOrig/feff, key)
+                        SRs[-1] = (oldsr[0] + sr[0], math.hypot(oldsr[1], sr[1]), oldsr[2]+(Lumi*xsec), key)
                     else:
-                        SRs.append(sr + (nOrig/feff, key))
+                        SRs.append(sr + (Lumi*xsec, key))
                     print
 
     if printRes:
         for v in SRs:
-            print "%s & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (v[3], v[0], v[1], v[0]/v[2]*1e5, v[1]/v[2]*1e5)
+            print "%s & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (v[3], v[0], v[1], v[0]/v[2]*1e3, v[1]/v[2]*1e3)
 
     return SRs
 

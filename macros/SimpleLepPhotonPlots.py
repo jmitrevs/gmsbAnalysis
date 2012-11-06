@@ -467,7 +467,8 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
 
         if drawLegend:
-            ATLASLabel(0.65,0.46,"Internal");
+            ATLASLabel(0.65,0.46,"Preliminary");
+            # ATLASLabel(0.65,0.46,"Internal");
 
             l = ROOT.TLatex()
             l.SetNDC()
@@ -488,25 +489,29 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
             legb.SetFillColor(0)
             legb.SetBorderSize(0)
             legb.SetTextSize(0.038)
-            legb.AddEntry(data,"data","l")
+            legb.AddEntry(data,"data","pl")
+
+            legb.AddEntry(st,"single top","f")
+            legb.AddEntry(ttbargamma,"t#bar{t}#gamma","f")
+            legb.AddEntry(ttbar,"t#bar{t}","f")
+            legb.AddEntry(diboson,"WW, WZ, ZZ","f")
+            legb.AddEntry(Wgamma,"W#gamma","f")
+            legb.AddEntry(Wjets,"W+jets","f")
             
+            if lepton == ELECTRON and not combineTypes:
+                legb.AddEntry(diphotons,"#gamma#gamma","f")
+
+            if combineTypes:
+                legb.AddEntry(Z,"Z","f")
+            else:
+                legb.AddEntry(Zgamma,"Z#gamma","f")
+                legb.AddEntry(Zjets,"Z+jets","f")
+
             if lepton == ELECTRON and combineTypes:
                 legb.AddEntry(gj,"#gamma+jets, #gamma#gamma","f")
             else:
                 legb.AddEntry(gj,"#gamma+jets","f")
-            if combineTypes:
-                legb.AddEntry(Z,"Z","f")
-            else:
-                legb.AddEntry(Zjets,"Z+jets","f")
-                legb.AddEntry(Zgamma,"Z#gamma","f")
-            if lepton == ELECTRON and not combineTypes:
-                legb.AddEntry(diphotons,"#gamma#gamma","f")
-            legb.AddEntry(Wjets,"W+jets","f")
-            legb.AddEntry(Wgamma,"W#gamma","f")
-            legb.AddEntry(diboson,"WW, WZ, ZZ","f")
-            legb.AddEntry(ttbar,"ttbar","f")
-            legb.AddEntry(ttbargamma,"ttbar#gamma","f")
-            legb.AddEntry(st,"singe top","f")
+
             if addSignal:
                 legb.AddEntry(winoWeak,"GGM (1500, 200)", "l");
                 legb.AddEntry(winoStrong,"GGM (600, 500)","l");
@@ -515,17 +520,21 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
             legb.Draw()
         else:
-            ATLASLabel(0.65,0.90,"Internal");
+            ATLASLabel(0.65,0.90,"Preliminary");
+            # ATLASLabel(0.65,0.90,"Internal");
             l = ROOT.TLatex()
             l.SetNDC()
             l.SetTextColor(1);
             l.SetTextFont(42);
             l.SetTextSize(0.038)
             if lepton == ELECTRON:
-                l.DrawLatex(0.65,0.80,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.65,0.82,"#int Ldt = 4.8 fb^{-1}");
+                l.DrawLatex(0.65,0.76,"#sqrt{s} = 7 TeV");
+                l.DrawLatex(0.65,0.71,"e channel");
             else:
-                l.DrawLatex(0.65,0.80,"#int Ldt = 4.7 fb^{-1}");
-            l.DrawLatex(0.65,0.70,"#sqrt{s}=7 TeV");
+                l.DrawLatex(0.65,0.82,"#int Ldt = 4.7 fb^{-1}");
+                l.DrawLatex(0.65,0.76,"#sqrt{s} = 7 TeV");
+                l.DrawLatex(0.65,0.71,"#mu channel");
 
         data.Draw("axis,same");
 
@@ -553,7 +562,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
                 else:
                     ratioErrorHist.SetBinError(i,0)
                 ratioErrorHist.SetBinContent(i,1)
-            ratioErrorHist.SetMinimum(-1)
+            ratioErrorHist.SetMinimum(0)
             ratioErrorHist.SetMaximum(3)
             ratioErrorHist.Draw("E2")
             line = ROOT.TF1("line", "1", -1e10, 1e10)

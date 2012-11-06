@@ -902,6 +902,7 @@ StatusCode SignalGammaLepton::execute()
   }
 
   const Analysis::MuonContainer *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
+  //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   const Analysis::MuonContainer *muons = m_OverlapRemovalTool2->finalStateMuons();
 
   // const JetCollection *allJets =  m_PreparationTool->selectedJets();
