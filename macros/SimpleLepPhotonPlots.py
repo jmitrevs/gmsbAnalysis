@@ -42,7 +42,7 @@ def GetHistNames(inFile):
 
 
 
-def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSignal):
+def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSignal, doMirror):
 
 
     if lepton == ELECTRON:
@@ -133,6 +133,11 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
     for histName in histNames:
 
+        mirror = False
+        if doMirror and histName == "Global/mTel" or histName == "Global/mTmu":
+            mirror = True
+            print "*** found", histName,"***" 
+
         winoStrong0 = DataManager.winoStrong0File.Get(histName)
         winoWeak0 = DataManager.winoWeak0File.Get(histName)
         winoStrong1 = DataManager.winoStrong1File.Get(histName)
@@ -216,7 +221,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
         winoStrong = winoStrong0.Clone()
         winoStrong.Add(winoStrong1)
 
-        print "here1"
+        #print "here1"
 
         winoWeak = winoWeak0.Clone()
         winoWeak.Add(winoWeak1)
@@ -235,14 +240,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
         Wtaunu.Add(Wtaunu_Np4)
         Wtaunu.Add(Wtaunu_Np5)
 
-        print "here1b"
+        #print "here1b"
 
         Wjets = Wlepnu.Clone()
         Wjets.Add(Wtaunu)
 
         addUnc(Wjets, WjetsErr2)
  
-        print "here1c"
+        #print "here1c"
 
         if USE_WGAMMA_SHERPA:
             Wgamma = Wgamma_lepnu.Clone()
@@ -257,9 +262,9 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
         addUnc(Wgamma, WgammaErr2)
 
-        print "here1d"
+        #print "here1d"
 
-        print "here2"
+        #print "here2"
 
         Zleplep = Zleplep_Np0.Clone()
         Zleplep.Add(Zleplep_Np1)
@@ -308,7 +313,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
         #st.Add(st_schan_taunu)
         st.Add(st_Wt)
 
-        print "here3"
+        #print "here3"
 
         addUnc(st, stErr2)
 
@@ -329,7 +334,7 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
         bg = ROOT.THStack(hn+"_bg","stacked bg;"+ttbargamma.GetXaxis().GetTitle()+";Events")
 
-        print "here4"
+        #print "here4"
 
         addUnc(ttbargamma, ttbargammaErr2)
         addUnc(ttbar, dilepErr2)
@@ -340,6 +345,13 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
             if combineTypes:
                 gj.Add(diphotons)
+
+        if combineTypes:
+            gj.Add(Z)
+            gj.Add(diboson)
+            gj.Add(st)
+            gj.Add(Wjets)
+
 
         bg.SetMinimum(5e-2)
         #bg.SetMaximum(25)
@@ -354,10 +366,14 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
         ttbargamma.SetFillStyle(1001)
         st.SetFillStyle(1001)
 
-        print "here5"
+        #print "here5"
 
         gj.SetFillColor(28) # brown
         gj.SetLineColor(28)
+        if combineTypes:
+            gj.SetFillColor(8) # green
+            gj.SetLineColor(8)
+
         Zjets.SetFillColor(43) # tan
         Zjets.SetLineColor(43)
         Zgamma.SetFillColor(42) # tan
@@ -381,19 +397,19 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
         st.SetLineColor(9)
 
         bg.Add(gj)
-        if combineTypes:
-            bg.Add(Z)
-        else:
+        if not combineTypes:
             bg.Add(Zjets)
             bg.Add(Zgamma)
-        if lepton == ELECTRON and not combineTypes:
-            bg.Add(diphotons)
-        bg.Add(Wjets)
+            if lepton == ELECTRON:
+                bg.Add(diphotons)
+            bg.Add(Wjets)
         bg.Add(Wgamma)
-        bg.Add(diboson)
+        if not combineTypes:
+            bg.Add(diboson)
         bg.Add(ttbar)
         bg.Add(ttbargamma)
-        bg.Add(st)
+        if not combineTypes:
+            bg.Add(st)
 
         #if winoWeak.GetDimension() == 1 and addRatio:
 
@@ -421,8 +437,9 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
             bg.Draw("HIST")
         
         suHist.SetMarkerSize(0)
+        suHist.SetLineWidth(0)
         suHist.SetFillColor(1)
-        suHist.SetFillStyle(3245)
+        suHist.SetFillStyle(3345)
         suHist.Draw("E2 same");
 
         #wino.Rebin(nRebin)
@@ -467,14 +484,56 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
 
         if drawLegend:
-            ATLASLabel(0.65,0.46,"Preliminary");
-            # ATLASLabel(0.65,0.46,"Internal");
+            if mirror:
+                legb = ROOT.TLegend(0.19,0.61,0.47,0.92)
+                ATLASLabel(0.19,0.57,"Preliminary");
+                # ATLASLabel(0.19,0.46,"Internal");
+            else:
+                legb = ROOT.TLegend(0.65,0.61,0.93,0.92)
+                ATLASLabel(0.65,0.57,"Preliminary");
+                # ATLASLabel(0.65,0.46,"Internal");
+
 
             l = ROOT.TLatex()
             l.SetNDC()
             l.SetTextColor(1);
             l.SetTextFont(42);
             l.SetTextSize(0.038)
+
+            legb.SetFillColor(0)
+            legb.SetBorderSize(0)
+            legb.SetTextSize(0.038)
+            legb.AddEntry(data,"data","pl")
+
+            if not combineTypes:
+                legb.AddEntry(st,"single top","f")
+            legb.AddEntry(ttbargamma,"t#bar{t}#gamma","f")
+            legb.AddEntry(ttbar,"t#bar{t}","f")
+            if not combineTypes:
+                legb.AddEntry(diboson,"WW, WZ, ZZ","f")
+            legb.AddEntry(Wgamma,"W#gamma","f")
+            
+            if combineTypes:
+                legb.AddEntry(gj,"other","f")
+            else:
+                legb.AddEntry(Wjets,"W+jets","f")
+            
+                if lepton == ELECTRON:
+                    legb.AddEntry(diphotons,"#gamma#gamma","f")
+
+                legb.AddEntry(Zgamma,"Z#gamma","f")
+                legb.AddEntry(Zjets,"Z+jets","f")
+                legb.AddEntry(gj,"#gamma+jets","f")
+
+            if addSignal:
+                legb.AddEntry(winoWeak,"GGM (1500, 200)", "l");
+                legb.AddEntry(winoStrong,"GGM (600, 500)","l");
+            #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
+            #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
+
+            suHist.SetLineColor(1)
+            legb.AddEntry(suHist, "systematics", "f")
+            legb.Draw()
             if lepton == ELECTRON:
                 l.DrawLatex(0.45,0.87,"#int Ldt = 4.8 fb^{-1}");
                 l.DrawLatex(0.45,0.81,"#sqrt{s} = 7 TeV");
@@ -485,40 +544,6 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
                 l.DrawLatex(0.45,0.81,"#sqrt{s} = 7 TeV");
                 l.DrawLatex(0.45,0.76,"#mu channel");
 
-            legb = ROOT.TLegend(0.65,0.50,0.93,0.92)
-            legb.SetFillColor(0)
-            legb.SetBorderSize(0)
-            legb.SetTextSize(0.038)
-            legb.AddEntry(data,"data","pl")
-
-            legb.AddEntry(st,"single top","f")
-            legb.AddEntry(ttbargamma,"t#bar{t}#gamma","f")
-            legb.AddEntry(ttbar,"t#bar{t}","f")
-            legb.AddEntry(diboson,"WW, WZ, ZZ","f")
-            legb.AddEntry(Wgamma,"W#gamma","f")
-            legb.AddEntry(Wjets,"W+jets","f")
-            
-            if lepton == ELECTRON and not combineTypes:
-                legb.AddEntry(diphotons,"#gamma#gamma","f")
-
-            if combineTypes:
-                legb.AddEntry(Z,"Z","f")
-            else:
-                legb.AddEntry(Zgamma,"Z#gamma","f")
-                legb.AddEntry(Zjets,"Z+jets","f")
-
-            if lepton == ELECTRON and combineTypes:
-                legb.AddEntry(gj,"#gamma+jets, #gamma#gamma","f")
-            else:
-                legb.AddEntry(gj,"#gamma+jets","f")
-
-            if addSignal:
-                legb.AddEntry(winoWeak,"GGM (1500, 200)", "l");
-                legb.AddEntry(winoStrong,"GGM (600, 500)","l");
-            #legb.AddEntry(wino_1000_200,"wino (1000, 200)", "l");
-            #legb.AddEntry(wino_1500_300,"wino (1500, 400) #times 100","l");
-
-            legb.Draw()
         else:
             ATLASLabel(0.65,0.90,"Preliminary");
             # ATLASLabel(0.65,0.90,"Internal");
@@ -540,16 +565,16 @@ def SimpleLepPhotonPlots(lepton, drawLegend, logy, allFormats, addRatio, addSign
 
         if winoWeak.GetDimension() == 1 and addRatio:
             p_ratio.cd()
-            print "Margin =",p_ratio.GetBottomMargin()
+            #print "Margin =",p_ratio.GetBottomMargin()
             p_ratio.SetBottomMargin(0.3)
             ratioErrorHist = suHist.Clone()
             ratioErrorHist.GetYaxis().SetTitle("Data / MC")
             ratioErrorHist.GetYaxis().SetLabelSize(0.08)
             ratioErrorHist.GetXaxis().SetLabelSize(0.08)
-            print "GetTitleXSize", ratioErrorHist.GetXaxis().GetTitleSize()
-            print "GetTitleYSize", ratioErrorHist.GetYaxis().GetTitleSize()
-            print "GetTitleXOffset", ratioErrorHist.GetXaxis().GetTitleOffset()
-            print "GetTitleYOffset", ratioErrorHist.GetYaxis().GetTitleOffset()
+            #print "GetTitleXSize", ratioErrorHist.GetXaxis().GetTitleSize()
+            #print "GetTitleYSize", ratioErrorHist.GetYaxis().GetTitleSize()
+            #print "GetTitleXOffset", ratioErrorHist.GetXaxis().GetTitleOffset()
+            #print "GetTitleYOffset", ratioErrorHist.GetYaxis().GetTitleOffset()
             ratioErrorHist.GetYaxis().SetTitleSize(0.09)
             ratioErrorHist.GetXaxis().SetTitleSize(0.09)
             ratioErrorHist.GetYaxis().SetTitleOffset(0.8)
@@ -634,7 +659,7 @@ def ATLASLabel(x,y,text = "", color=1):
 if __name__ == "__main__":
     try:
         # retrive command line options
-        shortopts  = "emgars"
+        shortopts  = "emgarst"
         longopts   = ["lepton=", "log"]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
     except getopt.GetoptError:
@@ -648,6 +673,7 @@ if __name__ == "__main__":
     formats = False
     addRatio = False
     addSignal = False
+    doMirror = False
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -664,6 +690,8 @@ if __name__ == "__main__":
             lepton = ELECTRON
         elif o in ("-g"):
             legend = True
+        elif o in ("-t"):
+            doMirror = True
         elif o in ("--log"):
             logy = True
         elif o in ("--lepton"):
@@ -675,6 +703,6 @@ if __name__ == "__main__":
                 print "*** Lepton must be 'electron' or 'muon ****"
                 sys.exit(1)
     
-    SimpleLepPhotonPlots(lepton, legend, logy, formats, addRatio, addSignal)
+    SimpleLepPhotonPlots(lepton, legend, logy, formats, addRatio, addSignal, doMirror)
 
 
