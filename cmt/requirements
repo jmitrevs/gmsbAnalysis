@@ -11,6 +11,8 @@ use AthenaKernel       AthenaKernel-*           Control
 use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
 use PathResolver       PathResolver-* Tools
 
+use gmsbD3PDObjects             gmsbD3PDObjects-*
+
 private
 use JetSelectorTools   JetSelectorTools-*       PhysicsAnalysis/JetMissingEtID
 use ObjectSelectorCore ObjectSelectorCore-*     PhysicsAnalysis/AnalysisCommon
