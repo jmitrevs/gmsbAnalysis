@@ -19,20 +19,14 @@
 #include "TRandom3.h"
 #include "TTree.h"
 
-class Jet;
-namespace Reco  { class ITrackToVertex; }
-class IAthSelectorTool;
-namespace Trig  { class TrigDecisionTool; }
-class TrigMatchTool;
-namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
-class APReweightND;
-class IMCTruthClassifier;
-class ITopoSystematicsTool;
-class IEtMissMuonSystematicsTool;
+//class IAthSelectorTool;
+//class TrigMatchTool;
+//namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
+//class APReweightND;
 
-namespace Root {
-  class TPileupReweighting;
-}
+//namespace Root {
+//  class TPileupReweighting;
+//}
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -47,21 +41,21 @@ public:
 
 private:
 
-  bool isInLArHole(Jet* jet) const;
+  // bool isInLArHole(Jet* jet) const;
 
-  // both should really be const.
-  float GetSignalElecSF(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
-  float GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
+  // // both should really be const.
+  // float GetSignalElecSF(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
+  // float GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
 
-  StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
-  StatusCode recordEtMissMuonSystematics();
-  StatusCode recordTruthMET();
+  // StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
+  // StatusCode recordEtMissMuonSystematics();
+  // StatusCode recordTruthMET();
 
   int m_set; 			// electron scale factor set 
 
   /** MET selecton */
   std::string m_METContainerName;
-  std::string m_topoClusterContainerName;
+  // std::string m_topoClusterContainerName;
   std::string m_missingEtTruth;
 
   bool m_isMC;
@@ -85,7 +79,7 @@ private:
   int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
   std::string m_triggers;
 
-  bool m_doSmartVeto;
+  //bool m_doSmartVeto;
 
   // whether to write out all the histograms. Cut flow always outputted
   bool m_outputHistograms;
@@ -121,20 +115,11 @@ private:
   // ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool2;
 
 
-  /** @brief Tool handle for track extrapolation to vertex */
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+  // /** @brief Tool handle for jet cleaning */  
+  // ToolHandle<IAthSelectorTool>  m_JetCleaningTool;
 
-  /** @brief Tool handle for jet cleaning */  
-  ToolHandle<IAthSelectorTool>  m_JetCleaningTool;
-
-  /** @brief trigger decision tool */    
-  ToolHandle< Trig::TrigDecisionTool > m_trigDec;
-  /** @brief trigger matching tool */    
-  ToolHandle< TrigMatchTool > m_trigMatch;
-
-  /** @brief classify the event type */
-  ToolHandle<IMCTruthClassifier> m_MCTruthClassifier;
-  bool m_doTruthClassifier;
+  // /** @brief trigger matching tool */    
+  // ToolHandle< TrigMatchTool > m_trigMatch;
 
   ToolHandle<TruthStudies> m_truth;
   bool m_doTruthStudies;
@@ -142,13 +127,13 @@ private:
   enum ttbarfilt_t {NO_TTBARFILT = 0, LEPJETS, DILEP};
   int m_filterTTbar; // really the enum above
 
-  // for MET systematics
-  ToolHandle<ITopoSystematicsTool> m_topoSystematicsTool;
-  ToolHandle<IEtMissMuonSystematicsTool> m_muonSystematicsTool;
-  bool m_do_met_systematics;
-  bool m_do_met_muon_systematics;
-  bool m_do_truth_met;
-  bool m_topo_systematics_use_eta45;
+  // // for MET systematics
+  // ToolHandle<ITopoSystematicsTool> m_topoSystematicsTool;
+  // ToolHandle<IEtMissMuonSystematicsTool> m_muonSystematicsTool;
+  // bool m_do_met_systematics;
+  // bool m_do_met_muon_systematics;
+  // bool m_do_truth_met;
+  // bool m_topo_systematics_use_eta45;
 
   bool m_doOverlapElectrons; // for debugging
 
@@ -171,18 +156,18 @@ private:
 
   mutable TRandom3 m_rand3;
 
-  // for calculating scale factors in electron channel
-  egammaSFclass  m_egammaSFclass;
+  // // for calculating scale factors in electron channel
+  // egammaSFclass  m_egammaSFclass;
 
-  Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
+  // Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
 
-  std::string m_muonTrigWeightsFile;
-  APReweightND *m_trigWeighter;
+  // std::string m_muonTrigWeightsFile;
+  // APReweightND *m_trigWeighter;
 
   int m_applyPileupReweighting; // 0 = none, 1 = nominal, 2 = syst
   std::string m_pileupConfig;
   std::string m_lumiCalcFile;
-  Root::TPileupReweighting *m_pileupTool;
+  // Root::TPileupReweighting *m_pileupTool;
 
   // The variables if one outputs an ntuple
   TTree* m_tree;

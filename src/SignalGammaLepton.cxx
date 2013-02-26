@@ -1,89 +1,65 @@
 #include "gmsbAnalysis/SignalGammaLepton.h"
-#include "ObjectSelectorCore/IAthSelectorTool.h"
+//#include "ObjectSelectorCore/IAthSelectorTool.h"
 
 #include "TH1.h"
+#include "TH2.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
+// Accessing data:
+#include "CLHEP/Units/PhysicalConstants.h"
+#include "gmsbD3PDObjects/ElectronD3PDObject.h"
+#include "gmsbD3PDObjects/MuonD3PDObject.h"
+#include "gmsbD3PDObjects/JetD3PDObject.h"
+#include "gmsbD3PDObjects/PhotonD3PDObject.h"
+#include "gmsbD3PDObjects/PrimaryVertexD3PDObject.h"
+#include "gmsbD3PDObjects/TrigDecisionD3PDObject.h"
+#include "gmsbD3PDObjects/EventInfoD3PDObject.h"
+#include "gmsbD3PDObjects/RefFinalMETD3PDObject.h"
+#include "gmsbD3PDObjects/MissingETTruthD3PDObject.h"
 
-#include "egammaEvent/ElectronContainer.h"
-#include "egammaEvent/Electron.h"
-#include "egammaEvent/PhotonContainer.h"
-#include "egammaEvent/Photon.h"
-#include "egammaEvent/egammaPIDdefs.h"
-#include "egammaEvent/EMShower.h"
-#include "egammaEvent/EMConvert.h"
-#include "egammaEvent/EMTrackMatch.h"
+#include "gmsbTools/SortHelpers.h"
 
-#include "muonEvent/MuonContainer.h"
 
-#include "JetEvent/JetCollection.h"
-#include "JetUtils/JetCaloHelper.h"
-#include "JetUtils/JetCaloQualityUtils.h"
+//#include "JetUtils/JetCaloHelper.h"
+//#include "JetUtils/JetCaloQualityUtils.h"
 
-#include "MissingETEvent/MissingET.h"
-#include "MissingETEvent/MissingEtTruth.h"
+//#include "TrigObjectMatching/TrigMatchTool.h"
 
-#include "VxVertex/VxContainer.h"
+//#include "GeneratorObjects/McEventCollection.h"
+//#include "HepMC/GenEvent.h"
 
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigObjectMatching/TrigMatchTool.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-
-#include "ITrackToVertex/ITrackToVertex.h"
-
-#include "FourMomUtils/P4Helpers.h"
-#include "TrkTrackLink/ITrackLink.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "TrkParticleBase/TrackParticleBaseCollection.h"
-#include "VxVertex/VxTrackAtVertex.h"
-
-#include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
-#include "MuonEfficiencyCorrections/AnalysisMuonEfficiencyScaleFactors.h"
+//#include "MuonEfficiencyCorrections/AnalysisMuonEfficiencyScaleFactors.h"
 #include "PathResolver/PathResolver.h"
-#include "ReweightUtils/APReweightND.h"
-#include "ReweightUtils/APEvtWeight.h"
+//#include "ReweightUtils/APReweightND.h"
+//#include "ReweightUtils/APEvtWeight.h"
 
-#include "PileupReweighting/TPileupReweighting.h"
+//#include "PileupReweighting/TPileupReweighting.h"
 
-#include "DanGMSBAnaTools/ITopoSystematicsTool.h"
-#include "DanGMSBAnaTools/IEtMissMuonSystematicsTool.h"
 
 #include <climits>
 
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
 const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
 
-bool SignalGammaLepton::isInLArHole(Jet* jet) const
-{
-  const double etamin = -0.1;
-  const double etamax = 1.5; 
-  const double phimin = -0.9;
-  const double  phimax = -0.5;
+// bool SignalGammaLepton::isInLArHole(Jet* jet) const
+// {
+//   const double etamin = -0.1;
+//   const double etamax = 1.5; 
+//   const double phimin = -0.9;
+//   const double  phimax = -0.5;
 
-  const double eta = jet->eta();
-  const double phi = jet->phi();
-  if (eta < etamin || eta > etamax) return false;
-  if (phi < phimin || phi > phimax) return false;
-  return true;
-}
+//   const double eta = jet->eta();
+//   const double phi = jet->phi();
+//   if (eta < etamin || eta > etamax) return false;
+//   if (phi < phimin || phi > phimax) return false;
+//   return true;
+// }
 
 
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_trigMatch("TrigMatchTool/TrigMatchTool"),
-  m_fakeMetEstimator("fest_periodF_v1.root")
-  //m_cutFlowSvc( "CutFlowSvc/CutFlowSvc", name )
-  //m_userdatasvc("UserDataSvc", name)
+  AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
 
@@ -106,16 +82,16 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_LocHadTopo");
-  declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
+  declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
+  //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
-  declareProperty("CaloClusterContainer", m_topoClusterContainerName= "CaloCalTopoCluster");
+  //declareProperty("CaloClusterContainer", m_topoClusterContainerName= "CaloCalTopoCluster");
 
-  // Name of the McEventCollection Container
-  declareProperty("McEventContainerName",
-		  m_McEventContainerName="GEN_AOD",
-		  "Name of the McEventCollection container");
+  // // Name of the McEventCollection Container
+  // declareProperty("McEventContainerName",
+  // 		  m_McEventContainerName="GEN_AOD",
+  // 		  "Name of the McEventCollection container");
 
   // Name of the primary vertex candidates
   declareProperty("PrimaryVertexCandidates",
@@ -130,43 +106,37 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   // for ABCD
   declareProperty("AltSelectionTool",   m_AltSelectionTool);
 
-  declareProperty("JetCleaningTool", m_JetCleaningTool);
+  // declareProperty("JetCleaningTool", m_JetCleaningTool);
 
-  declareProperty("doTruthClassifier", m_doTruthClassifier = false);
-  declareProperty("MCTruthClassifier", m_MCTruthClassifier);
+  // declareProperty("TruthStudiesTool", m_truth);
+  // declareProperty("doTruthStudies", m_doTruthStudies = false);
+  // declareProperty("filterWJets", m_filterWJets = false);
+  // declareProperty("filterTTbar", m_filterTTbar = NO_TTBARFILT);
 
-  declareProperty("TruthStudiesTool", m_truth);
-  declareProperty("doTruthStudies", m_doTruthStudies = false);
-  declareProperty("filterWJets", m_filterWJets = false);
-  declareProperty("filterTTbar", m_filterTTbar = NO_TTBARFILT);
-
-  // Tool for track extrapolation to vertex
-  declareProperty("trackToVertexTool", m_trackToVertexTool,
-		  "Tool for track extrapolation to vertex");
 
   declareProperty("Blind", m_blind = false);
   declareProperty("BlindMET", m_blindMET = 100*GeV);
   declareProperty("BlindMT", m_blindMT = 100*GeV);
 
   declareProperty("isMC", m_isMC = false);
-  declareProperty("trigDecisionTool", m_trigDec);
-  declareProperty("trigMatchingTool", m_trigMatch);
+  //  declareProperty("trigDecisionTool", m_trigDec);
+  //declareProperty("trigMatchingTool", m_trigMatch);
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
   declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
   declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
 
-  declareProperty("MuonTriggerWeights",
-		  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
+  //declareProperty("MuonTriggerWeights",
+  //	  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
 
 
-  declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
-  declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
-  declareProperty("DoTruthMet", m_do_truth_met=true);
-  declareProperty("EtMissSystematicsUseEta45", m_topo_systematics_use_eta45=true);
-  declareProperty("EtMissSystematicsTool", m_topoSystematicsTool );
-  declareProperty("EtMissMuonSystematicsTool", m_muonSystematicsTool );
+  // declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
+  // declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
+  // declareProperty("DoTruthMet", m_do_truth_met=true);
+  // declareProperty("EtMissSystematicsUseEta45", m_topo_systematics_use_eta45=true);
+  // declareProperty("EtMissSystematicsTool", m_topoSystematicsTool );
+  // declareProperty("EtMissMuonSystematicsTool", m_muonSystematicsTool );
 
-  declareProperty("doSmartVeto", m_doSmartVeto = true);
+  //declareProperty("doSmartVeto", m_doSmartVeto = true);
   declareProperty("outputHistograms", m_outputHistograms = true);
   declareProperty("outputNtuple", m_outputNtuple = false);
 
@@ -222,19 +192,12 @@ StatusCode SignalGammaLepton::initialize(){
     }
   }
 
-  // retrieving TrackToVertex:
-  sc = m_trackToVertexTool.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
-    return sc;
-  }
-
-  // retrieving jet cleaning tool
-  sc = m_JetCleaningTool.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve tool " << m_JetCleaningTool);
-    return sc;
-  }
+  // // retrieving jet cleaning tool
+  // sc = m_JetCleaningTool.retrieve();
+  // if ( sc.isFailure() ) {
+  //   ATH_MSG_ERROR("Failed to retrieve tool " << m_JetCleaningTool);
+  //   return sc;
+  // }
 
   // retrieving the truth studies tool
   if (m_isMC && (m_doTruthStudies || m_filterWJets || m_filterTTbar)) {
@@ -244,87 +207,71 @@ StatusCode SignalGammaLepton::initialize(){
       return sc;
     }
   }
-
-  // retrieving the truth studies tool
-  if (m_isMC && m_doTruthClassifier) {
-    sc = m_MCTruthClassifier.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_MCTruthClassifier);
-      return sc;
-    }
-  }
       
-  if (m_applyTriggers) {
-    sc = m_trigDec.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_trigDec);
-      return sc;
-    }
-  }
 
-  if (m_matchTriggers) {
-    sc = m_trigMatch.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_trigMatch);
-      return sc;
-    }
-  }
+  // if (m_matchTriggers) {
+  //   sc = m_trigMatch.retrieve();
+  //   if ( sc.isFailure() ) {
+  //     ATH_MSG_ERROR("Failed to retrieve tool " << m_trigMatch);
+  //     return sc;
+  //   }
+  // }
 
-  // Get a handle on the met systematics tool
-  if(m_do_met_systematics) {
-    sc = m_topoSystematicsTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("Can't get handle on topo systematics tools");
-      return StatusCode::FAILURE;
-    }
-  }
+  // // Get a handle on the met systematics tool
+  // if(m_do_met_systematics) {
+  //   sc = m_topoSystematicsTool.retrieve();
+  //   if ( sc.isFailure() ) {
+  //     ATH_MSG_FATAL("Can't get handle on topo systematics tools");
+  //     return StatusCode::FAILURE;
+  //   }
+  // }
 
-  // Get a handle on the muon systematics tool
-  if(m_do_met_muon_systematics) {
-    sc = m_muonSystematicsTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("Can't get handle on muon systematics tools");
-      return StatusCode::FAILURE;
-    }
-  }
+  // // Get a handle on the muon systematics tool
+  // if(m_do_met_muon_systematics) {
+  //   sc = m_muonSystematicsTool.retrieve();
+  //   if ( sc.isFailure() ) {
+  //     ATH_MSG_FATAL("Can't get handle on muon systematics tools");
+  //     return StatusCode::FAILURE;
+  //   }
+  // }
 
   // if ( !m_userdatasvc.retrieve().isSuccess() ) {
   //   ATH_MSG_ERROR("Unable to retrieve pointer to UserDataSvc");
   //   return StatusCode::FAILURE;
   // }
 
-  if (m_applyPileupReweighting && m_isMC) {
-    if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
-      m_pileupTool = new Root::TPileupReweighting("gmsbPileupTool");
-      if (m_applyPileupReweighting == 2) { 
-	// for systematics
-	m_pileupTool->SetDataScaleFactors(0.9);
-      }
-      std::string pileupConfig = PathResolver::find_file(m_pileupConfig, "DATAPATH");
-      if (pileupConfig == "") {
-	ATH_MSG_ERROR("pileup config file " << m_pileupConfig << " not found. Exiting");
-	return StatusCode::FAILURE;
-      }
-      std::string lumiCalcFile = PathResolver::find_file(m_lumiCalcFile, "DATAPATH");
-      if (lumiCalcFile == "") {
-	ATH_MSG_ERROR("lumiCalcFile " << m_lumiCalcFile << " not found. Exiting");
-	return StatusCode::FAILURE;
-      } else {
-	ATH_MSG_DEBUG("Using lumiCalcFile " << m_lumiCalcFile);
-      }
+  // if (m_applyPileupReweighting && m_isMC) {
+  //   if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
+  //     m_pileupTool = new Root::TPileupReweighting("gmsbPileupTool");
+  //     if (m_applyPileupReweighting == 2) { 
+  // 	// for systematics
+  // 	m_pileupTool->SetDataScaleFactors(0.9);
+  //     }
+  //     std::string pileupConfig = PathResolver::find_file(m_pileupConfig, "DATAPATH");
+  //     if (pileupConfig == "") {
+  // 	ATH_MSG_ERROR("pileup config file " << m_pileupConfig << " not found. Exiting");
+  // 	return StatusCode::FAILURE;
+  //     }
+  //     std::string lumiCalcFile = PathResolver::find_file(m_lumiCalcFile, "DATAPATH");
+  //     if (lumiCalcFile == "") {
+  // 	ATH_MSG_ERROR("lumiCalcFile " << m_lumiCalcFile << " not found. Exiting");
+  // 	return StatusCode::FAILURE;
+  //     } else {
+  // 	ATH_MSG_DEBUG("Using lumiCalcFile " << m_lumiCalcFile);
+  //     }
       
-      m_pileupTool->AddConfigFile(pileupConfig);
-      m_pileupTool->AddLumiCalcFile(lumiCalcFile);
-      m_pileupTool->SetUnrepresentedDataAction(2); 
-      m_pileupTool->Initialize();
+  //     m_pileupTool->AddConfigFile(pileupConfig);
+  //     m_pileupTool->AddLumiCalcFile(lumiCalcFile);
+  //     m_pileupTool->SetUnrepresentedDataAction(2); 
+  //     m_pileupTool->Initialize();
 
-    } else {
-      ATH_MSG_ERROR("Unsupported m_applyPileupReweighting of " << m_applyPileupReweighting);
-      return StatusCode::FAILURE;
-    }
-  } else {
-    m_pileupTool = 0;
-  }
+  //   } else {
+  //     ATH_MSG_ERROR("Unsupported m_applyPileupReweighting of " << m_applyPileupReweighting);
+  //     return StatusCode::FAILURE;
+  //   }
+  // } else {
+  //   m_pileupTool = 0;
+  // }
 
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
@@ -333,48 +280,48 @@ StatusCode SignalGammaLepton::initialize(){
     return sc;
   }
 
-  if (m_numMuonsReq > 0 && m_isMC) {
-    // need to initialize scale factors
-    std::vector<double> muon_sf_int_lum(11);
-    muon_sf_int_lum[0]  = 11.9912; // luminosity for period B = [177986, 178109]
-    muon_sf_int_lum[1]  = 175.533;  // luminosity for period D = [179710, 180481]
-    muon_sf_int_lum[2]  = 50.6941; // luminosity for period E = [180614, 180776]
-    muon_sf_int_lum[3]  = 130.918; // luminosity for period F = [182013, 182519]
-    muon_sf_int_lum[4]  = 501.769; // luminosity for period G = [182726, 183462]
-    muon_sf_int_lum[5]  = 256.386; // luminosity for period H = [183544, 184169]
-    muon_sf_int_lum[6]  = 339.135; // luminosity for period I = [185353, 186493]
-    muon_sf_int_lum[7]  = 227.443; // luminosity for period J = [186516, 186755]
-    muon_sf_int_lum[8]  = 590.621; // luminosity for period K = [186873, 187815]
-    muon_sf_int_lum[9]  = 1373.49;  // luminosity for period L = [188902, 190343]
-    muon_sf_int_lum[10] = 989.656; // luminosity for period M = [190503, 191933]
+  // if (m_numMuonsReq > 0 && m_isMC) {
+  //   // need to initialize scale factors
+  //   std::vector<double> muon_sf_int_lum(11);
+  //   muon_sf_int_lum[0]  = 11.9912; // luminosity for period B = [177986, 178109]
+  //   muon_sf_int_lum[1]  = 175.533;  // luminosity for period D = [179710, 180481]
+  //   muon_sf_int_lum[2]  = 50.6941; // luminosity for period E = [180614, 180776]
+  //   muon_sf_int_lum[3]  = 130.918; // luminosity for period F = [182013, 182519]
+  //   muon_sf_int_lum[4]  = 501.769; // luminosity for period G = [182726, 183462]
+  //   muon_sf_int_lum[5]  = 256.386; // luminosity for period H = [183544, 184169]
+  //   muon_sf_int_lum[6]  = 339.135; // luminosity for period I = [185353, 186493]
+  //   muon_sf_int_lum[7]  = 227.443; // luminosity for period J = [186516, 186755]
+  //   muon_sf_int_lum[8]  = 590.621; // luminosity for period K = [186873, 187815]
+  //   muon_sf_int_lum[9]  = 1373.49;  // luminosity for period L = [188902, 190343]
+  //   muon_sf_int_lum[10] = 989.656; // luminosity for period M = [190503, 191933]
 
-    // create an instance of the scale factor class 
-    std::string muon_type("STACO_CB"); // for STACO combined muon 
-    std::string unit("MeV"); // for MeV; for GeV use "GeV" 
-    std::string directory(""); // directory containing the scale factor files 
-    //                            "" is default, i.e. under share of the CMT package 
-    m_muon_sf = new Analysis::AnalysisMuonEfficiencyScaleFactors(muon_type, muon_sf_int_lum, unit, directory);
+  //   // create an instance of the scale factor class 
+  //   std::string muon_type("STACO_CB"); // for STACO combined muon 
+  //   std::string unit("MeV"); // for MeV; for GeV use "GeV" 
+  //   std::string directory(""); // directory containing the scale factor files 
+  //   //                            "" is default, i.e. under share of the CMT package 
+  //   m_muon_sf = new Analysis::AnalysisMuonEfficiencyScaleFactors(muon_type, muon_sf_int_lum, unit, directory);
 
-    if (m_muonTrigWeightsFile != "") {
-      std::string filename = PathResolver::find_file(m_muonTrigWeightsFile, "DATAPATH");
-      if (filename == "") {
-	ATH_MSG_ERROR("Muon trigger file " << m_muonTrigWeightsFile << " not found. Exiting");
-	return StatusCode::FAILURE;
-      }
-      TFile reweightFile(filename.c_str());
-      THnSparse *trig_numerator_hist = (THnSparse*) reweightFile.Get("ths_mu18_nom"); // Get the numerator histogram
-      THnSparse *trig_denominator_hist = (THnSparse*) reweightFile.Get("ths_mu18_den"); // Get the denominator histogram
-      m_trigWeighter = new APReweightND(trig_denominator_hist, trig_numerator_hist, true); // Instantiate the tool
-      reweightFile.Close();
-      if (!m_trigWeighter) {
-	ATH_MSG_ERROR("Failed to initialize trigger weighter from file: " << m_muonTrigWeightsFile);
-	return StatusCode::FAILURE;
-      }	
-    }
-  } else {
-    m_muon_sf = 0;
-    m_trigWeighter = 0;
-  }
+  //   if (m_muonTrigWeightsFile != "") {
+  //     std::string filename = PathResolver::find_file(m_muonTrigWeightsFile, "DATAPATH");
+  //     if (filename == "") {
+  // 	ATH_MSG_ERROR("Muon trigger file " << m_muonTrigWeightsFile << " not found. Exiting");
+  // 	return StatusCode::FAILURE;
+  //     }
+  //     TFile reweightFile(filename.c_str());
+  //     THnSparse *trig_numerator_hist = (THnSparse*) reweightFile.Get("ths_mu18_nom"); // Get the numerator histogram
+  //     THnSparse *trig_denominator_hist = (THnSparse*) reweightFile.Get("ths_mu18_den"); // Get the denominator histogram
+  //     m_trigWeighter = new APReweightND(trig_denominator_hist, trig_numerator_hist, true); // Instantiate the tool
+  //     reweightFile.Close();
+  //     if (!m_trigWeighter) {
+  // 	ATH_MSG_ERROR("Failed to initialize trigger weighter from file: " << m_muonTrigWeightsFile);
+  // 	return StatusCode::FAILURE;
+  //     }	
+  //   }
+  // } else {
+  //   m_muon_sf = 0;
+  //   m_trigWeighter = 0;
+  // }
 
   m_metxPlus_noMuon = 0;
   m_metyPlus_noMuon = 0;
@@ -689,41 +636,15 @@ StatusCode SignalGammaLepton::execute()
   m_pileupWeight = 1.0;
 
   // The missing ET object
-  const MissingET* metCont(0);
-  StatusCode sc = evtStore()->retrieve( metCont, m_METContainerName );
-  if( sc.isFailure()  ||  !metCont ) {
-    ATH_MSG_ERROR("No "<< m_METContainerName <<" container found in TDS");
-    return StatusCode::RECOVERABLE;
-  }
-
-  const MissingET* met_muonboyContainer =0;
-  sc = evtStore()->retrieve(met_muonboyContainer , "MET_MuonBoy" );
-  if( sc.isFailure()  ||  !met_muonboyContainer ) {
-    ATH_MSG_ERROR("No MET_MuonBoy container found in TDS");
-    return StatusCode::RECOVERABLE;
-  }
-
-  const MissingET* met_refmuontrackContainer =0;
-  sc = evtStore()->retrieve( met_refmuontrackContainer, "MET_RefMuon_Track" );
-  if( sc.isFailure()  ||  !met_refmuontrackContainer ) {
-    ATH_MSG_ERROR("No MET_RefMuon_Track container found in TDS");
-    return StatusCode::RECOVERABLE;
-  }
+  RefFinalMETD3PDObject metCont(m_METContainerName);
+  ATH_CHECK(metCont.retrieve());
 
   // retrieve the container of Vertex
-  const VxContainer* vxContainer(0);
-  sc = evtStore()->retrieve(vxContainer, m_vxCandidatesName);
-  if (sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("no primary vertex container for this egamma, vxContainer: "<<vxContainer);
-    return StatusCode::RECOVERABLE;
-  }
+  PrimaryVertexD3PDObject vxContainer(m_vxCandidatesName);
+  ATH_CHECK(vxContainer.retrieve());
 
-  const EventInfo*  evtInfo = 0;
-  sc = evtStore()->retrieve(evtInfo);
-  if(sc.isFailure() || !evtInfo) {
-    ATH_MSG_ERROR("could not retrieve event info");
-    return StatusCode::RECOVERABLE;
-  }
+  EventInfoD3PDObject evtInfo;
+  ATH_CHECK(evtInfo.retrieve());
 
   if (m_outputNtuple) {
     m_ph_pt->clear();
@@ -766,33 +687,18 @@ StatusCode SignalGammaLepton::execute()
     m_set_truth->clear();
   }
   
-  m_runNumber = evtInfo->event_ID()->run_number();
-  m_lumiBlock = evtInfo->event_ID()->lumi_block();
-  m_eventNumber = evtInfo->event_ID()->event_number();
-
-  const EventInfo::EventFlagErrorState larError = evtInfo->errorState(EventInfo::LAr);
+  m_runNumber = evtInfo.RunNumber();
+  m_lumiBlock = evtInfo.lbn();
+  m_eventNumber = evtInfo.EventNumber();
 
   if (m_isMC) {
-    
-    const McEventCollection * aMcEventContainer;
-    sc = evtStore()->retrieve(aMcEventContainer, m_McEventContainerName);
-    
-    if(sc.isSuccess()) {
-      ATH_MSG_DEBUG("Found aMcEventContainer, m_McEventContainerName = " << m_McEventContainerName);
-      const HepMC::GenEvent * aGenEvent = *(aMcEventContainer->begin());
-      const HepMC::WeightContainer& weightContainer = aGenEvent->weights();
-      
-      unsigned int Size = weightContainer.size();
-      if(Size > 0) m_weight = weightContainer[0];
-    } else {
-      ATH_MSG_WARNING("did not find aMcEventContainer, m_McEventContainerName = " << m_McEventContainerName);
-    }
+    m_weight = evtInfo.mc_event_weight();
 
-    if (m_pileupTool) {
-      const unsigned int channelNumber = evtInfo->event_type()->mc_channel_number();
-      const float aveIntPerBC = evtInfo->averageInteractionsPerCrossing();
-      m_pileupWeight = m_pileupTool->GetCombinedWeight(m_runNumber, channelNumber, aveIntPerBC);
-    }
+    // if (m_pileupTool) {
+    //   const unsigned int channelNumber = evtInfo->event_type()->mc_channel_number();
+    //   const float aveIntPerBC = evtInfo->averageInteractionsPerCrossing();
+    //   m_pileupWeight = m_pileupTool->GetCombinedWeight(m_runNumber, channelNumber, aveIntPerBC);
+    // }
   }
 
   ATH_MSG_DEBUG("About to prepare selection: " << m_runNumber << " " << m_lumiBlock << " " 
@@ -824,28 +730,30 @@ StatusCode SignalGammaLepton::execute()
   /////////////////////////////////////////////////////
 
   m_type = TruthStudies::unknown;
-  if (m_doTruthStudies) {
-    sc = m_truth->execute();
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("TruthStudies Failed");
-      return sc;
-    }
-    m_type = m_truth->GetEventType();
-    m_isStrong = m_truth->isStrong();
-    m_numTruthPh = m_truth->nPhotons();
-    m_Wpt = m_truth->Wpt();
-  } else {
-    m_numTruthPh = -1;
-  }
+  // if (m_doTruthStudies) {
+  //   sc = m_truth->execute();
+  //   if ( sc.isFailure() ) {
+  //     ATH_MSG_WARNING("TruthStudies Failed");
+  //     return sc;
+  //   }
+  //   m_type = m_truth->GetEventType();
+  //   m_isStrong = m_truth->isStrong();
+  //   m_numTruthPh = m_truth->nPhotons();
+  //   m_Wpt = m_truth->Wpt();
+  // } else {
+  //   m_numTruthPh = -1;
+  // }
 
   //m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
 
-  if (larError) {
+  if (evtInfo.larError() == 2 || 
+      evtInfo.tileError()==2 || 
+      (evtInfo.coreFlags() & 0x40000) != 0 ) {
     return StatusCode::SUCCESS; // reject event
   }
     
-  ATH_MSG_DEBUG("Passed larError");
+  ATH_MSG_DEBUG("Passed larError (and similar)");
 
   // also do truth-level filtering here
   // if (m_filterWJets) {
@@ -871,7 +779,7 @@ StatusCode SignalGammaLepton::execute()
   // pretendRunNum = LAST_RUN_BEFORE_HOLE; 
 
   // do the selecton and overlap removal
-  sc = m_PreparationTool->execute(pretendRunNum);
+  StatusCode sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Preparation Failed - selection ");
     return sc;
@@ -891,40 +799,61 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Done preparing selection");
 
-  const PhotonContainer *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
-  const PhotonContainer *photons = m_OverlapRemovalTool2->finalStatePhotons();
+  // const PhotonD3PDObject *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
+  PhotonD3PDObject *photons = m_OverlapRemovalTool2->finalStatePhotons();
   
-  const ElectronContainer *electrons = 0;
+  ElectronD3PDObject *electrons = 0;
   if (m_doOverlapElectrons) {
     electrons = m_OverlapRemovalTool2->finalStateElectrons();
   } else {
     electrons = m_PreparationTool->selectedElectrons(); // only for debugging
   }
 
-  const Analysis::MuonContainer *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
+  ElectronD3PDObject origEl("el_");
+  ATH_CHECK(origEl.retrieve());
+
+  MuonD3PDObject *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
-  const Analysis::MuonContainer *muons = m_OverlapRemovalTool2->finalStateMuons();
+  MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
 
   // const JetCollection *allJets =  m_PreparationTool->selectedJets();
 
-  const JetCollection *jets = m_OverlapRemovalTool2->finalStateJets();
+  JetD3PDObject *jets = m_OverlapRemovalTool2->finalStateJets();
 
+  if (!photons || !electrons || !muonsBeforeOverlapRemoval ||
+      !muons || !jets) {
+    ATH_MSG_ERROR("Failed to get all the containers");
+    return StatusCode::FAILURE;
+  }
+
+  // lets sort them. (Wish I could do this just once)
+  SortHelpers::sl_t phoOrder;
+  SortHelpers::sl_t elOrder;
+  SortHelpers::sl_t muOrder;
+
+  SortHelpers::sort(phoOrder, *photons);
+  SortHelpers::sort(elOrder, *electrons);
+  SortHelpers::sort(muOrder, *muons);
+  
+  const int pho1 = (photons->n() > 0) ? static_cast<int>(phoOrder.front().first) : -1;
+  const int el1 = (electrons->n() > 0) ? static_cast<int>(elOrder.front().first) : -1;
+  const int mu1 = (muons->n() > 0) ? static_cast<int>(muOrder.front().first) : -1;
 
   ATH_MSG_DEBUG("Got the containers");
 
-  if (m_outputHistograms && photons->size() > 0) {
+  if (m_outputHistograms && photons->n() > 0) {
     // let's plot all the photons
 
-    m_histograms["ph_pt_input"]->Fill(photons->at(0)->pt()/GeV, m_weight);
+    m_histograms["ph_pt_input"]->Fill(photons->pt(pho1)/GeV, m_weight);
 
   }
   // jet cleaning
-  for (JetCollection::const_iterator jet = jets->begin();
-       jet != jets->end();
+  for (int jet = 0;
+       jet < jets->n();
        jet++) {
     
-    ATH_MSG_DEBUG("Looking at jet with pt = " << (*jet)->pt() << ", eta = " << (*jet)->eta() << ", phi = " << (*jet)->phi());
-    if (!m_JetCleaningTool->accept(*jet)) {
+    ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
+    if (jets->isBadLoose(jet)) {
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -937,23 +866,24 @@ StatusCode SignalGammaLepton::execute()
 
   // photon cleaning
  
-  for (PhotonContainer::const_iterator ph = photons->begin();
-       ph != photons->end();
+  for (int ph = 0;
+       ph < photons->n();
        ph++) {
-    if ((*ph)->isgoodoq(LArTiming)) {
+    if (photons->isgoodoq(ph, LArTiming)) {
       // fails timing if nonzero
       return StatusCode::SUCCESS; // reject event
     }
 
-    const EMShower *shower = (*ph)->detail<EMShower>();
-    const double e233   = shower->e233(); 
-    const double e237   = shower->e237(); 
-    const double e277   = shower->e277(); 
-    const double Reta37 = fabs(e277)>0. ? e237/e277 : 0.;
-    const double Rphi33 = fabs(e237)>0. ? e233/e237 : 0.;
+    // const double e233   = photon->E233(ph); 
+    // const double e237   = photon->E237(ph); 
+    // const double e277   = photon->E277(ph); 
+    // const double Reta37 = fabs(e277)>0. ? e237/e277 : 0.;
+    // const double Rphi33 = fabs(e237)>0. ? e233/e237 : 0.;
     
-
-    if ((*ph)->isgoodoq(LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
+    const float Reta37 = photons->reta(ph);
+    const float Rphi33 = photons->rphi(ph);
+ 
+    if (photons->isgoodoq(ph, LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
       return StatusCode::SUCCESS; // reject event
     }
 
@@ -963,10 +893,10 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("Passed photon cleaning");
 
   // electron cleaning
-  for (ElectronContainer::const_iterator el = electrons->begin();
-       el != electrons->end();
+  for (int el = 0;
+       el < electrons->n();
        el++) {
-    if ((*el)->isgoodoq(LArTiming)) {
+    if (electrons->isgoodoq(el, LArTiming)) {
       // fails timing if nonzero
       return StatusCode::SUCCESS; // reject event
     }
@@ -989,14 +919,11 @@ StatusCode SignalGammaLepton::execute()
 
 
   // check the primary vertex
-  if (vxContainer->size() < 2) {
+  if (vxContainer.n() < 2) {
     return StatusCode::SUCCESS; // reject event
   }
 
-  const std::vector<Trk::VxTrackAtVertex*>* vxtracks = 
-    vxContainer->at(0)->vxTrackAtVertex();
-
-  if (vxtracks->size() <= 4) {
+  if (vxContainer.nTracks(0) <= 4) {
     return StatusCode::SUCCESS; // reject event
   }
 
@@ -1005,8 +932,10 @@ StatusCode SignalGammaLepton::execute()
 
 
   // moun cleaning -- bad muons
-  for (Analysis::MuonContainer::const_iterator mu = muonsBeforeOverlapRemoval->begin();
-       mu != muonsBeforeOverlapRemoval->end();
+  /*** NEED TO REVISIT***/
+  /*
+  for (std::size_t mu = 0;
+       mu < muonsBeforeOverlapRemoval->n();
        mu++) {
    
     const Rec::TrackParticle* track = (*mu)->track();
@@ -1030,47 +959,46 @@ StatusCode SignalGammaLepton::execute()
     }
   }
 
+  */
   // muon cleaning -- cosmic muons
-  for (Analysis::MuonContainer::const_iterator mu = muons->begin();
-       mu != muons->end();
+  for (int mu = 0;
+       mu < muons->n();
        mu++) {
    
-    const Trk::MeasuredPerigee* newMeasPerigee =
-      m_trackToVertexTool->perigeeAtVertex(*((*mu)->track()), vxContainer->at(0)->recVertex().position());
-    const double dz = newMeasPerigee->parameters()[Trk::z0];
-    const double dd = newMeasPerigee->parameters()[Trk::d0];
-    delete newMeasPerigee;
+    const float dz = muons->z0_exPV(mu);
+    const float dd = muons->d0_exPV(mu);
+
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
-    if (fabs(dz) >= 1.0 || fabs(dd) >= 0.2) {
+    if (fabsf(dz) >= 1.0 || fabsf(dd) >= 0.2) {
       return StatusCode::SUCCESS; // reject event
-    }      
+    }
   }
   m_histograms["CutFlow"]->Fill(6.0, m_weight);
   ATH_MSG_DEBUG("Passed muon rejection");
 
   // loop over photons
-  m_numPhPresel = photons->size();
+  m_numPhPresel = photons->n();
 
   unsigned int numConvPhPass = 0; // this is per event
-  const Analysis::Photon *leadingPh = 0;
-  const Analysis::Photon *secondPh = 0;
+  int leadingPh = -1;
+  int secondPh = -1;
   
   double leadingPhPt = 0;
   double secondPhPt = 0;
 
-  ATH_MSG_DEBUG("Before overlap removal photons size at input = " << photonsBeforeOverlapRemoval->size());
-  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->size());
+  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->n());
   
   ATH_MSG_DEBUG("here 1");
 
   m_numPh = 0;
-  for (PhotonContainer::const_iterator ph  = photons->begin();
-       ph != photons->end();
-       ph++) {
+  for (SortHelpers::sl_t::const_iterator it = phoOrder.begin(); 
+       it != phoOrder.end(); 
+       ++it) {
+    const std::size_t ph = it->first;
 
     ATH_MSG_DEBUG("here 2");
 
-    const double pt = (*ph)->pt();
+    const double pt = it->second;
 
     // // get the user data
     // if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
@@ -1079,10 +1007,10 @@ StatusCode SignalGammaLepton::execute()
     //   return StatusCode::FAILURE;
     // }
 
-    bool isTight = m_FinalSelectionTool->isSelected(*ph);
+    const bool isTight = m_FinalSelectionTool->isSelected(*photons, ph);
     if (m_requireTightPho && !isTight) continue; 
 
-    bool isAlt = (m_doABCDPho) ? m_AltSelectionTool->isSelected(*ph) : false;
+    const bool isAlt = (m_doABCDPho) ? m_AltSelectionTool->isSelected(*photons, ph) : false;
 
     // photon is OK
     m_numPh++;
@@ -1091,131 +1019,49 @@ StatusCode SignalGammaLepton::execute()
 
     // let's do the AR studies
 
-    int convType = 0;
-    int numSi0 = -9;
-    int numPix0 = -9;
-    int numSi1 = -9;
-    int numPix1 = -9;
+    const int convType = photons->convFlag(ph);
+    const int numPix0 = photons->convtrk1nPixHits(ph);
+    const int numSi0 = numPix0 + photons->convtrk1nSCTHits(ph);
+    const int numPix1 = photons->convtrk2nPixHits(ph);
+    const int numSi1 = numPix1 + photons->convtrk2nSCTHits(ph);
 
-    const Trk::VxCandidate*  convVtx = (*ph)->conversion();
-
-    ATH_MSG_DEBUG("Will start covnersions");
-
-    if (convVtx) {
-      const std::vector<Trk::VxTrackAtVertex*> *trkAtVxPtr = convVtx->vxTrackAtVertex();
-      if (trkAtVxPtr->size() == 1) {
-	ATH_MSG_DEBUG("1-track");
-
-	convType = 1;
-	// first track
-	Trk::VxTrackAtVertex* tmpTrkAtVtx1 = trkAtVxPtr->at(0);
-	const Trk::ITrackLink * trLink =tmpTrkAtVtx1->trackOrParticleLink();
-	const Trk::TrackParticleBase* tempTrk1PB(0);
-	if (0!= trLink) {
-	  const Trk::LinkToTrackParticleBase * linkToTrackPB =  dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink);  
-	  if (0!= linkToTrackPB) {
-	    if(linkToTrackPB->isValid()) tempTrk1PB = linkToTrackPB->cachedElement(); 
-	  } 
-	}
-	if ( tempTrk1PB!=NULL){  
-	  const Trk::TrackSummary* summary1 = tempTrk1PB->trackSummary();
-	  if (summary1 != NULL){
-	    numPix0 = summary1->get(Trk::numberOfPixelHits);
-	    numSi0 = summary1->get(Trk::numberOfSCTHits)+ numPix0;
-	  }
-	}
-      } else if (int(trkAtVxPtr->size())==2) {
-	ATH_MSG_DEBUG("2-track");
-	convType = 2;
-
-	// first track
-	Trk::VxTrackAtVertex* tmpTrkAtVtx1 = trkAtVxPtr->at(0);
-	const Trk::ITrackLink * trLink1 =tmpTrkAtVtx1->trackOrParticleLink();
-	const Trk::TrackParticleBase* tempTrk1PB(0);
-	if (0!= trLink1) {
-	  const Trk::LinkToTrackParticleBase * linkToTrackPB =  dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink1);  
-	  if (0!= linkToTrackPB) {
-	    if(linkToTrackPB->isValid()) tempTrk1PB = linkToTrackPB->cachedElement(); 
-	  } 
-	}
-	if ( tempTrk1PB!=NULL){  
-	  const Trk::TrackSummary* summary1 = tempTrk1PB->trackSummary();
-	  if (summary1 != NULL){
-	    numPix0 = summary1->get(Trk::numberOfPixelHits);
-	    numSi0 = summary1->get(Trk::numberOfSCTHits)+numPix0;
-	  }
-	}
-	Trk::VxTrackAtVertex* tmpTrkAtVtx2 = trkAtVxPtr->at(1);
-	const Trk::ITrackLink * trLink2 =tmpTrkAtVtx2->trackOrParticleLink();
-	const Trk::TrackParticleBase* tempTrk2PB(0);
-	if (0!= trLink2) {
-	  const Trk::LinkToTrackParticleBase * linkToTrackPB =  dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink2);  
-	  if (0!= linkToTrackPB) {
-	    if (linkToTrackPB->isValid()) tempTrk2PB = linkToTrackPB->cachedElement(); 
-	  } 
-	}
-	if ( tempTrk2PB!=NULL) {
-	  const Trk::TrackSummary* summary2 = tempTrk2PB->trackSummary();
-	  if (summary2 != NULL){
-	    numPix1 = summary2->get(Trk::numberOfPixelHits);
-	    numSi1 = summary2->get(Trk::numberOfSCTHits) + numPix1;
-	  }
-	}
-      }
-    }
 
     ATH_MSG_DEBUG("electron track");
 
     int numBEl = -9;
     int numSiEl = -9;
     int numPixEl = -9;
+    bool expectHitInBL = false;
 
-    const Rec::TrackParticle * trParticle = (*ph)->trackParticle();
-    if (trParticle) {
-      const Trk::TrackSummary* sum = trParticle->trackSummary();
-      if (sum != NULL)  {
-	numPixEl = sum->get(Trk::numberOfPixelHits);
-	numSiEl = sum->get(Trk::numberOfSCTHits)+ numPixEl;
-	numBEl = sum->get(Trk::numberOfBLayerHits);
-      }
+    const int elIndex = photons->el_index(ph);
+    if (elIndex >= 0) {
+      numPixEl = origEl.nPixHits(elIndex);
+      numSiEl = numPixEl + origEl.nSCTHits(elIndex);
+      numBEl = origEl.nBLHits(elIndex);
+      expectHitInBL = origEl.expectBLayerHit(elIndex);
     }
 
     ATH_MSG_DEBUG("will do truth classifier");
-    int truth = -1;
-    int origin = -1;
-    if (m_isMC && m_doTruthClassifier) {
-      std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> res =
-	m_MCTruthClassifier->particleTruthClassifier(*ph);
-      truth = res.first;
-      origin = res.second;
-    }
+    const int truth = photons->type(ph);
+    const int origin = photons->origin(ph);
 
     ATH_MSG_DEBUG("will push back stuff");
 
     if (m_outputNtuple) {
       m_ph_pt->push_back(pt);
-      m_ph_eta->push_back((*ph)->eta());
-      m_ph_eta2->push_back((*ph)->cluster()->etaBE(2));
-      m_ph_phi->push_back((*ph)->phi());
+      m_ph_eta->push_back(photons->eta(ph));
+      m_ph_eta2->push_back(photons->etas2(ph));
+      m_ph_phi->push_back(photons->phi(ph));
 
-      const EMShower* egdetail = (*ph)->detail<EMShower>();
-      float iso = egdetail->etcone20_ptcorrected();
-
-      m_ph_etcone20->push_back(iso);
+      m_ph_etcone20->push_back(photons->topoEtcone20_corrected(ph));
       m_ph_tight->push_back(isTight);
       m_ph_alt->push_back(isAlt);
       m_ph_truth->push_back(truth);
       m_ph_origin->push_back(origin);
-      unsigned int isem = (*ph)->isem();
+      unsigned int isem = photons->isEM(ph);
       m_ph_isEM->push_back(isem & 0x0FFFFFFF);
 
-      const EMConvert *convert = (*ph)->detail<EMConvert>();
-      
-      if (!convert) {
-	ATH_MSG_ERROR("Selected photon had no EMConvert");
-	return StatusCode::FAILURE;
-      }
-      m_ph_AR->push_back(convert->ambiguityResult());
+      m_ph_AR->push_back(-999);
       m_ph_convType->push_back(convType);
       m_ph_numSi0->push_back(numSi0);
       m_ph_numSi1->push_back(numSi1);
@@ -1225,25 +1071,20 @@ StatusCode SignalGammaLepton::execute()
       m_ph_numPixEl->push_back(numPixEl);
       m_ph_numBEl->push_back(numBEl);
 
-      const EMTrackMatch *match = (*ph)->detail<EMTrackMatch>();
-      if (match) {
-	m_ph_expectBLayerHit->push_back(match->expectHitInBLayer());
-      } else {
-	m_ph_expectBLayerHit->push_back(-1);
-      }	
+      m_ph_expectBLayerHit->push_back(expectHitInBL);
     }
 
-    if ((*ph)->conversion()) numConvPhPass++;
-    ATH_MSG_DEBUG("Found photon with pt = " << pt << ", etaBE2 = " << (*ph)->cluster()->etaBE(2)
-		  << ", phi = " << (*ph)->phi());
+    if (convType) numConvPhPass++;
+    ATH_MSG_DEBUG("Found photon with pt = " << pt << ", etaBE2 = " << photons->etas2(ph)
+		  << ", phi = " << photons->phi(ph));
     
     if (pt > leadingPhPt ) {
       secondPh = leadingPh;
-      leadingPh = *ph;
+      leadingPh = ph;
       secondPhPt = leadingPhPt;
       leadingPhPt = pt;
     } else if (pt > secondPhPt) {
-      secondPh = *ph;
+      secondPh = ph;
       secondPhPt = pt;
     }
 
@@ -1263,7 +1104,7 @@ StatusCode SignalGammaLepton::execute()
 
   // DEAL WITH ELECTRONS
 
-  m_numElPresel = electrons->size();
+  m_numElPresel = electrons->n();
 
   const Analysis::Electron *leadingEl = 0;
   const Analysis::Electron *secondEl = 0;
@@ -1320,7 +1161,7 @@ StatusCode SignalGammaLepton::execute()
   }
 
   // DEAL WITH MUONS
-  m_numMuPresel = muons->size();
+  m_numMuPresel = muons->n();
 
   const Analysis::Muon *leadingMu = 0;
   const Analysis::Muon *secondMu = 0;
@@ -1479,16 +1320,16 @@ StatusCode SignalGammaLepton::execute()
       m_numJets++;
     }
 
-    if (m_doSmartVeto && isInLArHole(*jet)) {
-      bool eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
-						 (*jet)->getMoment("BCH_CORR_CELL"),
-						 (*jet)->getMoment("BCH_CORR_DOTX"),
-						 (*jet)->phi(),
-						 etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
-      if (eventFails) {
-       	return StatusCode::SUCCESS;
-      }
-    }
+    // if (m_doSmartVeto && isInLArHole(*jet)) {
+    //   bool eventFails = m_fakeMetEstimator.isBad((*jet)->pt(),(*jet)->getMoment("BCH_CORR_JET"),
+    // 						 (*jet)->getMoment("BCH_CORR_CELL"),
+    // 						 (*jet)->getMoment("BCH_CORR_DOTX"),
+    // 						 (*jet)->phi(),
+    // 						 etMiss_eta4p5_etx_muon,etMiss_eta4p5_ety_muon);
+    //   if (eventFails) {
+    //    	return StatusCode::SUCCESS;
+    //   }
+    // }
   }
   ATH_MSG_DEBUG("Passed LAr Hole");
   m_histograms["CutFlow"]->Fill(9.0, m_weight);
@@ -1805,6 +1646,12 @@ StatusCode SignalGammaLepton::execute()
     m_tree->Fill();  
   }
 
+  delete muons;
+  delete muonsBeforeOverlapRemoval;
+  delete electrons;
+  delete photons;
+  delete jets;
+
   return StatusCode::SUCCESS;
 }
 
@@ -1857,155 +1704,155 @@ StatusCode SignalGammaLepton::finalize() {
 /// measured with probes in the 20-50 GeV range (range=0) or 30-50 GeV (range=1) 
 /// and correcting (etcorrection=1) or not (etcorrection=0) for the ET-dependence
 /// et := cluster_E/cosh(track_eta)
-float SignalGammaLepton::GetSignalElecSF(float el_cl_eta, float et, int set, int rel, int mode, int range)
-{ 
-  float sf = 1.;
-  if (mode == 0 || mode == 1) sf = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).first;
-  if (mode == 0 || mode == 2) sf *= m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).first;
-  return sf; 
-}
+// float SignalGammaLepton::GetSignalElecSF(float el_cl_eta, float et, int set, int rel, int mode, int range)
+// { 
+//   float sf = 1.;
+//   if (mode == 0 || mode == 1) sf = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).first;
+//   if (mode == 0 || mode == 2) sf *= m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).first;
+//   return sf; 
+// }
 
-float SignalGammaLepton::GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel, int mode, int range)
-{ 
-  float sfUnc = 0.;
-  if (mode == 0 || mode == 1) sfUnc = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).second;
-  if (mode == 0 || mode == 2) sfUnc = hypot(sfUnc, m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).second);
-  return sfUnc;
-}
+// float SignalGammaLepton::GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel, int mode, int range)
+// { 
+//   float sfUnc = 0.;
+//   if (mode == 0 || mode == 1) sfUnc = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).second;
+//   if (mode == 0 || mode == 2) sfUnc = hypot(sfUnc, m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).second);
+//   return sfUnc;
+// }
 
-////////////////////////////////////////////////////////////////////////////
-/// recordEtMissSystematics(): 
-StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container) {
+// ////////////////////////////////////////////////////////////////////////////
+// /// recordEtMissSystematics(): 
+// StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container) {
 
-  ATH_MSG_DEBUG("Starting NtupleDumper recordEtMissSystematics()");
+//   ATH_MSG_DEBUG("Starting NtupleDumper recordEtMissSystematics()");
   
-  StatusCode sc = StatusCode::SUCCESS;
+//   StatusCode sc = StatusCode::SUCCESS;
 
-  const CaloClusterContainer* topo_con= 0;
-  sc=evtStore()->retrieve( topo_con, m_topoClusterContainerName );
-  if( sc.isFailure()  ||  !topo_con ) {
-    ATH_MSG_WARNING("No CaloClusterContainer, " << m_topoClusterContainerName << ", found in storegate!");
-    return sc;
-  }
+//   const CaloClusterContainer* topo_con= 0;
+//   sc=evtStore()->retrieve( topo_con, m_topoClusterContainerName );
+//   if( sc.isFailure()  ||  !topo_con ) {
+//     ATH_MSG_WARNING("No CaloClusterContainer, " << m_topoClusterContainerName << ", found in storegate!");
+//     return sc;
+//   }
 
-  MissingET* met_plus=0;
-  MissingET* met_minus=0;
+//   MissingET* met_plus=0;
+//   MissingET* met_minus=0;
   
-  met_plus = m_topoSystematicsTool->getMissingEtUncert(old_met, true,topo_con,vx_container);
-  met_minus = m_topoSystematicsTool->getMissingEtUncert(old_met, false,topo_con,vx_container);
+//   met_plus = m_topoSystematicsTool->getMissingEtUncert(old_met, true,topo_con,vx_container);
+//   met_minus = m_topoSystematicsTool->getMissingEtUncert(old_met, false,topo_con,vx_container);
 
-  if(m_topo_systematics_use_eta45) {
+//   if(m_topo_systematics_use_eta45) {
     
-    // Regions for lochad topo plus
-    const MissingEtRegions* caloPlusReg = met_plus->getRegions();
-    if ( caloPlusReg != 0 ) { 
-      m_metxPlus_noMuon=caloPlusReg->exReg(MissingEtRegions::Central);
-      m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::EndCap);
-      m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::Forward);
-      m_metyPlus_noMuon=caloPlusReg->eyReg(MissingEtRegions::Central);
-      m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::EndCap);
-      m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::Forward);
-      m_setPlus_noMuon=caloPlusReg->etSumReg(MissingEtRegions::Central)
-	+caloPlusReg->etSumReg(MissingEtRegions::EndCap)
-	+caloPlusReg->etSumReg(MissingEtRegions::Forward);
-    } else {
-      ATH_MSG_ERROR("not found plus regions");
-      return StatusCode::FAILURE;
-    }
+//     // Regions for lochad topo plus
+//     const MissingEtRegions* caloPlusReg = met_plus->getRegions();
+//     if ( caloPlusReg != 0 ) { 
+//       m_metxPlus_noMuon=caloPlusReg->exReg(MissingEtRegions::Central);
+//       m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::EndCap);
+//       m_metxPlus_noMuon+=caloPlusReg->exReg(MissingEtRegions::Forward);
+//       m_metyPlus_noMuon=caloPlusReg->eyReg(MissingEtRegions::Central);
+//       m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::EndCap);
+//       m_metyPlus_noMuon+=caloPlusReg->eyReg(MissingEtRegions::Forward);
+//       m_setPlus_noMuon=caloPlusReg->etSumReg(MissingEtRegions::Central)
+// 	+caloPlusReg->etSumReg(MissingEtRegions::EndCap)
+// 	+caloPlusReg->etSumReg(MissingEtRegions::Forward);
+//     } else {
+//       ATH_MSG_ERROR("not found plus regions");
+//       return StatusCode::FAILURE;
+//     }
 
-    // Regions for lochad topo minus
-    const MissingEtRegions* caloMinusReg = met_minus->getRegions();
-    if ( caloMinusReg != 0 ) { 
-      m_metxMinus_noMuon=caloMinusReg->exReg(MissingEtRegions::Central);
-      m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::EndCap);
-      m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::Forward);
-      m_metyMinus_noMuon=caloMinusReg->eyReg(MissingEtRegions::Central);
-      m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::EndCap);
-      m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::Forward);
-      m_setMinus_noMuon=caloMinusReg->etSumReg(MissingEtRegions::Central)
-	+caloMinusReg->etSumReg(MissingEtRegions::EndCap)
-	+caloMinusReg->etSumReg(MissingEtRegions::Forward);
-    } else {
-      ATH_MSG_ERROR("not found minus regions");
-      return StatusCode::FAILURE;
-    }
+//     // Regions for lochad topo minus
+//     const MissingEtRegions* caloMinusReg = met_minus->getRegions();
+//     if ( caloMinusReg != 0 ) { 
+//       m_metxMinus_noMuon=caloMinusReg->exReg(MissingEtRegions::Central);
+//       m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::EndCap);
+//       m_metxMinus_noMuon+=caloMinusReg->exReg(MissingEtRegions::Forward);
+//       m_metyMinus_noMuon=caloMinusReg->eyReg(MissingEtRegions::Central);
+//       m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::EndCap);
+//       m_metyMinus_noMuon+=caloMinusReg->eyReg(MissingEtRegions::Forward);
+//       m_setMinus_noMuon=caloMinusReg->etSumReg(MissingEtRegions::Central)
+// 	+caloMinusReg->etSumReg(MissingEtRegions::EndCap)
+// 	+caloMinusReg->etSumReg(MissingEtRegions::Forward);
+//     } else {
+//       ATH_MSG_ERROR("not found minus regions");
+//       return StatusCode::FAILURE;
+//     }
 
-  } else {
-    // Plus met
-    m_metxPlus_noMuon=met_plus->etx();
-    m_metyPlus_noMuon=met_plus->ety();
-    m_setPlus_noMuon=met_plus->sumet();
-    // Minus met
-    m_metxMinus_noMuon=met_minus->etx();
-    m_metyMinus_noMuon=met_minus->ety();
-    m_setMinus_noMuon=met_minus->sumet();
-  }
+//   } else {
+//     // Plus met
+//     m_metxPlus_noMuon=met_plus->etx();
+//     m_metyPlus_noMuon=met_plus->ety();
+//     m_setPlus_noMuon=met_plus->sumet();
+//     // Minus met
+//     m_metxMinus_noMuon=met_minus->etx();
+//     m_metyMinus_noMuon=met_minus->ety();
+//     m_setMinus_noMuon=met_minus->sumet();
+//   }
 
-  //ATH_MSG_WARNING("METx_noMuon = " << m_metx_noMuon << ", METPlusx = " << m_metxPlus_noMuon);
-  return sc;
-}
+//   //ATH_MSG_WARNING("METx_noMuon = " << m_metx_noMuon << ", METPlusx = " << m_metxPlus_noMuon);
+//   return sc;
+// }
 
 
 
-////////////////////////////////////////////////////////////////////////////
-/// recordMuonSystematics(): 
-StatusCode SignalGammaLepton::recordEtMissMuonSystematics() {
+// ////////////////////////////////////////////////////////////////////////////
+// /// recordMuonSystematics(): 
+// StatusCode SignalGammaLepton::recordEtMissMuonSystematics() {
 
-  ATH_MSG_DEBUG("Starting NtupleDumper recordMuonSystematics()");
+//   ATH_MSG_DEBUG("Starting NtupleDumper recordMuonSystematics()");
   
-  //Setup container info for the met systematics tool
-  StatusCode sc = m_muonSystematicsTool->getEventInfo();
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING("Loading of containers for EtMissMuonSytematicsTool failed! Aborting systematics calculation.");
-    return sc;
-  }
+//   //Setup container info for the met systematics tool
+//   StatusCode sc = m_muonSystematicsTool->getEventInfo();
+//   if(sc.isFailure()) {
+//     ATH_MSG_WARNING("Loading of containers for EtMissMuonSytematicsTool failed! Aborting systematics calculation.");
+//     return sc;
+//   }
   
-  MissingET* met_smear = m_muonSystematicsTool->getMissingEtMuonUncert(MuonSmear::Nominal);
-  m_metx_muon_smear=met_smear->etx();
-  m_mety_muon_smear=met_smear->ety();
-  m_set_muon_smear=met_smear->sumet();
+//   MissingET* met_smear = m_muonSystematicsTool->getMissingEtMuonUncert(MuonSmear::Nominal);
+//   m_metx_muon_smear=met_smear->etx();
+//   m_mety_muon_smear=met_smear->ety();
+//   m_set_muon_smear=met_smear->sumet();
   
-  return sc;
-}
+//   return sc;
+// }
 
-////////////////////////////////////////////////////////////////////////////
-/// recordTruthMET(): 
-StatusCode SignalGammaLepton::recordTruthMET()
-{
+// ////////////////////////////////////////////////////////////////////////////
+// /// recordTruthMET(): 
+// StatusCode SignalGammaLepton::recordTruthMET()
+// {
 
-  ATH_MSG_DEBUG("Starting NtupleDumper recordTruthMET()");
+//   ATH_MSG_DEBUG("Starting NtupleDumper recordTruthMET()");
 
-  StatusCode sc = StatusCode::SUCCESS;
+//   StatusCode sc = StatusCode::SUCCESS;
     
-  // Read MET_Truth_PileUp form storage
-  const MissingEtTruth* met_truth_pileupTES =0;
-  sc=evtStore()->retrieve( met_truth_pileupTES, m_missingEtTruth );
-  if( sc.isFailure()  ||  !met_truth_pileupTES ) {
-    ATH_MSG_WARNING("No AOD MissingEtTruthPileUp container found in TDS"); 
-    return sc;
-  } 
+//   // Read MET_Truth_PileUp form storage
+//   const MissingEtTruth* met_truth_pileupTES =0;
+//   sc=evtStore()->retrieve( met_truth_pileupTES, m_missingEtTruth );
+//   if( sc.isFailure()  ||  !met_truth_pileupTES ) {
+//     ATH_MSG_WARNING("No AOD MissingEtTruthPileUp container found in TDS"); 
+//     return sc;
+//   } 
   
-  ATH_MSG_DEBUG("MissingEtTruthPileUp successfully retrieved");
+//   ATH_MSG_DEBUG("MissingEtTruthPileUp successfully retrieved");
 
-  //Typess for MET_Truth_PileUp
-  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::Int) );
-  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::Int) );
-  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::Int) );
-  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::NonInt) );
-  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::NonInt) );
-  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::NonInt) );
-  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntCentral) );
-  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntCentral) );
-  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntCentral) );
-  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntFwd) );
-  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntFwd) );
-  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntFwd) );
-  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntOutCover) );
-  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntOutCover) );
-  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntOutCover) );
-  m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::Muons) );
-  m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::Muons) );
-  m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::Muons) );
+//   //Typess for MET_Truth_PileUp
+//   m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::Int) );
+//   m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::Int) );
+//   m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::Int) );
+//   m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::NonInt) );
+//   m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::NonInt) );
+//   m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::NonInt) );
+//   m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntCentral) );
+//   m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntCentral) );
+//   m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntCentral) );
+//   m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntFwd) );
+//   m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntFwd) );
+//   m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntFwd) );
+//   m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::IntOutCover) );
+//   m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::IntOutCover) );
+//   m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::IntOutCover) );
+//   m_metx_truth->push_back( met_truth_pileupTES->exTruth(MissingEtTruth::Muons) );
+//   m_mety_truth->push_back( met_truth_pileupTES->eyTruth(MissingEtTruth::Muons) );
+//   m_set_truth->push_back( met_truth_pileupTES->etSumTruth(MissingEtTruth::Muons) );
 
-  return sc;
-}
+//   return sc;
+// }
