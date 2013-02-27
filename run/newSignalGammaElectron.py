@@ -87,8 +87,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool
                             )
 from AthenaCommon.AppMgr import ToolSvc
-testAlg.OutputLevel = DEBUG
-#testAlg.OutputLevel = INFO
+#testAlg.OutputLevel = DEBUG
+testAlg.OutputLevel = INFO
 
 # Add example to Reader
 topSequence += testAlg
