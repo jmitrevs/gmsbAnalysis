@@ -7,39 +7,28 @@ use AtlasROOT                   AtlasROOT-*                     External
 use AtlasPolicy	       AtlasPolicy-*
 use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
-use AthenaKernel       AthenaKernel-*           Control
 use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
-use PathResolver       PathResolver-* Tools
-
-use gmsbD3PDObjects             gmsbD3PDObjects-*
+use  EG                         EG-*
 
 private
-use JetSelectorTools   JetSelectorTools-*       PhysicsAnalysis/JetMissingEtID
-use ObjectSelectorCore ObjectSelectorCore-*     PhysicsAnalysis/AnalysisCommon
+use PathResolver       PathResolver-* Tools
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use gmsbD3PDObjects             gmsbD3PDObjects-*
+#use JetSelectorTools   JetSelectorTools-*       PhysicsAnalysis/JetMissingEtID
+#use ObjectSelectorCore ObjectSelectorCore-*     PhysicsAnalysis/AnalysisCommon
 use gmsbTools          gmsbTools-*
 use FourMomUtils		FourMomUtils-*			Event
 use EventInfo                   EventInfo-*                     Event
 use egammaEvent	       egammaEvent-*		Reconstruction/egamma
-use MissingETEvent     MissingETEvent-*         Reconstruction
-use muonEvent	       muonEvent-*              Reconstruction/MuonIdentification
-use JetEvent           JetEvent-*               Reconstruction/Jet
-use JetUtils           JetUtils-*               Reconstruction/Jet
-use VxVertex           VxVertex-*               Tracking/TrkEvent
-use ITrackToVertex     ITrackToVertex-*         Reconstruction/RecoTools
 use MCTruthClassifier  MCTruthClassifier-*      PhysicsAnalysis
 use PhotonAnalysisUtils        PhotonAnalysisUtils-*           PhysicsAnalysis/StandardModelPhys
 use McParticleEvent    McParticleEvent-*        PhysicsAnalysis/TruthParticleID
-use TrigDecisionTool   TrigDecisionTool-*       Trigger/TrigAnalysis
-use TrigObjectMatching TrigObjectMatching-*     Trigger/TrigAnalysis
 use AtlasHepMC         AtlasHepMC-*             External
 use GeneratorObjects   GeneratorObjects-*       Generators
-use TrkTrackLink		TrkTrackLink-*			Tracking/TrkEvent
-use TrkParticleBase		TrkParticleBase-*		Tracking/TrkEvent
 use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
 use TrigMuonEvent      TrigMuonEvent-*          Trigger/TrigEvent
-use ReweightUtils      ReweightUtils-*          PhysicsAnalysis/AnalysisCommon
-use DanGMSBAnaTools    DanGMSBAnaTools-*
-use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
+#use ReweightUtils      ReweightUtils-*          PhysicsAnalysis/AnalysisCommon
+#use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx
