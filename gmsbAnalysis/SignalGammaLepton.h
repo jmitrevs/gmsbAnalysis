@@ -9,8 +9,8 @@
 #include "gmsbTools/TruthStudies.h"
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
-#include "gmsbAnalysis/AccumulateUncert.h"
-#include "gmsbAnalysis/AccumulateFFUncert.h"
+//#include "gmsbAnalysis/AccumulateUncert.h"
+//#include "gmsbAnalysis/AccumulateFFUncert.h"
 
 #include "gmsbAnalysis/FakeMetEstimator.h"
 
@@ -51,7 +51,7 @@ private:
   // StatusCode recordEtMissMuonSystematics();
   // StatusCode recordTruthMET();
 
-  int m_set; 			// electron scale factor set 
+  int m_elsfset; 			// electron scale factor set 
 
   /** MET selecton */
   std::string m_METContainerName;
@@ -149,10 +149,10 @@ private:
   //ServiceHandle<ICutFlowSvc> m_cutFlowSvc;
   //ServiceHandle<IUserDataSvc> m_userdatasvc;
 
-  AccumulateUncert accUnc;  // for leading photon
-  AccumulateFFUncert accFFUnc;
-  AccumulateUncert accUnc2; // for second photon
-  AccumulateFFUncert accFFUnc2;
+  // AccumulateUncert accUnc;  // for leading photon
+  // AccumulateFFUncert accFFUnc;
+  // AccumulateUncert accUnc2; // for second photon
+  // AccumulateFFUncert accFFUnc2;
 
   mutable TRandom3 m_rand3;
 
@@ -246,33 +246,33 @@ private:
   // MET
   float m_metx;
   float m_mety;
-  float m_metx_noMuon;
-  float m_mety_noMuon;
-  float m_metx_full_noMuon;
-  float m_mety_full_noMuon;
-  float m_metx_MuonBoy;
-  float m_mety_MuonBoy;
-  float m_metx_RefTrack;
-  float m_mety_RefTrack;
-  float m_metxPlus_noMuon;
-  float m_metyPlus_noMuon;
-  float m_metxMinus_noMuon;
-  float m_metyMinus_noMuon;
+  // float m_metx_noMuon;
+  // float m_mety_noMuon;
+  // float m_metx_full_noMuon;
+  // float m_mety_full_noMuon;
+  // float m_metx_MuonBoy;
+  // float m_mety_MuonBoy;
+  // float m_metx_RefTrack;
+  // float m_mety_RefTrack;
+  // float m_metxPlus_noMuon;
+  // float m_metyPlus_noMuon;
+  // float m_metxMinus_noMuon;
+  // float m_metyMinus_noMuon;
 
-  float m_metx_muon_smear;
-  float m_mety_muon_smear;
+  // float m_metx_muon_smear;
+  // float m_mety_muon_smear;
 
-  float m_set_noMuon;
-  float m_set_full_noMuon;
-  float m_set_MuonBoy;
-  float m_set_RefTrack;
-  float m_setPlus_noMuon;
-  float m_setMinus_noMuon;
-  float m_set_muon_smear;
+  float m_set;
+  // float m_set_full_noMuon;
+  // float m_set_MuonBoy;
+  // float m_set_RefTrack;
+  // float m_setPlus_noMuon;
+  // float m_setMinus_noMuon;
+  // float m_set_muon_smear;
 
-  std::vector<float> *m_metx_truth;
-  std::vector<float> *m_mety_truth;
-  std::vector<float> *m_set_truth;
+  // std::vector<float> *m_metx_truth;
+  // std::vector<float> *m_mety_truth;
+  // std::vector<float> *m_set_truth;
 
   float m_ph_el_minv;
   float m_ph_mu_minv;
