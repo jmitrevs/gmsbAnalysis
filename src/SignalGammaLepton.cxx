@@ -83,7 +83,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
+  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
@@ -96,7 +96,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   // Name of the primary vertex candidates
   declareProperty("PrimaryVertexCandidates",
-		  m_vxCandidatesName="VxPrimaryCandidate",
+		  m_vxCandidatesName="vx_",
 		  "Name of the primary vertex candidates");
 
   declareProperty("PreparationTool",      m_PreparationTool);
@@ -637,14 +637,14 @@ StatusCode SignalGammaLepton::execute()
   m_pileupWeight = 1.0;
 
   // The missing ET object
-  RefFinalMETD3PDObject metCont(m_METContainerName);
+  const RefFinalMETD3PDObject metCont(m_METContainerName);
   ATH_CHECK(metCont.retrieve());
 
   // retrieve the container of Vertex
-  PrimaryVertexD3PDObject vxContainer(m_vxCandidatesName);
+  const PrimaryVertexD3PDObject vxContainer(m_vxCandidatesName);
   ATH_CHECK(vxContainer.retrieve());
 
-  EventInfoD3PDObject evtInfo;
+  const EventInfoD3PDObject evtInfo("");
   ATH_CHECK(evtInfo.retrieve());
 
   if (m_outputNtuple) {
@@ -745,7 +745,7 @@ StatusCode SignalGammaLepton::execute()
   //   m_numTruthPh = -1;
   // }
 
-  //m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
+  m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
 
   if (evtInfo.larError() == 2 || 
@@ -810,7 +810,7 @@ StatusCode SignalGammaLepton::execute()
     electrons = m_PreparationTool->selectedElectrons(); // only for debugging
   }
 
-  ElectronD3PDObject origEl("el_");
+  const ElectronD3PDObject origEl("el_");
   ATH_CHECK(origEl.retrieve());
 
   MuonD3PDObject *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
@@ -1483,7 +1483,9 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("mu sf = " << m_mu_sf << " +- " << m_mu_sf_unc); 
   ATH_MSG_DEBUG("mu trigh weight = " << m_mu_trig_weight << " +- " << m_mu_trig_weight_unc); 
 
-  const double totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight * m_pileupWeight;
+  const float totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight * m_pileupWeight;
+
+  ATH_MSG_DEBUG("totalWeight = " << totalWeight); 
 
   // /////////////////////////////////////////////////////
   // // Now some truth studies
@@ -1512,7 +1514,7 @@ StatusCode SignalGammaLepton::execute()
     m_histograms["isStrong"]->Fill(m_isStrong, totalWeight);
     m_histograms["numTruthPh"]->Fill(m_numTruthPh, totalWeight);
 
-    if (leadingPh) {
+    if (leadingPh >= 0) {
       m_histograms["ph_eta1"]->Fill(photons->eta(leadingPh), totalWeight);
       m_histograms["ph_pt1"]->Fill(leadingPhPt/GeV, totalWeight);
       
@@ -1531,7 +1533,7 @@ StatusCode SignalGammaLepton::execute()
 	}
       }    
     
-      if (secondPh) {
+      if (secondPh >= 0) {
 	m_histograms["ph_eta2"]->Fill(photons->eta(secondPh), totalWeight);
 	m_histograms["ph_pt2"]->Fill(secondPhPt/GeV, totalWeight);
 	
@@ -1564,17 +1566,17 @@ StatusCode SignalGammaLepton::execute()
     m_histograms["numPh"]->Fill(m_numPh, totalWeight);
     m_histograms["ph_numConv"]->Fill(numConvPhPass, totalWeight);
   
-    if (leadingEl) {
+    if (leadingEl >= 0) {
       m_histograms["el_eta1"]->Fill(electrons->eta(leadingEl), totalWeight);
       m_histograms["el_pt1"]->Fill(leadingElPt/GeV, totalWeight);
     }
-    if (secondEl) {
+    if (secondEl >= 0) {
       m_histograms["el_eta2"]->Fill(electrons->eta(secondEl), totalWeight);
       m_histograms["el_pt2"]->Fill(secondElPt/GeV, totalWeight);
     }
     m_histograms["numEl"]->Fill(m_numEl, totalWeight);
     m_histograms["numMu"]->Fill(m_numMu, totalWeight);
-    if (leadingMu) {
+    if (leadingMu >= 0) {
       m_histograms["mu_eta1"]->Fill(muons->eta(leadingMu), totalWeight);
       m_histograms["mu_pt1"]->Fill(leadingMuPt/GeV, totalWeight);
     }
