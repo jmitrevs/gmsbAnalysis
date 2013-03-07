@@ -58,6 +58,17 @@ const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
 // }
 
 
+bool SignalGammaLepton::IsBadMuon(float mu_staco_qoverp_exPV, 
+				  float mu_staco_cov_qoverp_exPV) const
+{
+  if (m_mu_qopcut > 0. && mu_staco_qoverp_exPV != 0 && mu_staco_qoverp_exPV > -99999.) {
+    float qoperror = sqrtf(mu_staco_cov_qoverp_exPV)/fabsf(mu_staco_qoverp_exPV);
+    return (qoperror >= m_mu_qopcut);
+  }
+  return false;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
@@ -140,6 +151,10 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   //declareProperty("doSmartVeto", m_doSmartVeto = true);
   declareProperty("outputHistograms", m_outputHistograms = true);
   declareProperty("outputNtuple", m_outputNtuple = false);
+
+  declareProperty("MuonCleaningQovPCut", m_mu_qopcut = 0.2);
+  declareProperty("MuonCleaningZ0Cut", m_mu_z0cut = 1.0);
+  declareProperty("MuonCleaningD0Cut", m_mu_d0cut = 0.2);
 
   declareProperty("ElSFSet", m_elsfset = 6); // 5, 6, 7 = loose++, mediu,++, tight++
 
@@ -490,6 +505,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_mu_tight = new std::vector<int>;
     m_mu_alt = new std::vector<int>;
 
+    m_jet_pt = new std::vector<float>;
+    m_jet_eta = new std::vector<float>;
+    m_jet_phi = new std::vector<float>;
+    m_jet_E = new std::vector<float>;
+    m_jet_JVF = new std::vector<float>;
+    m_jet_MV1 = new std::vector<float>;
+
     // m_metx_truth = new std::vector<float>;
     // m_mety_truth = new std::vector<float>;
     // m_set_truth = new std::vector<float>;
@@ -618,6 +640,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("MuonTight", &m_mu_tight);
     m_tree->Branch("MuonAlt", &m_mu_alt);
 
+    m_tree->Branch("JetPt", &m_jet_pt);
+    m_tree->Branch("JetEta", &m_jet_eta);
+    m_tree->Branch("JetPhi", &m_jet_phi);
+    m_tree->Branch("JetE", &m_jet_E);
+    m_tree->Branch("JetJVF", &m_jet_JVF);
+    m_tree->Branch("JetMV1", &m_jet_MV1);
+
     // m_tree->Branch("MetxTruth", &m_metx_truth);
     // m_tree->Branch("MetyTruth", &m_mety_truth);
     // m_tree->Branch("SetTruth", &m_set_truth);
@@ -682,6 +711,13 @@ StatusCode SignalGammaLepton::execute()
     m_mu_phi->clear();
     m_mu_tight->clear();
     m_mu_alt->clear();
+
+    m_jet_pt->clear();
+    m_jet_eta->clear();
+    m_jet_phi->clear();
+    m_jet_E->clear();
+    m_jet_JVF->clear();
+    m_jet_MV1->clear();
 
     // m_metx_truth->clear();
     // m_mety_truth->clear();
@@ -817,7 +853,7 @@ StatusCode SignalGammaLepton::execute()
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
 
-  // const JetCollection *allJets =  m_PreparationTool->selectedJets();
+  JetD3PDObject *jetsBeforeOverlapRemoval =  m_PreparationTool->selectedJets();
 
   JetD3PDObject *jets = m_OverlapRemovalTool2->finalStateJets();
 
@@ -854,7 +890,19 @@ StatusCode SignalGammaLepton::execute()
        jet++) {
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
-    if (jets->isBadLoose(jet)) {
+    if (jets->isBadLooseMinus(jet)) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  for (int jet = 0;
+       jet < jetsBeforeOverlapRemoval->n();
+       jet++) {
+    
+    if (jetsBeforeOverlapRemoval->pt(jet) > 40*GeV &&
+	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
+	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
+				       metCont.phi())) < 0.3) {
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -928,39 +976,32 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
+  // find the number of PVs with 5 tracks or more (used later)
+  int nPV = 0;
+
+  for (int i = 0; i < vxContainer.n(); i++) {
+    if (vxContainer.nTracks(i) >= 5) {
+      nPV++;
+    }
+  }
+  
+
   m_histograms["CutFlow"]->Fill(5.0, m_weight);
   ATH_MSG_DEBUG("Passed vertex");
 
 
   // moun cleaning -- bad muons
-  /*** NEED TO REVISIT***/
-  /*
-  for (std::size_t mu = 0;
+  for (int mu = 0;
        mu < muonsBeforeOverlapRemoval->n();
        mu++) {
    
-    const Rec::TrackParticle* track = (*mu)->track();
-    bool trackok = (track && track->measuredPerigee()->localErrorMatrix().covariance().num_row() != 0);
-    if(!trackok && track) {
-      ATH_MSG_WARNING("MuonTrackAtPVFiller: muon (primary) track has null covariance matrix.");
-      return StatusCode::RECOVERABLE;
-    }
-
-    const Trk::MeasuredPerigee* newMeasPerigee =
-      m_trackToVertexTool->perigeeAtVertex(*track, vxContainer->at(0)->recVertex().position());
-    const double qoverp_exPV = newMeasPerigee->parameters()[Trk::qOverP];
-    const Trk::ErrorMatrix errormat = newMeasPerigee->localErrorMatrix();
-    const double cov_qoverp_exPV = errormat.covValue(Trk::qOverP);
-    delete newMeasPerigee;
-    ATH_MSG_DEBUG("qoverp_exPV = " << qoverp_exPV << ", cov_qoverp_exPV = " << cov_qoverp_exPV);
-    
-    if (qoverp_exPV != 0 && qoverp_exPV > -99999.) {
-      double qoperror = sqrt(cov_qoverp_exPV)/fabs(qoverp_exPV);
-      if (qoperror >= 0.2) return StatusCode::SUCCESS; // reject event 
+    if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
+		  muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
+      return StatusCode::SUCCESS; // reject event 
     }
   }
 
-  */
+  
   // muon cleaning -- cosmic muons
   for (int mu = 0;
        mu < muons->n();
@@ -970,7 +1011,7 @@ StatusCode SignalGammaLepton::execute()
     const float dd = muons->d0_exPV(mu);
 
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
-    if (fabsf(dz) >= 1.0 || fabsf(dd) >= 0.2) {
+    if (fabsf(dz) >= m_mu_z0cut || fabsf(dd) >= m_mu_d0cut) {
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -989,15 +1030,11 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->n());
   
-  ATH_MSG_DEBUG("here 1");
-
   m_numPh = 0;
   for (SortHelpers::sl_t::const_iterator it = phoOrder.begin(); 
        it != phoOrder.end(); 
        ++it) {
     const std::size_t ph = it->first;
-
-    ATH_MSG_DEBUG("here 2");
 
     const double pt = it->second;
 
@@ -1076,7 +1113,7 @@ StatusCode SignalGammaLepton::execute()
     }
 
     if (convType) numConvPhPass++;
-    ATH_MSG_DEBUG("Found photon with pt = " << pt << ", etaBE2 = " << photons->etas2(ph)
+    ATH_MSG_DEBUG("Found photon with E = " << photons->E(ph) << ", pt = " << pt << ", etaBE2 = " << photons->etas2(ph)
 		  << ", phi = " << photons->phi(ph));
     
     if (pt > leadingPhPt ) {
@@ -1091,7 +1128,6 @@ StatusCode SignalGammaLepton::execute()
 
   }
 
-  ATH_MSG_DEBUG("here 3");
   if (m_numPh < m_numPhotonsReq || m_numPh > m_numPhotonsMax) {
     return StatusCode::SUCCESS;
   }
@@ -1124,10 +1160,10 @@ StatusCode SignalGammaLepton::execute()
 		  << ", eta = " << electrons->eta(el) 
 		  << ", phi = " << electrons->phi(el)); 
     
-    bool isTight = m_FinalSelectionTool->isSelected(*electrons, el);
+    bool isTight = m_FinalSelectionTool->isSelected(*electrons, el, nPV);
     if (m_requireTightLep && !isTight) continue; 
 
-    bool isAlt = (m_doABCDLep) ? m_AltSelectionTool->isSelected(*electrons, el) : false;
+    bool isAlt = (m_doABCDLep) ? m_AltSelectionTool->isSelected(*electrons, el, nPV) : false;
 
     m_HT += pt;
 
@@ -1171,11 +1207,11 @@ StatusCode SignalGammaLepton::execute()
 
     if (pt < m_minMuonPt) continue;
 
-    bool isTight = m_FinalSelectionTool->isSelected(*muons, mu);
+    bool isTight = m_FinalSelectionTool->isSelected(*muons, mu, nPV);
 
     if (m_requireTightLep && !isTight) continue; 
 
-    bool isAlt = (m_doABCDLep) ? m_AltSelectionTool->isSelected(*muons, mu) : false;
+    bool isAlt = (m_doABCDLep) ? m_AltSelectionTool->isSelected(*muons, mu, nPV) : false;
 
     m_numMu++;
    
@@ -1264,6 +1300,14 @@ StatusCode SignalGammaLepton::execute()
     if (jets->eta(jet) < 2.8) {
       m_HT += jets->pt(jet);
       m_numJets++;
+      if (m_outputNtuple) {
+	m_jet_pt->push_back(jets->pt(jet));
+	m_jet_E->push_back(jets->E(jet));
+	m_jet_eta->push_back(jets->eta(jet));
+	m_jet_phi->push_back(jets->phi(jet));
+	m_jet_JVF->push_back(jets->jvtxf(jet));
+	m_jet_MV1->push_back(jets->flavor_weight_MV1(jet));
+      }
     }
 
     // if (m_doSmartVeto && isInLArHole(*jet)) {
@@ -1636,6 +1680,7 @@ StatusCode SignalGammaLepton::execute()
   delete electrons;
   delete photons;
   delete jets;
+  delete jetsBeforeOverlapRemoval;
 
   return StatusCode::SUCCESS;
 }
@@ -1841,3 +1886,4 @@ StatusCode SignalGammaLepton::finalize() {
 
 //   return sc;
 // }
+

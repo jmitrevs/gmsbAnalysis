@@ -41,6 +41,9 @@ public:
 
 private:
 
+  bool IsBadMuon(float mu_staco_qoverp_exPV, 
+		 float mu_staco_cov_qoverp_exPV) const;
+
   // bool isInLArHole(Jet* jet) const;
 
   // // both should really be const.
@@ -91,6 +94,11 @@ private:
 
   /** truth container name **/
   std::string m_McEventContainerName;
+
+  /// For muon cleaning
+  float m_mu_qopcut;
+  float m_mu_z0cut;
+  float m_mu_d0cut;
 
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;
@@ -212,6 +220,13 @@ private:
   std::vector<int>* m_mu_tight;
   std::vector<int>* m_mu_alt;
 
+  std::vector<float>* m_jet_pt;
+  std::vector<float>* m_jet_eta;
+  std::vector<float>* m_jet_phi;
+  std::vector<float>* m_jet_E;
+  std::vector<float>* m_jet_JVF;
+  std::vector<float>* m_jet_MV1;
+  
   unsigned int m_numPh;
   unsigned int m_numEl;
   unsigned int m_numMu;
