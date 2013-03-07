@@ -10,10 +10,10 @@ Method         : Cuts::Cuts
 TMVA Release   : 4.1.0         [262400]
 ROOT Release   : 5.28/00       [334848]
 Creator        : jmitrevs
-Date           : Fri Jul 13 13:33:14 2012
+Date           : Tue Jan 15 17:39:09 2013
 Host           : Linux lxbuild147.cern.ch 2.6.18-194.26.1.el5 #1 SMP Wed Nov 10 09:51:11 CET 2010 i686 i686 i386 GNU/Linux
 Dir            : /data3/jmitrevs/AtlasProduction-17.0.6.5/gmsbAnalysis/macros
-Training events: 40178
+Training events: 9426
 Analysis type  : [Classification]
 
 
@@ -44,9 +44,9 @@ VarProp[0]: "FSmart" [Categorisation of cuts]
 #VAR -*-*-*-*-*-*-*-*-*-*-*-* variables *-*-*-*-*-*-*-*-*-*-*-*-
 
 NVar 3
-sqrt(Metx*Metx+Mety*Mety)     MET                           MET                           MET                                                             'F'    [264.879730225,853221.1875]
-PhotonPt[0]                   PhotonPt_0_                   PhotonPt[0]                   PhotonPt[0]                                                     'F'    [50000.3710938,705441.375]
-mTel                          mTel                          mTel                          mTel                                                            'F'    [0.145209223032,1556789.625]
+sqrt(Metx*Metx+Mety*Mety)     MET                           MET                           MET                                                             'F'    [710.724609375,675928.625]
+PhotonPt[0]                   PhotonPt_0_                   PhotonPt[0]                   PhotonPt[0]                                                     'F'    [100006.0625,1159895.25]
+mTel                          mTel                          mTel                          mTel                                                            'F'    [2.79560232162,1005072.8125]
 NSpec 0
 
 
@@ -117,12 +117,12 @@ class ReadCuts : public IClassifierReader {
       }
 
       // initialize min and max vectors (for normalisation)
-      fVmin[0] = 264.879730224609;
-      fVmax[0] = 853221.1875;
-      fVmin[1] = 50000.37109375;
-      fVmax[1] = 705441.375;
-      fVmin[2] = 0.145209223031998;
-      fVmax[2] = 1556789.625;
+      fVmin[0] = 710.724609375;
+      fVmax[0] = 675928.625;
+      fVmin[1] = 100006.0625;
+      fVmax[1] = 1159895.25;
+      fVmin[2] = 2.79560232162476;
+      fVmax[2] = 1005072.8125;
 
       // initialize input variable types
       fType[0] = 'F';

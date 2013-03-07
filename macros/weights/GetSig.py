@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import division
+
 import ROOT
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
@@ -16,13 +18,37 @@ fileName = 'TMVAClassification_Cuts.weights.xml'
 
 # this is using the pt50 cuts
 #sigYield = 37
-sigYield = 80.2657
-backYield = 30621.3
+#sigYield = 80.2657
+#backYield = 30621.3
 
 # This is using the pt25 cuts
 #sigYield = 170.922
 #sigYield = 42.42
 #backYield = 226381
+
+# # 600_200
+# sigYield = 207
+# backYield = 3625
+
+# # 1500_200
+# sigYield = 226
+# backYield = 3625
+
+# # 1500_300
+# sigYield = 42.0
+# backYield = 3625
+
+# # 1500_300 but with mT cut > 110 GeV
+# sigYield = 26.2
+# backYield = 342
+
+# 1500_350
+#sigYield = 19.9
+#backYield = 3625
+
+# 800_500
+sigYield = 24.1
+backYield = 3625
 
 def GetSig():
     myfile = open(fileName, 'r')
@@ -40,7 +66,6 @@ def GetSig():
         sig = sigYield * float(i.getAttribute('effS'))
         back = backYield * float(i.getAttribute('effB'))
 
-        print ibin, sig, back
 
         if back <= 0.0:
             back = 0.01
@@ -49,6 +74,11 @@ def GetSig():
             signif = 0
         else:
             signif = math.sqrt(2 * ((sig + back) * math.log(1 + sig / back) - sig))
+
+
+        cuts = i.getElementsByTagName('Cuts')[0]
+
+        print ibin, sig, back, signif, float(cuts.getAttribute('cutMin_0')), float(cuts.getAttribute('cutMin_1')), float(cuts.getAttribute('cutMin_2'))
 
         hsig.SetBinContent(ibin+1, signif)
 

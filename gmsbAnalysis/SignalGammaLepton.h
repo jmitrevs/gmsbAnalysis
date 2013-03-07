@@ -227,6 +227,11 @@ private:
   std::vector<int>* m_mu_tight;
   std::vector<int>* m_mu_alt;
 
+  std::vector<float>* m_jet_pt;
+  std::vector<float>* m_jet_eta;
+  std::vector<float>* m_jet_phi;
+  std::vector<float>* m_jet_et;
+
   unsigned int m_numPh;
   unsigned int m_numEl;
   unsigned int m_numMu;

@@ -542,6 +542,11 @@ StatusCode SignalGammaLepton::initialize(){
     m_mu_tight = new std::vector<int>;
     m_mu_alt = new std::vector<int>;
 
+    m_jet_pt = new std::vector<float>;
+    m_jet_eta = new std::vector<float>;
+    m_jet_phi = new std::vector<float>;
+    m_jet_et = new std::vector<float>;
+
     m_metx_truth = new std::vector<float>;
     m_mety_truth = new std::vector<float>;
     m_set_truth = new std::vector<float>;
@@ -670,6 +675,11 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("MuonTight", &m_mu_tight);
     m_tree->Branch("MuonAlt", &m_mu_alt);
 
+    m_tree->Branch("JetPt", &m_jet_pt);
+    m_tree->Branch("JetEta", &m_jet_eta);
+    m_tree->Branch("JetPhi", &m_jet_phi);
+    m_tree->Branch("JetEt", &m_jet_et);
+
     m_tree->Branch("MetxTruth", &m_metx_truth);
     m_tree->Branch("MetyTruth", &m_mety_truth);
     m_tree->Branch("SetTruth", &m_set_truth);
@@ -760,6 +770,11 @@ StatusCode SignalGammaLepton::execute()
     m_mu_phi->clear();
     m_mu_tight->clear();
     m_mu_alt->clear();
+
+    m_jet_pt->clear();
+    m_jet_eta->clear();
+    m_jet_phi->clear();
+    m_jet_et->clear();
 
     m_metx_truth->clear();
     m_mety_truth->clear();
@@ -1474,9 +1489,13 @@ StatusCode SignalGammaLepton::execute()
 		  << ", eta = " << (*jet)->eta() 
 		  << ", phi = " << (*jet)->phi()); 
 
-    if ((*jet)->eta() < 2.5) {
+    if ((*jet)->eta() < 2.8) {
       m_HT += (*jet)->pt();
       m_numJets++;
+      m_jet_pt->push_back((*jet)->pt());
+      m_jet_et->push_back((*jet)->et());
+      m_jet_eta->push_back((*jet)->eta());
+      m_jet_phi->push_back((*jet)->phi());
     }
 
     if (m_doSmartVeto && isInLArHole(*jet)) {
