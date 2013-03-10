@@ -9,14 +9,8 @@ Dates=os.system(sfg)
 # Put the list of datasets you want to run over here (remove the '/' from the end). 
 
 # this is for testing
-inDS_test = [
-   
-    #'mc11_7TeV.117402.Whizard_CTEQL1Jimmy_TTbarPhoton_SM_NoFullHad.merge.AOD.e1086_s1372_s1370_r3043_r2993',
-    #'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    #'mc11_7TeV.126744.Sherpa_munugammaPt80.merge.AOD.e1208_s1372_s1370_r3108_r3109',
-    #'mc11_7TeV.126858.Sherpa_taunugammaPt80.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.126855.Sherpa_tautaugammaPt40.merge.AOD.e1181_s1372_s1370_r3108_r3109',
-
+inDS_test = [  
+    'mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1_ttbargammaPt80_noAllHad.merge.NTUP_SUSY.e1660_s1581_s1586_r3658_r3549_p1328'
     ]
 
 inDS_full = [
@@ -81,7 +75,7 @@ for i,inDS in enumerate(inDS_test):
    
     outName = inDS[:90] # make sure the name is not too long
    
-    command = "pathena --mergeOutput --excludedSite=ANALY_GRIF-IRFU --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_120902.%s SignalGammaMuon.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_130308.%s newSignalGammaMuon.py " % (inDS, outName)
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GMiso_120901.%s SignalGammaMuon_test.py " % (inDS, outName)
 
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
@@ -91,11 +85,11 @@ for i,inDS in enumerate(inDS_test):
     # else:
     #     command += " --inTarBall=/data3/jmitrevs/submission_gammamu_120901.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
+    command += " --inTarBall=/data3/jmitrevs/submission_gammael_130308.tar"
 
-    # print command
-    # sys.stdout.flush()
-    # os.system(command)
+    print command
+    sys.stdout.flush()
+    os.system(command)
     
 
 inDS_ttbar = [
@@ -157,9 +151,9 @@ for i,inDS in enumerate(inDS_Wjets):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
 
 inDS_Zjets = [
 
@@ -214,7 +208,7 @@ for i,inDS in enumerate(inDS_Zjets):
 
     command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 
-    print command
-    sys.stdout.flush()
-    os.system(command)
+    # print command
+    # sys.stdout.flush()
+    # os.system(command)
 
