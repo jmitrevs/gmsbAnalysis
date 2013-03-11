@@ -94,7 +94,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_");
+  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
@@ -891,6 +891,7 @@ StatusCode SignalGammaLepton::execute()
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
     if (jets->isBadLooseMinus(jet)) {
+      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -902,7 +903,8 @@ StatusCode SignalGammaLepton::execute()
     if (jetsBeforeOverlapRemoval->pt(jet) > 40*GeV &&
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
-				       metCont.phi())) < 0.3) {
+				       atan2f(metCont.ety(), metCont.etx()))) < 0.3) {
+      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1252,8 +1254,8 @@ StatusCode SignalGammaLepton::execute()
   m_mety = metCont.ety();
   m_set = metCont.sumet();
 
-  const double met = metCont.et();
-  const double metPhi = metCont.phi();
+  const float met = hypotf(metCont.ety(), metCont.etx());
+  const float metPhi = atan2f(metCont.ety(), metCont.etx());
 
   ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
 
@@ -1469,9 +1471,9 @@ StatusCode SignalGammaLepton::execute()
   /////////////////////////////////////////////////////
 
   // let's print out run, lb, and event numbers,...
-  ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
-	       << " " << m_numPh << " " << m_numEl << " " 
-	       << m_numMu << " " << met/GeV);
+  // ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+  // 	       << " " << m_numPh << " " << m_numEl << " " 
+  // 	       << m_numMu << " " << met/GeV);
 
 
   /////////////////////////////////////////////////////

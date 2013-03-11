@@ -95,7 +95,7 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_");
+  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
@@ -972,14 +972,19 @@ StatusCode Testing::execute()
     if (jetsBeforeOverlapRemoval->pt(jet) > 40*GeV &&
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
-				       metCont.phi())) < 0.3) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
+				       atan2f(metCont.ety(), metCont.etx()))) < 0.3) {
+      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+		   << ", pt = " << jetsBeforeOverlapRemoval->pt(jet) 
+		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
+		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
+		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet) 
+		   << ", metphialt = " << atan2f(metCont.ety(), metCont.etx()));
       return StatusCode::SUCCESS; // reject event
     }
-    if (jetsBeforeOverlapRemoval->jvtxf(jet) < 0.5) {
-      ATH_MSG_INFO("Failed3: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
-      return StatusCode::SUCCESS; // reject event
-    }
+    // if (jetsBeforeOverlapRemoval->jvtxf(jet) < 0.5) {
+    //   ATH_MSG_INFO("Failed3: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
+    //   return StatusCode::SUCCESS; // reject event
+    // }
   }
   m_histograms["CutFlow"]->Fill(2.0, m_weight);
   ATH_MSG_DEBUG("Passed jet cleaning");
