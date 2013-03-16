@@ -78,15 +78,15 @@ for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_130311.%s newSignalGammaElectron.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_130315.%s newSignalGammaElectron.py " % (inDS, outName)
     #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEiso_120901.%s SignalGammaElectron_test.py " % (inDS, outName)
 
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
    
     if i == 0:
-        command += " --outTarBall=/data3/jmitrevs/submission_gammael_130311.tar"
+        command += " --outTarBall=/data3/jmitrevs/submission_gammael_130315.tar"
     else:
-        command += " --inTarBall=/data3/jmitrevs/submission_gammael_130311.tar"
+        command += " --inTarBall=/data3/jmitrevs/submission_gammael_130315.tar"
 
     # command += " --inTarBall=/data3/jmitrevs/submission_gammael_120902.tar"
 

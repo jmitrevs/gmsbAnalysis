@@ -884,6 +884,18 @@ StatusCode SignalGammaLepton::execute()
     m_histograms["ph_pt_input"]->Fill(photons->pt(pho1)/GeV, m_weight);
 
   }
+  // need the MET for the jet cleaning
+
+  m_metx = metCont.etx();
+  m_mety = metCont.ety();
+  m_set = metCont.sumet();
+
+  const float met = hypotf(metCont.ety(), metCont.etx());
+  const float metPhi = atan2f(metCont.ety(), metCont.etx());
+
+  ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
+
+
   // jet cleaning
   for (int jet = 0;
        jet < jets->n();
@@ -903,7 +915,7 @@ StatusCode SignalGammaLepton::execute()
     if (jetsBeforeOverlapRemoval->pt(jet) > 40*GeV &&
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
-				       atan2f(metCont.ety(), metCont.etx()))) < 0.3) {
+				       metPhi)) < 0.3) {
       ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
       return StatusCode::SUCCESS; // reject event
     }
@@ -1250,14 +1262,6 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(8.0, m_weight);
 
 
-  m_metx = metCont.etx();
-  m_mety = metCont.ety();
-  m_set = metCont.sumet();
-
-  const float met = hypotf(metCont.ety(), metCont.etx());
-  const float metPhi = atan2f(metCont.ety(), metCont.etx());
-
-  ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
 
   // // for met systematics
   // if (m_do_met_systematics) {

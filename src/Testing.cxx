@@ -138,6 +138,8 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
   declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
 
+  declareProperty("printEvents", m_printEvents);
+
   //declareProperty("MuonTriggerWeights",
   //	  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
 
@@ -225,6 +227,8 @@ StatusCode Testing::initialize(){
     }
   }
       
+  m_theEvents.insert(m_printEvents.begin(), m_printEvents.end());
+
 
   // if (m_matchTriggers) {
   //   sc = m_trigMatch.retrieve();
@@ -743,6 +747,13 @@ StatusCode Testing::execute()
   m_lumiBlock = evtInfo.lbn();
   m_eventNumber = evtInfo.EventNumber();
 
+  bool printEvent = (m_theEvents.find(m_eventNumber) != m_theEvents.end());
+
+  if (printEvent) {
+    ATH_MSG_INFO("printing: " << m_runNumber << " " << m_lumiBlock << " " 
+		 << m_eventNumber);
+  }
+
   if (m_isMC) {
     m_weight = evtInfo.mc_event_weight();
 
@@ -895,11 +906,29 @@ StatusCode Testing::execute()
     m_histograms["ph_pt_input"]->Fill(photons->pt(pho1)/GeV, m_weight);
 
   }
+  // need the MET for the jet cleaning
 
+  m_metx = metCont.etx();
+  m_mety = metCont.ety();
+  m_set = metCont.sumet();
+
+  const float met = hypotf(metCont.ety(), metCont.etx());
+  const float metPhi = atan2f(metCont.ety(), metCont.etx());
+
+  ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
+  if (printEvent) {
+    ATH_MSG_INFO("  MET = " << met << ", metPhi = " << metPhi);
+  }
   // let's make some studies
   for (int ph = 0;
        ph < photonsBeforeOverlapRemoval->n();
        ph++) {
+
+    if (printEvent) {
+      ATH_MSG_INFO(  "  photon pt = " << photonsBeforeOverlapRemoval->pt(ph) 
+		     << ", eta = " << photonsBeforeOverlapRemoval->eta(ph) 
+		     << ", phi = " << photonsBeforeOverlapRemoval->phi(ph));
+    } 
 
     if (photonsBeforeOverlapRemoval->pt(ph) > 35*GeV) {
       float minDeltaR = 999.0;
@@ -927,6 +956,12 @@ StatusCode Testing::execute()
   for (int el = 0;
        el < electronsBeforeOverlapRemoval->n();
        el++) {
+
+    if (printEvent) {
+      ATH_MSG_INFO(  "  electron  pt = " << electronsBeforeOverlapRemoval->pt(el) 
+		     << ", eta = " << electronsBeforeOverlapRemoval->eta(el) 
+		     << ", phi = " << electronsBeforeOverlapRemoval->phi(el));
+    } 
     
     if (electronsBeforeOverlapRemoval->pt(el) > 35*GeV) {
 
@@ -952,6 +987,20 @@ StatusCode Testing::execute()
     }
   }
 
+
+  for (int jet = 0;
+       jet < jetsBeforeOverlapRemoval->n();
+       jet++) {
+
+    if (printEvent) {
+
+      ATH_MSG_INFO("  jet with pt = " << jetsBeforeOverlapRemoval->pt(jet) 
+		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
+		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
+		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet));
+
+    }
+  }
   // jet cleaning
   for (int jet = 0;
        jet < jets->n();
@@ -959,8 +1008,10 @@ StatusCode Testing::execute()
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
     if (jets->isBadLooseMinus(jet)) {
-      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
-
+      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+		   << ", pt = " << jets->pt(jet) 
+		   << ", phi = " << jets->phi(jet) 
+		   << ", eta = " << jets->eta(jet));
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -972,13 +1023,13 @@ StatusCode Testing::execute()
     if (jetsBeforeOverlapRemoval->pt(jet) > 40*GeV &&
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
-				       atan2f(metCont.ety(), metCont.etx()))) < 0.3) {
+				       metPhi)) < 0.3) {
       ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
 		   << ", pt = " << jetsBeforeOverlapRemoval->pt(jet) 
 		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
 		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
 		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet) 
-		   << ", metphialt = " << atan2f(metCont.ety(), metCont.etx()));
+		   << ", metphi = " << metPhi);
       return StatusCode::SUCCESS; // reject event
     }
     // if (jetsBeforeOverlapRemoval->jvtxf(jet) < 0.5) {
@@ -1327,15 +1378,6 @@ StatusCode Testing::execute()
    
   m_histograms["CutFlow"]->Fill(8.0, m_weight);
 
-
-  m_metx = metCont.etx();
-  m_mety = metCont.ety();
-  m_set = metCont.sumet();
-
-  const double met = metCont.et();
-  const double metPhi = metCont.phi();
-
-  ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
 
   // // for met systematics
   // if (m_do_met_systematics) {

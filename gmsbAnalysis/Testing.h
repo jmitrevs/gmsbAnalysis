@@ -19,6 +19,8 @@
 #include "TRandom3.h"
 #include "TTree.h"
 
+#include <set>
+
 //class IAthSelectorTool;
 //class TrigMatchTool;
 //namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
@@ -99,6 +101,10 @@ private:
   float m_mu_qopcut;
   float m_mu_z0cut;
   float m_mu_d0cut;
+
+  std::vector<int> m_printEvents;
+
+  std::set<int> m_theEvents; // conversion of above
 
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;
