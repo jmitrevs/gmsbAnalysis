@@ -927,7 +927,10 @@ StatusCode Testing::execute()
     if (printEvent) {
       ATH_MSG_INFO(  "  photon pt = " << photonsBeforeOverlapRemoval->pt(ph) 
 		     << ", eta = " << photonsBeforeOverlapRemoval->eta(ph) 
-		     << ", phi = " << photonsBeforeOverlapRemoval->phi(ph));
+		     << ", phi = " << photonsBeforeOverlapRemoval->phi(ph)
+		     << ", isEM = " << std::hex << photonsBeforeOverlapRemoval->isEM(ph)
+		     << ", OW = " << std::hex << photonsBeforeOverlapRemoval->OQ(ph)
+		     << std::dec);
     } 
 
     if (photonsBeforeOverlapRemoval->pt(ph) > 35*GeV) {
@@ -1008,10 +1011,10 @@ StatusCode Testing::execute()
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
     if (jets->isBadLooseMinus(jet)) {
-      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-		   << ", pt = " << jets->pt(jet) 
-		   << ", phi = " << jets->phi(jet) 
-		   << ", eta = " << jets->eta(jet));
+      // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      // 		   << ", pt = " << jets->pt(jet) 
+      // 		   << ", phi = " << jets->phi(jet) 
+      // 		   << ", eta = " << jets->eta(jet));
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1024,12 +1027,12 @@ StatusCode Testing::execute()
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
 				       metPhi)) < 0.3) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
-		   << ", pt = " << jetsBeforeOverlapRemoval->pt(jet) 
-		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
-		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
-		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet) 
-		   << ", metphi = " << metPhi);
+      // ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+      // 		   << ", pt = " << jetsBeforeOverlapRemoval->pt(jet) 
+      // 		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
+      // 		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
+      // 		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet) 
+      // 		   << ", metphi = " << metPhi);
       return StatusCode::SUCCESS; // reject event
     }
     // if (jetsBeforeOverlapRemoval->jvtxf(jet) < 0.5) {
@@ -1050,6 +1053,15 @@ StatusCode Testing::execute()
        ph < photons->n();
        ph++) {
     if (photons->isgoodoq(ph, LArTiming)) {
+      ATH_MSG_INFO("Failed1: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+       		   << ", pt = " << photons->pt(ph) 
+		   << ", eta = " << photons->eta(ph) 
+		   << ", phi = " << photons->phi(ph)
+		   << ", reta = " << photons->reta(ph)
+		   << ", rphi = " << photons->rphi(ph)
+		   << ", isEM = " << std::hex << photons->isEM(ph)
+		   << ", OW = " << std::hex << photons->OQ(ph)
+		   << std::dec);
       // fails timing if nonzero
       return StatusCode::SUCCESS; // reject event
     }
@@ -1064,6 +1076,15 @@ StatusCode Testing::execute()
     const float Rphi33 = photons->rphi(ph);
  
     if (photons->isgoodoq(ph, LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
+      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+       		   << ", pt = " << photons->pt(ph) 
+		   << ", eta = " << photons->eta(ph) 
+		   << ", phi = " << photons->phi(ph)
+		   << ", reta = " << photons->reta(ph)
+		   << ", rphi = " << photons->rphi(ph)
+		   << ", isEM = " << std::hex << photons->isEM(ph)
+		   << ", OW = " << std::hex << photons->OQ(ph)
+		   << std::dec);
       return StatusCode::SUCCESS; // reject event
     }
 

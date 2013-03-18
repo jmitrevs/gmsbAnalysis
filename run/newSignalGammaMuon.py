@@ -41,9 +41,6 @@ from ROOT import egammaPID
 
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
-#gmsbSelectionTool.ElectronPt = 25*GeV
-#gmsbSelectionTool.PhotonPt = 100*GeV
-#gmsbSelectionTool.MuonPt = 25*GeV
 #gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
@@ -51,6 +48,7 @@ gmsbSelectionTool.SmearMC = True
 
 gmsbFinalSelectionTool.IsMC = True
 gmsbFinalSelectionTool.SmearMC = False
+gmsbFinalSelectionTool.PhotonPt = 100*GeV
 
 # from gmsbTools.gmsbToolsConf import TruthStudies
 # truthStudies = TruthStudies(name = "TruthStudies",

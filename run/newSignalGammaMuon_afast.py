@@ -40,6 +40,7 @@ from ROOT import egammaPID
 #print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
+gmsbSelectionTool.Atlfast = True
 gmsbSelectionTool.SmearMC = True
 #gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
@@ -47,6 +48,7 @@ gmsbSelectionTool.SmearMC = True
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbFinalSelectionTool.IsMC = True
+gmsbFinalSelectionTool.Atlfast = True
 gmsbFinalSelectionTool.SmearMC = False
 gmsbFinalSelectionTool.PhotonPt = 100*GeV
 
@@ -75,7 +77,7 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             #JetCleaningTool = myJetCleaningTool,
                             applyTrigger = True,
                             NumPhotons = 1,
-                            NumElectrons = 1,
+                            NumMuons = 1,
                             outputNtuple = True,
                             # doTruthStudies = True,
                             # TruthStudiesTool = truthStudies,
