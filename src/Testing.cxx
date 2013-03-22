@@ -121,8 +121,8 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
 
   // declareProperty("JetCleaningTool", m_JetCleaningTool);
 
-  // declareProperty("TruthStudiesTool", m_truth);
-  // declareProperty("doTruthStudies", m_doTruthStudies = false);
+  declareProperty("TruthStudiesTool", m_truth);
+  declareProperty("doTruthStudies", m_doTruthStudies = false);
   // declareProperty("filterWJets", m_filterWJets = false);
   // declareProperty("filterTTbar", m_filterTTbar = NO_TTBARFILT);
 
@@ -228,6 +228,9 @@ StatusCode Testing::initialize(){
   }
       
   m_theEvents.insert(m_printEvents.begin(), m_printEvents.end());
+
+  m_counts.clear();
+  m_counts.resize(NUM_COUNTS, 0);
 
 
   // if (m_matchTriggers) {
@@ -793,19 +796,19 @@ StatusCode Testing::execute()
   /////////////////////////////////////////////////////
 
   m_type = TruthStudies::unknown;
-  // if (m_doTruthStudies) {
-  //   sc = m_truth->execute();
-  //   if ( sc.isFailure() ) {
-  //     ATH_MSG_WARNING("TruthStudies Failed");
-  //     return sc;
-  //   }
-  //   m_type = m_truth->GetEventType();
-  //   m_isStrong = m_truth->isStrong();
-  //   m_numTruthPh = m_truth->nPhotons();
-  //   m_Wpt = m_truth->Wpt();
-  // } else {
-  //   m_numTruthPh = -1;
-  // }
+  if (m_doTruthStudies) {
+    StatusCode sc = m_truth->execute();
+    if ( sc.isFailure() ) {
+      ATH_MSG_WARNING("TruthStudies Failed");
+      return sc;
+    }
+    m_type = m_truth->GetEventType();
+    m_isStrong = m_truth->isStrong();
+    m_numTruthPh = m_truth->nPhotons();
+    m_Wpt = m_truth->Wpt();
+  } else {
+    m_numTruthPh = -1;
+  }
 
   m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
@@ -864,9 +867,17 @@ StatusCode Testing::execute()
 
   PhotonD3PDObject *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
   PhotonD3PDObject *photons = m_OverlapRemovalTool2->finalStatePhotons();
-  
+
+  m_counts[0]+= photonsBeforeOverlapRemoval->n();
+  m_counts[1]+= photons->n();
+  ATH_MSG_INFO("Num photons: " << m_eventNumber << "," <<  photonsBeforeOverlapRemoval->n());
+
+
   ElectronD3PDObject *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   ElectronD3PDObject *electronsBeforeOverlapRemoval = m_PreparationTool->selectedElectrons(); // only for debugging
+
+  m_counts[2]+= electronsBeforeOverlapRemoval->n();
+  m_counts[3]+= electrons->n();
 
   const ElectronD3PDObject origEl("el_");
   ATH_CHECK(origEl.retrieve());
@@ -875,9 +886,19 @@ StatusCode Testing::execute()
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
 
+  m_counts[4]+= muonsBeforeOverlapRemoval->n();
+  m_counts[5]+= muons->n();
+
+  // ATH_MSG_INFO("Num muons: " << m_eventNumber << "," <<  muonsBeforeOverlapRemoval->n());
+
   JetD3PDObject *jetsBeforeOverlapRemoval =  m_PreparationTool->selectedJets();
 
   JetD3PDObject *jets = m_OverlapRemovalTool2->finalStateJets();
+
+  m_counts[6]+= jetsBeforeOverlapRemoval->n();
+  m_counts[7]+= jets->n();
+
+  // ATH_MSG_INFO("Num jets: " << m_eventNumber << "," <<  jetsBeforeOverlapRemoval->n());
 
   if (!photons || !electrons || !muonsBeforeOverlapRemoval ||
       !muons || !jets) {
@@ -990,6 +1011,23 @@ StatusCode Testing::execute()
     }
   }
 
+  for (int mu = 0;
+       mu < muonsBeforeOverlapRemoval->n();
+       mu++) {
+
+    if (printEvent) {
+      ATH_MSG_INFO(  "  muon  pt = " << muonsBeforeOverlapRemoval->pt(mu) 
+		     << ", eta = " << muonsBeforeOverlapRemoval->eta(mu) 
+		     << ", phi = " << muonsBeforeOverlapRemoval->phi(mu)
+		     << ", seg tag = " <<  muonsBeforeOverlapRemoval->isSegmentTaggedMuon(mu)
+		     << ", combined = " <<  muonsBeforeOverlapRemoval->isCombinedMuon(mu)
+		     << ", nB = " <<  muonsBeforeOverlapRemoval->nBLHits(mu)
+		     << ", nPix = " <<  muonsBeforeOverlapRemoval->nPixHits(mu)
+		     << ", nSCT = " <<  muonsBeforeOverlapRemoval->nSCTHits(mu)
+);
+    } 
+  }
+
 
   for (int jet = 0;
        jet < jetsBeforeOverlapRemoval->n();
@@ -1000,7 +1038,9 @@ StatusCode Testing::execute()
       ATH_MSG_INFO("  jet with pt = " << jetsBeforeOverlapRemoval->pt(jet) 
 		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
 		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
-		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet));
+		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet)
+		   << ", jvf = " << jetsBeforeOverlapRemoval->jvtxf(jet)
+		   );
 
     }
   }
@@ -1852,6 +1892,10 @@ StatusCode Testing::finalize() {
     // ATH_MSG_INFO("Average FF error second photon using sum of squares: " << accFFUnc2.Uncert2());
 
     // delete m_muon_sf;
+
+    for (int i = 0; i < NUM_COUNTS; i++) {
+      ATH_MSG_INFO("Counts " << i << ": " << m_counts[i]);
+    }
 
     return StatusCode::SUCCESS;
 }

@@ -41,6 +41,8 @@ public:
   enum NUM_CUTS_t {NUM_CUTS = 20};
   enum TRIG_MATCH_t {NONE = 0, MUONS}; // only muons implemented so far
 
+  enum NUM_COUNTS_t {NUM_COUNTS = 20};
+
 private:
 
   bool IsBadMuon(float mu_staco_qoverp_exPV, 
@@ -158,6 +160,8 @@ private:
 
   FakeMetEstimator m_fakeMetEstimator;
   //FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
+
+  std::vector<int> m_counts; 	// used for counting things
 
   // user data
   //ServiceHandle<ICutFlowSvc> m_cutFlowSvc;

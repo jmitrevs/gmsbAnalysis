@@ -120,8 +120,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   // declareProperty("JetCleaningTool", m_JetCleaningTool);
 
-  // declareProperty("TruthStudiesTool", m_truth);
-  // declareProperty("doTruthStudies", m_doTruthStudies = false);
+  declareProperty("TruthStudiesTool", m_truth);
+  declareProperty("doTruthStudies", m_doTruthStudies = false);
   // declareProperty("filterWJets", m_filterWJets = false);
   // declareProperty("filterTTbar", m_filterTTbar = NO_TTBARFILT);
 
@@ -767,19 +767,19 @@ StatusCode SignalGammaLepton::execute()
   /////////////////////////////////////////////////////
 
   m_type = TruthStudies::unknown;
-  // if (m_doTruthStudies) {
-  //   sc = m_truth->execute();
-  //   if ( sc.isFailure() ) {
-  //     ATH_MSG_WARNING("TruthStudies Failed");
-  //     return sc;
-  //   }
-  //   m_type = m_truth->GetEventType();
-  //   m_isStrong = m_truth->isStrong();
-  //   m_numTruthPh = m_truth->nPhotons();
-  //   m_Wpt = m_truth->Wpt();
-  // } else {
-  //   m_numTruthPh = -1;
-  // }
+  if (m_doTruthStudies) {
+    StatusCode sc = m_truth->execute();
+    if ( sc.isFailure() ) {
+      ATH_MSG_WARNING("TruthStudies Failed");
+      return sc;
+    }
+    m_type = m_truth->GetEventType();
+    m_isStrong = m_truth->isStrong();
+    m_numTruthPh = m_truth->nPhotons();
+    m_Wpt = m_truth->Wpt();
+  } else {
+    m_numTruthPh = -1;
+  }
 
   m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
@@ -1071,7 +1071,7 @@ StatusCode SignalGammaLepton::execute()
 
     // let's do the AR studies
 
-    const int convType = photons->convFlag(ph);
+    const int convType = photons->convFlag(ph) % 10;
     const int numPix0 = photons->convtrk1nPixHits(ph);
     const int numSi0 = numPix0 + photons->convtrk1nSCTHits(ph);
     const int numPix1 = photons->convtrk2nPixHits(ph);
@@ -1538,7 +1538,7 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("totalWeight = " << totalWeight); 
 
   // /////////////////////////////////////////////////////
-  // // Now some truth studies
+  // // Now some truth studies (now higher)
   // /////////////////////////////////////////////////////
 
   // m_type = TruthStudies::unknown;
@@ -1570,13 +1570,13 @@ StatusCode SignalGammaLepton::execute()
       
       
       if (fabs(photons->cl_eta(leadingPh)) < 1.45) {
-	if (photons->convFlag(leadingPh)) {
+	if (photons->isConv(leadingPh)) {
 	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
 	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
 	}
       } else {
-	if (photons->convFlag(leadingPh)) {
+	if (photons->isConv(leadingPh)) {
 	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
 	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
@@ -1599,13 +1599,13 @@ StatusCode SignalGammaLepton::execute()
 	
 	
 	if (fabs(photons->cl_eta(secondPh)) < 1.45) {
-	  if (photons->convFlag(secondPh)) {
+	  if (photons->isConv(secondPh)) {
 	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
 	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, totalWeight);
 	  }
 	} else {
-	  if (photons->convFlag(secondPh)) {
+	  if (photons->isConv(secondPh)) {
 	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
 	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, totalWeight);

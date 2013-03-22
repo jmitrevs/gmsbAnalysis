@@ -6,7 +6,10 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
+InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
 
 svcMgr.EventSelector.InputCollections = InputList
 
@@ -45,10 +48,7 @@ from ROOT import egammaPID
 
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
-#gmsbSelectionTool.ElectronPt = 25*GeV
-#gmsbSelectionTool.PhotonPt = 100*GeV
-#gmsbSelectionTool.MuonPt = 25*GeV
-#gmsbSelectionTool.OutputLevel = DEBUG
+gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -56,17 +56,17 @@ gmsbSelectionTool.SmearMC = True
 gmsbFinalSelectionTool.IsMC = True
 gmsbFinalSelectionTool.SmearMC = False
 
-# from gmsbTools.gmsbToolsConf import TruthStudies
-# truthStudies = TruthStudies(name = "TruthStudies",
-#                             PrintDecayTree = False,
-#                             UseAnnotated = False,
-#                             DumpEntireTree = False,
-#                             #Ptcut = 8*GeV,
-#                             doDeltaRLepton = False,
-#                             #OutputLevel = DEBUG
-#                             )
-# ToolSvc += truthStudies
-# print truthStudies
+from gmsbTools.gmsbToolsConf import TruthStudies
+truthStudies = TruthStudies(name = "TruthStudies",
+                            PrintDecayTree = False,
+                            UseAnnotated = False,
+                            DumpEntireTree = True,
+                            #Ptcut = 8*GeV,
+                            doDeltaRLepton = False,
+                            OutputLevel = DEBUG
+                            )
+ToolSvc += truthStudies
+print truthStudies
 
 # # add the MET systematics
 # include ( "gmsbAnalysis/METSystematics.py" )
@@ -83,23 +83,82 @@ testAlg = Testing(name = "Testing",
                             NumPhotons = 1,
                             NumElectrons = 1,
                             outputNtuple = True,
-                            # doTruthStudies = True,
-                            # TruthStudiesTool = truthStudies,
+                            doTruthStudies = False,
+                            TruthStudiesTool = truthStudies,
                             # DoEtMissSystematics = False,
                             # DoEtMissMuonSystematics = False,
                             #EtMissSystematicsTool = myEtMissSystematicsTool,
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
                   printEvents = [
-5553,
-19997,
-20842,
-42801,
-71147,
-86896,
-101924,
-138205,
-157050,
-178327
+13209,
+13231,
+13728,
+14282,
+26916,
+31359,
+34353,
+34402,
+34453,
+37463,
+40239,
+51227,
+51267,
+55303,
+59109,
+64432,
+64830,
+65477,
+66316,
+74007,
+77072,
+83141,
+83394,
+91641,
+91659,
+92687,
+92946,
+93222,
+93409,
+94018,
+94023,
+94038,
+94572,
+96082,
+96740,
+106696,
+108642,
+108660,
+121766,
+124108,
+124737,
+124794,
+125541,
+125585,
+131175,
+131197,
+132187,
+141642,
+141696,
+144468,
+144747,
+159177,
+160660,
+160696,
+161339,
+163043,
+163053,
+163104,
+164631,
+164649,
+167177,
+174663,
+176827,
+177747,
+177797,
+178171,
+179099,
+182101,
+184077
 ]
                             )
 from AthenaCommon.AppMgr import ToolSvc
@@ -122,6 +181,7 @@ print testAlg
 #--------------------------------------------------------------
 
 ServiceMgr.MessageSvc.OutputLevel = WARNING
+ServiceMgr.MessageSvc.defaultLimit = 1000000000
 
 #==============================================================
 #==============================================================
