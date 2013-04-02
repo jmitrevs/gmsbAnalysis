@@ -6,7 +6,8 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
+InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
 
 svcMgr.EventSelector.InputCollections = InputList
 
@@ -48,7 +49,7 @@ gmsbSelectionTool.SmearMC = True
 
 gmsbFinalSelectionTool.IsMC = True
 gmsbFinalSelectionTool.SmearMC = False
-gmsbFinalSelectionTool.PhotonPt = 100*GeV
+#gmsbFinalSelectionTool.PhotonPt = 100*GeV
 
 # from gmsbTools.gmsbToolsConf import TruthStudies
 # truthStudies = TruthStudies(name = "TruthStudies",
@@ -104,6 +105,7 @@ print testAlg
 #--------------------------------------------------------------
 
 ServiceMgr.MessageSvc.OutputLevel = WARNING
+ServiceMgr.MessageSvc.defaultLimit = 1000000000
 
 #==============================================================
 #==============================================================

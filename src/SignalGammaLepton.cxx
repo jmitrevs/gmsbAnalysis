@@ -903,7 +903,6 @@ StatusCode SignalGammaLepton::execute()
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
     if (jets->isBadLooseMinus(jet)) {
-      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -916,7 +915,6 @@ StatusCode SignalGammaLepton::execute()
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
 				       metPhi)) < 0.3) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1011,9 +1009,15 @@ StatusCode SignalGammaLepton::execute()
    
     if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
 		  muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
+      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
+		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
       return StatusCode::SUCCESS; // reject event 
     }
   }
+
+  m_histograms["CutFlow"]->Fill(6.0, m_weight);
+  ATH_MSG_DEBUG("Passed bad muon rejection");
 
   
   // muon cleaning -- cosmic muons
@@ -1026,11 +1030,14 @@ StatusCode SignalGammaLepton::execute()
 
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
     if (fabsf(dz) >= m_mu_z0cut || fabsf(dd) >= m_mu_d0cut) {
+      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+		   << ", dz = " << dz
+		   << ", dd = " << dd);
       return StatusCode::SUCCESS; // reject event
     }
   }
-  m_histograms["CutFlow"]->Fill(6.0, m_weight);
-  ATH_MSG_DEBUG("Passed muon rejection");
+  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  ATH_MSG_DEBUG("Passed cosmic muon rejection");
 
   // loop over photons
   m_numPhPresel = photons->n();
@@ -1146,7 +1153,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS;
   }
 
-  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
 
 
@@ -1259,7 +1266,7 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Passed lepton");
    
-  m_histograms["CutFlow"]->Fill(8.0, m_weight);
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
 
 
 
@@ -1328,7 +1335,7 @@ StatusCode SignalGammaLepton::execute()
     // }
   }
   ATH_MSG_DEBUG("Passed LAr Hole");
-  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
 
   // if (m_applyTriggers) {
@@ -1359,7 +1366,7 @@ StatusCode SignalGammaLepton::execute()
   // }
 
   ATH_MSG_DEBUG("Passed trig");
-  m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  m_histograms["CutFlow"]->Fill(11.0, m_weight);
 
 
   m_meff = m_HT+met;
@@ -1443,7 +1450,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Event passes blinding (or blinding disabled)");
-  m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  m_histograms["CutFlow"]->Fill(12.0, m_weight);
 
   // if (met > 75*GeV) {
   //   m_histograms["CutFlow"]->Fill(10.0, m_weight);
