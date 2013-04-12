@@ -29,6 +29,7 @@ use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnaly
 use TrigMuonEvent      TrigMuonEvent-*          Trigger/TrigEvent
 #use ReweightUtils      ReweightUtils-*          PhysicsAnalysis/AnalysisCommon
 #use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
+use MissingETUtility   MissingETUtility-*       Reconstruction
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

@@ -1,4 +1,4 @@
-#include "gmsbAnalysis/Testing.h"
+#include "gmsbAnalysis/MetStudies.h"
 //#include "ObjectSelectorCore/IAthSelectorTool.h"
 
 #include "TH1.h"
@@ -16,11 +16,10 @@
 #include "gmsbD3PDObjects/EventInfoD3PDObject.h"
 #include "gmsbD3PDObjects/RefFinalMETD3PDObject.h"
 #include "gmsbD3PDObjects/MissingETTruthD3PDObject.h"
-#include "gmsbD3PDObjects/MissingETCompositionD3PDObject.h"
 
 #include "gmsbTools/SortHelpers.h"
-#include "gmsbTools/FourMomHelpers.h"
 
+#include "MissingETUtility/IMETUtilityAthD3PDTool.h"
 
 //#include "JetUtils/JetCaloHelper.h"
 //#include "JetUtils/JetCaloQualityUtils.h"
@@ -45,7 +44,7 @@
 const unsigned int LAST_RUN_BEFORE_HOLE = 180481;
 const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
 
-// bool Testing::isInLArHole(Jet* jet) const
+// bool MetStudies::isInLArHole(Jet* jet) const
 // {
 //   const double etamin = -0.1;
 //   const double etamax = 1.5; 
@@ -60,7 +59,7 @@ const unsigned int FIRST_RUN_AFTER_HOLE = 180614;
 // }
 
 
-bool Testing::IsBadMuon(float mu_staco_qoverp_exPV, 
+bool MetStudies::IsBadMuon(float mu_staco_qoverp_exPV, 
 				  float mu_staco_cov_qoverp_exPV) const
 {
   if (m_mu_qopcut > 0. && mu_staco_qoverp_exPV != 0 && mu_staco_qoverp_exPV > -99999.) {
@@ -72,10 +71,10 @@ bool Testing::IsBadMuon(float mu_staco_qoverp_exPV,
 
 
 /////////////////////////////////////////////////////////////////////////////
-Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
+MetStudies::MetStudies(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("HistFileName", m_histFileName = "Testing");
+  declareProperty("HistFileName", m_histFileName = "MetStudies");
 
   declareProperty("NumPhotons", m_numPhotonsReq = 1);
   declareProperty("NumElectrons", m_numElectronsReq = 0);
@@ -96,9 +95,7 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
-  declareProperty("METCompositionName", m_METCompositionName = "el_MET_Egamma10NoTau_");
-
+  declareProperty("METContainerName", m_METContainerName = "MET_Egamma10NoTauLoosePhotonRef_RefFinal_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
  
@@ -122,6 +119,9 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
   // for ABCD
   declareProperty("AltSelectionTool",   m_AltSelectionTool);
 
+  declareProperty("METUtility",  m_METUtility);
+  declareProperty("useMETUtility",  m_useMETUtility = true);
+
   // declareProperty("JetCleaningTool", m_JetCleaningTool);
 
   declareProperty("TruthStudiesTool", m_truth);
@@ -140,8 +140,6 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
   declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
   declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
-
-  declareProperty("printEvents", m_printEvents);
 
   //declareProperty("MuonTriggerWeights",
   //	  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
@@ -172,7 +170,7 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode Testing::initialize(){
+StatusCode MetStudies::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
  
@@ -214,6 +212,14 @@ StatusCode Testing::initialize(){
     }
   }
 
+  if (m_useMETUtility) {
+    sc = m_METUtility.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Can't get handle MET Utility");
+      return sc;
+    }
+  }
+
   // // retrieving jet cleaning tool
   // sc = m_JetCleaningTool.retrieve();
   // if ( sc.isFailure() ) {
@@ -230,11 +236,6 @@ StatusCode Testing::initialize(){
     }
   }
       
-  m_theEvents.insert(m_printEvents.begin(), m_printEvents.end());
-
-  m_counts.clear();
-  m_counts.resize(NUM_COUNTS, 0);
-
 
   // if (m_matchTriggers) {
   //   sc = m_trigMatch.retrieve();
@@ -436,16 +437,6 @@ StatusCode Testing::initialize(){
     m_histograms["isStrong"] = new TH1F("isStrong", "The type of production", 2, 0, 2); 
     m_histograms["numTruthPh"] = new TH1F("numTruthPh", "The number of truth photons;N_{truth photons}", 10, -1.5, 8.5);
 
-    m_histograms["phJetDeltaR"] = new TH1F("phJetDeltaR", 
-					   "The deltaR between photons and jets (before overlap removal)", 200, 0, 1);
-    m_histograms["phJetDeltaRAlt"] = new TH1F("phJetDeltaRAlt", 
-					      "The deltaR between photons-cluster and jets (before overlap removal)", 200, 0, 1);
-
-    m_histograms["elJetDeltaR"] = new TH1F("elJetDeltaR", 
-					   "The deltaR between electrons and jets (before overlap removal)", 200, 0, 1);
-    m_histograms["elJetDeltaRAlt"] = new TH1F("elJetDeltaRAlt", 
-					      "The deltaR between electronss-cluster and jets (before overlap removal)", 200, 0, 1);
-
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/numConv" , m_histograms["ph_numConv"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/eta1" , m_histograms["ph_eta1"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Photon/pt1" , m_histograms["ph_pt1"]).ignore();
@@ -469,10 +460,6 @@ StatusCode Testing::initialize(){
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Electron/numEl" , m_histograms["numEl"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Muon/numMu" , m_histograms["numMu"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/numJets" , m_histograms["numJets"]).ignore();
-    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/phJetDeltaR" , m_histograms["phJetDeltaR"]).ignore();
-    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/phJetDeltaRAlt" , m_histograms["phJetDeltaRAlt"]).ignore();
-    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/elJetDeltaR" , m_histograms["elJetDeltaR"]).ignore();
-    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Jets/elJetDeltaRAlt" , m_histograms["elJetDeltaRAlt"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met" , m_histograms["met"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met0J" , m_histograms["met0J"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/met1J" , m_histograms["met1J"]).ignore();
@@ -681,7 +668,7 @@ StatusCode Testing::initialize(){
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode Testing::execute() 
+StatusCode MetStudies::execute() 
 {
   ATH_MSG_DEBUG("execute");
 
@@ -689,30 +676,6 @@ StatusCode Testing::execute()
   m_weight = 1.0;
 
   m_pileupWeight = 1.0;
-
-  // The missing ET object
-  const RefFinalMETD3PDObject metCont(m_METContainerName);
-  ATH_CHECK(metCont.retrieve());
-
-  // The missing ET object
-  const MissingETCompositionD3PDObject metComp(m_METCompositionName);
-  ATH_CHECK(metComp.retrieve());
-
-  ATH_MSG_INFO("metComp.n() = " << metComp.n());
-
-  for (int mc = 0; mc < metComp.n(); mc++) {
-    ATH_MSG_INFO("MET comp: " << mc);
-    const std::vector<unsigned int>& sw = metComp.statusWord(mc); 
-    const std::vector<float>& wet = metComp.wet(mc);
-    if (sw.size() != wet.size()) {
-      ATH_MSG_ERROR("MET comp sizes are unexted");
-      return StatusCode::FAILURE;
-    }
-    for (int j = 0; j < sw.size(); j++) {
-      ATH_MSG_INFO(" j = " << j << ", status = " << sw[j] << " and weight = " << wet[j]);
-    }
-  }
-  
 
   // retrieve the container of Vertex
   const PrimaryVertexD3PDObject vxContainer(m_vxCandidatesName);
@@ -772,13 +735,6 @@ StatusCode Testing::execute()
   m_runNumber = evtInfo.RunNumber();
   m_lumiBlock = evtInfo.lbn();
   m_eventNumber = evtInfo.EventNumber();
-
-  bool printEvent = (m_theEvents.find(m_eventNumber) != m_theEvents.end());
-
-  if (printEvent) {
-    ATH_MSG_INFO("printing: " << m_runNumber << " " << m_lumiBlock << " " 
-		 << m_eventNumber);
-  }
 
   if (m_isMC) {
     m_weight = evtInfo.mc_event_weight();
@@ -888,19 +844,15 @@ StatusCode Testing::execute()
 
   ATH_MSG_DEBUG("Done preparing selection");
 
-  PhotonD3PDObject *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
+  // const PhotonD3PDObject *photonsBeforeOverlapRemoval = m_PreparationTool->selectedPhotons();
   PhotonD3PDObject *photons = m_OverlapRemovalTool2->finalStatePhotons();
-
-  m_counts[0]+= photonsBeforeOverlapRemoval->n();
-  m_counts[1]+= photons->n();
-  ATH_MSG_INFO("Num photons: " << m_eventNumber << "," <<  photonsBeforeOverlapRemoval->n());
-
-
-  ElectronD3PDObject *electrons = m_OverlapRemovalTool2->finalStateElectrons();
-  ElectronD3PDObject *electronsBeforeOverlapRemoval = m_PreparationTool->selectedElectrons(); // only for debugging
-
-  m_counts[2]+= electronsBeforeOverlapRemoval->n();
-  m_counts[3]+= electrons->n();
+  
+  ElectronD3PDObject *electrons = 0;
+  if (m_doOverlapElectrons) {
+    electrons = m_OverlapRemovalTool2->finalStateElectrons();
+  } else {
+    electrons = m_PreparationTool->selectedElectrons(); // only for debugging
+  }
 
   const ElectronD3PDObject origEl("el_");
   ATH_CHECK(origEl.retrieve());
@@ -909,19 +861,9 @@ StatusCode Testing::execute()
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
 
-  m_counts[4]+= muonsBeforeOverlapRemoval->n();
-  m_counts[5]+= muons->n();
-
-  // ATH_MSG_INFO("Num muons: " << m_eventNumber << "," <<  muonsBeforeOverlapRemoval->n());
-
   JetD3PDObject *jetsBeforeOverlapRemoval =  m_PreparationTool->selectedJets();
 
   JetD3PDObject *jets = m_OverlapRemovalTool2->finalStateJets();
-
-  m_counts[6]+= jetsBeforeOverlapRemoval->n();
-  m_counts[7]+= jets->n();
-
-  // ATH_MSG_INFO("Num jets: " << m_eventNumber << "," <<  jetsBeforeOverlapRemoval->n());
 
   if (!photons || !electrons || !muonsBeforeOverlapRemoval ||
       !muons || !jets) {
@@ -952,133 +894,27 @@ StatusCode Testing::execute()
   }
   // need the MET for the jet cleaning
 
-  m_metx = metCont.etx();
-  m_mety = metCont.ety();
-  m_set = metCont.sumet();
-
-  const float met = hypotf(metCont.ety(), metCont.etx());
-  const float metPhi = atan2f(metCont.ety(), metCont.etx());
+  if (m_useMETUtility) {
+    const METObject metCont = m_METUtility->getMissingET(METUtil::RefFinal);
+    m_metx = metCont.etx();
+    m_mety = metCont.ety();
+    m_set = metCont.sumet();
+    
+  } else {
+    // The missing ET object
+    const RefFinalMETD3PDObject metCont(m_METContainerName);
+    ATH_CHECK(metCont.retrieve());
+    
+    m_metx = metCont.etx();
+    m_mety = metCont.ety();
+    m_set = metCont.sumet();
+  }
+  const float met = hypotf(m_mety, m_metx);
+  const float metPhi = atan2f(m_mety, m_metx);
 
   ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
-  if (printEvent) {
-    ATH_MSG_INFO("  MET = " << met << ", metPhi = " << metPhi);
-  }
-
-  // find the number of PVs with 5 tracks or more (used later)
-  int nPV = 0;
-
-  for (int i = 0; i < vxContainer.n(); i++) {
-    if (vxContainer.nTracks(i) >= 5) {
-      nPV++;
-    }
-  }
-
-  // let's make some studies
-  for (int ph = 0;
-       ph < photonsBeforeOverlapRemoval->n();
-       ph++) {
-
-    if (printEvent) {
-      ATH_MSG_INFO(  "  photon pt = " << photonsBeforeOverlapRemoval->pt(ph) 
-		     << ", cl_eta = " << photonsBeforeOverlapRemoval->cl_eta(ph) 
-		     << ", cl_phi = " << photonsBeforeOverlapRemoval->cl_phi(ph)
-		     << ", isEM = " << std::hex << photonsBeforeOverlapRemoval->isEM(ph)
-		     << ", OW = " << std::hex << photonsBeforeOverlapRemoval->OQ(ph)
-		     << std::dec);
-    } 
-
-    if (photonsBeforeOverlapRemoval->pt(ph) > 35*GeV && 
-	m_FinalSelectionTool->isSelected(*photonsBeforeOverlapRemoval, ph)) {
-      float minDeltaR = 999.0;
-      float minDeltaRAlt = 999.0;
-      for (int jet = 0;
-	   jet < jetsBeforeOverlapRemoval->n();
-	   jet++) {
-	float deltaR = FourMomHelpers::deltaR(photonsBeforeOverlapRemoval->eta(ph),
-					      photonsBeforeOverlapRemoval->phi(ph),
-					      jetsBeforeOverlapRemoval->eta(jet),
-					      jetsBeforeOverlapRemoval->phi(jet)); 
-	float deltaRAlt = FourMomHelpers::deltaR(photonsBeforeOverlapRemoval->cl_eta(ph),
-						 photonsBeforeOverlapRemoval->cl_phi(ph),
-						 jetsBeforeOverlapRemoval->eta(jet),
-						 jetsBeforeOverlapRemoval->phi(jet));
-	
-	if (deltaR < minDeltaR) minDeltaR = deltaR;
-	if (deltaRAlt < minDeltaRAlt) minDeltaRAlt = deltaRAlt;
-      }
-      m_histograms["phJetDeltaR"]->Fill(minDeltaR, m_weight);
-      m_histograms["phJetDeltaRAlt"]->Fill(minDeltaRAlt, m_weight);
-    }
-  }
-
-  for (int el = 0;
-       el < electronsBeforeOverlapRemoval->n();
-       el++) {
-
-    if (printEvent) {
-      ATH_MSG_INFO(  "  electron  pt = " << electronsBeforeOverlapRemoval->pt(el) 
-		     << ", cl_eta = " << electronsBeforeOverlapRemoval->cl_eta(el) 
-		     << ", cl_phi = " << electronsBeforeOverlapRemoval->cl_phi(el));
-    } 
-    
-    if (electronsBeforeOverlapRemoval->pt(el) > 35*GeV &&
-	m_FinalSelectionTool->isSelected(*electronsBeforeOverlapRemoval, el, nPV)) {
-      
-      float minDeltaR = 999.0;
-      float minDeltaRAlt = 999.0;
-      for (int jet = 0;
-	   jet < jetsBeforeOverlapRemoval->n();
-	   jet++) {
-	float deltaR = FourMomHelpers::deltaR(electronsBeforeOverlapRemoval->eta(el),
-					      electronsBeforeOverlapRemoval->phi(el),
-					      jetsBeforeOverlapRemoval->eta(jet),
-					      jetsBeforeOverlapRemoval->phi(jet)); 
-	float deltaRAlt = FourMomHelpers::deltaR(electronsBeforeOverlapRemoval->cl_eta(el),
-						 electronsBeforeOverlapRemoval->cl_phi(el),
-						 jetsBeforeOverlapRemoval->eta(jet),
-						 jetsBeforeOverlapRemoval->phi(jet));
-	
-	if (deltaR < minDeltaR) minDeltaR = deltaR;
-	if (deltaRAlt < minDeltaRAlt) minDeltaRAlt = deltaRAlt;
-      }
-      m_histograms["elJetDeltaR"]->Fill(minDeltaR, m_weight);
-      m_histograms["elJetDeltaRAlt"]->Fill(minDeltaRAlt, m_weight);
-    }
-  }
-
-  for (int mu = 0;
-       mu < muonsBeforeOverlapRemoval->n();
-       mu++) {
-
-    if (printEvent) {
-      ATH_MSG_INFO(  "  muon  pt = " << muonsBeforeOverlapRemoval->pt(mu) 
-		     << ", eta = " << muonsBeforeOverlapRemoval->eta(mu) 
-		     << ", phi = " << muonsBeforeOverlapRemoval->phi(mu)
-		     << ", seg tag = " <<  muonsBeforeOverlapRemoval->isSegmentTaggedMuon(mu)
-		     << ", combined = " <<  muonsBeforeOverlapRemoval->isCombinedMuon(mu)
-		     << ", nB = " <<  muonsBeforeOverlapRemoval->nBLHits(mu)
-		     << ", nPix = " <<  muonsBeforeOverlapRemoval->nPixHits(mu)
-		     << ", nSCT = " <<  muonsBeforeOverlapRemoval->nSCTHits(mu)
-);
-    } 
-  }
 
 
-  for (int jet = 0;
-       jet < jetsBeforeOverlapRemoval->n();
-       jet++) {
-
-    if (printEvent) {
-
-      ATH_MSG_INFO("  jet with pt = " << jetsBeforeOverlapRemoval->pt(jet) 
-		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
-		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
-		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet)
-		   << ", jvf = " << jetsBeforeOverlapRemoval->jvtxf(jet)
-		   );
-
-    }
-  }
   // jet cleaning
   for (int jet = 0;
        jet < jets->n();
@@ -1086,10 +922,6 @@ StatusCode Testing::execute()
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
     if (jets->isBadLooseMinus(jet)) {
-      // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-      // 		   << ", pt = " << jets->pt(jet) 
-      // 		   << ", phi = " << jets->phi(jet) 
-      // 		   << ", eta = " << jets->eta(jet));
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1102,18 +934,8 @@ StatusCode Testing::execute()
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
 				       metPhi)) < 0.3) {
-      // ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
-      // 		   << ", pt = " << jetsBeforeOverlapRemoval->pt(jet) 
-      // 		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
-      // 		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
-      // 		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet) 
-      // 		   << ", metphi = " << metPhi);
       return StatusCode::SUCCESS; // reject event
     }
-    // if (jetsBeforeOverlapRemoval->jvtxf(jet) < 0.5) {
-    //   ATH_MSG_INFO("Failed3: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber);
-    //   return StatusCode::SUCCESS; // reject event
-    // }
   }
   m_histograms["CutFlow"]->Fill(2.0, m_weight);
   ATH_MSG_DEBUG("Passed jet cleaning");
@@ -1128,15 +950,6 @@ StatusCode Testing::execute()
        ph < photons->n();
        ph++) {
     if (photons->isgoodoq(ph, LArTiming)) {
-      ATH_MSG_INFO("Failed1: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-       		   << ", pt = " << photons->pt(ph) 
-		   << ", eta = " << photons->eta(ph) 
-		   << ", phi = " << photons->phi(ph)
-		   << ", reta = " << photons->reta(ph)
-		   << ", rphi = " << photons->rphi(ph)
-		   << ", isEM = " << std::hex << photons->isEM(ph)
-		   << ", OW = " << std::hex << photons->OQ(ph)
-		   << std::dec);
       // fails timing if nonzero
       return StatusCode::SUCCESS; // reject event
     }
@@ -1151,15 +964,6 @@ StatusCode Testing::execute()
     const float Rphi33 = photons->rphi(ph);
  
     if (photons->isgoodoq(ph, LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-       		   << ", pt = " << photons->pt(ph) 
-		   << ", eta = " << photons->eta(ph) 
-		   << ", phi = " << photons->phi(ph)
-		   << ", reta = " << photons->reta(ph)
-		   << ", rphi = " << photons->rphi(ph)
-		   << ", isEM = " << std::hex << photons->isEM(ph)
-		   << ", OW = " << std::hex << photons->OQ(ph)
-		   << std::dec);
       return StatusCode::SUCCESS; // reject event
     }
 
@@ -1203,6 +1007,14 @@ StatusCode Testing::execute()
     return StatusCode::SUCCESS; // reject event
   }
 
+  // find the number of PVs with 5 tracks or more (used later)
+  int nPV = 0;
+
+  for (int i = 0; i < vxContainer.n(); i++) {
+    if (vxContainer.nTracks(i) >= 5) {
+      nPV++;
+    }
+  }
   
 
   m_histograms["CutFlow"]->Fill(5.0, m_weight);
@@ -1216,9 +1028,15 @@ StatusCode Testing::execute()
    
     if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
 		  muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
+      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
+		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
       return StatusCode::SUCCESS; // reject event 
     }
   }
+
+  m_histograms["CutFlow"]->Fill(6.0, m_weight);
+  ATH_MSG_DEBUG("Passed bad muon rejection");
 
   
   // muon cleaning -- cosmic muons
@@ -1231,11 +1049,14 @@ StatusCode Testing::execute()
 
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
     if (fabsf(dz) >= m_mu_z0cut || fabsf(dd) >= m_mu_d0cut) {
+      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+		   << ", dz = " << dz
+		   << ", dd = " << dd);
       return StatusCode::SUCCESS; // reject event
     }
   }
-  m_histograms["CutFlow"]->Fill(6.0, m_weight);
-  ATH_MSG_DEBUG("Passed muon rejection");
+  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  ATH_MSG_DEBUG("Passed cosmic muon rejection");
 
   // loop over photons
   m_numPhPresel = photons->n();
@@ -1276,7 +1097,7 @@ StatusCode Testing::execute()
 
     // let's do the AR studies
 
-    const int convType = photons->convFlag(ph);
+    const int convType = photons->convFlag(ph) % 10;
     const int numPix0 = photons->convtrk1nPixHits(ph);
     const int numSi0 = numPix0 + photons->convtrk1nSCTHits(ph);
     const int numPix1 = photons->convtrk2nPixHits(ph);
@@ -1351,7 +1172,7 @@ StatusCode Testing::execute()
     return StatusCode::SUCCESS;
   }
 
-  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
 
 
@@ -1464,7 +1285,8 @@ StatusCode Testing::execute()
 
   ATH_MSG_DEBUG("Passed lepton");
    
-  m_histograms["CutFlow"]->Fill(8.0, m_weight);
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+
 
 
   // // for met systematics
@@ -1532,7 +1354,7 @@ StatusCode Testing::execute()
     // }
   }
   ATH_MSG_DEBUG("Passed LAr Hole");
-  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
 
   // if (m_applyTriggers) {
@@ -1563,7 +1385,7 @@ StatusCode Testing::execute()
   // }
 
   ATH_MSG_DEBUG("Passed trig");
-  m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  m_histograms["CutFlow"]->Fill(11.0, m_weight);
 
 
   m_meff = m_HT+met;
@@ -1647,7 +1469,7 @@ StatusCode Testing::execute()
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Event passes blinding (or blinding disabled)");
-  m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  m_histograms["CutFlow"]->Fill(12.0, m_weight);
 
   // if (met > 75*GeV) {
   //   m_histograms["CutFlow"]->Fill(10.0, m_weight);
@@ -1742,7 +1564,7 @@ StatusCode Testing::execute()
   ATH_MSG_DEBUG("totalWeight = " << totalWeight); 
 
   // /////////////////////////////////////////////////////
-  // // Now some truth studies
+  // // Now some truth studies (now higher)
   // /////////////////////////////////////////////////////
 
   // m_type = TruthStudies::unknown;
@@ -1774,13 +1596,13 @@ StatusCode Testing::execute()
       
       
       if (fabs(photons->cl_eta(leadingPh)) < 1.45) {
-	if (photons->convFlag(leadingPh)) {
+	if (photons->isConv(leadingPh)) {
 	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
 	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
 	}
       } else {
-	if (photons->convFlag(leadingPh)) {
+	if (photons->isConv(leadingPh)) {
 	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
 	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
@@ -1803,13 +1625,13 @@ StatusCode Testing::execute()
 	
 	
 	if (fabs(photons->cl_eta(secondPh)) < 1.45) {
-	  if (photons->convFlag(secondPh)) {
+	  if (photons->isConv(secondPh)) {
 	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
 	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, totalWeight);
 	  }
 	} else {
-	  if (photons->convFlag(secondPh)) {
+	  if (photons->isConv(secondPh)) {
 	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
 	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, totalWeight);
@@ -1888,9 +1710,7 @@ StatusCode Testing::execute()
   delete muons;
   delete muonsBeforeOverlapRemoval;
   delete electrons;
-  delete electronsBeforeOverlapRemoval;
   delete photons;
-  delete photonsBeforeOverlapRemoval;
   delete jets;
   delete jetsBeforeOverlapRemoval;
 
@@ -1898,7 +1718,7 @@ StatusCode Testing::execute()
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode Testing::finalize() {
+StatusCode MetStudies::finalize() {
     
     ATH_MSG_INFO ("finalize()");
     // initialize cut flow table
@@ -1919,10 +1739,6 @@ StatusCode Testing::finalize() {
     // ATH_MSG_INFO("Average FF error second photon using sum of squares: " << accFFUnc2.Uncert2());
 
     // delete m_muon_sf;
-
-    for (int i = 0; i < NUM_COUNTS; i++) {
-      ATH_MSG_INFO("Counts " << i << ": " << m_counts[i]);
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -1950,7 +1766,7 @@ StatusCode Testing::finalize() {
 /// measured with probes in the 20-50 GeV range (range=0) or 30-50 GeV (range=1) 
 /// and correcting (etcorrection=1) or not (etcorrection=0) for the ET-dependence
 /// et := cluster_E/cosh(track_eta)
-// float Testing::GetSignalElecSF(float el_cl_eta, float et, int set, int rel, int mode, int range)
+// float MetStudies::GetSignalElecSF(float el_cl_eta, float et, int set, int rel, int mode, int range)
 // { 
 //   float sf = 1.;
 //   if (mode == 0 || mode == 1) sf = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).first;
@@ -1958,7 +1774,7 @@ StatusCode Testing::finalize() {
 //   return sf; 
 // }
 
-// float Testing::GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel, int mode, int range)
+// float MetStudies::GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel, int mode, int range)
 // { 
 //   float sfUnc = 0.;
 //   if (mode == 0 || mode == 1) sfUnc = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).second;
@@ -1968,7 +1784,7 @@ StatusCode Testing::finalize() {
 
 // ////////////////////////////////////////////////////////////////////////////
 // /// recordEtMissSystematics(): 
-// StatusCode Testing::recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container) {
+// StatusCode MetStudies::recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container) {
 
 //   ATH_MSG_DEBUG("Starting NtupleDumper recordEtMissSystematics()");
   
@@ -2042,7 +1858,7 @@ StatusCode Testing::finalize() {
 
 // ////////////////////////////////////////////////////////////////////////////
 // /// recordMuonSystematics(): 
-// StatusCode Testing::recordEtMissMuonSystematics() {
+// StatusCode MetStudies::recordEtMissMuonSystematics() {
 
 //   ATH_MSG_DEBUG("Starting NtupleDumper recordMuonSystematics()");
   
@@ -2063,7 +1879,7 @@ StatusCode Testing::finalize() {
 
 // ////////////////////////////////////////////////////////////////////////////
 // /// recordTruthMET(): 
-// StatusCode Testing::recordTruthMET()
+// StatusCode MetStudies::recordTruthMET()
 // {
 
 //   ATH_MSG_DEBUG("Starting NtupleDumper recordTruthMET()");

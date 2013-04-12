@@ -1,5 +1,5 @@
-#ifndef GMSBANALYSIS_TESTING_H
-#define GMSBANALYSIS_TESTING_H
+#ifndef GMSBANALYSIS_METSTUDIES_H
+#define GMSBANALYSIS_METSTUDIES_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -19,8 +19,6 @@
 #include "TRandom3.h"
 #include "TTree.h"
 
-#include <set>
-
 //class IAthSelectorTool;
 //class TrigMatchTool;
 //namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
@@ -30,18 +28,18 @@
 //  class TPileupReweighting;
 //}
 
+class IMETUtilityAthD3PDTool;
+
 /////////////////////////////////////////////////////////////////////////////
-class Testing:public AthAlgorithm {
+class MetStudies:public AthAlgorithm {
 public:
-  Testing (const std::string& name, ISvcLocator* pSvcLocator);
+  MetStudies (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
 
   enum NUM_CUTS_t {NUM_CUTS = 20};
   enum TRIG_MATCH_t {NONE = 0, MUONS}; // only muons implemented so far
-
-  enum NUM_COUNTS_t {NUM_COUNTS = 20};
 
 private:
 
@@ -62,7 +60,6 @@ private:
 
   /** MET selecton */
   std::string m_METContainerName;
-  std::string m_METCompositionName;
   // std::string m_topoClusterContainerName;
   std::string m_missingEtTruth;
 
@@ -105,10 +102,6 @@ private:
   float m_mu_z0cut;
   float m_mu_d0cut;
 
-  std::vector<int> m_printEvents;
-
-  std::set<int> m_theEvents; // conversion of above
-
   /// a handle on the Hist/TTree registration service
   ITHistSvc * m_thistSvc;
   std::string m_histFileName;
@@ -125,6 +118,9 @@ private:
 
   // This is for ABCD method
   ToolHandle<gmsbSelectionTool>       m_AltSelectionTool;
+
+  ToolHandle<IMETUtilityAthD3PDTool>  m_METUtility;
+  bool m_useMETUtility;
 
   // /** get a handle on the user tool for pre-selection and overlap removal */
   // ToolHandle<gmsbPreparationTool>     m_LoosePreparationTool;
@@ -161,8 +157,6 @@ private:
 
   FakeMetEstimator m_fakeMetEstimator;
   //FakeMetEstimator m_fakeMetEstimatorEmulNoHole;
-
-  std::vector<int> m_counts; 	// used for counting things
 
   // user data
   //ServiceHandle<ICutFlowSvc> m_cutFlowSvc;

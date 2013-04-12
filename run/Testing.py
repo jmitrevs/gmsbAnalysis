@@ -6,8 +6,8 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
+InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
 
@@ -48,7 +48,7 @@ from ROOT import egammaPID
 
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.SmearMC = True
-gmsbSelectionTool.OutputLevel = DEBUG
+#gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
@@ -89,11 +89,29 @@ testAlg = Testing(name = "Testing",
                             # DoEtMissMuonSystematics = False,
                             #EtMissSystematicsTool = myEtMissSystematicsTool,
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
+                  METCompositionName = "jet_AntiKt4LCTopo_MET_Egamma10NoTau_",
                   printEvents = [
-65439,
-65492,
-92602,
-141642
+8444,
+25549,
+38170,
+38664,
+38885,
+56089,
+59612,
+67365,
+77105,
+94352,
+99813,
+100095,
+109040,
+113863,
+134938,
+142063,
+152245,
+155751,
+176696,
+185283,
+195559
 ]
                             )
 from AthenaCommon.AppMgr import ToolSvc
