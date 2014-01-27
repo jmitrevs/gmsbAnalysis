@@ -6,14 +6,7 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
-#InputList = glob('/data2/jmitrevs2/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
-InputList = ['root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000001.root.1',
-             'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000002.root.1',
-             'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000003.root.1']
+InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
 
 svcMgr.EventSelector.InputCollections = InputList
 
@@ -51,30 +44,29 @@ from ROOT import egammaPID
 #print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
-gmsbSelectionTool.Atlfast = True
 gmsbSelectionTool.SmearMC = True
-#gmsbSelectionTool.OutputLevel = INFO
+#gmsbSelectionTool.ElectronPt = 25*GeV
+#gmsbSelectionTool.PhotonPt = 100*GeV
+#gmsbSelectionTool.MuonPt = 25*GeV
+#gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbFinalSelectionTool.IsMC = True
-gmsbFinalSelectionTool.Atlfast = True
 gmsbFinalSelectionTool.SmearMC = False
-gmsbFinalSelectionTool.PhotonPt = 125*GeV
-#gmsbFinalSelectionTool.OutputLevel = DEBUG
 
-from gmsbTools.gmsbToolsConf import TruthStudies
-truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = False,
-                            UseAnnotated = False,
-                            DumpEntireTree = True,
-                            #Ptcut = 8*GeV,
-                            doDeltaRLepton = False,
-                            OutputLevel = DEBUG
-                            )
-ToolSvc += truthStudies
-print truthStudies
+# from gmsbTools.gmsbToolsConf import TruthStudies
+# truthStudies = TruthStudies(name = "TruthStudies",
+#                             PrintDecayTree = False,
+#                             UseAnnotated = False,
+#                             DumpEntireTree = False,
+#                             #Ptcut = 8*GeV,
+#                             doDeltaRLepton = False,
+#                             #OutputLevel = DEBUG
+#                             )
+# ToolSvc += truthStudies
+# print truthStudies
 
 # # add the MET systematics
 # include ( "gmsbAnalysis/METSystematics.py" )
@@ -90,19 +82,136 @@ testAlg = Testing(name = "Testing",
                             applyTrigger = True,
                             NumPhotons = 1,
                             NumElectrons = 1,
-                            #NumMuons = 1,
                             outputNtuple = True,
-                            doTruthStudies = False,
-                            TruthStudiesTool = truthStudies,
+                            # doTruthStudies = True,
+                            # TruthStudiesTool = truthStudies,
                             # DoEtMissSystematics = False,
                             # DoEtMissMuonSystematics = False,
                             #EtMissSystematicsTool = myEtMissSystematicsTool,
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
-                  #METCompositionName = "jet_AntiKt4LCTopo_MET_Egamma10NoTau_",
-                  printEvents = [
- 4188,
- 16906
-]
+                  printEvents = [1756,
+1780,
+2425,
+2521,
+8052,
+8770,
+10971,
+11366,
+16328,
+16622,
+16656,
+16857,
+17365,
+18457,
+19047,
+19510,
+19743,
+23466,
+23543,
+24222,
+26280,
+29157,
+31803,
+33217,
+35053,
+37295,
+37995,
+38553,
+40611,
+42085,
+42802,
+42809,
+49718,
+49907,
+49974,
+49975,
+50862,
+56640,
+61192,
+62356,
+64956,
+66446,
+67024,
+67336,
+68727,
+69426,
+70848,
+72532,
+72611,
+73671,
+73765,
+75112,
+77511,
+81646,
+84457,
+86695,
+87073,
+87969,
+88955,
+89759,
+89835,
+89943,
+90991,
+92646,
+93049,
+94264,
+94638,
+96065,
+98609,
+99689,
+102108,
+106711,
+107850,
+108368,
+108474,
+109239,
+109451,
+110348,
+112951,
+113690,
+114163,
+114199,
+114200,
+119444,
+119864,
+120388,
+120640,
+120643,
+122715,
+127191,
+127461,
+128946,
+133111,
+133342,
+134916,
+137254,
+140424,
+151575,
+153167,
+155613,
+155730,
+156986,
+159880,
+161428,
+167390,
+169773,
+170730,
+171509,
+172050,
+175921,
+176699,
+179225,
+181123,
+181337,
+181727,
+182016,
+183228,
+185102,
+185114,
+185437,
+185686,
+192790]
+
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG
@@ -124,7 +233,6 @@ print testAlg
 #--------------------------------------------------------------
 
 ServiceMgr.MessageSvc.OutputLevel = WARNING
-ServiceMgr.MessageSvc.defaultLimit = 1000000000
 
 #==============================================================
 #==============================================================

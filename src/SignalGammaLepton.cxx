@@ -78,7 +78,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NumPhotons", m_numPhotonsReq = 1);
   declareProperty("NumElectrons", m_numElectronsReq = 0);
   declareProperty("NumMuons", m_numMuonsReq = 0);
-  declareProperty("MinMuonPt", m_minMuonPt = 25*GeV);
+  declareProperty("MinMuonPt", m_minMuonPt = 0*GeV);
 
   declareProperty("NumPhotonsMax", m_numPhotonsMax = UINT_MAX);
   declareProperty("NumElectronsMax", m_numElectronsMax = UINT_MAX);
@@ -94,9 +94,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
+  //declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
-  //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
+  declareProperty("METContainerName", m_METContainerName = "MET_RefFinal_");
  
   //declareProperty("CaloClusterContainer", m_topoClusterContainerName= "CaloCalTopoCluster");
 
@@ -903,6 +903,13 @@ StatusCode SignalGammaLepton::execute()
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
     if (jets->isBadLooseMinus(jet)) {
+      // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      // 		   << ", numJetsBeforeOvRemoval = " << jetsBeforeOverlapRemoval->n()
+      // 		   << ", numJetsAfterOvRemoval = " << jets->n()
+      // 		   << ", nPh = " << photons->n() 
+      // 		   << ", nEl = " << electrons->n() 
+      // 		   << ", nMu = " << muons->n() 
+      // 		   );
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -915,6 +922,16 @@ StatusCode SignalGammaLepton::execute()
 	jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) > 0.05 &&
 	fabsf(FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet),
 				       metPhi)) < 0.3) {
+      // ATH_MSG_INFO("Failed 2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      //  		   << ", numJetsBeforeOvRemoval = " << jetsBeforeOverlapRemoval->n()
+      //  		   // << ", numJetsAfterOvRemoval = " << jets->n()
+      // 		   // << ", nPh = " << photons->n() 
+      // 		   // << ", nEl = " << electrons->n() 
+      // 		   // << ", nMu = " << muons->n() 
+      // 		   << ", failed jet pt = " << jetsBeforeOverlapRemoval->pt(jet)
+      // 		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet)
+      // 		   << ", deltaPhi = " << FourMomHelpers::deltaPhi(jetsBeforeOverlapRemoval->phi(jet), metPhi)
+      // 		   );
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1009,9 +1026,9 @@ StatusCode SignalGammaLepton::execute()
    
     if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
 		  muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
-      ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
-		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
+      // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      // 		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
+      // 		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
       return StatusCode::SUCCESS; // reject event 
     }
   }
@@ -1030,9 +1047,9 @@ StatusCode SignalGammaLepton::execute()
 
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
     if (fabsf(dz) >= m_mu_z0cut || fabsf(dd) >= m_mu_d0cut) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-		   << ", dz = " << dz
-		   << ", dd = " << dd);
+      // ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      // 		   << ", dz = " << dz
+      // 		   << ", dd = " << dd);
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1155,6 +1172,14 @@ StatusCode SignalGammaLepton::execute()
 
   m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
+
+  // let's print out run, lb, and event numbers,...
+  ATH_MSG_INFO("Selected before lepton: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+  	       << " " << m_numPh << " " << m_numEl << " " 
+  	       << m_numMu << " " << met/GeV);
+
+  // ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+  //  	       << " " << m_numPh << " " << " " << met/GeV);
 
 
   m_numEl = 0;
@@ -1482,9 +1507,9 @@ StatusCode SignalGammaLepton::execute()
   /////////////////////////////////////////////////////
 
   // let's print out run, lb, and event numbers,...
-  // ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
-  // 	       << " " << m_numPh << " " << m_numEl << " " 
-  // 	       << m_numMu << " " << met/GeV);
+  ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+  	       << " " << m_numPh << " " << m_numEl << " " 
+  	       << m_numMu << " " << met/GeV);
 
 
   /////////////////////////////////////////////////////

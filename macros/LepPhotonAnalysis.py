@@ -37,6 +37,8 @@ DEFAULTWEIGHT = 1.0
 DEFAULT_LEPTON = ELECTRON
 
 removeCrack = True
+DELTAR_EL_PH = 0.7
+DELTAR_MU_PH = 0.7
 
 printAccepted = False
 
@@ -50,6 +52,7 @@ QCD = 5
 XR1 = 6
 XR2 = 7
 
+#DEFAULT_PLOTS = NO_SEL
 DEFAULT_PLOTS = PRESEL
 
 # For the ABCD method
@@ -73,15 +76,16 @@ STRONG = 2
 
 #Cuts
 # - electron channel
-EL_PHPTCUT = 100*GeV
+EL_PHPTCUT = 125*GeV
 EL_PHETACUT = 2.37
-EL_ELPTCUT = 25*GeV
+EL_ELPTCUT = 20*GeV
 EL_ELETACUT = 2.47
-EL_MET = 100*GeV
-EL_MT = 100*GeV
+EL_MET = 120*GeV
+EL_MT = 115*GeV
 
 EL_QCD_MINV_WINDOW = 15*GeV
-EL_MINV_WINDOW = 15*GeV
+# EL_MINV_WINDOW = 15*GeV
+EL_MINV_WINDOW = 0*GeV
 
 # tight (default)
 EL_WCR_MET_MIN = 35*GeV
@@ -111,16 +115,14 @@ EL_TCR_MT_MIN =  90*GeV
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 20*GeV
 
-DELTAR_EL_PH = 0.7
 
 # - muon channel
-MU_PHPTCUT = 85*GeV
-#MU_PHPTCUT = 100*GeV
+MU_PHPTCUT = 125*GeV
 MU_PHETACUT = 2.37
-MU_MUPTCUT = 25*GeV
-MU_MUETACUT = 2.4
-MU_MET = 100*GeV
-MU_MT = 100*GeV
+MU_MUPTCUT = 20*GeV
+MU_MUETACUT = 2.5
+MU_MET = 120*GeV
+MU_MT = 115*GeV
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
@@ -160,11 +162,10 @@ MU_TCR_MT_MIN =  90*GeV
 MU_QCD_MET_MAX = 25*GeV
 MU_QCD_MT_MAX = 25*GeV
 
-DELTAR_MU_PH = 0.7
 
 VETO_SECOND_LEPTON = False
 VETO_SECOND_SFLEPTON_MINV = False
-VETO_TRTSA_PHOTON_E_BLAYER = True
+VETO_TRTSA_PHOTON_E_BLAYER = False
 
 MET_DEFAULT = 0
 MET_PLUS = 1
@@ -487,14 +488,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         # lets apply the cuts
         # double-check quality
         if ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
-            # print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
-            # sys.exit(1)
-            continue
+            print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
+            sys.exit(1)
+            #continue
 
         if debug: print "Analizing event with Run =", ev.Run, ", Event =", ev.Event
 
 
         if filterPhotons and ev.numTruthPh > 0:
+            print "fail truth photon"
             continue
 
         if debug: print "  pass filterPhotons"
@@ -578,9 +580,11 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 weight *= 0.72
 
         if onlyStrong == STRONG and not ev.isStrong:
+            print "fail only strong"
             continue
 
         if onlyStrong == WEAK and ev.isStrong:
+            print "fail only weak"
             continue
         if debug: print "  pass onlyStrong"
 
@@ -593,7 +597,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     lepIndex = i
                     break
             else:
-                # print "*** electron only in crack ***"
+                print "*** electron only in crack ***"
                 continue
 
         # if lepIndex != 0:
@@ -750,6 +754,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         if onlyOrigin >= 0:
             if ev.PhotonOrigin[photonIndex] != onlyOrigin:
+                print '** fail onlyOrigin **'
                 continue
 
 
@@ -777,6 +782,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 (lepton == MUON and
                  (ev.PhotonPt[photonIndex] < MU_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > MU_PHETACUT or
                   ev.MuonPt[lepIndex] < MU_MUPTCUT or abs(ev.MuonEta[lepIndex]) > MU_MUETACUT))):
+                print '** fail basic selection **'
                 continue
 
             # veto second lepton or Z window cut
@@ -788,22 +794,27 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     minv = elph.M()
                     # print "**minv =", minv
                 if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_MINV_WINDOW:
+                    print '** fail electron z **'
                     continue
 
             if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
+                print '** fail veto second electron **'
                 continue
-            elif (lepton == ELECTRON and ev.numMu > 0 or
-                  lepton == MUON and ev.numEl > 0):
-                continue
+            # elif (lepton == ELECTRON and ev.numMu > 0 or
+            #       lepton == MUON and ev.numEl > 0):
+            #     print '** fail simple orthogonal channels **'
+            #     continue
 
             if (VETO_SECOND_SFLEPTON_MINV and
-                (lepton == ELECTRON and ZMASS - EL_MINV_WINDOW < ev.ElMinv < ZMASS + EL_MINV_WINDOW) or
-                (lepton == MUON and ZMASS - MU_MINV_WINDOW < ev.MuMinv < ZMASS + MU_MINV_WINDOW)):
+                ((lepton == ELECTRON and ZMASS - EL_MINV_WINDOW < ev.ElMinv < ZMASS + EL_MINV_WINDOW) or
+                 (lepton == MUON and ZMASS - MU_MINV_WINDOW < ev.MuMinv < ZMASS + MU_MINV_WINDOW))):
+                print '** fail second sflepon veto **'
                 continue
 
             if (VETO_TRTSA_PHOTON_E_BLAYER and # ev.numPh == 1 and
                 ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0 and
                 ev.PhotonNumBEl[photonIndex]):
+                print '** fail trtsa photon veto **'
                 continue
 
         if debug: print "  passed some presel"
@@ -812,6 +823,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             el_ph_deltaR = photon.DeltaR(electron)
             el_ph_deltaPhi = photon.DeltaPhi(electron)
             if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
+                print '** fail deltar photon lepton veto **'
                 continue
         else:
             muon = ROOT.TLorentzVector()
@@ -819,6 +831,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             mu_ph_deltaR = photon.DeltaR(muon)
             mu_ph_deltaPhi = photon.DeltaPhi(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
+                print '** fail deltar photon lepton veto **'
                 continue
 
             # if abs(mu_ph_deltaPhi) < 2.93:

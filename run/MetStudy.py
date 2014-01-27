@@ -6,14 +6,8 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
+InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
-#InputList = glob('/data2/jmitrevs2/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
-InputList = ['root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000001.root.1',
-             'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000002.root.1',
-             'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000003.root.1']
 
 svcMgr.EventSelector.InputCollections = InputList
 
@@ -28,10 +22,6 @@ svcMgr.EventSelector.TupleName = "susy"
 # ==============================================================================
 if not vars().has_key('EVTMAX'): EVTMAX = -1
 theApp.EvtMax = EVTMAX
-#theApp.EvtMax = 3
-
-#svcMgr.EventSelector.SkipEvents = 5000
-
 
 # getting a handle on the alg sequence
 from AthenaCommon.AlgSequence import AlgSequence
@@ -51,36 +41,33 @@ from ROOT import egammaPID
 #print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
-gmsbSelectionTool.Atlfast = True
 gmsbSelectionTool.SmearMC = True
-#gmsbSelectionTool.OutputLevel = INFO
+#gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbFinalSelectionTool.IsMC = True
-gmsbFinalSelectionTool.Atlfast = True
 gmsbFinalSelectionTool.SmearMC = False
-gmsbFinalSelectionTool.PhotonPt = 125*GeV
-#gmsbFinalSelectionTool.OutputLevel = DEBUG
+#gmsbFinalSelectionTool.PhotonPt = 100*GeV
 
-from gmsbTools.gmsbToolsConf import TruthStudies
-truthStudies = TruthStudies(name = "TruthStudies",
-                            PrintDecayTree = False,
-                            UseAnnotated = False,
-                            DumpEntireTree = True,
-                            #Ptcut = 8*GeV,
-                            doDeltaRLepton = False,
-                            OutputLevel = DEBUG
-                            )
-ToolSvc += truthStudies
-print truthStudies
+# from gmsbTools.gmsbToolsConf import TruthStudies
+# truthStudies = TruthStudies(name = "TruthStudies",
+#                             PrintDecayTree = False,
+#                             UseAnnotated = False,
+#                             DumpEntireTree = False,
+#                             #Ptcut = 8*GeV,
+#                             doDeltaRLepton = False,
+#                             #OutputLevel = DEBUG
+#                             )
+# ToolSvc += truthStudies
+# print truthStudies
 
 # # add the MET systematics
 # include ( "gmsbAnalysis/METSystematics.py" )
 
-from gmsbAnalysis.gmsbAnalysisConf import Testing
-testAlg = Testing(name = "Testing",
+from gmsbAnalysis.gmsbAnalysisConf import MetStudies
+testAlg = MetStudies(name = "MetStudies",
                             isMC = True,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
@@ -90,19 +77,13 @@ testAlg = Testing(name = "Testing",
                             applyTrigger = True,
                             NumPhotons = 1,
                             NumElectrons = 1,
-                            #NumMuons = 1,
                             outputNtuple = True,
-                            doTruthStudies = False,
-                            TruthStudiesTool = truthStudies,
+                            # doTruthStudies = True,
+                            # TruthStudiesTool = truthStudies,
                             # DoEtMissSystematics = False,
                             # DoEtMissMuonSystematics = False,
                             #EtMissSystematicsTool = myEtMissSystematicsTool,
-                            #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
-                  #METCompositionName = "jet_AntiKt4LCTopo_MET_Egamma10NoTau_",
-                  printEvents = [
- 4188,
- 16906
-]
+                            #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool
                             )
 from AthenaCommon.AppMgr import ToolSvc
 #testAlg.OutputLevel = DEBUG
@@ -132,5 +113,5 @@ ServiceMgr.MessageSvc.defaultLimit = 1000000000
 # save ROOT histograms and Tuple
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output = ["Testing DATAFILE='Testing.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output = ["MetStudies DATAFILE='MetStudies.root' OPT='RECREATE'"]
 

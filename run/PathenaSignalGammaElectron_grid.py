@@ -10,8 +10,8 @@ Dates=os.system(sfg)
 
 # this is for testing
 inDS_test = [
- 'mc12_8TeV.175002.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_200_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328', 
-     ]
+    'mc12_8TeV.175052.Herwigpp_UEEE3CTEQ6L1_GGM_wino_300_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+    ]
 
 
 inDS_full = [
@@ -90,20 +90,20 @@ inDS_full = [
 
 
     
-for i,inDS in enumerate(inDS_full):
+for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_130318.%s newSignalGammaElectron_afast.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_131010.%s newSignalGammaElectron_afast.py " % (inDS, outName)
 
     #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
    
     # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_130318.tar"
+    #     command += " --outTarBall=/tmp/jmitrevs/submission_gammael_131010.tar"
     # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_130318.tar"
+    #     command += " --inTarBall=/tmp/jmitrevs/submission_gammael_131010.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_130318.tar"
+    #command += " --inTarBall=/data3/jmitrevs/submission_gammael_130318.tar"
 
     print command
     sys.stdout.flush()

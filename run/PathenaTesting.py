@@ -10,11 +10,8 @@ Dates=os.system(sfg)
 
 # this is for testing
 inDS_test = [  
-    #'mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1_ttbargammaPt80_noAllHad.merge.NTUP_SUSY.e1660_s1581_s1586_r3658_r3549_p1328',
+    'mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1_ttbargammaPt80_noAllHad.merge.NTUP_SUSY.e1660_s1581_s1586_r3658_r3549_p1328',
     #'mc12_8TeV.126741.Sherpa_CT10_enugammaPt80.merge.NTUP_SUSY.e1533_s1499_s1504_r3658_r3549_p1328'
-    #'mc12_8TeV.181380.Sherpa_CT10_TTbarLeptLeptMassiveCB.merge.NTUP_SUSY.e2130_s1581_s1586_r4485_r4540_p1328'
-    'mc12_8TeV.181383.Sherpa_CT10_TTbarLeptHadMassiveCB.merge.NTUP_SUSY.e2130_s1581_s1586_r4485_r4540_p1328'
-    #'mc12_8TeV.177998.MadGraphPythia_AUET2BCTEQ6L1_ttbargammaPt80_noAllHad_fixed.merge.NTUP_SUSY.e2189_a188_a205_r4540_p1328'
     ]
 
 inDS_full = [
@@ -82,9 +79,8 @@ for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_131118.%s newSignalGammaElectron.py " % (inDS, outName)
-    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_131118.%s newSignalGammaElectron_afast.py " % (inDS, outName)
-
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.T_130402.%s Testing.py " % (inDS, outName)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEiso_120901.%s SignalGammaElectron_test.py " % (inDS, outName)
 
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
    
@@ -111,7 +107,7 @@ inDS_ttbar = [
     
 for i,inDS in enumerate(inDS_ttbar):
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_120902.%s SignalGammaElectron_ttbar.py " % (inDS, inDS)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.T_120902.%s SignalGammaElectron_ttbar.py " % (inDS, inDS)
     #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GEiso_120901.%s SignalGammaElectron_ttbar_test.py " % (inDS, inDS)
    
     # command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, inDS)

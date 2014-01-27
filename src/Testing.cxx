@@ -80,7 +80,7 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("NumPhotons", m_numPhotonsReq = 1);
   declareProperty("NumElectrons", m_numElectronsReq = 0);
   declareProperty("NumMuons", m_numMuonsReq = 0);
-  declareProperty("MinMuonPt", m_minMuonPt = 25*GeV);
+  declareProperty("MinMuonPt", m_minMuonPt = 0*GeV);
 
   declareProperty("NumPhotonsMax", m_numPhotonsMax = UINT_MAX);
   declareProperty("NumElectronsMax", m_numElectronsMax = UINT_MAX);
@@ -96,11 +96,9 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
 		  "This implies RequireTight = False");
 
   // this is effectively hardcoded it probably won't work otherwse
-  declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
-  declareProperty("METCompositionName", m_METCompositionName = "el_MET_Egamma10NoTau_");
-
+  //declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
-  //declareProperty("METContainerName", m_METContainerName = "MET_RefFinal");
+  declareProperty("METContainerName", m_METContainerName = "MET_RefFinal_");
  
   //declareProperty("CaloClusterContainer", m_topoClusterContainerName= "CaloCalTopoCluster");
 
@@ -694,24 +692,24 @@ StatusCode Testing::execute()
   const RefFinalMETD3PDObject metCont(m_METContainerName);
   ATH_CHECK(metCont.retrieve());
 
-  // The missing ET object
-  const MissingETCompositionD3PDObject metComp(m_METCompositionName);
-  ATH_CHECK(metComp.retrieve());
+  // // The missing ET object
+  // const MissingETCompositionD3PDObject metComp(m_METCompositionName);
+  // ATH_CHECK(metComp.retrieve());
 
-  ATH_MSG_INFO("metComp.n() = " << metComp.n());
+  // ATH_MSG_INFO("metComp.n() = " << metComp.n());
 
-  for (int mc = 0; mc < metComp.n(); mc++) {
-    ATH_MSG_INFO("MET comp: " << mc);
-    const std::vector<unsigned int>& sw = metComp.statusWord(mc); 
-    const std::vector<float>& wet = metComp.wet(mc);
-    if (sw.size() != wet.size()) {
-      ATH_MSG_ERROR("MET comp sizes are unexted");
-      return StatusCode::FAILURE;
-    }
-    for (int j = 0; j < sw.size(); j++) {
-      ATH_MSG_INFO(" j = " << j << ", status = " << sw[j] << " and weight = " << wet[j]);
-    }
-  }
+  // for (int mc = 0; mc < metComp.n(); mc++) {
+  //   ATH_MSG_INFO("MET comp: " << mc);
+  //   const std::vector<unsigned int>& sw = metComp.statusWord(mc); 
+  //   const std::vector<float>& wet = metComp.wet(mc);
+  //   if (sw.size() != wet.size()) {
+  //     ATH_MSG_ERROR("MET comp sizes are unexted");
+  //     return StatusCode::FAILURE;
+  //   }
+  //   for (int j = 0; j < sw.size(); j++) {
+  //     ATH_MSG_INFO(" j = " << j << ", status = " << sw[j] << " and weight = " << wet[j]);
+  //   }
+  // }
   
 
   // retrieve the container of Vertex
@@ -776,8 +774,10 @@ StatusCode Testing::execute()
   bool printEvent = (m_theEvents.find(m_eventNumber) != m_theEvents.end());
 
   if (printEvent) {
-    ATH_MSG_INFO("printing: " << m_runNumber << " " << m_lumiBlock << " " 
+    ATH_MSG_INFO("***** printing: " << m_runNumber << " " << m_lumiBlock << " " 
 		 << m_eventNumber);
+  } else {
+    ATH_MSG_INFO("***** event: " << m_eventNumber);
   }
 
   if (m_isMC) {
@@ -841,8 +841,12 @@ StatusCode Testing::execute()
       (evtInfo.coreFlags() & 0x40000) != 0 ) {
     return StatusCode::SUCCESS; // reject event
   }
-    
-  ATH_MSG_DEBUG("Passed larError (and similar)");
+
+  if (printEvent) {
+    ATH_MSG_INFO("Passed larError (and similar)");
+  } else {
+    ATH_MSG_DEBUG("Passed larError (and similar)");
+  }
 
   // also do truth-level filtering here
   // if (m_filterWJets) {
@@ -893,9 +897,10 @@ StatusCode Testing::execute()
 
   m_counts[0]+= photonsBeforeOverlapRemoval->n();
   m_counts[1]+= photons->n();
-  ATH_MSG_INFO("Num photons: " << m_eventNumber << "," <<  photonsBeforeOverlapRemoval->n());
-
-
+  if (printEvent) {
+    ATH_MSG_INFO("Num photons: " << m_eventNumber << "," <<  photonsBeforeOverlapRemoval->n());
+    ATH_MSG_INFO("Num photons after overlap: " << m_eventNumber << "," <<  photons->n());
+  }
   ElectronD3PDObject *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   ElectronD3PDObject *electronsBeforeOverlapRemoval = m_PreparationTool->selectedElectrons(); // only for debugging
 
@@ -1060,6 +1065,8 @@ StatusCode Testing::execute()
 		     << ", nPix = " <<  muonsBeforeOverlapRemoval->nPixHits(mu)
 		     << ", nSCT = " <<  muonsBeforeOverlapRemoval->nSCTHits(mu)
 );
+      ATH_MSG_INFO(" after overlap removal, number of muons = " << muonsBeforeOverlapRemoval->n());
+
     } 
   }
 
@@ -1075,6 +1082,7 @@ StatusCode Testing::execute()
 		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
 		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet)
 		   << ", jvf = " << jetsBeforeOverlapRemoval->jvtxf(jet)
+		   << ", bad = " << jetsBeforeOverlapRemoval->isBadLooseMinus(jet)
 		   );
 
     }
@@ -1116,8 +1124,12 @@ StatusCode Testing::execute()
     // }
   }
   m_histograms["CutFlow"]->Fill(2.0, m_weight);
-  ATH_MSG_DEBUG("Passed jet cleaning");
 
+  if (printEvent) {
+    ATH_MSG_INFO("Passed jet cleaning");
+  } else {
+    ATH_MSG_DEBUG("Passed jet cleaning");
+  }
   // define some bitmasks
   const unsigned int LArCleaning = 1 << egammaPID::LArQCleaning;
   const unsigned int LArTiming = 1 << egammaPID::OutTime;
@@ -1128,15 +1140,15 @@ StatusCode Testing::execute()
        ph < photons->n();
        ph++) {
     if (photons->isgoodoq(ph, LArTiming)) {
-      ATH_MSG_INFO("Failed1: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-       		   << ", pt = " << photons->pt(ph) 
-		   << ", eta = " << photons->eta(ph) 
-		   << ", phi = " << photons->phi(ph)
-		   << ", reta = " << photons->reta(ph)
-		   << ", rphi = " << photons->rphi(ph)
-		   << ", isEM = " << std::hex << photons->isEM(ph)
-		   << ", OW = " << std::hex << photons->OQ(ph)
-		   << std::dec);
+      // ATH_MSG_INFO("Failed1: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      //  		   << ", pt = " << photons->pt(ph) 
+      // 		   << ", eta = " << photons->eta(ph) 
+      // 		   << ", phi = " << photons->phi(ph)
+      // 		   << ", reta = " << photons->reta(ph)
+      // 		   << ", rphi = " << photons->rphi(ph)
+      // 		   << ", isEM = " << std::hex << photons->isEM(ph)
+      // 		   << ", OW = " << std::hex << photons->OQ(ph)
+      // 		   << std::dec);
       // fails timing if nonzero
       return StatusCode::SUCCESS; // reject event
     }
@@ -1151,23 +1163,26 @@ StatusCode Testing::execute()
     const float Rphi33 = photons->rphi(ph);
  
     if (photons->isgoodoq(ph, LArCleaning) && (Reta37 > 0.98 || Rphi33 > 1.0)) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-       		   << ", pt = " << photons->pt(ph) 
-		   << ", eta = " << photons->eta(ph) 
-		   << ", phi = " << photons->phi(ph)
-		   << ", reta = " << photons->reta(ph)
-		   << ", rphi = " << photons->rphi(ph)
-		   << ", isEM = " << std::hex << photons->isEM(ph)
-		   << ", OW = " << std::hex << photons->OQ(ph)
-		   << std::dec);
+      // ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      //  		   << ", pt = " << photons->pt(ph) 
+      // 		   << ", eta = " << photons->eta(ph) 
+      // 		   << ", phi = " << photons->phi(ph)
+      // 		   << ", reta = " << photons->reta(ph)
+      // 		   << ", rphi = " << photons->rphi(ph)
+      // 		   << ", isEM = " << std::hex << photons->isEM(ph)
+      // 		   << ", OW = " << std::hex << photons->OQ(ph)
+      // 		   << std::dec);
       return StatusCode::SUCCESS; // reject event
     }
 
   }
  
   m_histograms["CutFlow"]->Fill(3.0, m_weight);
-  ATH_MSG_DEBUG("Passed photon cleaning");
-
+  if (printEvent) {
+    ATH_MSG_INFO("Passed photon cleaning");
+  } else {
+    ATH_MSG_DEBUG("Passed photon cleaning");
+  }
   // electron cleaning
   for (int el = 0;
        el < electrons->n();
@@ -1191,8 +1206,11 @@ StatusCode Testing::execute()
   }
 
   m_histograms["CutFlow"]->Fill(4.0, m_weight);
-  ATH_MSG_DEBUG("Passed electron cleaning");
-
+  if (printEvent) {
+    ATH_MSG_INFO("Passed electron cleaning");
+  } else {
+    ATH_MSG_DEBUG("Passed electron cleaning");
+  }
 
   // check the primary vertex
   if (vxContainer.n() < 2) {
@@ -1206,8 +1224,11 @@ StatusCode Testing::execute()
   
 
   m_histograms["CutFlow"]->Fill(5.0, m_weight);
-  ATH_MSG_DEBUG("Passed vertex");
-
+  if (printEvent) {
+    ATH_MSG_INFO("Passed vertex");
+  } else {
+    ATH_MSG_DEBUG("Passed vertex");
+  }
 
   // moun cleaning -- bad muons
   for (int mu = 0;
@@ -1216,9 +1237,15 @@ StatusCode Testing::execute()
    
     if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
 		  muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
+      // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      // 		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
+      // 		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
       return StatusCode::SUCCESS; // reject event 
     }
   }
+
+  m_histograms["CutFlow"]->Fill(6.0, m_weight);
+  ATH_MSG_DEBUG("Passed bad muon rejection");
 
   
   // muon cleaning -- cosmic muons
@@ -1231,11 +1258,18 @@ StatusCode Testing::execute()
 
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
     if (fabsf(dz) >= m_mu_z0cut || fabsf(dd) >= m_mu_d0cut) {
+      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      		   << ", dz = " << dz
+      		   << ", dd = " << dd);
       return StatusCode::SUCCESS; // reject event
     }
   }
-  m_histograms["CutFlow"]->Fill(6.0, m_weight);
-  ATH_MSG_DEBUG("Passed muon rejection");
+  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  if (printEvent) {
+    ATH_MSG_INFO("Passed cosmic muon rejection");
+  } else {
+    ATH_MSG_DEBUG("Passed cosmic muon rejection");
+  }
 
   // loop over photons
   m_numPhPresel = photons->n();
@@ -1247,8 +1281,11 @@ StatusCode Testing::execute()
   double leadingPhPt = 0;
   double secondPhPt = 0;
 
-  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->n());
-  
+  if (printEvent) {
+    ATH_MSG_INFO("Overlap-removed photons size at input = " << photons->n());
+  } else {
+    ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->n());
+  }  
   m_numPh = 0;
   for (SortHelpers::sl_t::const_iterator it = phoOrder.begin(); 
        it != phoOrder.end(); 
@@ -1265,6 +1302,9 @@ StatusCode Testing::execute()
     // }
 
     const bool isTight = m_FinalSelectionTool->isSelected(*photons, ph);
+    if (printEvent) {
+      ATH_MSG_INFO("isTight = " << isTight);
+    }
     if (m_requireTightPho && !isTight) continue; 
 
     const bool isAlt = (m_doABCDPho) ? m_AltSelectionTool->isSelected(*photons, ph) : false;
@@ -1351,9 +1391,12 @@ StatusCode Testing::execute()
     return StatusCode::SUCCESS;
   }
 
-  m_histograms["CutFlow"]->Fill(7.0, m_weight);
-  ATH_MSG_DEBUG("Passed photons");
-
+  m_histograms["CutFlow"]->Fill(8.0, m_weight);
+  if (printEvent) {
+    ATH_MSG_INFO("Passed photons");
+  } else {
+    ATH_MSG_DEBUG("Passed photons");
+  }
 
   m_numEl = 0;
   m_numMu = 0;
@@ -1462,9 +1505,12 @@ StatusCode Testing::execute()
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG("Passed lepton");
-   
-  m_histograms["CutFlow"]->Fill(8.0, m_weight);
+  if (printEvent) {
+    ATH_MSG_INFO("Passed lepton");
+  } else {
+    ATH_MSG_DEBUG("Passed lepton");
+  }   
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
 
 
   // // for met systematics
@@ -1531,8 +1577,12 @@ StatusCode Testing::execute()
     //   }
     // }
   }
-  ATH_MSG_DEBUG("Passed LAr Hole");
-  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+  if (printEvent) {
+    ATH_MSG_INFO("Passed LAr Hole");
+  } else {
+    ATH_MSG_DEBUG("Passed LAr Hole");
+  }
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
 
   // if (m_applyTriggers) {
@@ -1562,8 +1612,12 @@ StatusCode Testing::execute()
   //   break;
   // }
 
-  ATH_MSG_DEBUG("Passed trig");
-  m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  if (printEvent) {
+    ATH_MSG_INFO("Passed trig");
+  } else {
+    ATH_MSG_DEBUG("Passed trig");
+  }
+  m_histograms["CutFlow"]->Fill(11.0, m_weight);
 
 
   m_meff = m_HT+met;
@@ -1647,7 +1701,7 @@ StatusCode Testing::execute()
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Event passes blinding (or blinding disabled)");
-  m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  m_histograms["CutFlow"]->Fill(12.0, m_weight);
 
   // if (met > 75*GeV) {
   //   m_histograms["CutFlow"]->Fill(10.0, m_weight);

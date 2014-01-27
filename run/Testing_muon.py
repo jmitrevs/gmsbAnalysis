@@ -6,14 +6,10 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
+InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
-#InputList = glob('/data2/jmitrevs2/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
-InputList = ['root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000001.root.1',
-             'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000002.root.1',
-             'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000003.root.1']
 
 svcMgr.EventSelector.InputCollections = InputList
 
@@ -51,18 +47,14 @@ from ROOT import egammaPID
 #print "random seed", RANDSEED
 
 gmsbSelectionTool.IsMC = True
-gmsbSelectionTool.Atlfast = True
 gmsbSelectionTool.SmearMC = True
-#gmsbSelectionTool.OutputLevel = INFO
+#gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
 
 gmsbFinalSelectionTool.IsMC = True
-gmsbFinalSelectionTool.Atlfast = True
 gmsbFinalSelectionTool.SmearMC = False
-gmsbFinalSelectionTool.PhotonPt = 125*GeV
-#gmsbFinalSelectionTool.OutputLevel = DEBUG
 
 from gmsbTools.gmsbToolsConf import TruthStudies
 truthStudies = TruthStudies(name = "TruthStudies",
@@ -90,7 +82,6 @@ testAlg = Testing(name = "Testing",
                             applyTrigger = True,
                             NumPhotons = 1,
                             NumElectrons = 1,
-                            #NumMuons = 1,
                             outputNtuple = True,
                             doTruthStudies = False,
                             TruthStudiesTool = truthStudies,
@@ -98,10 +89,58 @@ testAlg = Testing(name = "Testing",
                             # DoEtMissMuonSystematics = False,
                             #EtMissSystematicsTool = myEtMissSystematicsTool,
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
-                  #METCompositionName = "jet_AntiKt4LCTopo_MET_Egamma10NoTau_",
                   printEvents = [
- 4188,
- 16906
+14217,
+14987,
+30805,
+34465,
+40296,
+51238,
+51248,
+59123,
+64542,
+64552,
+64835,
+64889,
+74050,
+74088,
+74677,
+76817,
+76868,
+91619,
+92960,
+93500,
+96058,
+96791,
+98501,
+106545,
+112220,
+124228,
+124298,
+124800,
+125546,
+125595,
+132053,
+132055,
+132060,
+139343,
+144260,
+144796,
+160654,
+163019,
+167161,
+177799,
+178524,
+178572,
+179057,
+183906,
+183945,
+184053,
+186563,
+186597,
+188170,
+188401,
+188409
 ]
                             )
 from AthenaCommon.AppMgr import ToolSvc
