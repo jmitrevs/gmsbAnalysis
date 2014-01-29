@@ -24,10 +24,8 @@ namespace Reco  { class ITrackToVertex; }
 class IAthSelectorTool;
 namespace Trig  { class TrigDecisionTool; }
 class TrigMatchTool;
-namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
 class APReweightND;
 class IMCTruthClassifier;
-class ITopoSystematicsTool;
 class IEtMissMuonSystematicsTool;
 
 namespace Root {
@@ -52,10 +50,6 @@ private:
   // both should really be const.
   float GetSignalElecSF(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
   float GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
-
-  StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
-  StatusCode recordEtMissMuonSystematics();
-  StatusCode recordTruthMET();
 
   int m_set; 			// electron scale factor set 
 
@@ -142,14 +136,6 @@ private:
   enum ttbarfilt_t {NO_TTBARFILT = 0, LEPJETS, DILEP};
   int m_filterTTbar; // really the enum above
 
-  // for MET systematics
-  ToolHandle<ITopoSystematicsTool> m_topoSystematicsTool;
-  ToolHandle<IEtMissMuonSystematicsTool> m_muonSystematicsTool;
-  bool m_do_met_systematics;
-  bool m_do_met_muon_systematics;
-  bool m_do_truth_met;
-  bool m_topo_systematics_use_eta45;
-
   bool m_doOverlapElectrons; // for debugging
 
   /** @breif whether to blind or not */
@@ -173,8 +159,6 @@ private:
 
   // for calculating scale factors in electron channel
   egammaSFclass  m_egammaSFclass;
-
-  Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
 
   std::string m_muonTrigWeightsFile;
   APReweightND *m_trigWeighter;

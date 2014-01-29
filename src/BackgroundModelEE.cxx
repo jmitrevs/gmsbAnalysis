@@ -1,5 +1,5 @@
 #include "gmsbAnalysis/BackgroundModelEE.h"
-#include "ObjectSelectorCore/IAthSelectorTool.h"
+#include "PATCore/IAthSelectorTool.h"
 
 #include "TH1.h"
 

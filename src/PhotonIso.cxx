@@ -1,6 +1,7 @@
 #include "gmsbAnalysis/PhotonIso.h"
 
 #include "TH1.h"
+#include "TTree.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

@@ -9,11 +9,10 @@ use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
 use AthenaKernel       AthenaKernel-*           Control
 use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
-use PathResolver       PathResolver-* Tools
 
 private
-use JetSelectorTools   JetSelectorTools-*       PhysicsAnalysis/JetMissingEtID
-use ObjectSelectorCore ObjectSelectorCore-*     PhysicsAnalysis/AnalysisCommon
+use PathResolver       PathResolver-* Tools
+use PATCore            PATCore-*                PhysicsAnalysis/AnalysisCommon
 use gmsbTools          gmsbTools-*
 use FourMomUtils		FourMomUtils-*			Event
 use EventInfo                   EventInfo-*                     Event
@@ -33,10 +32,7 @@ use AtlasHepMC         AtlasHepMC-*             External
 use GeneratorObjects   GeneratorObjects-*       Generators
 use TrkTrackLink		TrkTrackLink-*			Tracking/TrkEvent
 use TrkParticleBase		TrkParticleBase-*		Tracking/TrkEvent
-use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
 use TrigMuonEvent      TrigMuonEvent-*          Trigger/TrigEvent
-use ReweightUtils      ReweightUtils-*          PhysicsAnalysis/AnalysisCommon
-use DanGMSBAnaTools    DanGMSBAnaTools-*
 use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
 end_private
 
@@ -52,6 +48,7 @@ apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime files="*.root"
 
-macro gmsbAnalysis_linkopts "-lEG"
+private
+macro_append ROOT_linkopts " -lEG"
 
 #################################################
