@@ -24,7 +24,7 @@ truthStudies = TruthStudies(name = "TruthStudies",
 			    McEventCollection = "GEN_EVENT",
                             PrintDecayTree = False,
                             UseAnnotated = False,
-                            DumpEntireTree = True,
+                            DumpEntireTree = False,
                             Ptcut = 8*GeV,
                             doMInv = False,
                             OutputLevel = DEBUG
@@ -64,6 +64,6 @@ ServiceMgr.THistSvc.Output = ["TruthPlots DATAFILE='TruthPlots.root' OPT='RECREA
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 1
+theApp.EvtMax = -1
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
