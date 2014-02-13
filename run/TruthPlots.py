@@ -1,7 +1,15 @@
  
 # Set up the reading of a file:
 from glob import glob
-FNAME = glob('/home/jmitrevs/workarea/mc12_8TeV.110101.AcerMCPythia_P2011CCTEQ6L1_singletop_tchan_l.evgen.EVNT.e1731_tid01147138_00/*')
+
+#FNAME = glob('/home/jmitrevs/workarea/mc12_8TeV.110101.AcerMCPythia_P2011CCTEQ6L1_singletop_tchan_l.evgen.EVNT.e1731_tid01147138_00/*')
+
+FNAME = glob('/home/jmitrevs/workarea/AtlasProduction-17.2.11.7/workarea_Whizard_tchanPlus_alt/EVNT*pool.root')
+#FNAME = glob('/home/jmitrevs/workarea/AtlasProduction-17.2.11.7/workarea_Whizard_tchanMinus_alt/EVNT*pool.root')
+#FNAME = glob('/home/jmitrevs/workarea/AtlasProduction-17.2.11.7/workarea_Whizard_tchanPlusTau_alt/EVNT*pool.root')
+#FNAME = glob('/home/jmitrevs/workarea/AtlasProduction-17.2.11.7/workarea_Whizard_tchanMinusTau_alt/EVNT*pool.root')
+
+
 
 include( "AthenaPython/iread_file.py" )
  
@@ -16,7 +24,7 @@ truthStudies = TruthStudies(name = "TruthStudies",
 			    McEventCollection = "GEN_EVENT",
                             PrintDecayTree = False,
                             UseAnnotated = False,
-                            DumpEntireTree = False,
+                            DumpEntireTree = True,
                             Ptcut = 8*GeV,
                             doMInv = False,
                             OutputLevel = DEBUG
@@ -56,6 +64,6 @@ ServiceMgr.THistSvc.Output = ["TruthPlots DATAFILE='TruthPlots.root' OPT='RECREA
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = -1
+theApp.EvtMax = 1
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
