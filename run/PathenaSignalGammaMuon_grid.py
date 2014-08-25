@@ -9,12 +9,12 @@ Dates=os.system(sfg)
 # Put the list of datasets you want to run over here (remove the '/' from the end). 
 
 # this is for testing
-inDS_test = [
-  
-    'mc11_7TeV.152636.GGM_gl_wino_1000_300_newgfilter_herwigpp_susy.merge.AOD.e1078_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.152639.GGM_gl_wino_1500_100_newgfilter_herwigpp_susy.merge.AOD.e1078_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.152599.GGM_gl_wino_600_200_newgfilter_herwigpp_susy.merge.AOD.e1078_s1372_s1370_r3108_r3109',
-    'mc11_7TeV.152612.GGM_gl_wino_700_600_newgfilter_herwigpp_susy.merge.AOD.e1078_s1372_s1370_r3108_r3109',
+inDS_test = [ 
+    #'mc12_8TeV.175005.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_680_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    'mc12_8TeV.175004.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175052.Herwigpp_UEEE3CTEQ6L1_GGM_wino_300_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+    'mc12_8TeV.175023.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    'mc12_8TeV.175025.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_830_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     ]
 
 
@@ -94,22 +94,32 @@ inDS_full = [
 
 
     
-for i,inDS in enumerate(inDS_full):
+for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_130318.%s newSignalGammaMuon_afast.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_140612.%s newSignalGammaMuon_afast.py " % (inDS, outName)
+    commandl = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_140612r.%s newSignalGammaMuon_afast_loose.py " % (inDS, outName)
+    commandr = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_140612l.%s newSignalGammaMuon_afast_looser.py " % (inDS, outName)
 
     #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
    
-    # if i == 0:
-    #     command += " --outTarBall=/data3/jmitrevs/submission_gammael_130318a.tar"
-    # else:
-    #     command += " --inTarBall=/data3/jmitrevs/submission_gammael_130318a.tar"
+    #if i == 0:
+    #    command += " --outTarBall=/data3/jmitrevs/submission_gammamu_140619.tar"
+    #else:
+    #    command += " --inTarBall=/data3/jmitrevs/submission_gammamu_140619.tar"
 
-    command += " --inTarBall=/data3/jmitrevs/submission_gammael_130318a.tar"
+    #command += " --inTarBall=/data3/jmitrevs/submission_gammael_130318a.tar"
 
     print command
     sys.stdout.flush()
     os.system(command)
+
+    #print commandr
+    #sys.stdout.flush()
+    #os.system(commandr)
+
+    #print commandl
+    #sys.stdout.flush()
+    #os.system(commandl)
     

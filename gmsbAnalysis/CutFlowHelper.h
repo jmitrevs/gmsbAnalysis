@@ -4,7 +4,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "egammaAnalysisUtils/egammaSFclass.h"
+//#include "egammaAnalysisUtils/egammaSFclass.h"
 
 /////////////////////////////////////////////////////////////////////////////
 class CutFlowHelper:public AthAlgorithm {

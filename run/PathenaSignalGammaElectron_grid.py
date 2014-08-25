@@ -9,8 +9,12 @@ Dates=os.system(sfg)
 # Put the list of datasets you want to run over here (remove the '/' from the end). 
 
 # this is for testing
-inDS_test = [
-    'mc12_8TeV.175052.Herwigpp_UEEE3CTEQ6L1_GGM_wino_300_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+inDS_test = [ 
+    #'mc12_8TeV.175005.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_680_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175004.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175052.Herwigpp_UEEE3CTEQ6L1_GGM_wino_300_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+    'mc12_8TeV.175023.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    'mc12_8TeV.175025.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_830_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     ]
 
 
@@ -94,7 +98,8 @@ for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:90] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_131010.%s newSignalGammaElectron_afast.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_140612.%s newSignalGammaElectron_afast.py " % (inDS, outName)
+    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_140612r.%s newSignalGammaElectron_afast_looser.py " % (inDS, outName)
 
     #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
    

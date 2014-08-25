@@ -100,8 +100,7 @@ testAlg = Testing(name = "Testing",
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
                   #METCompositionName = "jet_AntiKt4LCTopo_MET_Egamma10NoTau_",
                   printEvents = [
- 4188,
- 16906
+ 44
 ]
                             )
 from AthenaCommon.AppMgr import ToolSvc

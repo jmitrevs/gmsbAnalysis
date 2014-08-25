@@ -20,6 +20,7 @@
 #include "gmsbTools/SortHelpers.h"
 
 #include "MissingETUtility/IMETUtilityAthD3PDTool.h"
+#include "MissingETUtility/METUtility.h"
 
 //#include "JetUtils/JetCaloHelper.h"
 //#include "JetUtils/JetCaloQualityUtils.h"
@@ -895,7 +896,7 @@ StatusCode MetStudies::execute()
   // need the MET for the jet cleaning
 
   if (m_useMETUtility) {
-    const METObject metCont = m_METUtility->getMissingET(METUtil::RefFinal);
+    const METUtil::METObject metCont = m_METUtility->getMissingET(METUtil::RefFinal);
     m_metx = metCont.etx();
     m_mety = metCont.ety();
     m_set = metCont.sumet();
