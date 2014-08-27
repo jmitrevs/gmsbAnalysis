@@ -16,6 +16,7 @@
 #include "gmsbD3PDObjects/EventInfoD3PDObject.h"
 #include "gmsbD3PDObjects/RefFinalMETD3PDObject.h"
 #include "gmsbD3PDObjects/MissingETTruthD3PDObject.h"
+#include "gmsbD3PDObjects/triggerBitsD3PDObject.h"
 
 #include "gmsbTools/SortHelpers.h"
 
@@ -133,9 +134,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("isMC", m_isMC = false);
   //  declareProperty("trigDecisionTool", m_trigDec);
   //declareProperty("trigMatchingTool", m_trigMatch);
-  declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
-  declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
-  declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
+  declareProperty("applyTrigger", m_applyTriggers = true); 
+  // declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
+  // declareProperty("triggers", m_triggers = "EF_g120_loose"); // for matching or applying -- hardcode for now
 
   //declareProperty("MuonTriggerWeights",
   //	  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
@@ -675,6 +676,9 @@ StatusCode SignalGammaLepton::execute()
 
   const EventInfoD3PDObject evtInfo("");
   ATH_CHECK(evtInfo.retrieve());
+
+  const triggerBitsD3PDObject trig("");
+  ATH_CHECK(trig.retrieve());
 
   if (m_outputNtuple) {
     m_ph_pt->clear();
@@ -1362,12 +1366,11 @@ StatusCode SignalGammaLepton::execute()
   ATH_MSG_DEBUG("Passed LAr Hole");
   m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
-
-  // if (m_applyTriggers) {
-  //   if (! m_trigDec->isPassed(m_triggers)) {
-  //     return StatusCode::SUCCESS; // reject event
-  //   }
-  // }
+  if (m_applyTriggers) {
+    if (! trig.EF_g120_loose()) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
 
   // switch(m_matchTriggers) {
   // case NONE:

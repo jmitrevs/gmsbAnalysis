@@ -17,6 +17,7 @@
 #include "gmsbD3PDObjects/RefFinalMETD3PDObject.h"
 #include "gmsbD3PDObjects/MissingETTruthD3PDObject.h"
 #include "gmsbD3PDObjects/MissingETCompositionD3PDObject.h"
+#include "gmsbD3PDObjects/triggerBitsD3PDObject.h"
 
 #include "gmsbTools/SortHelpers.h"
 #include "gmsbTools/FourMomHelpers.h"
@@ -135,9 +136,9 @@ Testing::Testing(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("isMC", m_isMC = false);
   //  declareProperty("trigDecisionTool", m_trigDec);
   //declareProperty("trigMatchingTool", m_trigMatch);
-  declareProperty("applyTrigger", m_applyTriggers = false); //only really meant for MC
-  declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
-  declareProperty("triggers", m_triggers = "EF_2g20_loose"); // for matching or applying
+  declareProperty("applyTrigger", m_applyTriggers = true);
+  // declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
+  // declareProperty("triggers", m_triggers = "EF_g120_loose"); // for matching or applying -- hardcode for now
 
   declareProperty("printEvents", m_printEvents);
 
@@ -719,6 +720,9 @@ StatusCode Testing::execute()
   const EventInfoD3PDObject evtInfo("");
   ATH_CHECK(evtInfo.retrieve());
 
+  const triggerBitsD3PDObject trig("");
+  ATH_CHECK(trig.retrieve());
+
   if (m_outputNtuple) {
     m_ph_pt->clear();
     m_ph_eta->clear();
@@ -903,6 +907,10 @@ StatusCode Testing::execute()
   }
   ElectronD3PDObject *electrons = m_OverlapRemovalTool2->finalStateElectrons();
   ElectronD3PDObject *electronsBeforeOverlapRemoval = m_PreparationTool->selectedElectrons(); // only for debugging
+  if (printEvent) {
+    ATH_MSG_INFO("Num electrons: " << m_eventNumber << "," <<  electronsBeforeOverlapRemoval->n());
+    ATH_MSG_INFO("Num electrons after overlap: " << m_eventNumber << "," <<  electrons->n());
+  }
 
   m_counts[2]+= electronsBeforeOverlapRemoval->n();
   m_counts[3]+= electrons->n();
@@ -913,6 +921,10 @@ StatusCode Testing::execute()
   MuonD3PDObject *muonsBeforeOverlapRemoval = m_PreparationTool->selectedMuons();
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
+  if (printEvent) {
+    ATH_MSG_INFO("Num muons: " << m_eventNumber << "," <<  muonsBeforeOverlapRemoval->n());
+    ATH_MSG_INFO("Num muons after overlap: " << m_eventNumber << "," <<  muons->n());
+  }
 
   m_counts[4]+= muonsBeforeOverlapRemoval->n();
   m_counts[5]+= muons->n();
@@ -987,6 +999,8 @@ StatusCode Testing::execute()
       ATH_MSG_INFO(  "  photon pt = " << photonsBeforeOverlapRemoval->pt(ph) 
 		     << ", cl_eta = " << photonsBeforeOverlapRemoval->cl_eta(ph) 
 		     << ", cl_phi = " << photonsBeforeOverlapRemoval->cl_phi(ph)
+		     << ", eta = " << photonsBeforeOverlapRemoval->eta(ph) 
+		     << ", phi = " << photonsBeforeOverlapRemoval->phi(ph)
 		     << ", isEM = " << std::hex << photonsBeforeOverlapRemoval->isEM(ph)
 		     << ", OW = " << std::hex << photonsBeforeOverlapRemoval->OQ(ph)
 		     << std::dec);
@@ -1023,7 +1037,9 @@ StatusCode Testing::execute()
     if (printEvent) {
       ATH_MSG_INFO(  "  electron  pt = " << electronsBeforeOverlapRemoval->pt(el) 
 		     << ", cl_eta = " << electronsBeforeOverlapRemoval->cl_eta(el) 
-		     << ", cl_phi = " << electronsBeforeOverlapRemoval->cl_phi(el));
+		     << ", cl_phi = " << electronsBeforeOverlapRemoval->cl_phi(el)
+		     << ", eta = " << electronsBeforeOverlapRemoval->eta(el) 
+		     << ", phi = " << electronsBeforeOverlapRemoval->phi(el));
     } 
     
     if (electronsBeforeOverlapRemoval->pt(el) > 35*GeV &&
@@ -1065,7 +1081,6 @@ StatusCode Testing::execute()
 		     << ", nPix = " <<  muonsBeforeOverlapRemoval->nPixHits(mu)
 		     << ", nSCT = " <<  muonsBeforeOverlapRemoval->nSCTHits(mu)
 );
-      ATH_MSG_INFO(" after overlap removal, number of muons = " << muonsBeforeOverlapRemoval->n());
 
     } 
   }
@@ -1079,8 +1094,8 @@ StatusCode Testing::execute()
 
       ATH_MSG_INFO("  jet with pt = " << jetsBeforeOverlapRemoval->pt(jet) 
 		   << ", BCH_CORR_JET = " << jetsBeforeOverlapRemoval->BCH_CORR_JET(jet) 
-		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
 		   << ", eta = " << jetsBeforeOverlapRemoval->eta(jet)
+		   << ", phi = " << jetsBeforeOverlapRemoval->phi(jet) 
 		   << ", jvf = " << jetsBeforeOverlapRemoval->jvtxf(jet)
 		   << ", bad = " << jetsBeforeOverlapRemoval->isBadLooseMinus(jet)
 		   );
@@ -1258,9 +1273,9 @@ StatusCode Testing::execute()
 
     ATH_MSG_DEBUG("dZ = " << dz << ", dd = " << dd);
     if (fabsf(dz) >= m_mu_z0cut || fabsf(dd) >= m_mu_d0cut) {
-      ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-      		   << ", dz = " << dz
-      		   << ", dd = " << dd);
+      // ATH_MSG_INFO("Failed2: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+      // 		   << ", dz = " << dz
+      // 		   << ", dd = " << dd);
       return StatusCode::SUCCESS; // reject event
     }
   }
@@ -1585,11 +1600,12 @@ StatusCode Testing::execute()
   m_histograms["CutFlow"]->Fill(10.0, m_weight);
   
 
-  // if (m_applyTriggers) {
-  //   if (! m_trigDec->isPassed(m_triggers)) {
-  //     return StatusCode::SUCCESS; // reject event
-  //   }
-  // }
+  if (m_applyTriggers) {
+    if (! trig.EF_g120_loose()) {
+      ATH_MSG_DEBUG("Failed trigger");
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
 
   // switch(m_matchTriggers) {
   // case NONE:
@@ -1736,6 +1752,18 @@ StatusCode Testing::execute()
   // ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
   // 	       << " " << m_numPh << " " << m_numEl << " " 
   // 	       << m_numMu << " " << met/GeV);
+
+  // ATH_MSG_INFO("EvNum: " << m_eventNumber 
+  //  	       << " PhBefOverlap: " << photonsBeforeOverlapRemoval->n() << " PhAfterOverlap: " << m_numPh
+  // 	       << " ElBefOverlap: " << electronsBeforeOverlapRemoval->n() << " ElAfterOverlap: " << m_numEl 
+  //  	       << " MuonBefOverlap: " << muonsBeforeOverlapRemoval->n() << " MuonAfterOverlap: " << m_numMu 
+  // 	       << " JetBefOverlap: " << jetsBeforeOverlapRemoval->n() << " JetAfterOverlap: " << m_numJets );
+
+  ATH_MSG_INFO("EvNum: " << m_eventNumber 
+   	       << " PhBefOverlap: " << photonsBeforeOverlapRemoval->n() << " PhAfterOverlap: " << photons->n()
+	       << " ElBefOverlap: " << electronsBeforeOverlapRemoval->n() << " ElAfterOverlap: " << electrons->n() 
+   	       << " MuonBefOverlap: " << muonsBeforeOverlapRemoval->n() << " MuonAfterOverlap: " << muons->n() 
+	       << " JetBefOverlap: " << jetsBeforeOverlapRemoval->n() << " JetAfterOverlap: " << jets->n() );
 
 
   /////////////////////////////////////////////////////

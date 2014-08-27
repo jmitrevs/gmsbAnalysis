@@ -78,9 +78,9 @@ private:
   bool m_doABCDPho; // if true also sets alternate variables
   bool m_doABCDLep; // if true also sets alternate variables
 
-  bool m_applyTriggers; //only really meant for MC
-  int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
-  std::string m_triggers;
+  bool m_applyTriggers; 
+  // int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
+  // std::string m_triggers;  // hardcode for now
 
   //bool m_doSmartVeto;
 
