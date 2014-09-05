@@ -28,6 +28,9 @@
 //  class TPileupReweighting;
 //}
 
+#include "TileTripReader/AthTileTripReader.h"
+//#include "BCHCleaningTool/BCHCleaningToolAthena.h"
+
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
 public:
@@ -44,6 +47,12 @@ private:
   bool IsBadMuon(float mu_staco_qoverp_exPV, 
 		 float mu_staco_cov_qoverp_exPV) const;
 
+  bool isHotTile(const int RunNumber,
+		 const float j_fmax,
+		 const int j_smax,
+		 const float jeteta,
+		 const float jetphi) const;
+  
   // bool isInLArHole(Jet* jet) const;
 
   // // both should really be const.
@@ -176,6 +185,9 @@ private:
   std::string m_pileupConfig;
   std::string m_lumiCalcFile;
   // Root::TPileupReweighting *m_pileupTool;
+
+  //ToolHandle<BCHTool::BCHCleaningToolAthena> m_thebchTool;
+  ToolHandle<AthTileTripReader> m_ttrHandle;
 
   // The variables if one outputs an ntuple
   TTree* m_tree;
