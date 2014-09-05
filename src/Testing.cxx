@@ -1331,7 +1331,7 @@ StatusCode Testing::execute()
 
     // let's do the AR studies
 
-    const int convType = photons->convFlag(ph);
+    const int convType = photons->convFlag(ph) % 10;
     const int numPix0 = photons->convtrk1nPixHits(ph);
     const int numSi0 = numPix0 + photons->convtrk1nSCTHits(ph);
     const int numPix1 = photons->convtrk2nPixHits(ph);
@@ -1856,13 +1856,13 @@ StatusCode Testing::execute()
       
       
       if (fabs(photons->cl_eta(leadingPh)) < 1.45) {
-	if (photons->convFlag(leadingPh)) {
+	if (photons->isConv(leadingPh)) {
 	  m_histograms["ph_ptB_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
 	  m_histograms["ph_ptB_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
 	}
       } else {
-	if (photons->convFlag(leadingPh)) {
+	if (photons->isConv(leadingPh)) {
 	  m_histograms["ph_ptEC_conv"]->Fill(leadingPhPt/GeV, totalWeight);
 	} else {
 	  m_histograms["ph_ptEC_unconv"]->Fill(leadingPhPt/GeV, totalWeight);
@@ -1885,13 +1885,13 @@ StatusCode Testing::execute()
 	
 	
 	if (fabs(photons->cl_eta(secondPh)) < 1.45) {
-	  if (photons->convFlag(secondPh)) {
+	  if (photons->isConv(secondPh)) {
 	    m_histograms["ph_ptB_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
 	    m_histograms["ph_ptB_unconv"]->Fill(secondPhPt/GeV, totalWeight);
 	  }
 	} else {
-	  if (photons->convFlag(secondPh)) {
+	  if (photons->isConv(secondPh)) {
 	    m_histograms["ph_ptEC_conv"]->Fill(secondPhPt/GeV, totalWeight);
 	  } else {
 	    m_histograms["ph_ptEC_unconv"]->Fill(secondPhPt/GeV, totalWeight);

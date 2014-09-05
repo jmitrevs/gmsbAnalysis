@@ -69,6 +69,33 @@ bool SignalGammaLepton::IsBadMuon(float mu_staco_qoverp_exPV,
   return false;
 }
 
+bool SignalGammaLepton::isHotTile(const int RunNumber,
+				  const float j_fmax,
+				  const int j_smax,
+				  const float jeteta,
+				  const float jetphi) const
+{
+  if (!m_isMC){
+    if (RunNumber == 202660 ||
+	RunNumber == 202668 ||
+	RunNumber == 202712 ||
+	RunNumber == 202740 ||
+	RunNumber == 202965 ||
+	RunNumber == 202987 ||
+	RunNumber == 202991 ||
+	RunNumber == 203027 ||
+	RunNumber == 203169
+        ) {
+      bool _etaphi28=false;
+      if(jeteta>-0.2 && jeteta<-0.1 && jetphi>2.65 && jetphi< 2.75 ) _etaphi28=true;
+      if (j_fmax>0.6 && j_smax==13 && _etaphi28)
+	return true;
+    }
+  }
+  
+  return false;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -126,6 +153,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   // declareProperty("filterWJets", m_filterWJets = false);
   // declareProperty("filterTTbar", m_filterTTbar = NO_TTBARFILT);
 
+  //declareProperty("BCDCleaningTool",   m_thebchTool);
+  declareProperty("TileTripReader", m_ttrHandle);
 
   declareProperty("Blind", m_blind = false);
   declareProperty("BlindMET", m_blindMET = 100*GeV);
@@ -257,6 +286,7 @@ StatusCode SignalGammaLepton::initialize(){
   //   return StatusCode::FAILURE;
   // }
 
+
   // if (m_applyPileupReweighting && m_isMC) {
   //   if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
   //     m_pileupTool = new Root::TPileupReweighting("gmsbPileupTool");
@@ -289,6 +319,12 @@ StatusCode SignalGammaLepton::initialize(){
   // } else {
   //   m_pileupTool = 0;
   // }
+
+  ATH_CHECK(m_ttrHandle.retrieve());
+
+  // ATH_CHECK(m_thebchTool.retrieve());
+  // m_thebchTool->InitializeTool(!m_isMC);
+
 
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
@@ -788,9 +824,12 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
 
+  const bool passTTR = m_ttrHandle->checkEvent(m_runNumber, m_lumiBlock, m_eventNumber);
+
   if (evtInfo.larError() == 2 || 
       evtInfo.tileError()==2 || 
-      (evtInfo.coreFlags() & 0x40000) != 0 ) {
+      (evtInfo.coreFlags() & 0x40000) != 0 ||
+      !passTTR) {
     return StatusCode::SUCCESS; // reject event
   }
     
@@ -906,7 +945,12 @@ StatusCode SignalGammaLepton::execute()
        jet++) {
     
     ATH_MSG_DEBUG("Looking at jet with pt = " << jets->pt(jet) << ", eta = " << jets->eta(jet) << ", phi = " << jets->phi(jet));
-    if (jets->isBadLooseMinus(jet)) {
+    if (jets->isBadLooseMinus(jet) || 
+	isHotTile(m_runNumber, 
+		  jets->fracSamplingMax(jet), 
+		  jets->SamplingMax(jet), 
+		  jets->eta(jet),
+		  jets->phi(jet))) {
       // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
       // 		   << ", numJetsBeforeOvRemoval = " << jetsBeforeOverlapRemoval->n()
       // 		   << ", numJetsAfterOvRemoval = " << jets->n()
