@@ -80,14 +80,14 @@ EL_PHPTCUT = 125*GeV
 EL_PHETACUT = 2.37
 EL_ELPTCUT = 20*GeV
 EL_ELETACUT = 2.47
-EL_MET = 200*GeV
+EL_MET = 140*GeV
 EL_MT = 120*GeV
 EL_HT = 0*GeV
-EL_MEFF = 1650*GeV
+EL_MEFF = 0*GeV
 
 EL_QCD_MINV_WINDOW = 15*GeV
-# EL_MINV_WINDOW = 15*GeV
-EL_MINV_WINDOW = 0*GeV
+EL_MINV_WINDOW = 15*GeV
+# EL_MINV_WINDOW = 0*GeV
 
 # tight (default)
 EL_WCR_MET_MIN = 35*GeV
@@ -123,10 +123,10 @@ MU_PHPTCUT = 125*GeV
 MU_PHETACUT = 2.37
 MU_MUPTCUT = 20*GeV
 MU_MUETACUT = 2.5
-MU_MET = 200*GeV
+MU_MET = 140*GeV
 MU_MT = 120*GeV
 MU_HT = 0*GeV
-MU_MEFF = 1650*GeV
+MU_MEFF = 0*GeV
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
@@ -827,7 +827,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             el_ph_deltaR = photon.DeltaR(electron)
             el_ph_deltaPhi = photon.DeltaPhi(electron)
             if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
-                #print '** fail deltar photon lepton veto **'
+                print '** fail deltar photon lepton veto **'
                 continue
         else:
             muon = ROOT.TLorentzVector()
@@ -835,7 +835,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             mu_ph_deltaR = photon.DeltaR(muon)
             mu_ph_deltaPhi = photon.DeltaPhi(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
-                #print '** fail deltar photon lepton veto **'
+                print '** fail deltar photon lepton veto **'
                 continue
 
             # if abs(mu_ph_deltaPhi) < 2.93:
