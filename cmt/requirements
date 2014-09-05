@@ -9,6 +9,8 @@ use GaudiInterface     GaudiInterface-*		External
 use AthenaBaseComps    AthenaBaseComps-*   	Control
 use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reconstruction/egamma/egammaAnalysis
 use  EG                         EG-*
+#use BCHCleaningTool    BCHCleaningTool-*    Reconstruction/Jet/JetAnalysisTools
+use TileTripReader          TileTripReader-*        PhysicsAnalysis/TileID
 
 private
 use PathResolver       PathResolver-* Tools
