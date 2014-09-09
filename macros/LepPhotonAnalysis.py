@@ -81,9 +81,12 @@ EL_PHETACUT = 2.37
 EL_ELPTCUT = 20*GeV
 EL_ELETACUT = 2.47
 EL_MET = 140*GeV
+#EL_MET = 200*GeV
 EL_MT = 120*GeV
 EL_HT = 0*GeV
+#EL_HT = 1300*GeV
 EL_MEFF = 0*GeV
+#EL_MEFF = 1500*GeV
 
 EL_QCD_MINV_WINDOW = 15*GeV
 EL_MINV_WINDOW = 15*GeV
@@ -124,8 +127,9 @@ MU_PHETACUT = 2.37
 MU_MUPTCUT = 20*GeV
 MU_MUETACUT = 2.5
 MU_MET = 140*GeV
-MU_MT = 120*GeV
-MU_HT = 0*GeV
+#MU_MT = 120*GeV
+MU_MT = 200*GeV
+MU_HT = 1300*GeV
 MU_MEFF = 0*GeV
 
 MU_QCD_MINV_WINDOW = 0*GeV
@@ -601,7 +605,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     lepIndex = i
                     break
             else:
-                print "*** electron only in crack ***"
+                #print "*** electron only in crack ***"
                 continue
 
         # if lepIndex != 0:
@@ -781,12 +785,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
             # first the basic lepton and photon selection (but not MET and mT):
             if ((lepton == ELECTRON and
-                 (ev.PhotonPt[photonIndex] < EL_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > EL_PHETACUT or
-                  ev.ElectronPt[lepIndex] < EL_ELPTCUT or abs(ev.ElectronEta[lepIndex]) > EL_ELETACUT)) or
+                 (ev.PhotonPt[photonIndex] < EL_PHPTCUT or #abs(ev.PhotonEta[photonIndex]) > EL_PHETACUT or
+                  ev.ElectronPt[lepIndex] < EL_ELPTCUT)) or #abs(ev.ElectronEta[lepIndex]) > EL_ELETACUT)) or
                 (lepton == MUON and
-                 (ev.PhotonPt[photonIndex] < MU_PHPTCUT or abs(ev.PhotonEta[photonIndex]) > MU_PHETACUT or
-                  ev.MuonPt[lepIndex] < MU_MUPTCUT or abs(ev.MuonEta[lepIndex]) > MU_MUETACUT))):
-                print '** fail basic selection **'
+                 (ev.PhotonPt[photonIndex] < MU_PHPTCUT or #abs(ev.PhotonEta[photonIndex]) > MU_PHETACUT or
+                  ev.MuonPt[lepIndex] < MU_MUPTCUT))): # or abs(ev.MuonEta[lepIndex]) > MU_MUETACUT))):
+                print '** fail basic selection **', lepton, ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.ElectronPt[lepIndex], ev.ElectronEta[lepIndex]
                 continue
 
             # veto second lepton or Z window cut
@@ -798,7 +802,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                     minv = elph.M()
                     # print "**minv =", minv
                 if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_MINV_WINDOW:
-                    print '** fail electron z **'
+                    #print '** fail electron z **'
                     continue
 
             if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
@@ -827,7 +831,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             el_ph_deltaR = photon.DeltaR(electron)
             el_ph_deltaPhi = photon.DeltaPhi(electron)
             if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
-                print '** fail deltar photon lepton veto **'
+                #print '** fail deltar photon lepton veto **'
                 continue
         else:
             muon = ROOT.TLorentzVector()
@@ -1092,10 +1096,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
                 h_mu_pt2.Fill(ev.MuonPt[1]/GeV, weight)
                 h_mu_eta2.Fill(ev.MuonEta[1], weight)
             if ev.numMu >= 1:
-                h_mu_pt1.Fill(ev.MuonPt[lepIndex]/GeV, weight)
-                h_mu_eta1.Fill(ev.MuonEta[lepIndex], weight)
-                h_mu_phi1.Fill(ev.MuonPhi[lepIndex], weight)
-                h_mu_eta1_phi1.Fill(ev.MuonEta[lepIndex], ev.MuonPhi[lepIndex], weight)
+                h_mu_pt1.Fill(ev.MuonPt[0]/GeV, weight)
+                h_mu_eta1.Fill(ev.MuonEta[0], weight)
+                h_mu_phi1.Fill(ev.MuonPhi[0], weight)
+                h_mu_eta1_phi1.Fill(ev.MuonEta[0], ev.MuonPhi[0], weight)
                 # print "ev.deltaPhiMuMET =",ev.deltaPhiMuMET
                 h_deltaPhiMuMETvsMET.Fill(ev.deltaPhiMuMET, met/GeV, weight)
                 h_deltaPhiMuMET.Fill(ev.deltaPhiMuMET, weight)

@@ -4,6 +4,8 @@ Module to run the analysis over all the grid ponts
 '''
 from __future__ import division
 
+GeV = 1000
+
 from glob import glob
 import os, sys, getopt
 import ROOT
@@ -11,9 +13,13 @@ import ROOT
 # ROOT.SetAtlasStyle()
 
 import signalOrigEvents
-from signalXsecs import signalXsecs
+import signalXsecsStrong
 import LepPhotonAnalysis
 import math
+
+LepPhotonAnalysis.EL_MET=200*GeV
+
+Lumi = 20300.0
 
 ELECTRON = 0
 MUON = 1
@@ -38,77 +44,61 @@ def GetHistNames(inFile):
 
     return histNames
 
-def makeOutputName(infileName, strong):
+def makeOutputName(infileName):
     inFileNoPath = os.path.split(infileName)[1]
-    outfile = os.path.splitext(inFileNoPath)[0] + "_" + str(strong) + "_Hist.root"
+    outfile = os.path.splitext(inFileNoPath)[0] + "_Hist.root"
     return outfile
 
-def RunAnalysis(lepton, plots, metType, printRes=False):
+def RunAnalysis(lepton = DEFAULTLEPTON, 
+                plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
+                metType = LepPhotonAnalysis.MET_DEFAULT, 
+                printRes=False):
 
-    SRs = []
+    SRs = {}
 
     if lepton == ELECTRON:
         print "Lepton is ELECTRON."
-        #path = "/data3/jmitrevs/lepphoton/elphoton_grid2/mergedFiles/"
-        #path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSyst2/mergedFiles/"
-        #path = "/data3/jmitrevs/lepphoton/elphoton_gridMetSyst4/mergedFiles/"
-        path = "/data3/jmitrevs/lepphoton/elphoton_grid_purw/mergedFiles/"
-        Lumi = 4816.68
+        path = "/data/jmitrevs/output/elphoton_grid/v140905/"
     elif lepton == MUON:
         print "Lepton is Muon."
         #path = "/data3/jmitrevs/lepphoton/muphoton_grid2/mergedFiles/"
         #path = "/data3/jmitrevs/lepphoton/muphoton_gridMetSyst/mergedFiles/"
         path = "/data3/jmitrevs/lepphoton/muphoton_grid_purw/mergedFiles/"
-        Lumi = 4713.11
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
 
-    f = ROOT.TFile("output_gl_wino.root")
-    ttree = f.Get("SignalUncertainties")
-    xsecs = signalXsecs(ttree)
-
-    ttreeName = LepPhotonAnalysis.DEFAULTTTREE
+    xsecs = signalXsecsStrong.signalXsecsStrong()
   
-    for mgl in range(0, 1600, 100):
-        for mC1 in range(0, mgl, 50) + [mgl-20]:
-            filelist = glob(path + 'wino_%d_%d.root' % (mgl, mC1))
-            if len(filelist) > 1:
-                print >> sys.stderr, "Something wrong: filelist has size", len(filelist)  
-                sys.exit(1)
-            if len(filelist) == 1:
-                winoFileName = filelist[0]
-                winoFile = ROOT.TFile(winoFileName)
+    
+    for key, eff in signalXsecsStrong.filterEff.iteritems():
+        filelist = glob(path + '*GGM_gl_wino_%s_egfilter*/*.root' % key)
+        if len(filelist) > 1:
+            print >> sys.stderr, "Something wrong: filelist has size", len(filelist)  
+            sys.exit(1)
+        if len(filelist) == 1:
+            winoFileName = filelist[0]
+            winoFile = ROOT.TFile(winoFileName)
+            #nOrig = signalOrigEvents.getNEvents(mgl, mC1, strong)
+            cutFlow = winoFile.Get("Global/CutFlow")
+            nOrig = cutFlow.GetBinContent(1)
+            xsec = xsecs.getXsecK(key)
+            scale = Lumi * xsec * eff / nOrig
+            ttreeName = LepPhotonAnalysis.DEFAULTTTREE
 
-                for strong in (0, 1):
-                    nOrig = signalOrigEvents.getNEvents(mgl, mC1, strong)
-                    xsec = xsecs.getXsec(mgl, mC1, strong)
-                    feff = signalOrigEvents.getFilterEff(mgl, mC1, strong)
-                    scale = Lumi * xsec * feff / nOrig
+            print "nOrig =", nOrig, "xsec =", xsec, "eff =", eff, "scale =", scale 
 
-                    print "nOrig =", nOrig, "xsec =", xsec, "feff =", feff, "scale =", scale 
+            print "wino_%s" % key
+            sr = LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
+                                                     makeOutputName(winoFileName),
+                                                     lepton,
+                                                     scale,
+                                                     applySF=LepPhotonAnalysis.NOMINAL, 
+                                                     applyTrigWeight=LepPhotonAnalysis.NOMINAL,
+                                                     plotsRegion=plots,
+                                                     metType = metType)
 
-                    key = "%d, %d" % (mgl, mC1)
-                    print "wino_%d_%d_%d" % (mgl, mC1, strong)
-                    sr = LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
-                                                             makeOutputName(winoFileName, strong),
-                                                             lepton,
-                                                             scale,
-                                                             onlyStrong=(strong+1), 
-                                                             applySF=LepPhotonAnalysis.NOMINAL, 
-                                                             applyTrigWeight=LepPhotonAnalysis.NOMINAL,
-                                                             plotsRegion=plots,
-                                                             metType = metType)
-
-                    if strong:
-                        oldsr = SRs[-1]
-                        SRs[-1] = (oldsr[0] + sr[0], math.hypot(oldsr[1], sr[1]), oldsr[2]+(Lumi*xsec), key)
-                    else:
-                        SRs.append(sr + (Lumi*xsec, key))
-                    print
-
-    if printRes:
-        for v in SRs:
-            print "%s & $%.2f \pm %.2f$ & $%.2f \pm %.2f$ \\\\" % (v[3], v[0], v[1], v[0]/v[2]*1e3, v[1]/v[2]*1e3)
+            #print "sr =", sr
+            SRs[key] = sr
 
     return SRs
 
