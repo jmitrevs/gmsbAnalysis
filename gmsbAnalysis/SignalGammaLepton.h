@@ -14,9 +14,11 @@
 
 #include "gmsbAnalysis/FakeMetEstimator.h"
 
-//#include "egammaAnalysisUtils/egammaSFclass.h"
+#include "PATCore/PATCoreEnums.h"
 
-#include "TRandom3.h"
+#include <utility>
+
+//#include "TRandom3.h"
 #include "TTree.h"
 
 //class IAthSelectorTool;
@@ -24,12 +26,16 @@
 //namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
 //class APReweightND;
 
-//namespace Root {
-//  class TPileupReweighting;
-//}
+namespace Root {
+  class TPileupReweighting;
+  class TElectronEfficiencyCorrectionTool;
+  class TPhotonEfficiencyCorrectionTool;
+}
 
 #include "TileTripReader/AthTileTripReader.h"
 //#include "BCHCleaningTool/BCHCleaningToolAthena.h"
+
+class IMETUtilityAthD3PDTool;
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -55,22 +61,27 @@ private:
   
   // bool isInLArHole(Jet* jet) const;
 
-  // // both should really be const.
-  // float GetSignalElecSF(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
-  // float GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel = 6, int mode = 0, int range = 0);
+  // returns (sf . sf_unc)
+  std::pair<float, float> GetSignalElecSF(float el_cl_eta,
+					  float pt) const;
 
   // StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
   // StatusCode recordEtMissMuonSystematics();
   // StatusCode recordTruthMET();
 
-  int m_elsfset; 			// electron scale factor set 
+  // electron files
+  std::string m_electron_reco_file;
+  std::string m_electron_id_file;
 
   /** MET selecton */
   std::string m_METContainerName;
   // std::string m_topoClusterContainerName;
   std::string m_missingEtTruth;
 
-  bool m_isMC;
+  bool m_isMC; // set by JOs
+  bool m_isAtlfast; // set by JOs
+  PATCore::ParticleDataType::DataType m_dataType; // redundant, set based on upper info
+
   unsigned int m_numPhotonsReq;
   unsigned int m_numMuonsReq;
   unsigned int m_numElectronsReq;
@@ -126,6 +137,9 @@ private:
   // This is for ABCD method
   ToolHandle<gmsbSelectionTool>       m_AltSelectionTool;
 
+  ToolHandle<IMETUtilityAthD3PDTool>  m_METUtility;
+  bool m_useMETUtility;
+
   // /** get a handle on the user tool for pre-selection and overlap removal */
   // ToolHandle<gmsbPreparationTool>     m_LoosePreparationTool;
   // ToolHandle<gmsbOverlapRemovalTool>  m_LooseOverlapRemovalTool1;
@@ -171,10 +185,14 @@ private:
   // AccumulateUncert accUnc2; // for second photon
   // AccumulateFFUncert accFFUnc2;
 
-  mutable TRandom3 m_rand3;
+  //mutable TRandom3 m_rand3;
 
-  // // for calculating scale factors in electron channel
-  // egammaSFclass  m_egammaSFclass;
+  // for calculating scale factors for electrons and photons
+  Root::TElectronEfficiencyCorrectionTool* m_electron_reco_SF;
+  Root::TElectronEfficiencyCorrectionTool* m_electron_id_SF;
+
+  Root::TPhotonEfficiencyCorrectionTool* m_tool_tight_con_SF;
+  Root::TPhotonEfficiencyCorrectionTool* m_tool_tight_unc_SF; 
 
   // Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
 
@@ -184,7 +202,7 @@ private:
   int m_applyPileupReweighting; // 0 = none, 1 = nominal, 2 = syst
   std::string m_pileupConfig;
   std::string m_lumiCalcFile;
-  // Root::TPileupReweighting *m_pileupTool;
+  Root::TPileupReweighting *m_pileupTool;
 
   //ToolHandle<BCHTool::BCHCleaningToolAthena> m_thebchTool;
   ToolHandle<AthTileTripReader> m_ttrHandle;
@@ -192,6 +210,7 @@ private:
   // The variables if one outputs an ntuple
   TTree* m_tree;
   unsigned int m_runNumber;
+  unsigned int m_randRunNumber;
   unsigned int m_eventNumber;
   unsigned int m_lumiBlock;
   float m_weight;
@@ -252,7 +271,7 @@ private:
 
   // The scale factro for the leading photon
   float m_ph_sf;
-  // no uncertainty provided
+  float m_ph_sf_unc;
 
   // The scale factor for the leading electron
   float m_el_sf;
@@ -260,9 +279,6 @@ private:
   // The scale factor for the leading muon
   float m_mu_sf;
   float m_mu_sf_unc;
-  // The weight for the muon trigger
-  float m_mu_trig_weight;
-  float m_mu_trig_weight_unc;
 
   float m_pileupWeight;
 
@@ -309,6 +325,7 @@ private:
   float m_deltaPhiMuMET;
 
   float m_HT;
+  float m_HTjet;
   float m_mTel;
   float m_mTmu;
   float m_meff;

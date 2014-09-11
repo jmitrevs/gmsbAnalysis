@@ -42,6 +42,9 @@ DELTAR_MU_PH = 0.7
 
 printAccepted = False
 
+printSummary = False
+
+
 # What plots should be made
 NO_SEL = 0
 PRESEL = 1
@@ -77,9 +80,7 @@ STRONG = 2
 #Cuts
 # - electron channel
 EL_PHPTCUT = 125*GeV
-EL_PHETACUT = 2.37
 EL_ELPTCUT = 20*GeV
-EL_ELETACUT = 2.47
 EL_MET = 140*GeV
 #EL_MET = 200*GeV
 EL_MT = 120*GeV
@@ -123,9 +124,7 @@ EL_QCD_MT_MAX = 20*GeV
 
 # - muon channel
 MU_PHPTCUT = 125*GeV
-MU_PHETACUT = 2.37
 MU_MUPTCUT = 20*GeV
-MU_MUETACUT = 2.5
 MU_MET = 140*GeV
 #MU_MT = 120*GeV
 MU_MT = 200*GeV
@@ -1106,22 +1105,23 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         
 
     f.Write()
-    print "**************************************"
-    print "*****          YIELDS            *****"
-    print "**************************************"
-    if not blind:
-        print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
-    print "  W+jets CR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
-    if measureFakeAndEff:
-        print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nWCRTight.GetBinError(1)
-    print "  ttbar CR Yield =",nTCR.GetBinContent(1),"+-", nTCR.GetBinError(1)
-    print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
-    if measureFakeAndEff:
-        print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCDTight.GetBinError(1)
+    if printSummary:
+        print "**************************************"
+        print "*****          YIELDS            *****"
+        print "**************************************"
+        if not blind:
+            print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
+        print "  W+jets CR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
+        if measureFakeAndEff:
+            print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nWCRTight.GetBinError(1)
+        print "  ttbar CR Yield =",nTCR.GetBinContent(1),"+-", nTCR.GetBinError(1)
+        print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
+        if measureFakeAndEff:
+            print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCDTight.GetBinError(1)
         
-    print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
-    print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
-    print "  PRESEL Yield =",nPRESEL.GetBinContent(1),"+-", nPRESEL.GetBinError(1)
+        print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
+        print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
+        print "  PRESEL Yield =",nPRESEL.GetBinContent(1),"+-", nPRESEL.GetBinError(1)
 
 
     if measureFakeAndEff:

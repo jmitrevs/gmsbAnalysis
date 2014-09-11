@@ -48,7 +48,8 @@ def makeOutputName(infileName, extra = ""):
     outfile = os.path.splitext(inFileNoPath)[0] + extra + "Hist.root"
     return outfile
 
-def RunAnalysis(lepton, plots, abcd, metType):
+def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
+                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT):
 
     SRs = {}
 

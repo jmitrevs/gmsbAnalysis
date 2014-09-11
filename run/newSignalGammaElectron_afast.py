@@ -6,9 +6,11 @@ import AthenaRootComps.ReadAthenaRoot
 #--------------------------------------------------------------
 
 from glob import glob
-#InputList = glob('/data2/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
-#InputList = glob('/afs/cern.ch/user/j/jmitrevs/workdir/mc12_8TeV.174997.*/*root*')
-InputList = glob('/afs/cern.ch/user/j/jmitrevs/workdir/mc12_8TeV.175048.*/*root*')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/NTUP_SUSY.01183600._000013.root.2')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
+#InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
+InputList = glob('/data/jmitrevs/input/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
 # InputList = ['root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000001.root.1',
 #              'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000002.root.1',
 #              'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000003.root.1']

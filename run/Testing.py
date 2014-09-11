@@ -53,10 +53,13 @@ from ROOT import egammaPID
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.Atlfast = True
 gmsbSelectionTool.SmearMC = True
-gmsbSelectionTool.OutputLevel = DEBUG
+gmsbSelectionTool.OutputLevel = INFO
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
 #gmsbSelectionTool.PhotonIsEM = egammaPID.PhotonTight
+
+gmsbOverlapRemovalTool1.RemoveOverlapInSameContainer = False
+gmsbOverlapRemovalTool2.RemoveOverlapInSameContainer = False
 
 gmsbFinalSelectionTool.IsMC = True
 gmsbFinalSelectionTool.Atlfast = True
@@ -100,7 +103,7 @@ testAlg = Testing(name = "Testing",
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool,
                   #METCompositionName = "jet_AntiKt4LCTopo_MET_Egamma10NoTau_",
                   printEvents = [
-        502,2716,4188,4978,5083
+2716,4188,6116,15173,18886,24068,24502,29995
 ]
                             )
 from AthenaCommon.AppMgr import ToolSvc

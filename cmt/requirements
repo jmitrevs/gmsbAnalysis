@@ -11,6 +11,7 @@ use egammaAnalysisUtils               egammaAnalysisUtils-*                 Reco
 use  EG                         EG-*
 #use BCHCleaningTool    BCHCleaningTool-*    Reconstruction/Jet/JetAnalysisTools
 use TileTripReader          TileTripReader-*        PhysicsAnalysis/TileID
+use PATCore  PATCore-* PhysicsAnalysis/AnalysisCommon
 
 private
 use PathResolver       PathResolver-* Tools
@@ -30,7 +31,9 @@ use GeneratorObjects   GeneratorObjects-*       Generators
 use MuonEfficiencyCorrections     MuonEfficiencyCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
 use TrigMuonEvent      TrigMuonEvent-*          Trigger/TrigEvent
 #use ReweightUtils      ReweightUtils-*          PhysicsAnalysis/AnalysisCommon
-#use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
+use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
+use ElectronEfficiencyCorrection ElectronEfficiencyCorrection-* PhysicsAnalysis/ElectronPhotonID
+use PhotonEfficiencyCorrection PhotonEfficiencyCorrection-* PhysicsAnalysis/ElectronPhotonID
 use MissingETUtility   MissingETUtility-*       Reconstruction
 end_private
 

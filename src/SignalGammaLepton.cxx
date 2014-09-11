@@ -20,6 +20,12 @@
 
 #include "gmsbTools/SortHelpers.h"
 
+#include "MissingETUtility/IMETUtilityAthD3PDTool.h"
+#include "MissingETUtility/METUtility.h"
+
+#include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
+#include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
+
 
 //#include "JetUtils/JetCaloHelper.h"
 //#include "JetUtils/JetCaloQualityUtils.h"
@@ -36,7 +42,7 @@
 //#include "ReweightUtils/APReweightND.h"
 //#include "ReweightUtils/APEvtWeight.h"
 
-//#include "PileupReweighting/TPileupReweighting.h"
+#include "PileupReweighting/TPileupReweighting.h"
 
 
 #include <climits>
@@ -146,6 +152,9 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   // for ABCD
   declareProperty("AltSelectionTool",   m_AltSelectionTool);
 
+  declareProperty("METUtility",  m_METUtility);
+  declareProperty("useMETUtility",  m_useMETUtility = false);
+
   // declareProperty("JetCleaningTool", m_JetCleaningTool);
 
   declareProperty("TruthStudiesTool", m_truth);
@@ -161,6 +170,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("BlindMT", m_blindMT = 100*GeV);
 
   declareProperty("isMC", m_isMC = false);
+  declareProperty("Atlfast",          m_isAtlfast=false);
   //  declareProperty("trigDecisionTool", m_trigDec);
   //declareProperty("trigMatchingTool", m_trigMatch);
   declareProperty("applyTrigger", m_applyTriggers = true); 
@@ -186,13 +196,14 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MuonCleaningZ0Cut", m_mu_z0cut = 1.0);
   declareProperty("MuonCleaningD0Cut", m_mu_d0cut = 0.2);
 
-  declareProperty("ElSFSet", m_elsfset = 6); // 5, 6, 7 = loose++, mediu,++, tight++
+  declareProperty("ElectronRecoSFFile", m_electron_reco_file = "efficiencySF.offline.RecoTrk.2012.8TeV.rel17p2.GEO20.v08.root");
+  declareProperty("ElectronIdSFFile", m_electron_id_file = "efficiencySF.offline.Medium.2012.8TeV.rel17p2.v07.root");
 
   declareProperty("doOverpalElectrons", m_doOverlapElectrons = true);
   declareProperty("ApplyPileupReweighting", m_applyPileupReweighting = 1, 
 		  "0 is none, 1 is standard, 2 is syst");
-  declareProperty("PileupConfigFile", m_pileupConfig = "full.prw.root");
-  declareProperty("PileupLumiCalcFile", m_lumiCalcFile = "ilumicalc_histograms_None_178044-191933_e.root");
+  declareProperty("PileupConfigFile", m_pileupConfig = "mc12ab_defaults.prw.root");
+  declareProperty("PileupLumiCalcFile", m_lumiCalcFile = "susy_data12_avgintperbx.root");
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -236,6 +247,22 @@ StatusCode SignalGammaLepton::initialize(){
     if (m_doABCDPho) {
       m_requireTightPho = false; // this is implied
     }
+  }
+
+  if (m_useMETUtility) {
+    sc = m_METUtility.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Can't get handle MET Utility");
+      return sc;
+    }
+  }
+
+  if (m_isMC && m_isAtlfast) {
+    m_dataType = PATCore::ParticleDataType::Fast;
+  } else if (m_isMC) {
+    m_dataType = PATCore::ParticleDataType::Full;
+  } else {
+    m_dataType = PATCore::ParticleDataType::Data;
   }
 
   // // retrieving jet cleaning tool
@@ -287,44 +314,80 @@ StatusCode SignalGammaLepton::initialize(){
   // }
 
 
-  // if (m_applyPileupReweighting && m_isMC) {
-  //   if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
-  //     m_pileupTool = new Root::TPileupReweighting("gmsbPileupTool");
-  //     if (m_applyPileupReweighting == 2) { 
-  // 	// for systematics
-  // 	m_pileupTool->SetDataScaleFactors(0.9);
-  //     }
-  //     std::string pileupConfig = PathResolver::find_file(m_pileupConfig, "DATAPATH");
-  //     if (pileupConfig == "") {
-  // 	ATH_MSG_ERROR("pileup config file " << m_pileupConfig << " not found. Exiting");
-  // 	return StatusCode::FAILURE;
-  //     }
-  //     std::string lumiCalcFile = PathResolver::find_file(m_lumiCalcFile, "DATAPATH");
-  //     if (lumiCalcFile == "") {
-  // 	ATH_MSG_ERROR("lumiCalcFile " << m_lumiCalcFile << " not found. Exiting");
-  // 	return StatusCode::FAILURE;
-  //     } else {
-  // 	ATH_MSG_DEBUG("Using lumiCalcFile " << m_lumiCalcFile);
-  //     }
-      
-  //     m_pileupTool->AddConfigFile(pileupConfig);
-  //     m_pileupTool->AddLumiCalcFile(lumiCalcFile);
-  //     m_pileupTool->SetUnrepresentedDataAction(2); 
-  //     m_pileupTool->Initialize();
+  if (m_applyPileupReweighting && m_isMC) {
+    if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
+      m_pileupTool = new Root::TPileupReweighting("gmsbPileupTool");
+      if (m_applyPileupReweighting == 2) { 
+  	// for systematics
+  	m_pileupTool->SetDataScaleFactors(0.9);
+      } else {
+	m_pileupTool->SetDataScaleFactors(1/1.09);
+      }
+      std::string pileupConfig = PathResolver::find_file(m_pileupConfig, "DATAPATH");
+      if (pileupConfig == "") {
+  	ATH_MSG_ERROR("pileup config file " << m_pileupConfig << " not found. Exiting");
+  	return StatusCode::FAILURE;
+      }
+      std::string lumiCalcFile = PathResolver::find_file(m_lumiCalcFile, "DATAPATH");
+      if (lumiCalcFile == "") {
+  	ATH_MSG_ERROR("lumiCalcFile " << m_lumiCalcFile << " not found. Exiting");
+  	return StatusCode::FAILURE;
+      } else {
+  	ATH_MSG_DEBUG("Using lumiCalcFile " << m_lumiCalcFile);
+      }
 
-  //   } else {
-  //     ATH_MSG_ERROR("Unsupported m_applyPileupReweighting of " << m_applyPileupReweighting);
-  //     return StatusCode::FAILURE;
-  //   }
-  // } else {
-  //   m_pileupTool = 0;
-  // }
+      
+      m_pileupTool->AddConfigFile(pileupConfig);
+      m_pileupTool->AddLumiCalcFile(lumiCalcFile);
+      m_pileupTool->SetUnrepresentedDataAction(2); 
+      m_pileupTool->Initialize();
+
+    } else {
+      ATH_MSG_ERROR("Unsupported m_applyPileupReweighting of " << m_applyPileupReweighting);
+      return StatusCode::FAILURE;
+    }
+  } else {
+    m_pileupTool = 0;
+  }
 
   ATH_CHECK(m_ttrHandle.retrieve());
 
   // ATH_CHECK(m_thebchTool.retrieve());
   // m_thebchTool->InitializeTool(!m_isMC);
 
+
+  // get the tools for the electron and photon sfs
+
+  if (m_isMC) {
+    // lets set up electron SFs
+    m_electron_reco_SF = new Root::TElectronEfficiencyCorrectionTool;
+    m_electron_id_SF = new Root::TElectronEfficiencyCorrectionTool;
+
+    std::string electron_reco_file = PathResolver::find_file(m_electron_reco_file, "DATAPATH");
+    if (electron_reco_file == "") {
+      ATH_MSG_ERROR("ElectronRecoSF file " << m_electron_reco_file << " not found. Exiting");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Using ElectronRecoSF file  " << m_electron_reco_file);
+    }
+
+    m_electron_reco_SF->addFileName(electron_reco_file);
+    m_electron_reco_SF->initialize();
+
+    std::string electron_id_file = PathResolver::find_file(m_electron_id_file, "DATAPATH");
+    if (electron_id_file == "") {
+      ATH_MSG_ERROR("ElectronIdSF file " << m_electron_id_file << " not found. Exiting");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Using ElectronIdSF file  " << m_electron_id_file);
+    }
+
+    m_electron_id_SF->addFileName(electron_id_file);
+    m_electron_id_SF->initialize();
+
+    m_tool_tight_con_SF = new Root::TPhotonEfficiencyCorrectionTool;
+    m_tool_tight_unc_SF = new Root::TPhotonEfficiencyCorrectionTool;
+  }
 
   /// histogram location
   sc = service("THistSvc", m_thistSvc);
@@ -452,6 +515,7 @@ StatusCode SignalGammaLepton::initialize(){
 						  100, 0, M_PI, 250, 0, 250);
 
     m_histograms["HT"] = new TH1F("HT", "The H_{T} distribution;H_{T} [GeV]", 300, 0, 1500);
+    m_histograms["HTjet"] = new TH1F("HTjet", "The H_{T}^{jet} distribution;H_{T}^{jet} [GeV]", 300, 0, 1500);
     m_histograms["mTel"] = new TH1F("mTel", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500);
     m_histograms["mTmu"] = new TH1F("mTmu", "The m_{T} distribution;m_{T} [GeV]", 500, 0, 500);
     m_histograms["meff"] = new TH1F("meff", "The m_{eff} distribution;m_{eff} [GeV]", 300, 0, 1500);
@@ -497,6 +561,7 @@ StatusCode SignalGammaLepton::initialize(){
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/MET/deltaPhiMuMETvsMET" , m_histograms["deltaPhiMuMETvsMET"]).ignore();
     
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/HT" , m_histograms["HT"]).ignore();
+    m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/HTjet" , m_histograms["HTjet"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTel" , m_histograms["mTel"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/mTmu" , m_histograms["mTmu"]).ignore();
     m_thistSvc->regHist(std::string("/")+m_histFileName+"/Global/meff" , m_histograms["meff"]).ignore();
@@ -570,6 +635,7 @@ StatusCode SignalGammaLepton::initialize(){
 
     // first add Event info stuff
     m_tree->Branch("Run",  &m_runNumber,   "Run/i");    // run number
+    m_tree->Branch("RandRun",  &m_randRunNumber,   "RandRun/i");    // random run number (only different for MC)
     m_tree->Branch("Event",&m_eventNumber, "Event/i");  // event number
     m_tree->Branch("LumiBlock", &m_lumiBlock,"LumiBlock/i"); // lum block num
     m_tree->Branch("Weight", &m_weight, "Weight/F"); // weight
@@ -624,14 +690,14 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("deltaPhiMuMET", &m_deltaPhiMuMET, "deltaPhiMuMET/F"); 
 
     m_tree->Branch("PhotonSF", &m_ph_sf, "PhotonSF/F");
+    m_tree->Branch("PhotonSFUnc", &m_ph_sf_unc, "PhotonSFUnc/F");
     m_tree->Branch("ElectronSF", &m_el_sf, "ElectronSF/F");
     m_tree->Branch("ElectronSFUnc", &m_el_sf_unc, "ElectronSFUnc/F");
     m_tree->Branch("MuonSF", &m_mu_sf, "MuonSF/F");
     m_tree->Branch("MuonSFUnc", &m_mu_sf_unc, "MuonSFUnc/F");
-    m_tree->Branch("MuonTrigWeight", &m_mu_trig_weight, "MuonTrigWeight/F");
-    m_tree->Branch("MuonTrigWeightUnc", &m_mu_trig_weight_unc, "MuonTrigWeightUnc/F");
 
     m_tree->Branch("HT", &m_HT, "HT/F"); 
+    m_tree->Branch("HTjet", &m_HTjet, "HTjet/F"); 
     m_tree->Branch("mTel", &m_mTel, "mTel/F"); 
     m_tree->Branch("mTmu", &m_mTmu, "mTmu/F"); 
     m_tree->Branch("meff", &m_meff, "meff/F"); 
@@ -702,9 +768,9 @@ StatusCode SignalGammaLepton::execute()
 
   m_pileupWeight = 1.0;
 
-  // The missing ET object
-  const RefFinalMETD3PDObject metCont(m_METContainerName);
-  ATH_CHECK(metCont.retrieve());
+  // // The missing ET object
+  // const RefFinalMETD3PDObject metCont(m_METContainerName);
+  // ATH_CHECK(metCont.retrieve());
 
   // retrieve the container of Vertex
   const PrimaryVertexD3PDObject vxContainer(m_vxCandidatesName);
@@ -765,17 +831,28 @@ StatusCode SignalGammaLepton::execute()
   }
   
   m_runNumber = evtInfo.RunNumber();
+  m_randRunNumber = m_runNumber; // for MC this will change
   m_lumiBlock = evtInfo.lbn();
   m_eventNumber = evtInfo.EventNumber();
+  const unsigned int channelNumber = evtInfo.mc_channel_number();
+  float averageIntPerXing = evtInfo.averageIntPerXing();
+  if (m_lumiBlock ==1 && int(averageIntPerXing+0.5)==1) {
+    averageIntPerXing = 0.0;
+  }
 
   if (m_isMC) {
     m_weight = evtInfo.mc_event_weight();
 
-    // if (m_pileupTool) {
-    //   const unsigned int channelNumber = evtInfo->event_type()->mc_channel_number();
-    //   const float aveIntPerBC = evtInfo->averageInteractionsPerCrossing();
-    //   m_pileupWeight = m_pileupTool->GetCombinedWeight(m_runNumber, channelNumber, aveIntPerBC);
-    // }
+    if (m_pileupTool) {
+      m_pileupWeight = m_pileupTool->GetCombinedWeight(m_runNumber, channelNumber, averageIntPerXing);
+      UInt_t randRun = m_pileupTool->GetRandomRunNumber(m_runNumber, averageIntPerXing);
+      if (randRun == 0 && m_pileupWeight != 0) {
+	ATH_MSG_ERROR("Received a run number == 0 when the pileup weight was not 0");
+	return StatusCode::FAILURE;
+      } else if (randRun != 0) {
+	m_randRunNumber = randRun;
+      }
+    }
   }
 
   ATH_MSG_DEBUG("About to prepare selection: " << m_runNumber << " " << m_lumiBlock << " " 
@@ -801,6 +878,7 @@ StatusCode SignalGammaLepton::execute()
 
 
   m_HT = 0.0;
+  m_HTjet = 0.0;
 
   /////////////////////////////////////////////////////
   // Now some truth studies
@@ -929,12 +1007,23 @@ StatusCode SignalGammaLepton::execute()
   }
   // need the MET for the jet cleaning
 
-  m_metx = metCont.etx();
-  m_mety = metCont.ety();
-  m_set = metCont.sumet();
-
-  const float met = hypotf(metCont.ety(), metCont.etx());
-  const float metPhi = atan2f(metCont.ety(), metCont.etx());
+  if (m_useMETUtility) {
+    const METUtil::METObject metCont = m_METUtility->getMissingET(METUtil::RefFinal);
+    m_metx = metCont.etx();
+    m_mety = metCont.ety();
+    m_set = metCont.sumet();
+    
+  } else {
+    // The missing ET object
+    const RefFinalMETD3PDObject metCont(m_METContainerName);
+    ATH_CHECK(metCont.retrieve());
+    
+    m_metx = metCont.etx();
+    m_mety = metCont.ety();
+    m_set = metCont.sumet();
+  }
+  const float met = hypotf(m_mety, m_metx);
+  const float metPhi = atan2f(m_mety, m_metx);
 
   ATH_MSG_DEBUG("MET = " << met << ", metPhi = " << metPhi);
 
@@ -1383,8 +1472,9 @@ StatusCode SignalGammaLepton::execute()
 		  << ", eta = " << jets->eta(jet) 
 		  << ", phi = " << jets->phi(jet)); 
 
-    if (jets->eta(jet) < 2.8) {
+    if (m_FinalSelectionTool->isSelected(*jets, jet)) {
       m_HT += jets->pt(jet);
+      m_HTjet += jets->pt(jet);
       m_numJets++;
       if (m_outputNtuple) {
 	m_jet_pt->push_back(jets->pt(jet));
@@ -1563,27 +1653,28 @@ StatusCode SignalGammaLepton::execute()
   // first let's update the weights
   /////////////////////////////////////////////////////
 
+
   m_ph_sf = 1;
   m_el_sf = 1;
   m_mu_sf = 1;
-  m_mu_trig_weight = 1;
 
+  m_ph_sf_unc = 0;
   m_el_sf_unc = 0;
   m_mu_sf_unc = 0;
-  m_mu_trig_weight_unc = 0;
 
-  // if (m_isMC) {
-  //   if (m_numPhotonsReq > 0 && 
-  // 	leadingPh->conversion() == NULL && 
-  // 	fabs(leadingPh->cluster()->etaBE(2)) > 1.81) {
-  //     m_ph_sf = 0.97;
-  //   }
+  if (m_isMC) {
+    // if (m_numPhotonsReq > 0 && 
+    // 	leadingPh->conversion() == NULL && 
+    // 	fabs(leadingPh->cluster()->etaBE(2)) > 1.81) {
+    //   m_ph_sf = 0.97;
+    // }
     
-  //   if (m_numElectronsReq > 0) {
-  //     // require an electron. Only really valid when 1 electron is requested
-  //     m_el_sf = GetSignalElecSF(leadingEl->cluster()->eta(), leadingElPt, m_elsfset);
-  //     m_el_sf_unc = GetSignalElecSFUnc(leadingEl->cluster()->eta(), leadingElPt, m_elsfset);
-  //   }
+    if (m_numElectronsReq > 0) {
+      // require an electron. Only really valid when 1 electron is requested
+      const std::pair<float, float> sf = GetSignalElecSF(electrons->cl_eta(leadingEl), leadingElPt);
+      m_el_sf = sf.first;
+      m_el_sf_unc = sf.second;
+    }
     
   //   if (m_numMuonsReq > 0) {
   //     TLorentzVector p(leadingMu->px(), leadingMu->py(), leadingMu->pz(), leadingMu->e());
@@ -1606,13 +1697,12 @@ StatusCode SignalGammaLepton::execute()
   // 	m_mu_trig_weight_unc = hypot(weight_muon.GetStdDev(), weight_muon.GetSysUncert());
   //     }
   //   }
-  // }
+  }
 
   ATH_MSG_DEBUG("el sf = " << m_el_sf << " +- " << m_el_sf_unc); 
   ATH_MSG_DEBUG("mu sf = " << m_mu_sf << " +- " << m_mu_sf_unc); 
-  ATH_MSG_DEBUG("mu trigh weight = " << m_mu_trig_weight << " +- " << m_mu_trig_weight_unc); 
 
-  const float totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_mu_trig_weight * m_pileupWeight;
+  const float totalWeight = m_weight * m_ph_sf * m_el_sf * m_mu_sf * m_pileupWeight;
 
   ATH_MSG_DEBUG("totalWeight = " << totalWeight); 
 
@@ -1638,6 +1728,7 @@ StatusCode SignalGammaLepton::execute()
   if (m_outputHistograms) {
 
     m_histograms["HT"]->Fill(m_HT/GeV, totalWeight);
+    m_histograms["HTjet"]->Fill(m_HTjet/GeV, totalWeight);
     m_histograms["meff"]->Fill(m_meff/GeV, totalWeight);
     m_histograms["eventType"]->Fill(m_type, totalWeight);
     m_histograms["isStrong"]->Fill(m_isStrong, totalWeight);
@@ -1796,45 +1887,18 @@ StatusCode SignalGammaLepton::finalize() {
     return StatusCode::SUCCESS;
 }
 
-/// Method used as python wrapper to get tightPP electron reco efficiency (and uncertainty)
-/// mode 0: apply both id efficiency SF (default is mediumPP) and reco+trkqual efficiency SF
-/// mode 1: apply only id efficiency SF (default is mediumPP)
-/// mode 2: apply only reco+trkqual efficiency SF 
-///    * Loose SF (set=0)
-///    * Medium SF (set=1)
-///    * Tight SF (set=2)
-///    * e20_medium trigger SF (set=3) (use set 8 or 10 for release 17 2011 data/MC11a)
-///    * reco+trkqual SF (set=4)
-///    * Loose++ SF (set=5)
-///    * Medium++ SF (set=6)
-///    * Tight++ SF (set=7)
-/// release 15 2010 data/MC09 (rel=0)
-/// release 16 2010 data/MC10 (rel=1)
-/// release 16.6 estimated from 2010 data (rel=2)  / 
-/// release 16.6 estimated from 2011 data "EPS recommendations" (rel=3) /
-/// release 16.6 estimated from 2011 data "EPS recommendations" including Jpsi measurements (rel=4)
-/// release 17 estimated from 2011 data/MC11a "CERN council recommendations" (rel=5)
-/// release 17 estimated from 2011 data/MC11a/b/c "Moriond recommendations" G4 FullSim MC (rel=6)
-/// release 17 estimated from 2011 data/MC11a/b/c "Moriond recommendations" AFII MC (rel=7)
-/// measured with probes in the 20-50 GeV range (range=0) or 30-50 GeV (range=1) 
-/// and correcting (etcorrection=1) or not (etcorrection=0) for the ET-dependence
-/// et := cluster_E/cosh(track_eta)
-// float SignalGammaLepton::GetSignalElecSF(float el_cl_eta, float et, int set, int rel, int mode, int range)
-// { 
-//   float sf = 1.;
-//   if (mode == 0 || mode == 1) sf = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).first;
-//   if (mode == 0 || mode == 2) sf *= m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).first;
-//   return sf; 
-// }
+std::pair<float, float> SignalGammaLepton::GetSignalElecSF(float el_cl_eta,
+							   float pt) const
+{
+  std::pair<float, float> sf;
+  const Root::TResult &result_reco = m_electron_reco_SF->calculate(m_dataType, m_randRunNumber, el_cl_eta, pt);
+  const Root::TResult &result_id = m_electron_id_SF->calculate(m_dataType, m_randRunNumber, el_cl_eta, pt);
 
-// float SignalGammaLepton::GetSignalElecSFUnc(float el_cl_eta, float et, int set, int rel, int mode, int range)
-// { 
-//   float sfUnc = 0.;
-//   if (mode == 0 || mode == 1) sfUnc = m_egammaSFclass.scaleFactor(el_cl_eta,et,set,range,rel).second;
-//   if (mode == 0 || mode == 2) sfUnc = hypot(sfUnc, m_egammaSFclass.scaleFactor(el_cl_eta,et,4,range,rel).second);
-//   return sfUnc;
-// }
-
+  sf.first = result_reco.getScaleFactor() * result_id.getScaleFactor();
+  sf.second = hypot(result_reco.getTotalUncertainty(), result_id.getTotalUncertainty());
+  return sf;
+}
+  
 // ////////////////////////////////////////////////////////////////////////////
 // /// recordEtMissSystematics(): 
 // StatusCode SignalGammaLepton::recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container) {

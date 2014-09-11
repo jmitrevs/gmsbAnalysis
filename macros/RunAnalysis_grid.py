@@ -85,7 +85,7 @@ def RunAnalysis(lepton = DEFAULTLEPTON,
             scale = Lumi * xsec * eff / nOrig
             ttreeName = LepPhotonAnalysis.DEFAULTTTREE
 
-            print "nOrig =", nOrig, "xsec =", xsec, "eff =", eff, "scale =", scale 
+            #print "nOrig =", nOrig, "xsec =", xsec, "eff =", eff, "scale =", scale 
 
             print "wino_%s" % key
             sr = LepPhotonAnalysis.LepPhotonAnalysis(winoFile.Get(ttreeName), 
