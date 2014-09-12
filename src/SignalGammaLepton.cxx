@@ -199,6 +199,12 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("ElectronRecoSFFile", m_electron_reco_file = "efficiencySF.offline.RecoTrk.2012.8TeV.rel17p2.GEO20.v08.root");
   declareProperty("ElectronIdSFFile", m_electron_id_file = "efficiencySF.offline.Medium.2012.8TeV.rel17p2.v07.root");
 
+  declareProperty("PhotonFullConvSFFile", m_photon_full_con_file = "efficiencySF.offline.Tight.2012.8TeV.rel17.geo20.con.v05.root");
+  declareProperty("PhotonFullUnconvSFFile", m_photon_full_unc_file = "efficiencySF.offline.Tight.2012.8TeV.rel17.geo20.unc.v05.root");
+
+  declareProperty("PhotonAf2ConvSFFile", m_photon_af2_con_file = "efficiencySF.offline.Tight.2012.8TeV.rel17.AFII.iso.con.v01.root");
+  declareProperty("PhotonAf2UnconvSFFile", m_photon_af2_unc_file = "efficiencySF.offline.Tight.2012.8TeV.rel17.AFII.iso.unc.v01.root");
+
   declareProperty("doOverpalElectrons", m_doOverlapElectrons = true);
   declareProperty("ApplyPileupReweighting", m_applyPileupReweighting = 1, 
 		  "0 is none, 1 is standard, 2 is syst");
@@ -387,6 +393,32 @@ StatusCode SignalGammaLepton::initialize(){
 
     m_tool_tight_con_SF = new Root::TPhotonEfficiencyCorrectionTool;
     m_tool_tight_unc_SF = new Root::TPhotonEfficiencyCorrectionTool;
+
+    std::string photon_con_file = (m_isAtlfast) ? 
+      PathResolver::find_file(m_photon_af2_con_file, "DATAPATH") : 
+      PathResolver::find_file(m_photon_full_con_file, "DATAPATH");
+    if (photon_con_file == "") {
+      ATH_MSG_ERROR("Converted photon SF file " << ((m_isAtlfast) ? m_photon_af2_con_file : m_photon_full_con_file) << " not found. Exiting");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Using converted photon SF file  " << ((m_isAtlfast) ? m_photon_af2_con_file : m_photon_full_con_file));
+    }
+    m_tool_tight_con_SF->addFileName(photon_con_file);
+    m_tool_tight_con_SF->initialize();
+
+    std::string photon_unc_file = (m_isAtlfast) ? 
+      PathResolver::find_file(m_photon_af2_unc_file, "DATAPATH") : 
+      PathResolver::find_file(m_photon_full_unc_file, "DATAPATH");
+    if (photon_unc_file == "") {
+      ATH_MSG_ERROR("Unconverted photon SF file " << ((m_isAtlfast) ? m_photon_af2_unc_file : m_photon_full_unc_file) << " not found. Exiting");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Using unconverted photon SF file  " << ((m_isAtlfast) ? m_photon_af2_unc_file : m_photon_full_unc_file));
+    }
+    m_tool_tight_unc_SF->addFileName(photon_unc_file);
+    m_tool_tight_unc_SF->initialize();
+     
+
   }
 
   /// histogram location
@@ -1663,11 +1695,13 @@ StatusCode SignalGammaLepton::execute()
   m_mu_sf_unc = 0;
 
   if (m_isMC) {
-    // if (m_numPhotonsReq > 0 && 
-    // 	leadingPh->conversion() == NULL && 
-    // 	fabs(leadingPh->cluster()->etaBE(2)) > 1.81) {
-    //   m_ph_sf = 0.97;
-    // }
+    if (m_numPhotonsReq > 0) {
+      const std::pair<float, float> sf = GetSignalPhotonSF(photons->isConv(leadingPh), 
+							   photons->etas2(leadingPh), 
+							   leadingPhPt);
+      m_ph_sf = sf.first;
+      m_ph_sf_unc = sf.second;
+    }
     
     if (m_numElectronsReq > 0) {
       // require an electron. Only really valid when 1 electron is requested
@@ -1890,12 +1924,27 @@ StatusCode SignalGammaLepton::finalize() {
 std::pair<float, float> SignalGammaLepton::GetSignalElecSF(float el_cl_eta,
 							   float pt) const
 {
-  std::pair<float, float> sf;
   const Root::TResult &result_reco = m_electron_reco_SF->calculate(m_dataType, m_randRunNumber, el_cl_eta, pt);
   const Root::TResult &result_id = m_electron_id_SF->calculate(m_dataType, m_randRunNumber, el_cl_eta, pt);
 
+  std::pair<float, float> sf;
   sf.first = result_reco.getScaleFactor() * result_id.getScaleFactor();
   sf.second = hypot(result_reco.getTotalUncertainty(), result_id.getTotalUncertainty());
+  return sf;
+}
+
+std::pair<float, float> SignalGammaLepton::GetSignalPhotonSF(bool isConv, 
+							     float eta2,
+							     float pt) const
+{
+
+  const Root::TResult &result = isConv ? 
+    m_tool_tight_con_SF->calculate(m_dataType, 1, eta2, pt) : 
+    m_tool_tight_unc_SF->calculate(m_dataType, 1, eta2, pt);
+
+  std::pair<float, float> sf;
+  sf.first = result.getScaleFactor();
+  sf.second = m_isAtlfast ? result.getTotalUncertainty()/100.0 : result.getTotalUncertainty();
   return sf;
 }
   

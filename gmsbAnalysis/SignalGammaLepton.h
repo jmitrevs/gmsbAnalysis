@@ -65,6 +65,10 @@ private:
   std::pair<float, float> GetSignalElecSF(float el_cl_eta,
 					  float pt) const;
 
+  std::pair<float, float> GetSignalPhotonSF(bool isConv, 
+					    float eta2,
+					    float pt) const;
+
   // StatusCode recordEtMissSystematics(const MissingET* old_met, const VxContainer* vx_container);
   // StatusCode recordEtMissMuonSystematics();
   // StatusCode recordTruthMET();
@@ -72,6 +76,12 @@ private:
   // electron files
   std::string m_electron_reco_file;
   std::string m_electron_id_file;
+
+  std::string m_photon_full_unc_file;
+  std::string m_photon_full_con_file;
+
+  std::string m_photon_af2_unc_file;
+  std::string m_photon_af2_con_file;
 
   /** MET selecton */
   std::string m_METContainerName;
