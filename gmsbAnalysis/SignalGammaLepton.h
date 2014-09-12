@@ -6,6 +6,8 @@
 //#include "AthenaKernel/ICutFlowSvc.h"
 //#include "AthenaKernel/IUserDataSvc.h"
 
+#include "gmsbD3PDObjects/TruthParticleD3PDObject.h"
+
 #include "gmsbTools/TruthStudies.h"
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
@@ -23,7 +25,7 @@
 
 //class IAthSelectorTool;
 //class TrigMatchTool;
-//namespace Analysis { class AnalysisMuonEfficiencyScaleFactors; }
+namespace Analysis { class AnalysisMuonConfigurableScaleFactors; }
 //class APReweightND;
 
 namespace Root {
@@ -58,6 +60,9 @@ private:
 		 const int j_smax,
 		 const float jeteta,
 		 const float jetphi) const;
+
+  int FindNumTruthPhotons(unsigned int mc_channel_number, 
+			  const TruthParticleD3PDObject& truthObj) const;
   
   // bool isInLArHole(Jet* jet) const;
 
@@ -87,6 +92,9 @@ private:
   std::string m_METContainerName;
   // std::string m_topoClusterContainerName;
   std::string m_missingEtTruth;
+
+  /** name of the AOD truth particle container to retrieve from StoreGate */
+  std::string m_truthParticleContainerName;
 
   bool m_isMC; // set by JOs
   bool m_isAtlfast; // set by JOs
@@ -204,10 +212,7 @@ private:
   Root::TPhotonEfficiencyCorrectionTool* m_tool_tight_con_SF;
   Root::TPhotonEfficiencyCorrectionTool* m_tool_tight_unc_SF; 
 
-  // Analysis::AnalysisMuonEfficiencyScaleFactors* m_muon_sf;
-
-  // std::string m_muonTrigWeightsFile;
-  // APReweightND *m_trigWeighter;
+  Analysis::AnalysisMuonConfigurableScaleFactors* m_muon_sf;
 
   int m_applyPileupReweighting; // 0 = none, 1 = nominal, 2 = syst
   std::string m_pileupConfig;

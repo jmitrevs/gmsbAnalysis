@@ -19,6 +19,7 @@
 #include "gmsbD3PDObjects/triggerBitsD3PDObject.h"
 
 #include "gmsbTools/SortHelpers.h"
+#include "gmsbTools/FourMomHelpers.h"
 
 #include "MissingETUtility/IMETUtilityAthD3PDTool.h"
 #include "MissingETUtility/METUtility.h"
@@ -37,7 +38,7 @@
 
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
-//#include "MuonEfficiencyCorrections/AnalysisMuonEfficiencyScaleFactors.h"
+#include "MuonEfficiencyCorrections/AnalysisMuonConfigurableScaleFactors.h"
 #include "PathResolver/PathResolver.h"
 //#include "ReweightUtils/APReweightND.h"
 //#include "ReweightUtils/APEvtWeight.h"
@@ -102,12 +103,49 @@ bool SignalGammaLepton::isHotTile(const int RunNumber,
   return false;
 }
 
+int SignalGammaLepton::FindNumTruthPhotons(unsigned int mc_channel_number, 
+					   const TruthParticleD3PDObject& truthObj) const
+{
+  if(mc_channel_number == 105200 || 
+     mc_channel_number == 117050 || 
+     (mc_channel_number >= 181380 && mc_channel_number <= 181389) || 
+     mc_channel_number == 181087) {
+    int numPhotons = 0;
+    for(int par=0; par<truthObj.n(); par++){
+      if(truthObj.pdgId(par) == 22 && truthObj.status(par) == 1 && 
+	 truthObj.pt(par) > 80000 && fabsf(truthObj.eta(par)) < 5) {
+	// now let's try the deltaR
+	int foundPhoton = 1;
+	const float par1eta = truthObj.eta(par);
+	const float par1phi = truthObj.phi(par);
+	for(int par2=0; par2<truthObj.n(); par2++) {
+	  if(((abs(truthObj.pdgId(par2)) > 0 && abs(truthObj.pdgId(par2)) < 5) || 
+	      abs(truthObj.pdgId(par2)) == 11 || 
+	      abs(truthObj.pdgId(par2)) == 13 || 
+	      abs(truthObj.pdgId(par2)) == 15) &&
+	     fabsf(truthObj.eta(par2)) < 5 && truthObj.status(par2) == 3) {
+	    if (FourMomHelpers::isInDeltaR(par1eta, par1phi, truthObj.eta(par2), truthObj.phi(par2), 0.1)) {
+	      foundPhoton = 0;
+	      break;
+	    }
+	  }
+	}
+	numPhotons += foundPhoton;
+      }
+    }
+    return numPhotons;
+  }
+  return -1;
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("HistFileName", m_histFileName = "SignalGammaLepton");
+  declareProperty("McParticleContainer", m_truthParticleContainerName = "mc_");
 
   declareProperty("NumPhotons", m_numPhotonsReq = 1);
   declareProperty("NumElectrons", m_numElectronsReq = 0);
@@ -176,10 +214,6 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("applyTrigger", m_applyTriggers = true); 
   // declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
   // declareProperty("triggers", m_triggers = "EF_g120_loose"); // for matching or applying -- hardcode for now
-
-  //declareProperty("MuonTriggerWeights",
-  //	  m_muonTrigWeightsFile = "muon_triggermaps_VOneLepton.root");
-
 
   // declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
   // declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
@@ -419,6 +453,13 @@ StatusCode SignalGammaLepton::initialize(){
     m_tool_tight_unc_SF->initialize();
      
 
+    // let's set up muon scale factos
+    std::string unit("MeV");
+    std::string muon_file_name("STACO_CB_plus_ST_2012_SF.txt.gz");
+    Analysis::AnalysisMuonConfigurableScaleFactors::Configuration muon_configuration=Analysis::AnalysisMuonConfigurableScaleFactors::AverageOverPeriods;
+    ATH_MSG_DEBUG("Now initialize the tool " << m_muon_sf);
+    m_muon_sf = new Analysis::AnalysisMuonConfigurableScaleFactors("", muon_file_name, unit, muon_configuration);
+    m_muon_sf->Initialise();
   }
 
   /// histogram location
@@ -427,49 +468,6 @@ StatusCode SignalGammaLepton::initialize(){
     ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
     return sc;
   }
-
-  // if (m_numMuonsReq > 0 && m_isMC) {
-  //   // need to initialize scale factors
-  //   std::vector<double> muon_sf_int_lum(11);
-  //   muon_sf_int_lum[0]  = 11.9912; // luminosity for period B = [177986, 178109]
-  //   muon_sf_int_lum[1]  = 175.533;  // luminosity for period D = [179710, 180481]
-  //   muon_sf_int_lum[2]  = 50.6941; // luminosity for period E = [180614, 180776]
-  //   muon_sf_int_lum[3]  = 130.918; // luminosity for period F = [182013, 182519]
-  //   muon_sf_int_lum[4]  = 501.769; // luminosity for period G = [182726, 183462]
-  //   muon_sf_int_lum[5]  = 256.386; // luminosity for period H = [183544, 184169]
-  //   muon_sf_int_lum[6]  = 339.135; // luminosity for period I = [185353, 186493]
-  //   muon_sf_int_lum[7]  = 227.443; // luminosity for period J = [186516, 186755]
-  //   muon_sf_int_lum[8]  = 590.621; // luminosity for period K = [186873, 187815]
-  //   muon_sf_int_lum[9]  = 1373.49;  // luminosity for period L = [188902, 190343]
-  //   muon_sf_int_lum[10] = 989.656; // luminosity for period M = [190503, 191933]
-
-  //   // create an instance of the scale factor class 
-  //   std::string muon_type("STACO_CB"); // for STACO combined muon 
-  //   std::string unit("MeV"); // for MeV; for GeV use "GeV" 
-  //   std::string directory(""); // directory containing the scale factor files 
-  //   //                            "" is default, i.e. under share of the CMT package 
-  //   m_muon_sf = new Analysis::AnalysisMuonEfficiencyScaleFactors(muon_type, muon_sf_int_lum, unit, directory);
-
-  //   if (m_muonTrigWeightsFile != "") {
-  //     std::string filename = PathResolver::find_file(m_muonTrigWeightsFile, "DATAPATH");
-  //     if (filename == "") {
-  // 	ATH_MSG_ERROR("Muon trigger file " << m_muonTrigWeightsFile << " not found. Exiting");
-  // 	return StatusCode::FAILURE;
-  //     }
-  //     TFile reweightFile(filename.c_str());
-  //     THnSparse *trig_numerator_hist = (THnSparse*) reweightFile.Get("ths_mu18_nom"); // Get the numerator histogram
-  //     THnSparse *trig_denominator_hist = (THnSparse*) reweightFile.Get("ths_mu18_den"); // Get the denominator histogram
-  //     m_trigWeighter = new APReweightND(trig_denominator_hist, trig_numerator_hist, true); // Instantiate the tool
-  //     reweightFile.Close();
-  //     if (!m_trigWeighter) {
-  // 	ATH_MSG_ERROR("Failed to initialize trigger weighter from file: " << m_muonTrigWeightsFile);
-  // 	return StatusCode::FAILURE;
-  //     }	
-  //   }
-  // } else {
-  //   m_muon_sf = 0;
-  //   m_trigWeighter = 0;
-  // }
 
   // m_metxPlus_noMuon = 0;
   // m_metyPlus_noMuon = 0;
@@ -917,19 +915,27 @@ StatusCode SignalGammaLepton::execute()
   /////////////////////////////////////////////////////
 
   m_type = TruthStudies::unknown;
-  if (m_doTruthStudies) {
-    StatusCode sc = m_truth->execute();
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("TruthStudies Failed");
-      return sc;
-    }
-    m_type = m_truth->GetEventType();
-    m_isStrong = m_truth->isStrong();
-    m_numTruthPh = m_truth->nPhotons();
-    m_Wpt = m_truth->Wpt();
-  } else {
-    m_numTruthPh = -1;
+  m_numTruthPh = -1;
+
+  // if (m_doTruthStudies) {
+  //   StatusCode sc = m_truth->execute();
+  //   if ( sc.isFailure() ) {
+  //     ATH_MSG_WARNING("TruthStudies Failed");
+  //     return sc;
+  //   }
+  //   m_type = m_truth->GetEventType();
+  //   m_isStrong = m_truth->isStrong();
+  //   m_numTruthPh = m_truth->nPhotons();
+  //   m_Wpt = m_truth->Wpt();
+  // } 
+
+  // let's replace it by this simpler script (for vetoing overlap)
+  if (m_isMC) {
+    const TruthParticleD3PDObject truthObj(m_truthParticleContainerName);
+    ATH_CHECK(truthObj.retrieve());    
+    m_numTruthPh = FindNumTruthPhotons(channelNumber, truthObj);
   }
+
 
   m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
@@ -1710,27 +1716,12 @@ StatusCode SignalGammaLepton::execute()
       m_el_sf_unc = sf.second;
     }
     
-  //   if (m_numMuonsReq > 0) {
-  //     TLorentzVector p(leadingMu->px(), leadingMu->py(), leadingMu->pz(), leadingMu->e());
-  //     m_mu_sf = m_muon_sf->scaleFactor(p);
-  //     m_mu_sf_unc = hypot(m_muon_sf->scaleFactorUncertainty(p), m_muon_sf->scaleFactorSystematicUncertainty(p));
-
-  //     // AND NOW THE TRIGGER WEIGHTS
-  //     if (m_trigWeighter) {
-  // 	double in[5];
-  // 	in[0] = leadingMuPt;
-  // 	in[1] = leadingMu->eta();
-  // 	in[2] = leadingMu->phi();
-  // 	in[3] = leadingMu->isCombinedMuon();
-  // 	in[4] = leadingMu->parameter(MuonParameters::ptcone20);
-  // 	ATH_MSG_DEBUG("in = (" << in[0] << ", " << in[1] << ", " << in[2] << ", " << in[3] << ", " << in[4] << ")");
-
-  // 	APEvtWeight weight_muon(APEvtWeight::kMuon);
-  // 	weight_muon.AddWeightToEvt(m_trigWeighter->GetWeight(in));
-  // 	m_mu_trig_weight = weight_muon.GetWeight();
-  // 	m_mu_trig_weight_unc = hypot(weight_muon.GetStdDev(), weight_muon.GetSysUncert());
-  //     }
-  //   }
+    if (m_numMuonsReq > 0) {
+      const float charge = muons->charge(leadingMu);
+      m_mu_sf = m_muon_sf->scaleFactor(charge, muLV);
+      m_mu_sf_unc = m_muon_sf->scaleFactorUncertainty(charge, muLV) + 
+	m_muon_sf->scaleFactorSystematicUncertainty(charge, muLV);
+    }
   }
 
   ATH_MSG_DEBUG("el sf = " << m_el_sf << " +- " << m_el_sf_unc); 

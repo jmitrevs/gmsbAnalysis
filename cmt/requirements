@@ -12,11 +12,11 @@ use  EG                         EG-*
 #use BCHCleaningTool    BCHCleaningTool-*    Reconstruction/Jet/JetAnalysisTools
 use TileTripReader          TileTripReader-*        PhysicsAnalysis/TileID
 use PATCore  PATCore-* PhysicsAnalysis/AnalysisCommon
+use gmsbD3PDObjects             gmsbD3PDObjects-*
 
 private
 use PathResolver       PathResolver-* Tools
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
-use gmsbD3PDObjects             gmsbD3PDObjects-*
 #use JetSelectorTools   JetSelectorTools-*       PhysicsAnalysis/JetMissingEtID
 #use ObjectSelectorCore ObjectSelectorCore-*     PhysicsAnalysis/AnalysisCommon
 use gmsbTools          gmsbTools-*
