@@ -78,6 +78,8 @@ WEAK = 1
 STRONG = 2
 
 #Cuts
+BVETO = -1.0
+
 # - electron channel
 EL_PHPTCUT = 125*GeV
 EL_ELPTCUT = 20*GeV
@@ -88,6 +90,7 @@ EL_HT = 0*GeV
 #EL_HT = 1300*GeV
 EL_MEFF = 0*GeV
 #EL_MEFF = 1500*GeV
+EL_HTjet_MAX = -1.0
 
 EL_QCD_MINV_WINDOW = 15*GeV
 EL_MINV_WINDOW = 15*GeV
@@ -130,6 +133,7 @@ MU_MET = 140*GeV
 MU_MT = 200*GeV
 MU_HT = 1300*GeV
 MU_MEFF = 0*GeV
+EL_HTjet_MAX = -1.0
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
@@ -231,11 +235,11 @@ def usage():
 
 # measureEff is simple W tag and probe; numBackground is passed for iterative improvement.
 
-def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False, 
+def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True, 
                       onlyStrong = ALL, 
                       measureFakeAndEff = False, 
                       numBkgTight = 0, scaleQCD = False,
-                      applySF = NONE, applyTrigWeight = NONE,
+                      applySF = NONE,
                       plotsRegion = DEFAULT_PLOTS,
                       doABCD = NoABCD,
                       doAltABCD = False,
@@ -503,7 +507,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
 
         if filterPhotons and ev.numTruthPh > 0:
-            print "fail truth photon"
+            #print "fail truth photon"
             continue
 
         if debug: print "  pass filterPhotons"
@@ -539,10 +543,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         weight = ev.Weight * glWeight
 
-        try:
-            weight *= ev.PileupWeight
-        except AttributeError:
-            pass
+
+        weight *= ev.PileupWeight
+        #try:
+        #    weight *= ev.PileupWeight
+        #except AttributeError:
+        #    pass
 
 
         if applySF == NOMINAL:
@@ -561,14 +567,6 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
             else:
                 weight *= ev.PhotonSF * (ev.MuonSF + ev.MuonSFUnc)
 
-
-        if lepton == MUON:
-            if applyTrigWeight == NOMINAL:
-                weight *= ev.MuonTrigWeight
-            elif applyTrigWeight == LOW:
-                weight *= (ev.MuonTrigWeight - ev.MuonTrigWeightUnc)
-            elif applyTrigWeight == HIGH:
-                weight *= (ev.MuonTrigWeight + ev.MuonTrigWeightUnc)
 
         if reweighAlpgen:
             if ev.Wpt < -9999999.0:
@@ -877,6 +875,22 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
         Walt = W+photon
 
 
+        # lets calculated a few more values
+        passHTjetMax = True
+        passBVeto = True
+
+        if BVETO > 0.0:
+            for i in range(ev.numJets):
+                if ev.JetMV1[i] > BVETO:
+                    passBVeto = False
+            
+        if lepton == ELECTRON and EL_HTjet_MAX > 0:
+            passHTjetMax = ev.HTjet < EL_HTjet_MAX
+
+        if lepton == MUON and MU_HTjet_MAX > 0:
+            passHTjetMax = ev.HTjet < MU_HTjet_MAX
+            
+
         # now plots that should be made before MET and mT cuts
         h_mTelvsMET.Fill(met/GeV, mt/GeV, weight)
         h_mTmuvsMET.Fill(met/GeV, mt/GeV, weight)
@@ -957,9 +971,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = False,
 
         ## our selection
         if ((lepton == ELECTRON and
-             (met > EL_MET and mt > EL_MT and ev.HT > EL_HT and ev.meff > EL_MEFF)) or
+             (passBVeto and passHTjetMax and met > EL_MET and mt > EL_MT and ev.HT > EL_HT and ev.meff > EL_MEFF)) or
             (lepton == MUON and
-             (met > MU_MET and mt > MU_MT and ev.HT > MU_HT and ev.meff > MU_MEFF))):
+             (passBVeto and passHTjetMax and met > MU_MET and mt > MU_MT and ev.HT > MU_HT and ev.meff > MU_MEFF))):
             inSR = True
             nSIG.Fill(0, weight)
 

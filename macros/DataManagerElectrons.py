@@ -16,7 +16,7 @@ PRINT_YIELDS = False
 Lumi = 20300.0
 
 print "Lepton is ELECTRON."
-path = "/data/jmitrevs/output/elphoton/v140905/mergedFiles/"
+path = "/data/jmitrevs/output/elphoton/v140912/mergedFiles/"
 
 # format is (name, xsec in pb, kfac, eff, dsid)
 names = (('Wenugamma', 0.71925, 1.0, 1.0, 126741),

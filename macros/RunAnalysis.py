@@ -49,7 +49,7 @@ def makeOutputName(infileName, extra = ""):
     return outfile
 
 def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
-                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT):
+                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, extraName=""):
 
     SRs = {}
 
@@ -68,7 +68,7 @@ def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS,
         print name + ":"
         value = DataManager.values[name]
         sr = LepPhotonAnalysis.LepPhotonAnalysis(value[0].Get(ttreeName), 
-                                                 makeOutputName(name),
+                                                 makeOutputName(name, extraName),
                                                  lepton,
                                                  value[1], plotsRegion = plots,
                                                  metType = metType)

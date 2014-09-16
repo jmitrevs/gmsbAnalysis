@@ -17,8 +17,6 @@ import signalXsecsStrong
 import LepPhotonAnalysis
 import math
 
-LepPhotonAnalysis.EL_MET=200*GeV
-
 Lumi = 20300.0
 
 ELECTRON = 0
@@ -44,9 +42,9 @@ def GetHistNames(inFile):
 
     return histNames
 
-def makeOutputName(infileName):
+def makeOutputName(infileName, extra = ""):
     inFileNoPath = os.path.split(infileName)[1]
-    outfile = os.path.splitext(inFileNoPath)[0] + "_Hist.root"
+    outfile = os.path.splitext(inFileNoPath)[0] + extra + "Hist.root"
     return outfile
 
 def RunAnalysis(lepton = DEFAULTLEPTON, 
@@ -58,7 +56,7 @@ def RunAnalysis(lepton = DEFAULTLEPTON,
 
     if lepton == ELECTRON:
         print "Lepton is ELECTRON."
-        path = "/data/jmitrevs/output/elphoton_grid/v140905/"
+        path = "/data/jmitrevs/output/elphoton_grid/v140912/"
     elif lepton == MUON:
         print "Lepton is Muon."
         #path = "/data3/jmitrevs/lepphoton/muphoton_grid2/mergedFiles/"
@@ -93,7 +91,6 @@ def RunAnalysis(lepton = DEFAULTLEPTON,
                                                      lepton,
                                                      scale,
                                                      applySF=LepPhotonAnalysis.NOMINAL, 
-                                                     applyTrigWeight=LepPhotonAnalysis.NOMINAL,
                                                      plotsRegion=plots,
                                                      metType = metType)
 

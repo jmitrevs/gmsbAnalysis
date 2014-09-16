@@ -12,24 +12,26 @@ Dates=os.system(sfg)
 inDS_test = [ 
     #'mc12_8TeV.175005.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_680_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     #'mc12_8TeV.175004.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_700_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    #'mc12_8TeV.175052.Herwigpp_UEEE3CTEQ6L1_GGM_wino_300_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+
+    'mc12_8TeV.175048.Herwigpp_UEEE3CTEQ6L1_GGM_wino_100_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+    'mc12_8TeV.175049.Herwigpp_UEEE3CTEQ6L1_GGM_wino_150_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
+    'mc12_8TeV.175052.Herwigpp_UEEE3CTEQ6L1_GGM_wino_300_egfilter.merge.NTUP_SUSY.e1754_a159_a171_r3549_p1328',
 
     'mc12_8TeV.175012.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_100_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175013.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_150_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    'mc12_8TeV.175014.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_200_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    'mc12_8TeV.175015.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_350_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175014.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_200_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175015.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_350_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175016.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    'mc12_8TeV.175017.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_700_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175017.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_700_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175018.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_800_780_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175019.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_100_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    'mc12_8TeV.175020.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_150_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175020.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_150_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175021.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_200_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    'mc12_8TeV.175022.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_350_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175022.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_350_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175023.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_500_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
-    'mc12_8TeV.175024.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_700_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
+    #'mc12_8TeV.175024.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_700_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
     'mc12_8TeV.175025.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_850_830_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
    ]
-
 
 inDS_full = [
 'mc12_8TeV.174988.Herwigpp_UEEE3CTEQ6L1_GGM_gl_wino_600_100_egfilter.merge.NTUP_SUSY.e1639_a159_a171_r3549_p1328',
@@ -111,14 +113,14 @@ for i,inDS in enumerate(inDS_test):
 
     outName = inDS[:89] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_140905.%s newSignalGammaMuon_afast.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_140912.%s newSignalGammaMuon_afast.py " % (inDS, outName)
    
     # if i == 0:
     #     command += " --outTarBall=/data/jmitrevs/scratch/submission_gammamu_140905.tar"
     # else:
     #     command += " --inTarBall=/data/jmitrevs/scratch/submission_gammamu_140905.tar"
 
-    command += " --inTarBall=/data/jmitrevs/scratch/submission_gammael_140905.tar"
+    command += " --inTarBall=/data/jmitrevs/scratch/submission_gammael_140912.tar"
 
     print command
     sys.stdout.flush()
