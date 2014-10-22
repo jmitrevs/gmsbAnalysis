@@ -1,14 +1,15 @@
 #! /usr/bin/env python
-
 '''
 Module to store all the source files, yields, etc, for electron channel.
 '''
+
+from __future__ import division
 
 import ROOT
 # ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 # ROOT.SetAtlasStyle()
 
-PRINT_YIELDS = True
+PRINT_YIELDS = False
 
 #Lumi = 4812.34 # old
 #Lumi = 4816.68 # old (but done again)
@@ -25,9 +26,9 @@ names = (('Wmunugamma', 0.71781, 1.0, 1.0, 126744),
 
 binToLookAt = 12 #1 more than last Fill value because this count starts at 1
 
-scales = {}
+values = {}
 
-for i in len(names):
+for i in range(len(names)):
     name = names[i][0]
     fileName = path + name + ".root"
     fl = ROOT.TFile(fileName)
@@ -41,7 +42,7 @@ for i in len(names):
     nAfterPreselect = cutFlow.GetBinContent(binToLookAt)
     yd = nAfterPreselect * scale
 
-    scales[name] = scale
+    values[name] = (fl, scale)
 
     if PRINT_YIELDS:
         print "name: nOrig =", nOrig, "scale =", scale, "yield =", yd

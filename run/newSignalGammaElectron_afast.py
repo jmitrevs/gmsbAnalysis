@@ -78,6 +78,7 @@ from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             isMC = True,
                             Atlfast = True,
+                            PrePreparationTool = gmsbPrePreparationTool,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
@@ -95,8 +96,8 @@ testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             #EtMissMuonSystematicsTool = myEtMissMuonSystematicsTool
                             )
 from AthenaCommon.AppMgr import ToolSvc
-#testAlg.OutputLevel = DEBUG
-testAlg.OutputLevel = INFO
+testAlg.OutputLevel = DEBUG
+#testAlg.OutputLevel = INFO
 
 # Add example to Reader
 topSequence += testAlg

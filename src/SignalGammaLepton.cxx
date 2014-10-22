@@ -7,22 +7,16 @@
 
 // Accessing data:
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "gmsbD3PDObjects/ElectronD3PDObject.h"
-#include "gmsbD3PDObjects/MuonD3PDObject.h"
-#include "gmsbD3PDObjects/JetD3PDObject.h"
-#include "gmsbD3PDObjects/PhotonD3PDObject.h"
 #include "gmsbD3PDObjects/PrimaryVertexD3PDObject.h"
 #include "gmsbD3PDObjects/TrigDecisionD3PDObject.h"
 #include "gmsbD3PDObjects/EventInfoD3PDObject.h"
-#include "gmsbD3PDObjects/RefFinalMETD3PDObject.h"
 #include "gmsbD3PDObjects/MissingETTruthD3PDObject.h"
 #include "gmsbD3PDObjects/triggerBitsD3PDObject.h"
 
 #include "gmsbTools/SortHelpers.h"
 #include "gmsbTools/FourMomHelpers.h"
 
-#include "MissingETUtility/IMETUtilityAthD3PDTool.h"
-#include "MissingETUtility/METUtility.h"
+//#include "MissingETUtility/IMETUtilityAthD3PDTool.h"
 
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 #include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
@@ -169,6 +163,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   //declareProperty("METContainerName", m_METContainerName = "MET_LooseEgamma10NoTauLoosePhotonRef_RefFinal_");
   //declareProperty("MissingEtTruth", m_missingEtTruth = "MET_Truth_PileUp");
   declareProperty("METContainerName", m_METContainerName = "MET_RefFinal_");
+  declareProperty("METCompositionName", m_METCompositionName = "MET_Egamma10NoTau_");
  
   //declareProperty("CaloClusterContainer", m_topoClusterContainerName= "CaloCalTopoCluster");
 
@@ -182,6 +177,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  m_vxCandidatesName="vx_",
 		  "Name of the primary vertex candidates");
 
+  declareProperty("PrePreparationTool",   m_PrePreparationTool);
   declareProperty("PreparationTool",      m_PreparationTool);
   declareProperty("FinalSelectionTool",   m_FinalSelectionTool);
   declareProperty("OverlapRemovalTool1",  m_OverlapRemovalTool1);
@@ -190,8 +186,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   // for ABCD
   declareProperty("AltSelectionTool",   m_AltSelectionTool);
 
-  declareProperty("METUtility",  m_METUtility);
-  declareProperty("useMETUtility",  m_useMETUtility = false);
+  declareProperty("useMETUtility",  m_useMETUtility = true);
 
   // declareProperty("JetCleaningTool", m_JetCleaningTool);
 
@@ -251,7 +246,13 @@ StatusCode SignalGammaLepton::initialize(){
 
   ATH_MSG_DEBUG("initialize()");
  
-  StatusCode sc = m_PreparationTool.retrieve();
+  StatusCode sc = m_PrePreparationTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Can't get handle on analysis pre-preparation tool");
+    return sc;
+  }
+
+  sc = m_PreparationTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Can't get handle on analysis preparation tool");
     return sc;
@@ -289,14 +290,6 @@ StatusCode SignalGammaLepton::initialize(){
     }
   }
 
-  if (m_useMETUtility) {
-    sc = m_METUtility.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Can't get handle MET Utility");
-      return sc;
-    }
-  }
-
   if (m_isMC && m_isAtlfast) {
     m_dataType = PATCore::ParticleDataType::Fast;
   } else if (m_isMC) {
@@ -320,7 +313,15 @@ StatusCode SignalGammaLepton::initialize(){
       return sc;
     }
   }
-      
+
+  if (m_useMETUtility) {
+    /// code from TJ
+    m_METUtility = new METUtility;
+    m_METUtility->defineMissingET(true, true, false, true, false, true, true);
+    /// Turn on (off) the relevant MET terms
+    /// RefEle, RefGamma, RefTau, RefJet, RefMuon, MuonTotal, SoftTerms
+    m_METUtility->setIsMuid(false);
+  }
 
   // if (m_matchTriggers) {
   //   sc = m_trigMatch.retrieve();
@@ -685,6 +686,8 @@ StatusCode SignalGammaLepton::initialize(){
     // the nominal corrected MET (actually redundant)
     m_tree->Branch("Metx", &m_metx, "Metx/F"); 
     m_tree->Branch("Mety", &m_mety, "Mety/F"); 
+    m_tree->Branch("MetxOrig", &m_metxOrig, "MetxOrig/F"); 
+    m_tree->Branch("MetyOrig", &m_metyOrig, "MetyOrig/F"); 
 
     // m_tree->Branch("Metx_noMuon", &m_metx_noMuon, "Metx_noMuon/F"); 
     // m_tree->Branch("Mety_noMuon", &m_mety_noMuon, "Mety_noMuon/F"); 
@@ -703,6 +706,7 @@ StatusCode SignalGammaLepton::initialize(){
     // m_tree->Branch("Mety_muon_smear", &m_mety_muon_smear, "Mety_muon_smear/F"); 
 
     m_tree->Branch("Set", &m_set, "Set/F");
+    m_tree->Branch("SetOrig", &m_setOrig, "SetOrig/F");
     // m_tree->Branch("Set_full_noMuon", &m_set_full_noMuon, "Set_full_noMuon/F");
     // m_tree->Branch("Set_MuonBoy", &m_set_MuonBoy, "Set_MuonBoy/F");
     // m_tree->Branch("Set_RefTrack", &m_set_RefTrack, "Set_RefTrack/F");
@@ -975,7 +979,13 @@ StatusCode SignalGammaLepton::execute()
   // pretendRunNum = LAST_RUN_BEFORE_HOLE; 
 
   // do the selecton and overlap removal
-  StatusCode sc = m_PreparationTool->execute();
+  StatusCode sc = m_PrePreparationTool->execute();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("PrePreparation Failed - selection ");
+    return sc;
+  }
+
+  sc = m_PreparationTool->execute();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Preparation Failed - selection ");
     return sc;
@@ -1012,6 +1022,7 @@ StatusCode SignalGammaLepton::execute()
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
 
+
   JetD3PDObject *jetsBeforeOverlapRemoval =  m_PreparationTool->selectedJets();
 
   JetD3PDObject *jets = m_OverlapRemovalTool2->finalStateJets();
@@ -1045,20 +1056,55 @@ StatusCode SignalGammaLepton::execute()
   }
   // need the MET for the jet cleaning
 
+  // The missing ET object
+  const RefFinalMETD3PDObject metContOrig(m_METContainerName);
+  ATH_CHECK(metContOrig.retrieve());
+  
+  m_metxOrig = metContOrig.etx();
+  m_metyOrig = metContOrig.ety();
+  m_setOrig = metContOrig.sumet();
+
   if (m_useMETUtility) {
-    const METUtil::METObject metCont = m_METUtility->getMissingET(METUtil::RefFinal);
+    const MissingETCompositionD3PDObject jetComp(std::string("jet_AntiKt4LCTopo_")+m_METCompositionName);
+    ATH_CHECK(jetComp.retrieve());
+    
+    const ElectronD3PDObject origElectrons("el_");
+    ATH_CHECK(origElectrons.retrieve());
+
+    const JetD3PDObject origJets("jet_AntiKt4LCTopo_");
+    ATH_CHECK(origJets.retrieve());
+    
+    const JetD3PDObject calibJets("pre_jet_AntiKt4LCTopo_");
+    ATH_CHECK(calibJets.retrieve());
+
+    const MissingETCompositionD3PDObject elComp(std::string("el_")+m_METCompositionName);
+    ATH_CHECK(elComp.retrieve());
+
+    const MissingETCompositionD3PDObject phComp(std::string("ph_")+m_METCompositionName);
+    ATH_CHECK(phComp.retrieve());
+ 
+    const RefFinalMETD3PDObject cellOut(m_METCompositionName + std::string("CellOut_"));
+    ATH_CHECK(cellOut.retrieve());
+
+    const RefFinalMETD3PDObject cellOutEflow(m_METCompositionName + std::string("CellOut_Eflow_STVF"));
+    ATH_CHECK(cellOutEflow.retrieve());
+
+    const METUtil::METObject metCont = GetMET(electrons, photons, muons,
+					      origElectrons, origJets, calibJets,
+					      jetComp, elComp, phComp,
+					      cellOut, cellOutEflow,
+					      averageIntPerXing,
+					      SUSYMet::Default,
+					      SystErr::NONE,
+					      true);
     m_metx = metCont.etx();
     m_mety = metCont.ety();
     m_set = metCont.sumet();
     
   } else {
-    // The missing ET object
-    const RefFinalMETD3PDObject metCont(m_METContainerName);
-    ATH_CHECK(metCont.retrieve());
-    
-    m_metx = metCont.etx();
-    m_mety = metCont.ety();
-    m_set = metCont.sumet();
+    m_metx = m_metxOrig;
+    m_mety = m_metyOrig;
+    m_set = m_setOrig;
   }
   const float met = hypotf(m_mety, m_metx);
   const float metPhi = atan2f(m_mety, m_metx);
@@ -2076,3 +2122,234 @@ std::pair<float, float> SignalGammaLepton::GetSignalPhotonSF(bool isConv,
 //   return sc;
 // }
 
+/// Met with photons 
+METUtil::METObject SignalGammaLepton::GetMET(ElectronD3PDObject *electrons,
+					     PhotonD3PDObject *photons,
+					     MuonD3PDObject *muons,
+					     const ElectronD3PDObject& origElectrons,
+					     const JetD3PDObject& origJets,
+					     const JetD3PDObject& calibJets,
+					     const MissingETCompositionD3PDObject& jetComp,
+					     const MissingETCompositionD3PDObject& elComp,
+					     const MissingETCompositionD3PDObject& phComp,
+					     const RefFinalMETD3PDObject& cellOut,
+					     const RefFinalMETD3PDObject& cellOutEflow,
+					     const float averageIntPerXing,
+					     SUSYMet::met_definition whichmet,
+					     SystErr::Syste whichsyste,
+					     const bool doEgammaJetFix)
+{
+
+
+    // Tell the compiler that the vectors don't ever overlap - allows a little extra optimization, we hope
+    //#pragma disjoint ( *jetwet , *jetwpx , *jetwpy , *jetstatus , *elwet , *elwpx , *elwpy , *elstatus , *phwet , *phwpx , *phwpy , *phstatus , *mu_staco_ms_qoverp , *mu_staco_ms_theta , *mu_staco_ms_phi , *mu_staco_charge )
+
+
+  ATH_MSG_DEBUG("In GetMET");
+
+  const int jetSize = jetComp.n();
+  if (origJets.n() != jetSize || calibJets.n() != jetSize) {
+    ATH_MSG_ERROR("in GetMET, jets size = " << origJets.n() 
+		  << "calib jets size = " << calibJets.n()
+		  << "jetComp size = " << jetSize);
+    exit(20);
+  }
+
+  std::vector<float> jetpt(jetSize);
+  std::vector<float> jeteta(jetSize);
+  std::vector<float> jetphi(jetSize);
+  std::vector<float> jete(jetSize);
+  
+
+  /// Use phi from D3PDs used to calculate the weights
+  for (int j = 0; j < jetSize; ++j){
+    jetpt[j] = calibJets.pt(j);
+    jeteta[j] = origJets.eta(j);
+    jetphi[j] = origJets.phi(j);
+    jete[j] = calibJets.E(j);
+  }
+
+  ATH_MSG_DEBUG("Filled jet vectors");
+
+  vector<vector<float> > new_jetwet, new_jetwpx, new_jetwpy ;
+  vector<vector<unsigned int> > new_jetstatus;
+  for (int iJet=0; iJet < jetSize;iJet++) {
+    new_jetwet.push_back(jetComp.wet(iJet));
+    new_jetwpx.push_back(jetComp.wpx(iJet));
+    new_jetwpy.push_back(jetComp.wpy(iJet));
+    new_jetstatus.push_back(jetComp.statusWord(iJet));
+  }
+
+  ATH_MSG_DEBUG("Filled jet components vectors");
+
+  m_METUtility->reset();
+
+  /// Jet - electron/photon overlap fix : off by default and not approved for physics results 
+  if(doEgammaJetFix) m_METUtility->configEgammaJetFix(true,false,false,0.3); 
+
+  ATH_MSG_DEBUG("Done some setup");
+
+  switch(whichmet) {
+    /// Soft Terms scale
+  case SUSYMet::STVF:
+    {
+
+
+      m_METUtility->configMissingET(true, true);
+      m_METUtility->setJetPUcode(MissingETTags::JPU_JET_JVFCUT);
+      m_METUtility->setMETTerm(METUtil::SoftTerms, cellOutEflow.etx(), cellOutEflow.ety(), cellOutEflow.sumet());
+      break;
+    }
+  case SUSYMet::STVF_JVF:
+    {
+      m_METUtility->configMissingET(true, true);
+      m_METUtility->setJetPUcode(MissingETTags::JPU_JET_JVF);
+      m_METUtility->setMETTerm(METUtil::SoftTerms, cellOutEflow.etx(), cellOutEflow.ety(), cellOutEflow.sumet());
+      break;
+    }
+  case SUSYMet::Default:
+  default:
+    {
+      m_METUtility->configMissingET(true, false);
+      m_METUtility->setJetPUcode(MissingETTags::DEFAULT);
+      m_METUtility->setMETTerm(METUtil::SoftTerms, cellOut.etx(), cellOut.ety(), cellOut.sumet());
+      break;
+    }
+  }
+
+  m_METUtility->setAverageIntPerXing(averageIntPerXing);
+  m_METUtility->setJetParameters(&jetpt, &jeteta, &jetphi, &jete, &new_jetwet, &new_jetwpx, &new_jetwpy, &new_jetstatus);
+
+
+  ATH_MSG_DEBUG("Finish jets");
+
+  const int elSize = electrons->n();
+
+  vector<float> elpt(elSize);
+  vector<float> eleta(elSize);
+  vector<float> elphi(elSize);
+  vector<vector<unsigned int> > new_elstatus;
+  vector<vector<float> > new_elwet, new_elwpx, new_elwpy;
+  
+  for (int iEl = 0; iEl < elSize; iEl++) {
+
+    const int origIndex = electrons->tightIso(iEl);  // store it there
+
+    elpt[iEl] = electrons->pt(iEl);
+    eleta[iEl] = origElectrons.eta(origIndex);
+    elphi[iEl] = origElectrons.phi(origIndex);
+    new_elstatus.push_back(elComp.statusWord(origIndex));
+    new_elwet.push_back(elComp.wet(origIndex));
+    new_elwpx.push_back(elComp.wpx(origIndex));
+    new_elwpy.push_back(elComp.wpy(origIndex));
+  }
+  
+  m_METUtility->setElectronParameters(&elpt, &eleta, &elphi, &new_elwet, &new_elwpx, &new_elwpy, &new_elstatus);
+
+  ATH_MSG_DEBUG("Finish electrons");
+
+  const int phSize = photons->n();
+
+  vector<float> phpt(phSize);
+  vector<float> pheta(phSize);
+  vector<float> phphi(phSize);
+  vector<vector<unsigned int> > new_phstatus;
+  vector<vector<float> > new_phwet, new_phwpx, new_phwpy;
+  for (int iPh = 0; iPh < phSize; iPh++) {
+ 
+    const int origIndex = photons->tightIso(iPh);  // store it there
+
+    phpt[iPh] = photons->pt(iPh); 
+    pheta[iPh] = photons->eta(iPh);
+    phphi[iPh] = photons->phi(iPh);
+    new_phstatus.push_back(phComp.statusWord(origIndex));
+    new_phwet.push_back(phComp.wet(origIndex));
+    new_phwpx.push_back(phComp.wpx(origIndex));
+    new_phwpy.push_back(phComp.wpy(origIndex));
+  }
+
+  m_METUtility->setPhotonParameters(&phpt, &pheta, &phphi, &new_phwet, &new_phwpx, &new_phwpy, &new_phstatus);
+
+  ATH_MSG_DEBUG("Finish photons");
+
+  const int muSize = muons->n();
+
+  vector<float> mupt;
+  vector<float> mueta;
+  vector<float> muphi;
+  vector<vector<unsigned int> > new_statusWord;
+  vector<vector<float> > new_wet, new_wpx, new_wpy;
+  
+  vector<float> mu_ms_qoverp;
+  vector<float> mu_ms_theta;
+  vector<float> mu_ms_phi;
+  vector<float> mu_charge;
+  
+  for (int iMuIdx = 0; iMuIdx < muSize; iMuIdx++) {
+    mupt.push_back(muons->pt(iMuIdx));
+    mueta.push_back(muons->eta(iMuIdx));
+    muphi.push_back(muons->phi(iMuIdx));
+    vector<float> univec;
+    univec.push_back(1.);
+    new_wet.push_back(univec);
+    new_wpx.push_back(univec);
+    new_wpy.push_back(univec);
+    vector<unsigned int> defvec;
+    defvec.push_back(MissingETTags::DEFAULT);
+    new_statusWord.push_back(defvec);
+
+    mu_ms_qoverp.push_back( muons->ms_qoverp(iMuIdx) );
+    mu_ms_theta.push_back( muons->ms_theta(iMuIdx) );
+    mu_ms_phi.push_back( muons->ms_phi(iMuIdx) );
+    mu_charge.push_back( muons->charge(iMuIdx) );
+  }
+  
+  m_METUtility->setMuonParameters(&mupt, &mueta, &muphi, &new_wet, &new_wpx, &new_wpy, &new_statusWord);
+  m_METUtility->setExtraMuonParameters(&mu_ms_qoverp, &mu_ms_theta, &mu_ms_phi, &mu_charge);
+ 
+  ATH_MSG_DEBUG("Finish muons");
+
+
+  // /// Energy loss corrections for muons 
+  // if(doMuonElossCorrection) {
+  //       if(whichmet==SUSYMet::Default) m_METUtility->setMuonEloss(mu_staco_energyLossPar); 
+  //       else {
+  //           float STVF_factor = MET_CellOut_Eflow_STVF_sumet/MET_CellOut_sumet;
+  //           vector<float> mu_staco_energyLossPar_stvf(mu_staco_energyLossPar->size());
+      
+  //           for(unsigned int iMu=0; iMu<mu_staco_energyLossPar->size();iMu++) 
+  //               mu_staco_energyLossPar_stvf[iMu] = mu_staco_energyLossPar->at(iMu)*STVF_factor;
+      
+  //           m_METUtility->setMuonEloss(&mu_staco_energyLossPar_stvf); 
+  //       }
+  // }
+  
+  /// Set the random seed for RESOST:
+  int seed = int(fabs(m_METUtility->getMissingET(METUtil::RefFinal).phi())*1.e+5);
+  gRandom->SetSeed(seed);
+
+  METUtil::METObject finalMet;
+
+  switch(whichsyste) {
+    /// Soft Terms scale
+  case SystErr::SCALESTUP: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ScaleSoftTermsUp); break;
+  case SystErr::SCALESTDOWN: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ScaleSoftTermsDown); break;
+    /// Soft Terms resolution
+  case SystErr::RESOST: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsUp); break;
+    ///   case SystErr::RESOSTUP: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsUp); break;
+    ///   case SystErr::RESOSTDOWN: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsDown); break;
+    ///     /// Soft Terms scale (ptHard)
+    ///   case SystErr::SCALEPHUP: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ScaleSoftTermsUp_ptHard); break;
+    ///   case SystErr::SCALEPHDOWN: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ScaleSoftTermsDown_ptHard); break;
+    ///     /// Soft Terms resolution (ptHard)
+    ///   case SystErr::RESOPHUP: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsUp_ptHard); break;
+    ///   case SystErr::RESOPHDOWN: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsDown_ptHard); break;
+    ///   case SystErr::RESOPHUPDOWN: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsUpDown_ptHard); break;
+    ///   case SystErr::RESOPHDOWNUP: finalMet = m_METUtility->getMissingET(METUtil::RefFinal,METUtil::ResoSoftTermsDownUp_ptHard); break;
+  case SystErr::NONE:
+  default:
+    finalMet=m_METUtility->getMissingET(METUtil::RefFinal); break;
+  }
+  
+  return(finalMet);
+}

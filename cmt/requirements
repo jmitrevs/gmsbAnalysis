@@ -13,6 +13,7 @@ use  EG                         EG-*
 use TileTripReader          TileTripReader-*        PhysicsAnalysis/TileID
 use PATCore  PATCore-* PhysicsAnalysis/AnalysisCommon
 use gmsbD3PDObjects             gmsbD3PDObjects-*
+use MissingETUtility   MissingETUtility-*       Reconstruction
 
 private
 use PathResolver       PathResolver-* Tools
@@ -34,7 +35,6 @@ use TrigMuonEvent      TrigMuonEvent-*          Trigger/TrigEvent
 use PileupReweighting  PileupReweighting-*      PhysicsAnalysis/AnalysisCommon
 use ElectronEfficiencyCorrection ElectronEfficiencyCorrection-* PhysicsAnalysis/ElectronPhotonID
 use PhotonEfficiencyCorrection PhotonEfficiencyCorrection-* PhysicsAnalysis/ElectronPhotonID
-use MissingETUtility   MissingETUtility-*       Reconstruction
 end_private
 
 library gmsbAnalysis *.cxx -s=components *.cxx

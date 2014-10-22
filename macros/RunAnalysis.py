@@ -26,6 +26,8 @@ REWEIGHZ = False
 
 DO_TTBAR_SYST = False
 
+APPLY_WEIGHTS = False
+
 def GetHistNames(inFile):
     
     histNames = []
@@ -65,13 +67,18 @@ def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS,
   
     for nameEnt in  DataManager.names:
         name = nameEnt[0]
-        print name + ":"
         value = DataManager.values[name]
+        if APPLY_WEIGHTS:
+            scale = value[1]
+        else:
+            scale = 1.0
+        print name + ": (scale = " + str(value[1]) +")" 
         sr = LepPhotonAnalysis.LepPhotonAnalysis(value[0].Get(ttreeName), 
                                                  makeOutputName(name, extraName),
                                                  lepton,
                                                  value[1], plotsRegion = plots,
-                                                 metType = metType)
+                                                 metType = metType,
+                                                 useWeights = APPLY_WEIGHTS)
         SRs[name] = sr
 
     return SRs

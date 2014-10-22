@@ -11,10 +11,19 @@
 #include "gmsbTools/TruthStudies.h"
 #include "gmsbTools/gmsbPreparationTool.h"
 #include "gmsbTools/gmsbOverlapRemovalTool.h"
+#include "gmsbTools/gmsbSystError.h"
 //#include "gmsbAnalysis/AccumulateUncert.h"
 //#include "gmsbAnalysis/AccumulateFFUncert.h"
 
 #include "gmsbAnalysis/FakeMetEstimator.h"
+
+#include "MissingETUtility/METUtility.h"
+#include "gmsbD3PDObjects/MissingETCompositionD3PDObject.h"
+#include "gmsbD3PDObjects/ElectronD3PDObject.h"
+#include "gmsbD3PDObjects/MuonD3PDObject.h"
+#include "gmsbD3PDObjects/JetD3PDObject.h"
+#include "gmsbD3PDObjects/PhotonD3PDObject.h"
+#include "gmsbD3PDObjects/RefFinalMETD3PDObject.h"
 
 #include "PATCore/PATCoreEnums.h"
 
@@ -38,6 +47,13 @@ namespace Root {
 //#include "BCHCleaningTool/BCHCleaningToolAthena.h"
 
 class IMETUtilityAthD3PDTool;
+
+namespace SUSYMet    /// STVF_JVF is onlymeant for studies
+{
+    typedef enum {
+        Default, STVF, STVF_JVF
+    } met_definition;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 class SignalGammaLepton:public AthAlgorithm {
@@ -66,6 +82,22 @@ private:
   
   // bool isInLArHole(Jet* jet) const;
 
+  METUtil::METObject GetMET(ElectronD3PDObject *electrons,
+			    PhotonD3PDObject *photons,
+			    MuonD3PDObject *muons,
+			    const ElectronD3PDObject& origElectrons,
+			    const JetD3PDObject& origJets,
+			    const JetD3PDObject& calibJets,
+			    const MissingETCompositionD3PDObject& jetComp,
+			    const MissingETCompositionD3PDObject& elComp,
+			    const MissingETCompositionD3PDObject& phComp,
+			    const RefFinalMETD3PDObject& cellOut,
+			    const RefFinalMETD3PDObject& cellOutEflow,
+			    const float averageIntPerXing,
+			    SUSYMet::met_definition whichmet,
+			    SystErr::Syste whichsyste,
+			    const bool doEgammaJetFix);
+  
   // returns (sf . sf_unc)
   std::pair<float, float> GetSignalElecSF(float el_cl_eta,
 					  float pt) const;
@@ -90,6 +122,7 @@ private:
 
   /** MET selecton */
   std::string m_METContainerName;
+  std::string m_METCompositionName;
   // std::string m_topoClusterContainerName;
   std::string m_missingEtTruth;
 
@@ -147,6 +180,7 @@ private:
   // tools for selection
 
   /** get a handle on the user tool for pre-selection and overlap removal */
+  ToolHandle<gmsbPreparationTool>     m_PrePreparationTool;
   ToolHandle<gmsbPreparationTool>     m_PreparationTool;
   ToolHandle<gmsbSelectionTool>       m_FinalSelectionTool;
   ToolHandle<gmsbOverlapRemovalTool>  m_OverlapRemovalTool1;
@@ -155,7 +189,7 @@ private:
   // This is for ABCD method
   ToolHandle<gmsbSelectionTool>       m_AltSelectionTool;
 
-  ToolHandle<IMETUtilityAthD3PDTool>  m_METUtility;
+  METUtility* m_METUtility;
   bool m_useMETUtility;
 
   // /** get a handle on the user tool for pre-selection and overlap removal */
@@ -304,6 +338,8 @@ private:
   // MET
   float m_metx;
   float m_mety;
+  float m_metxOrig;
+  float m_metyOrig;
   // float m_metx_noMuon;
   // float m_mety_noMuon;
   // float m_metx_full_noMuon;
@@ -321,6 +357,7 @@ private:
   // float m_mety_muon_smear;
 
   float m_set;
+  float m_setOrig;
   // float m_set_full_noMuon;
   // float m_set_MuonBoy;
   // float m_set_RefTrack;

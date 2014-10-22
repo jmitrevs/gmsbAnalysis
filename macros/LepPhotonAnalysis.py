@@ -39,10 +39,16 @@ DEFAULT_LEPTON = ELECTRON
 removeCrack = True
 DELTAR_EL_PH = 0.7
 DELTAR_MU_PH = 0.7
+EL_MINV_WINDOW = 15*GeV
+
+#removeCrack = False
+#DELTAR_EL_PH = 0
+#DELTAR_MU_PH = 0
+#EL_MINV_WINDOW = 0*GeV
 
 printAccepted = False
 
-printSummary = False
+printSummary = True
 
 
 # What plots should be made
@@ -78,23 +84,27 @@ WEAK = 1
 STRONG = 2
 
 #Cuts
-BVETO = -1.0
+#BVETO = -1.0
+#BVETO = 0.3511 #80%
+BVETO = 0.7892 #70%
+#BVETO = 0.9827 #60%
 
 # - electron channel
 EL_PHPTCUT = 125*GeV
 EL_ELPTCUT = 20*GeV
-EL_MET = 140*GeV
+#EL_MET = 0*GeV
+EL_MET = 120*GeV
 #EL_MET = 200*GeV
+#EL_MT = 0*GeV
 EL_MT = 120*GeV
 EL_HT = 0*GeV
 #EL_HT = 1300*GeV
 EL_MEFF = 0*GeV
 #EL_MEFF = 1500*GeV
-EL_HTjet_MAX = -1.0
+#EL_HTjet_MAX = -1.0
+EL_HTjet_MAX = 100*GeV
 
 EL_QCD_MINV_WINDOW = 15*GeV
-EL_MINV_WINDOW = 15*GeV
-# EL_MINV_WINDOW = 0*GeV
 
 # tight (default)
 EL_WCR_MET_MIN = 35*GeV
@@ -128,12 +138,14 @@ EL_QCD_MT_MAX = 20*GeV
 # - muon channel
 MU_PHPTCUT = 125*GeV
 MU_MUPTCUT = 20*GeV
-MU_MET = 140*GeV
-#MU_MT = 120*GeV
-MU_MT = 200*GeV
-MU_HT = 1300*GeV
+#MU_MET = 0*GeV
+MU_MET = 120*GeV
+#MU_MT = 0*GeV
+MU_MT = 120*GeV
+MU_HT = 0*GeV
 MU_MEFF = 0*GeV
-EL_HTjet_MAX = -1.0
+#MU_HTjet_MAX = -1.0
+MU_HTjet_MAX = 100.0*GeV
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
@@ -239,7 +251,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       onlyStrong = ALL, 
                       measureFakeAndEff = False, 
                       numBkgTight = 0, scaleQCD = False,
-                      applySF = NONE,
+                      applySF = NOMINAL,
                       plotsRegion = DEFAULT_PLOTS,
                       doABCD = NoABCD,
                       doAltABCD = False,
@@ -251,7 +263,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       debug = False,
                       doTruth = False,
                       onlyOrigin = -1,
-                      metType = MET_DEFAULT):
+                      metType = MET_DEFAULT,
+                      useWeights = True):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -797,7 +810,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 else:
                     elph = electron + photon
                     minv = elph.M()
-                    # print "**minv =", minv
+                    #print "**minv =", minv
                 if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_MINV_WINDOW:
                     #print '** fail electron z **'
                     continue
@@ -836,7 +849,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             mu_ph_deltaR = photon.DeltaR(muon)
             mu_ph_deltaPhi = photon.DeltaPhi(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
-                print '** fail deltar photon lepton veto **'
+                #print '** fail deltar photon lepton veto **'
                 continue
 
             # if abs(mu_ph_deltaPhi) < 2.93:
@@ -875,6 +888,11 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         Walt = W+photon
 
 
+        # for debugging
+        if useWeights != True:
+            weight = 1
+
+
         # lets calculated a few more values
         passHTjetMax = True
         passBVeto = True
@@ -904,6 +922,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             
         if debug: print "  met =", met, "mTmu =", mt, "mTel =", mt
 
+        #nPRESEL.Fill(0)
         nPRESEL.Fill(0, weight)
 
         # do CR counts
@@ -1251,7 +1270,7 @@ def main():
     f = ROOT.TFile(infile)
     ttree=f.Get(ttreeName)
 
-    LepPhotonAnalysis(ttree, outfile, lepton, weight)
+    LepPhotonAnalysis(ttree, outfile, lepton, weight, useWeights = True)
 
 
 def Nqcd(nLoose, nTight, eta, lepton):
