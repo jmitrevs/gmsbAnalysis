@@ -79,6 +79,7 @@ from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             isMC = True,
                             Atlfast = True,
+                            PrePreparationTool = gmsbPrePreparationTool,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,

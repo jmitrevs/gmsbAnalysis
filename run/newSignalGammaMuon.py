@@ -77,6 +77,7 @@ gmsbFinalSelectionTool.PhotonPt = 125*GeV
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
                             isMC = True,
+                            PrePreparationTool = gmsbPrePreparationTool,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,

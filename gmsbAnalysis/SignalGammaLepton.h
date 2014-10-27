@@ -27,6 +27,9 @@
 
 #include "PATCore/PATCoreEnums.h"
 
+// grl includes
+#include "GoodRunsLists/TGoodRunsList.h"
+
 #include <utility>
 
 //#include "TRandom3.h"
@@ -152,6 +155,11 @@ private:
   bool m_applyTriggers; 
   // int m_matchTriggers; // match offline to online (really TRIG_MATCH_t)
   // std::string m_triggers;  // hardcode for now
+
+  std::string m_GRLFile; 
+  Root::TGoodRunsList m_grl;
+
+  bool m_doGRL; // set to false if m_GRLFile = ""
 
   //bool m_doSmartVeto;
 

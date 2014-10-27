@@ -4,6 +4,8 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TLorentzVector.h"
+#include "Math/Vector4D.h"
+#include <cfloat>
 
 // Accessing data:
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -21,6 +23,8 @@
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 #include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
 
+#include "GoodRunsLists/TGoodRunsListReader.h"
+
 
 //#include "JetUtils/JetCaloHelper.h"
 //#include "JetUtils/JetCaloQualityUtils.h"
@@ -29,6 +33,7 @@
 
 //#include "GeneratorObjects/McEventCollection.h"
 //#include "HepMC/GenEvent.h"
+
 
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
@@ -100,14 +105,33 @@ bool SignalGammaLepton::isHotTile(const int RunNumber,
 int SignalGammaLepton::FindNumTruthPhotons(unsigned int mc_channel_number, 
 					   const TruthParticleD3PDObject& truthObj) const
 {
-  if(mc_channel_number == 105200 || 
-     mc_channel_number == 117050 || 
-     (mc_channel_number >= 181380 && mc_channel_number <= 181389) || 
-     mc_channel_number == 181087) {
+
+  bool isTtbar = mc_channel_number == 117050 || 
+    mc_channel_number == 181087 || 
+    mc_channel_number == 105200 ||
+    (mc_channel_number >= 181380 && mc_channel_number <= 181389);
+
+  bool isWjets = (mc_channel_number >= 107680 && mc_channel_number <= 107685) ||
+    (mc_channel_number >= 107690 && mc_channel_number <= 107695) ||
+    (mc_channel_number >= 107700 && mc_channel_number <= 107705) ||
+    (mc_channel_number >= 107280 && mc_channel_number <= 107683);
+
+  // note: only tW and t-channel here, since we don't have an s-channel+gamma sample
+  //      (since cross section is too much smaller)
+  bool isSingleTop = (mc_channel_number >= 110140 && mc_channel_number <= 110143) || 
+    mc_channel_number == 110101; 
+
+  bool isZjets = (mc_channel_number >= 107650 && mc_channel_number <= 107655) ||
+    (mc_channel_number >= 107660 && mc_channel_number <= 107665) ||
+    (mc_channel_number >= 107670 && mc_channel_number <= 107675);
+
+  if(isTtbar || isWjets || isZjets) {
     int numPhotons = 0;
+    const float cutVal = (isZjets) ? 70*GeV : 80*GeV;
+    const float doEtaCut = isTtbar;
     for(int par=0; par<truthObj.n(); par++){
       if(truthObj.pdgId(par) == 22 && truthObj.status(par) == 1 && 
-	 truthObj.pt(par) > 80000 && fabsf(truthObj.eta(par)) < 5) {
+	 truthObj.pt(par) > cutVal && (!doEtaCut || fabsf(truthObj.eta(par)) < 5.0)) {
 	// now let's try the deltaR
 	int foundPhoton = 1;
 	const float par1eta = truthObj.eta(par);
@@ -128,7 +152,42 @@ int SignalGammaLepton::FindNumTruthPhotons(unsigned int mc_channel_number,
       }
     }
     return numPhotons;
+  } else if (isSingleTop) {
+    int numPhotons = 0;
+    const float cutVal = 80*GeV;
+    for(int par=0; par<truthObj.n(); par++){
+      if(truthObj.pdgId(par) == 22 && truthObj.status(par) == 1 && 
+	 truthObj.pt(par) > cutVal) {
+	// now let's try the 
+	int foundPhoton = 1;
+	const float par1eta = truthObj.eta(par);
+	const float par1phi = truthObj.phi(par);
+	const float par1m = truthObj.m(par);
+	const float par1pt = truthObj.pt(par);
+	const ROOT::Math::PtEtaPhiMVector v1(par1pt, par1eta, par1phi, par1m);
+	for(int par2=0; par2<truthObj.n(); par2++) {
+	  if(((abs(truthObj.pdgId(par2)) > 0 && abs(truthObj.pdgId(par2)) < 5) || 
+	      abs(truthObj.pdgId(par2)) == 11 || 
+	      abs(truthObj.pdgId(par2)) == 13 || 
+	      abs(truthObj.pdgId(par2)) == 15) &&
+	     fabsf(truthObj.eta(par2)) < 5 && truthObj.status(par2) == 3) {
+	    const ROOT::Math::PtEtaPhiMVector v2(truthObj.pt(par2), 
+						 truthObj.eta(par2), 
+						 truthObj.phi(par2),
+						 truthObj.m(par2));
+	    const double minv2 = (v1 + v2).M2();
+	    if (minv2 < 1*GeV*GeV) {
+	      foundPhoton = 0;
+	      break;
+	    }
+	  }
+	}
+	numPhotons += foundPhoton;
+      }
+    }
+    return numPhotons;
   }
+
   return -1;
 }
 
@@ -209,6 +268,8 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
   declareProperty("applyTrigger", m_applyTriggers = true); 
   // declareProperty("matchTrigger", m_matchTriggers = NONE); //for both data and MC
   // declareProperty("triggers", m_triggers = "EF_g120_loose"); // for matching or applying -- hardcode for now
+
+  declareProperty("GRLFile", m_GRLFile = "data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_StandardGRL_All_Good.xml");
 
   // declareProperty("DoEtMissSystematics", m_do_met_systematics=false);
   // declareProperty("DoEtMissMuonSystematics", m_do_met_muon_systematics=false);
@@ -392,6 +453,27 @@ StatusCode SignalGammaLepton::initialize(){
   }
 
   ATH_CHECK(m_ttrHandle.retrieve());
+
+  // GRL
+  if (!m_isMC && m_GRLFile != "") {
+    m_doGRL = true;
+    Root::TGoodRunsListReader grl_reader;
+    std::string grlFile = PathResolver::find_file(m_GRLFile, "DATAPATH");
+    if (grlFile == "") {
+      ATH_MSG_ERROR("Could not find GRL file: " << m_GRLFile);
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Using GRL file " << grlFile);
+      grl_reader.SetXMLFile(grlFile);
+      if (!grl_reader.Interpret()) {
+	ATH_MSG_ERROR("grl-reader could not interpret GRL");
+	return StatusCode::FAILURE;
+      }
+      m_grl = grl_reader.GetMergedGoodRunsList();
+    }
+  } else {
+    m_doGRL = false;
+  }
 
   // ATH_CHECK(m_thebchTool.retrieve());
   // m_thebchTool->InitializeTool(!m_isMC);
@@ -868,6 +950,10 @@ StatusCode SignalGammaLepton::execute()
   m_randRunNumber = m_runNumber; // for MC this will change
   m_lumiBlock = evtInfo.lbn();
   m_eventNumber = evtInfo.EventNumber();
+  if (m_isMC != evtInfo.isSimulation()) {
+    ATH_MSG_ERROR("isMC is not set correctly");
+    return StatusCode::FAILURE;
+  }
   const unsigned int channelNumber = evtInfo.mc_channel_number();
   float averageIntPerXing = evtInfo.averageIntPerXing();
   if (m_lumiBlock ==1 && int(averageIntPerXing+0.5)==1) {
@@ -944,6 +1030,13 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(0.0, m_weight); // now filled in seperate tool.
   m_histograms["OrigStrong"]->Fill(m_isStrong, m_weight);
 
+  if (m_doGRL) {
+    if (!m_grl.HasRunLumiBlock(m_runNumber, m_lumiBlock)) {
+      ATH_MSG_DEBUG("--grl: reject--");
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
   const bool passTTR = m_ttrHandle->checkEvent(m_runNumber, m_lumiBlock, m_eventNumber);
 
   if (evtInfo.larError() == 2 || 
@@ -953,7 +1046,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS; // reject event
   }
     
-  ATH_MSG_DEBUG("Passed larError (and similar)");
+  ATH_MSG_DEBUG("Passed GRL, larError (and similar)");
 
   // also do truth-level filtering here
   // if (m_filterWJets) {
