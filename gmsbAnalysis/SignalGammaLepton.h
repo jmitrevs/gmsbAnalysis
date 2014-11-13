@@ -134,6 +134,7 @@ private:
 
   bool m_isMC; // set by JOs
   bool m_isAtlfast; // set by JOs
+  bool m_isTruth; // set by JOs -- is NTUP_TRUTH
   PATCore::ParticleDataType::DataType m_dataType; // redundant, set based on upper info
 
   unsigned int m_numPhotonsReq;

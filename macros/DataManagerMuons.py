@@ -16,7 +16,8 @@ PRINT_YIELDS = False
 Lumi = 20300.0
 
 print "Lepton is MUON."
-path = "/data/jmitrevs/output/muphoton/v140912/mergedFiles/"
+#path = "/data/jmitrevs/output/muphoton/v140912/mergedFiles/"
+path = "/data/jmitrevs/output/muphoton/v141108/mergedFiles/"
 
 # format is (name, xsec in pb, kfac, eff, dsid)
 names = (('Wmunugamma', 0.71781, 1.0, 1.0, 126744),

@@ -84,31 +84,31 @@ WEAK = 1
 STRONG = 2
 
 #Cuts
-#BVETO = -1.0
+BVETO = -1.0
 #BVETO = 0.3511 #80%
-BVETO = 0.7892 #70%
+#BVETO = 0.7892 #70%
 #BVETO = 0.9827 #60%
 
 # - electron channel
 EL_PHPTCUT = 125*GeV
 EL_ELPTCUT = 20*GeV
 #EL_MET = 0*GeV
-EL_MET = 120*GeV
-#EL_MET = 200*GeV
+#EL_MET = 120*GeV
+EL_MET = 220*GeV
 #EL_MT = 0*GeV
 EL_MT = 120*GeV
 EL_HT = 0*GeV
 #EL_HT = 1300*GeV
-EL_MEFF = 0*GeV
-#EL_MEFF = 1500*GeV
-#EL_HTjet_MAX = -1.0
-EL_HTjet_MAX = 100*GeV
+#EL_MEFF = 0*GeV
+EL_MEFF = 1000*GeV
+EL_HTjet_MAX = -1.0
+#EL_HTjet_MAX = 100*GeV
 
 EL_QCD_MINV_WINDOW = 15*GeV
 
 # tight (default)
-EL_WCR_MET_MIN = 35*GeV
-EL_WCR_MET_MAX = 80*GeV
+EL_WCR_MET_MIN = 45*GeV
+EL_WCR_MET_MAX = 100*GeV
 EL_WCR_MT_MIN = 35*GeV
 EL_WCR_MT_MAX = 90*GeV
 EL_TCR_MET_MIN = 35*GeV
@@ -151,8 +151,8 @@ MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
 
 # tight (default)
-MU_WCR_MET_MIN = 35*GeV
-MU_WCR_MET_MAX = 80*GeV
+MU_WCR_MET_MIN = 45*GeV
+MU_WCR_MET_MAX = 100*GeV
 MU_WCR_MT_MIN = 35*GeV
 MU_WCR_MT_MAX = 90*GeV
 MU_TCR_MET_MIN = 35*GeV
@@ -520,7 +520,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
 
 
         if filterPhotons and ev.numTruthPh > 0:
-            #print "fail truth photon"
+            if debug: print "fail truth photon"
             continue
 
         if debug: print "  pass filterPhotons"
@@ -1270,7 +1270,7 @@ def main():
     f = ROOT.TFile(infile)
     ttree=f.Get(ttreeName)
 
-    LepPhotonAnalysis(ttree, outfile, lepton, weight, useWeights = True)
+    LepPhotonAnalysis(ttree, outfile, lepton, weight, useWeights = False, debug = True)
 
 
 def Nqcd(nLoose, nTight, eta, lepton):

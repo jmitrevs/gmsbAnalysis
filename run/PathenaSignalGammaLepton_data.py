@@ -30,41 +30,31 @@ inDS_full = [
 
 
     
-for i,inDS in enumerate(inDS_test):
+for i,inDS in enumerate(inDS_full):
 
     outName = inDS[:88] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_140912.%s newSignalGammaElectron.py " % (inDS, outName)
-    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_140612r.%s newSignalGammaElectron_afast_looser.py " % (inDS, outName)
-
-    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.ph_141027.%s newSignalGammaElectron_data.py " % (inDS, outName)
    
-    # if i == 0:
-    #     command += " --outTarBall=/data/jmitrevs/scratch/submission_gammael_140905b.tar"
-    # else:
-    #     command += " --inTarBall=/data/jmitrevs/scratch/submission_gammael_140905b.tar"
+    if i == 0:
+        command += " --outTarBall=/data/jmitrevs/scratch/submission_data_140127.tar"
+    else:
+        command += " --inTarBall=/data/jmitrevs/scratch/submission_data_140127.tar"
 
-    command += " --inTarBall=/data/jmitrevs/scratch/submission_gammael_140912.tar"
+    command += " --inTarBall=/data/jmitrevs/scratch/submission_data_140127.tar"
 
-    print command
-    sys.stdout.flush()
+    #print command
+    #sys.stdout.flush()
     #os.system(command)
     
-for i,inDS in enumerate(inDS_test_mu):
-
-    outName = inDS[:88] # make sure the name is not too long
-
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_140912b.%s newSignalGammaMuon.py " % (inDS, outName)
-    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GE_140612r.%s newSignalGammaElectron_afast_looser.py " % (inDS, outName)
-
-    #command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.PU_120828.%s --extOutFile=gmsbPileupTool.prw.root  PileupHelper.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_141027.%s newSignalGammaMuon_data.py " % (inDS, outName)
    
     # if i == 0:
     #     command += " --outTarBall=/data/jmitrevs/scratch/submission_gammael_140905.tar"
     # else:
     #     command += " --inTarBall=/data/jmitrevs/scratch/submission_gammael_140905.tar"
 
-    command += " --inTarBall=/data/jmitrevs/scratch/submission_gammael_140912.tar"
+    command += " --inTarBall=/data/jmitrevs/scratch/submission_141108.tar"
 
     print command
     sys.stdout.flush()

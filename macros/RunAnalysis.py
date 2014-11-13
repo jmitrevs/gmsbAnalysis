@@ -26,7 +26,7 @@ REWEIGHZ = False
 
 DO_TTBAR_SYST = False
 
-APPLY_WEIGHTS = False
+APPLY_WEIGHTS = True
 
 def GetHistNames(inFile):
     
@@ -51,7 +51,8 @@ def makeOutputName(infileName, extra = ""):
     return outfile
 
 def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
-                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, extraName=""):
+                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, extraName="",
+                doStandard = True, doSyst = True):
 
     SRs = {}
 
@@ -65,21 +66,38 @@ def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS,
 
     ttreeName = LepPhotonAnalysis.DEFAULTTTREE
   
-    for nameEnt in  DataManager.names:
-        name = nameEnt[0]
-        value = DataManager.values[name]
-        if APPLY_WEIGHTS:
-            scale = value[1]
-        else:
-            scale = 1.0
-        print name + ": (scale = " + str(value[1]) +")" 
-        sr = LepPhotonAnalysis.LepPhotonAnalysis(value[0].Get(ttreeName), 
-                                                 makeOutputName(name, extraName),
-                                                 lepton,
-                                                 value[1], plotsRegion = plots,
-                                                 metType = metType,
-                                                 useWeights = APPLY_WEIGHTS)
-        SRs[name] = sr
+    if doStandard:
+        for nameEnt in  DataManager.names:
+            name = nameEnt[0]
+            value = DataManager.values[name]
+            if APPLY_WEIGHTS:
+                scale = value[1]
+            else:
+                scale = 1.0
+            print name + ": (scale = " + str(value[1]) +")" 
+            sr = LepPhotonAnalysis.LepPhotonAnalysis(value[0].Get(ttreeName), 
+                                                     makeOutputName(name, extraName),
+                                                     lepton,
+                                                     scale, plotsRegion = plots,
+                                                     metType = metType,
+                                                     useWeights = APPLY_WEIGHTS)
+            SRs[name] = sr
+    if doSyst:
+        for nameEnt in  DataManager.namesSyst:
+            name = nameEnt[0]
+            value = DataManager.values[name]
+            if APPLY_WEIGHTS:
+                scale = value[1]
+            else:
+                scale = 1.0
+            print name + ": (scale = " + str(value[1]) +")" 
+            sr = LepPhotonAnalysis.LepPhotonAnalysis(value[0].Get(ttreeName), 
+                                                     makeOutputName(name, extraName),
+                                                     lepton,
+                                                     scale, plotsRegion = plots,
+                                                     metType = metType,
+                                                     useWeights = APPLY_WEIGHTS)
+            SRs[name] = sr
 
     return SRs
 

@@ -141,7 +141,7 @@ int SignalGammaLepton::FindNumTruthPhotons(unsigned int mc_channel_number,
 	      abs(truthObj.pdgId(par2)) == 11 || 
 	      abs(truthObj.pdgId(par2)) == 13 || 
 	      abs(truthObj.pdgId(par2)) == 15) &&
-	     fabsf(truthObj.eta(par2)) < 5 && truthObj.status(par2) == 3) {
+	     fabsf(truthObj.eta(par2)) < 5 && (truthObj.status(par2) == 3 || truthObj.status(par2) == 1)) {
 	    if (FourMomHelpers::isInDeltaR(par1eta, par1phi, truthObj.eta(par2), truthObj.phi(par2), 0.1)) {
 	      foundPhoton = 0;
 	      break;
@@ -170,7 +170,7 @@ int SignalGammaLepton::FindNumTruthPhotons(unsigned int mc_channel_number,
 	      abs(truthObj.pdgId(par2)) == 11 || 
 	      abs(truthObj.pdgId(par2)) == 13 || 
 	      abs(truthObj.pdgId(par2)) == 15) &&
-	     fabsf(truthObj.eta(par2)) < 5 && truthObj.status(par2) == 3) {
+	     fabsf(truthObj.eta(par2)) < 5 && (truthObj.status(par2) == 3 || truthObj.status(par2) == 1)) {
 	    const ROOT::Math::PtEtaPhiMVector v2(truthObj.pt(par2), 
 						 truthObj.eta(par2), 
 						 truthObj.phi(par2),
@@ -263,6 +263,7 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("isMC", m_isMC = false);
   declareProperty("Atlfast",          m_isAtlfast=false);
+  declareProperty("isTruth", m_isTruth=false);
   //  declareProperty("trigDecisionTool", m_trigDec);
   //declareProperty("trigMatchingTool", m_trigMatch);
   declareProperty("applyTrigger", m_applyTriggers = true); 
@@ -1108,6 +1109,8 @@ StatusCode SignalGammaLepton::execute()
     electrons = m_PreparationTool->selectedElectrons(); // only for debugging
   }
 
+  ATH_MSG_DEBUG("NumEl = " << electrons->n() << ", NumPho = " << photons->n());
+
   const ElectronD3PDObject origEl("el_");
   ATH_CHECK(origEl.retrieve());
 
@@ -1115,6 +1118,9 @@ StatusCode SignalGammaLepton::execute()
   //const Analysis::MuonContainer *muons = m_PreparationTool->selectedMuons();
   MuonD3PDObject *muons = m_OverlapRemovalTool2->finalStateMuons();
 
+  ATH_MSG_DEBUG("NumEl = " << electrons->n() << ", NumPho = " << photons->n() <<
+		", NumMu = " << muons->n() << " and before overlap, NumMu = " << 
+		muonsBeforeOverlapRemoval->n() );
 
   JetD3PDObject *jetsBeforeOverlapRemoval =  m_PreparationTool->selectedJets();
 
@@ -1309,41 +1315,42 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(4.0, m_weight);
   ATH_MSG_DEBUG("Passed electron cleaning");
 
-
-  // check the primary vertex
-  if (vxContainer.n() < 2) {
-    return StatusCode::SUCCESS; // reject event
-  }
-
-  if (vxContainer.nTracks(0) <= 4) {
-    return StatusCode::SUCCESS; // reject event
-  }
-
   // find the number of PVs with 5 tracks or more (used later)
   int nPV = 0;
-
-  for (int i = 0; i < vxContainer.n(); i++) {
-    if (vxContainer.nTracks(i) >= 5) {
-      nPV++;
+    
+  if (!m_isTruth) {
+    // check the primary vertex
+    if (vxContainer.n() < 2) {
+      return StatusCode::SUCCESS; // reject event
     }
+    
+    if (vxContainer.nTracks(0) <= 4) {
+      return StatusCode::SUCCESS; // reject event
+    }
+    
+    for (int i = 0; i < vxContainer.n(); i++) {
+      if (vxContainer.nTracks(i) >= 5) {
+	nPV++;
+      }
+    }
+    
   }
-  
-
   m_histograms["CutFlow"]->Fill(5.0, m_weight);
   ATH_MSG_DEBUG("Passed vertex");
 
-
-  // moun cleaning -- bad muons
-  for (int mu = 0;
-       mu < muonsBeforeOverlapRemoval->n();
-       mu++) {
-   
-    if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
-		  muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
-      // ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
-      // 		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
-      // 		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
-      return StatusCode::SUCCESS; // reject event 
+  if (!m_isTruth) {
+    // moun cleaning -- bad muons
+    for (int mu = 0;
+	 mu < muonsBeforeOverlapRemoval->n();
+	 mu++) {
+      
+      if (IsBadMuon(muonsBeforeOverlapRemoval->qoverp_exPV(mu), 
+		    muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu))) {
+	// ATH_MSG_INFO("Failed: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber
+	// 		   << ", qoverp_exPV = " << muonsBeforeOverlapRemoval->qoverp_exPV(mu)
+	// 		   << ", cov = " << muonsBeforeOverlapRemoval->cov_qoverp_exPV(mu));
+	return StatusCode::SUCCESS; // reject event 
+      }
     }
   }
 
@@ -1502,6 +1509,8 @@ StatusCode SignalGammaLepton::execute()
   // DEAL WITH ELECTRONS
 
   m_numElPresel = electrons->n();
+
+  ATH_MSG_DEBUG("number of presel electrons = " << m_numElPresel);
 
   int leadingEl = -1;
   int secondEl = -1;
@@ -2318,23 +2327,26 @@ METUtil::METObject SignalGammaLepton::GetMET(ElectronD3PDObject *electrons,
 
   const int elSize = electrons->n();
 
-  vector<float> elpt(elSize);
-  vector<float> eleta(elSize);
-  vector<float> elphi(elSize);
+  vector<float> elpt;
+  vector<float> eleta;
+  vector<float> elphi;
   vector<vector<unsigned int> > new_elstatus;
   vector<vector<float> > new_elwet, new_elwpx, new_elwpy;
   
   for (int iEl = 0; iEl < elSize; iEl++) {
 
-    const int origIndex = electrons->tightIso(iEl);  // store it there
+    if (electrons->passID(iEl, egammaPID::ElectronIDMediumPP)) {
 
-    elpt[iEl] = electrons->pt(iEl);
-    eleta[iEl] = origElectrons.eta(origIndex);
-    elphi[iEl] = origElectrons.phi(origIndex);
-    new_elstatus.push_back(elComp.statusWord(origIndex));
-    new_elwet.push_back(elComp.wet(origIndex));
-    new_elwpx.push_back(elComp.wpx(origIndex));
-    new_elwpy.push_back(elComp.wpy(origIndex));
+      const int origIndex = electrons->tightIso(iEl);  // store it there
+      
+      elpt.push_back(electrons->pt(iEl));
+      eleta.push_back(origElectrons.eta(origIndex));
+      elphi.push_back(origElectrons.phi(origIndex));
+      new_elstatus.push_back(elComp.statusWord(origIndex));
+      new_elwet.push_back(elComp.wet(origIndex));
+      new_elwpx.push_back(elComp.wpx(origIndex));
+      new_elwpy.push_back(elComp.wpy(origIndex));
+    }
   }
   
   m_METUtility->setElectronParameters(&elpt, &eleta, &elphi, &new_elwet, &new_elwpx, &new_elwpy, &new_elstatus);

@@ -10,7 +10,8 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.164439.MadGraphPythia_AUET2BCTEQ6L1*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
-InputList = glob('/data/jmitrevs/input/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
+#InputList = glob('/data/jmitrevs/input/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
+InputList = glob('/data/jmitrevs/input/mc12_8TeV.*munu*NTUP_TRUTH*/*root*')
 # InputList = ['root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000001.root.1',
 #              'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000002.root.1',
 #              'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000003.root.1']
@@ -18,7 +19,7 @@ InputList = glob('/data/jmitrevs/input/mc12_8TeV.*GGM_wino_300_egfilter*/*root*'
 svcMgr.EventSelector.InputCollections = InputList
 
 # the n-tuple name in the input files to read data from
-svcMgr.EventSelector.TupleName = "susy"
+svcMgr.EventSelector.TupleName = "truth"
 
 # ==============================================================================
 # Set the number of events that you want to process (-1 means all events) or skip.
@@ -46,9 +47,24 @@ from ROOT import egammaPID
 
 #print "random seed", RANDSEED
 
+
+gmsbPreSelectionTool.isTruth = True
+gmsbSelectionTool.Simple = True
+gmsbSelectionTool.isTruth = True
+gmsbFinalSelectionTool.isTruth = True
+
+gmsbOverlapRemovalTool1.isTruth = True
+gmsbOverlapRemovalTool2.isTruth = True
+
+gmsbPrePreparationTool.InputContainerKeys=[ "ph_",
+                                            "el_",
+                                            "mu_",
+                                            "jet_AntiKt4TruthJets_"
+                                            ]
+
 gmsbSelectionTool.IsMC = True
 gmsbSelectionTool.Atlfast = True
-gmsbSelectionTool.SmearMC = True
+gmsbSelectionTool.SmearMC = False
 #gmsbSelectionTool.OutputLevel = DEBUG
 #gmsbSelectionTool.RandomSeed = RANDSEED
 #gmsbSelectionTool.MCEtconeShift = 0.0;
@@ -76,17 +92,20 @@ gmsbFinalSelectionTool.PhotonPt = 125*GeV
 
 from gmsbAnalysis.gmsbAnalysisConf import SignalGammaLepton
 testAlg = SignalGammaLepton(name = "SignalGammaLepton",
-                            isMC = True,
-                            Atlfast = True,
+                            isMC = False,
+                            isTruth = True,
+                            GRLFile = "",
+                            useMETUtility = False,
+                            METContainerName = "MET_Truth_NonInt_",
                             PrePreparationTool = gmsbPrePreparationTool,
                             PreparationTool = gmsbPreparationTool,
                             FinalSelectionTool = gmsbFinalSelectionTool,
                             OverlapRemovalTool1 = gmsbOverlapRemovalTool1,
                             OverlapRemovalTool2 = gmsbOverlapRemovalTool2,
                             #JetCleaningTool = myJetCleaningTool,
-                            applyTrigger = True,
+                            applyTrigger = False,
                             NumPhotons = 1,
-                            NumElectrons = 1,
+                            NumMuons = 1,
                             outputNtuple = True,
                             # doTruthStudies = True,
                             # TruthStudiesTool = truthStudies,
