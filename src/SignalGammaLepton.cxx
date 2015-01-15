@@ -14,6 +14,7 @@
 #include "gmsbD3PDObjects/EventInfoD3PDObject.h"
 #include "gmsbD3PDObjects/MissingETTruthD3PDObject.h"
 #include "gmsbD3PDObjects/triggerBitsD3PDObject.h"
+#include "gmsbD3PDObjects/GenEventD3PDObject.h"
 
 #include "gmsbTools/SortHelpers.h"
 #include "gmsbTools/FourMomHelpers.h"
@@ -301,6 +302,11 @@ SignalGammaLepton::SignalGammaLepton(const std::string& name, ISvcLocator* pSvcL
 		  "0 is none, 1 is standard, 2 is syst");
   declareProperty("PileupConfigFile", m_pileupConfig = "mc12ab_defaults.prw.root");
   declareProperty("PileupLumiCalcFile", m_lumiCalcFile = "susy_data12_avgintperbx.root");
+  
+  declareProperty("doPDFReweighting", m_doPDFReweighting = false);
+
+  declareProperty("PDFTool", m_pdfTool);
+  declareProperty("PDFs", m_pdfs);
 
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -416,6 +422,9 @@ StatusCode SignalGammaLepton::initialize(){
   //   return StatusCode::FAILURE;
   // }
 
+  if (m_doPDFReweighting && m_isMC) {
+    ATH_CHECK(m_pdfTool.retrieve());
+  }
 
   if (m_applyPileupReweighting && m_isMC) {
     if (m_applyPileupReweighting == 1 || m_applyPileupReweighting == 2) {
@@ -732,6 +741,8 @@ StatusCode SignalGammaLepton::initialize(){
     // m_mety_truth = new std::vector<float>;
     // m_set_truth = new std::vector<float>;
 
+    m_pdfWeights = new std::vector<float>;
+
     // the TTree
     m_tree = new TTree("GammaLepton","TTree for GammaLepton analysis");
     sc = m_thistSvc->regTree(std::string("/")+m_histFileName+"/GammaLepton", m_tree);
@@ -867,6 +878,8 @@ StatusCode SignalGammaLepton::initialize(){
     m_tree->Branch("JetJVF", &m_jet_JVF);
     m_tree->Branch("JetMV1", &m_jet_MV1);
 
+    m_tree->Branch("PDFWeights", &m_pdfWeights); // weight
+
     // m_tree->Branch("MetxTruth", &m_metx_truth);
     // m_tree->Branch("MetyTruth", &m_mety_truth);
     // m_tree->Branch("SetTruth", &m_set_truth);
@@ -942,6 +955,7 @@ StatusCode SignalGammaLepton::execute()
     m_jet_JVF->clear();
     m_jet_MV1->clear();
 
+    m_pdfWeights->clear();
     // m_metx_truth->clear();
     // m_mety_truth->clear();
     // m_set_truth->clear();
@@ -963,6 +977,23 @@ StatusCode SignalGammaLepton::execute()
 
   if (m_isMC) {
     m_weight = evtInfo.mc_event_weight();
+
+    if (m_doPDFReweighting) {
+      const GenEventD3PDObject GenEventObj;
+      ATH_CHECK(GenEventObj.retrieve());
+      m_pdfTool->setEventInfo(pow(GenEventObj.pdf_scale(0),2), 
+			      GenEventObj.pdf_x1(0), 
+			      GenEventObj.pdf_x2(0), 
+			      GenEventObj.pdf_id1(0), 
+			      GenEventObj.pdf_id2(0));
+
+      for (std::vector<int>::iterator it = m_pdfs.begin(); 
+	   it != m_pdfs.end();
+	   ++it) {
+	m_pdfWeights->push_back(m_pdfTool->weight_to_pdf(*it));
+      }
+    }
+
 
     if (m_pileupTool) {
       m_pileupWeight = m_pileupTool->GetCombinedWeight(m_runNumber, channelNumber, averageIntPerXing);
@@ -1038,6 +1069,36 @@ StatusCode SignalGammaLepton::execute()
     }
   }
 
+  if (m_applyTriggers) {
+    if (! trig.EF_g120_loose()) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  // switch(m_matchTriggers) {
+  // case NONE:
+  //   // do nothing
+  //   break;
+  // case MUONS:
+  //   if (m_numMu < 1) {
+  //     ATH_MSG_ERROR("No muons found but attempting to match trigger. Should not be here. Probably misconfigured");
+  //     return StatusCode::FAILURE;
+  //   }
+  //   TrigMatch::TrigMuonEFInfoHelper::setTrackToUse(TrigMatch::useCombinedTrack);
+  //   if (!(m_trigMatch->matchToTriggerObject<TrigMuonEFInfo>(leadingMu, m_triggers, 
+  // 							    0.15, true))) {
+  //     // did not match to a trigger object
+  //     return StatusCode::SUCCESS;
+  //   } 
+  //   break;
+  // default:
+  //   ATH_MSG_WARNING("Trigger matching " << m_matchTriggers << " not supported.");
+  //   break;
+  // }
+
+  ATH_MSG_DEBUG("Passed trig");
+  m_histograms["CutFlow"]->Fill(1.0, m_weight);
+
   const bool passTTR = m_ttrHandle->checkEvent(m_runNumber, m_lumiBlock, m_eventNumber);
 
   if (evtInfo.larError() == 2 || 
@@ -1052,7 +1113,7 @@ StatusCode SignalGammaLepton::execute()
   // also do truth-level filtering here
   // if (m_filterWJets) {
   //   if (
-  m_histograms["CutFlow"]->Fill(1.0, m_weight);
+  m_histograms["CutFlow"]->Fill(2.0, m_weight);
 
 
   // now chose a run number for the LAr hole veto
@@ -1255,7 +1316,7 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::SUCCESS; // reject event
     }
   }
-  m_histograms["CutFlow"]->Fill(2.0, m_weight);
+  m_histograms["CutFlow"]->Fill(3.0, m_weight);
   ATH_MSG_DEBUG("Passed jet cleaning");
 
   // define some bitmasks
@@ -1287,7 +1348,7 @@ StatusCode SignalGammaLepton::execute()
 
   }
  
-  m_histograms["CutFlow"]->Fill(3.0, m_weight);
+  m_histograms["CutFlow"]->Fill(4.0, m_weight);
   ATH_MSG_DEBUG("Passed photon cleaning");
 
   // electron cleaning
@@ -1312,7 +1373,7 @@ StatusCode SignalGammaLepton::execute()
     // }      
   }
 
-  m_histograms["CutFlow"]->Fill(4.0, m_weight);
+  m_histograms["CutFlow"]->Fill(5.0, m_weight);
   ATH_MSG_DEBUG("Passed electron cleaning");
 
   // find the number of PVs with 5 tracks or more (used later)
@@ -1335,7 +1396,7 @@ StatusCode SignalGammaLepton::execute()
     }
     
   }
-  m_histograms["CutFlow"]->Fill(5.0, m_weight);
+  m_histograms["CutFlow"]->Fill(6.0, m_weight);
   ATH_MSG_DEBUG("Passed vertex");
 
   if (!m_isTruth) {
@@ -1354,7 +1415,7 @@ StatusCode SignalGammaLepton::execute()
     }
   }
 
-  m_histograms["CutFlow"]->Fill(6.0, m_weight);
+  m_histograms["CutFlow"]->Fill(7.0, m_weight);
   ATH_MSG_DEBUG("Passed bad muon rejection");
 
   
@@ -1374,7 +1435,7 @@ StatusCode SignalGammaLepton::execute()
       return StatusCode::SUCCESS; // reject event
     }
   }
-  m_histograms["CutFlow"]->Fill(7.0, m_weight);
+  m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed cosmic muon rejection");
 
   // loop over photons
@@ -1491,7 +1552,7 @@ StatusCode SignalGammaLepton::execute()
     return StatusCode::SUCCESS;
   }
 
-  m_histograms["CutFlow"]->Fill(8.0, m_weight);
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
   ATH_MSG_DEBUG("Passed photons");
 
   // let's print out run, lb, and event numbers,...
@@ -1614,7 +1675,7 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Passed lepton");
    
-  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+  m_histograms["CutFlow"]->Fill(10.0, m_weight);
 
 
 
@@ -1684,37 +1745,8 @@ StatusCode SignalGammaLepton::execute()
     // }
   }
   ATH_MSG_DEBUG("Passed LAr Hole");
-  m_histograms["CutFlow"]->Fill(10.0, m_weight);
-  
-  if (m_applyTriggers) {
-    if (! trig.EF_g120_loose()) {
-      return StatusCode::SUCCESS; // reject event
-    }
-  }
-
-  // switch(m_matchTriggers) {
-  // case NONE:
-  //   // do nothing
-  //   break;
-  // case MUONS:
-  //   if (m_numMu < 1) {
-  //     ATH_MSG_ERROR("No muons found but attempting to match trigger. Should not be here. Probably misconfigured");
-  //     return StatusCode::FAILURE;
-  //   }
-  //   TrigMatch::TrigMuonEFInfoHelper::setTrackToUse(TrigMatch::useCombinedTrack);
-  //   if (!(m_trigMatch->matchToTriggerObject<TrigMuonEFInfo>(leadingMu, m_triggers, 
-  // 							    0.15, true))) {
-  //     // did not match to a trigger object
-  //     return StatusCode::SUCCESS;
-  //   } 
-  //   break;
-  // default:
-  //   ATH_MSG_WARNING("Trigger matching " << m_matchTriggers << " not supported.");
-  //   break;
-  // }
-
-  ATH_MSG_DEBUG("Passed trig");
   m_histograms["CutFlow"]->Fill(11.0, m_weight);
+  
 
 
   m_meff = m_HT+met;

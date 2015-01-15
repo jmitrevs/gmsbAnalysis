@@ -14,6 +14,8 @@ ROOT.gROOT.SetBatch()
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
+DO_SRS = True
+
 FILENAME_ELEFF = 'eeNoCrackHistHistOut.root'
 #FILENAME_ELEFF = 'eeHistHistOut.root'
 
@@ -41,15 +43,14 @@ DELTAR_EL_PH = 0.7
 DELTAR_MU_PH = 0.7
 EL_MINV_WINDOW = 15*GeV
 
-#removeCrack = False
-#DELTAR_EL_PH = 0
-#DELTAR_MU_PH = 0
-#EL_MINV_WINDOW = 0*GeV
+# removeCrack = False
+# DELTAR_EL_PH = 0
+# DELTAR_MU_PH = 0
+# EL_MINV_WINDOW = 0*GeV
 
 printAccepted = False
 
 printSummary = True
-
 
 # What plots should be made
 NO_SEL = 0
@@ -94,15 +95,26 @@ EL_PHPTCUT = 125*GeV
 EL_ELPTCUT = 20*GeV
 #EL_MET = 0*GeV
 #EL_MET = 120*GeV
-EL_MET = 220*GeV
+#EL_MET = 220*GeV
 #EL_MT = 0*GeV
 EL_MT = 120*GeV
 EL_HT = 0*GeV
 #EL_HT = 1300*GeV
 #EL_MEFF = 0*GeV
-EL_MEFF = 1000*GeV
-EL_HTjet_MAX = -1.0
+#EL_MEFF = 1000*GeV
+#EL_HTjet_MAX = -1.0
 #EL_HTjet_MAX = 100*GeV
+
+if DO_SRS:
+    #SRS
+    EL_MET = 220*GeV
+    EL_HTjet_MAX = -1.0
+    EL_MEFF = 1000*GeV
+else:
+    #SRW
+    EL_MET = 120*GeV
+    EL_HTjet_MAX = 100*GeV
+    EL_MEFF = 0*GeV
 
 EL_QCD_MINV_WINDOW = 15*GeV
 
@@ -111,14 +123,13 @@ EL_WCR_MET_MIN = 45*GeV
 EL_WCR_MET_MAX = 100*GeV
 EL_WCR_MT_MIN = 35*GeV
 EL_WCR_MT_MAX = 90*GeV
-EL_TCR_MET_MIN = 35*GeV
 
 # # loose
-# EL_WCR_MET_MIN = 25*GeV
-# EL_WCR_MET_MAX = 80*GeV
-# EL_WCR_MT_MIN = 25*GeV
-# EL_WCR_MT_MAX = 90*GeV
-# EL_TCR_MET_MIN = 25*GeV
+#EL_WCR_MET_MIN = 0*GeV
+#EL_WCR_MET_MAX = 10000000*GeV
+#EL_WCR_MT_MIN = 0*GeV
+#EL_WCR_MT_MAX = 1000000*GeV
+#EL_TCR_MET_MIN = 25*GeV
 
 # # Wgamma selection
 # EL_WCR_MET_MIN = 25*GeV
@@ -127,9 +138,10 @@ EL_TCR_MET_MIN = 35*GeV
 # EL_WCR_MT_MAX = 90000000*GeV
 # EL_TCR_MET_MIN = 25*GeV
 
-
-EL_TCR_MET_MAX = 80*GeV
-EL_TCR_MT_MIN =  90*GeV
+#This is also known as the HMT
+EL_TCR_MET_MIN = 45*GeV
+EL_TCR_MET_MAX = 100*GeV
+EL_TCR_MT_MIN =  120*GeV
 
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 20*GeV
@@ -139,16 +151,27 @@ EL_QCD_MT_MAX = 20*GeV
 MU_PHPTCUT = 125*GeV
 MU_MUPTCUT = 20*GeV
 #MU_MET = 0*GeV
-MU_MET = 120*GeV
+#MU_MET = 120*GeV
 #MU_MT = 0*GeV
 MU_MT = 120*GeV
 MU_HT = 0*GeV
-MU_MEFF = 0*GeV
+#MU_MEFF = 0*GeV
 #MU_HTjet_MAX = -1.0
-MU_HTjet_MAX = 100.0*GeV
+#MU_HTjet_MAX = 100.0*GeV
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
+
+if DO_SRS:
+    #SRS
+    MU_MET = 220*GeV
+    MU_HTjet_MAX = -1.0
+    MU_MEFF = 1000*GeV
+else:
+    #SRW
+    MU_MET = 120*GeV
+    MU_HTjet_MAX = 100*GeV
+    MU_MEFF = 0*GeV
 
 # tight (default)
 MU_WCR_MET_MIN = 45*GeV
@@ -195,6 +218,7 @@ MET_PLUS = 1
 MET_MINUS = 2
 MET_MUON = 3
 MET_FULL = 4
+MET_ORIG = 5
 
 #loose = 0xc5fc01
 ##loose = 0xf7fc01 # this is OK
@@ -542,6 +566,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         elif metType == MET_FULL:
             metx = ev.Metx_full_noMuon + ev.Metx_MuonBoy - ev.Metx_RefTrack 
             mety = ev.Mety_full_noMuon + ev.Mety_MuonBoy - ev.Mety_RefTrack
+        elif metType == MET_ORIG:
+            metx = ev.MetxOrig
+            mety = ev.MetyOrig
         else:
             print >> sys.stderr, "Have an invalid metType =", metType
             sys.exit(1)
@@ -908,6 +935,9 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         if lepton == MUON and MU_HTjet_MAX > 0:
             passHTjetMax = ev.HTjet < MU_HTjet_MAX
             
+        # if lepton == MUON and abs(ev.deltaPhiMuMET) > 2.9:
+        #     continue
+        #     pass
 
         # now plots that should be made before MET and mT cuts
         h_mTelvsMET.Fill(met/GeV, mt/GeV, weight)
@@ -926,6 +956,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         nPRESEL.Fill(0, weight)
 
         # do CR counts
+
+        # if not passBVeto:
+        #     continue
+
         if lepton == ELECTRON:
             if met < EL_QCD_MET_MAX and mt < EL_QCD_MT_MAX:
                 if (ev.PhElMinv < ZMASS - EL_QCD_MINV_WINDOW or
@@ -936,13 +970,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                     if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                         nQCDTight.Fill(0, weight)
 
-            elif (EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
+            if (EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
                   EL_WCR_MT_MIN < mt < EL_WCR_MT_MAX):
                 inWCR = True
                 nWCR.Fill(0, weight)
                 if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
-            elif (EL_TCR_MET_MIN < met < EL_TCR_MET_MAX and
+            if (EL_TCR_MET_MIN < met < EL_TCR_MET_MAX and
                   EL_TCR_MT_MIN < mt):
                 nTCR.Fill(0, weight)
                 inTCR = True

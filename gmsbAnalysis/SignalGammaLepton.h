@@ -27,6 +27,9 @@
 
 #include "PATCore/PATCoreEnums.h"
 
+// PDFTool includes
+#include "PDFTool/IPDFTool.h"
+
 // grl includes
 #include "GoodRunsLists/TGoodRunsList.h"
 
@@ -262,8 +265,14 @@ private:
   std::string m_lumiCalcFile;
   Root::TPileupReweighting *m_pileupTool;
 
+  bool m_doPDFReweighting;
+  /// Handles to Athena services
+  ToolHandle< IPDFTool > m_pdfTool;
+
   //ToolHandle<BCHTool::BCHCleaningToolAthena> m_thebchTool;
   ToolHandle<AthTileTripReader> m_ttrHandle;
+
+  std::vector<int> m_pdfs;
 
   // The variables if one outputs an ntuple
   TTree* m_tree;
@@ -339,6 +348,8 @@ private:
   float m_mu_sf_unc;
 
   float m_pileupWeight;
+
+  std::vector<float>* m_pdfWeights;
 
   TruthStudies::EventType m_type;
   int m_isStrong;

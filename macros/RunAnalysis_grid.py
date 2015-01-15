@@ -12,7 +12,7 @@ import ROOT
 # ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 # ROOT.SetAtlasStyle()
 
-import signalOrigEvents
+#import signalOrigEvents
 import signalXsecsStrong
 import LepPhotonAnalysis
 import math
@@ -59,9 +59,7 @@ def RunAnalysis(lepton = DEFAULTLEPTON,
         path = "/data/jmitrevs/output/elphoton_grid/v140912/"
     elif lepton == MUON:
         print "Lepton is Muon."
-        #path = "/data3/jmitrevs/lepphoton/muphoton_grid2/mergedFiles/"
-        #path = "/data3/jmitrevs/lepphoton/muphoton_gridMetSyst/mergedFiles/"
-        path = "/data3/jmitrevs/lepphoton/muphoton_grid_purw/mergedFiles/"
+        path = "/data/jmitrevs/output/muphoton_grid/v140912/"
     else:
         raise ValueError("Lepton has to be ELECTRON or MUON.")
 

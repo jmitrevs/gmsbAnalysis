@@ -27,6 +27,7 @@ REWEIGHZ = False
 DO_TTBAR_SYST = False
 
 APPLY_WEIGHTS = True
+#APPLY_WEIGHTS = False
 
 def GetHistNames(inFile):
     
@@ -52,7 +53,7 @@ def makeOutputName(infileName, extra = ""):
 
 def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
                 abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, extraName="",
-                doStandard = True, doSyst = True):
+                doStandard = True, doSyst = False):
 
     SRs = {}
 
@@ -176,5 +177,7 @@ if __name__ == "__main__":
                 metType = LepPhotonAnalysis.MET_MUON
             elif a == "full":
                 metType = LepPhotonAnalysis.MET_FULL
+            elif a == "orig":
+                metType = LepPhotonAnalysis.MET_ORIG
 
     RunAnalysis(lepton, plots, abcd, metType)

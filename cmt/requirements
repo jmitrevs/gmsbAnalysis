@@ -15,6 +15,7 @@ use PATCore  PATCore-* PhysicsAnalysis/AnalysisCommon
 use gmsbD3PDObjects             gmsbD3PDObjects-*
 use MissingETUtility   MissingETUtility-*       Reconstruction
 use GoodRunsLists GoodRunsLists-* DataQuality
+use PDFTool    PDFTool-*
 
 private
 use PathResolver       PathResolver-* Tools
