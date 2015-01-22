@@ -14,8 +14,6 @@ ROOT.gROOT.SetBatch()
 ROOT.gROOT.LoadMacro("AtlasStyle.C") 
 ROOT.SetAtlasStyle()
 
-DO_SRS = True
-
 FILENAME_ELEFF = 'eeNoCrackHistHistOut.root'
 #FILENAME_ELEFF = 'eeHistHistOut.root'
 
@@ -55,12 +53,19 @@ printSummary = True
 # What plots should be made
 NO_SEL = 0
 PRESEL = 1
-SR = 2
+SRW = 2
 WCR = 3
-TCR = 4
+HMT = 4
 QCD = 5
-XR1 = 6
-XR2 = 7
+XR1 = 6  #obsolete
+HMET = 7
+WCR1 = 8
+WCR2 = 9
+HMTW = 10
+HMETW = 11
+HMTS = 12
+HMETS = 13
+SRS = 14
 
 #DEFAULT_PLOTS = NO_SEL
 DEFAULT_PLOTS = PRESEL
@@ -84,37 +89,31 @@ DILEP = 2
 WEAK = 1
 STRONG = 2
 
+#uncertainty types
+SYM_HESS = 0
+ASYM_HESS = 1
+ENS = 2
+
 #Cuts
-BVETO = -1.0
-#BVETO = 0.3511 #80%
-#BVETO = 0.7892 #70%
-#BVETO = 0.9827 #60%
 
 # - electron channel
+
 EL_PHPTCUT = 125*GeV
 EL_ELPTCUT = 20*GeV
-#EL_MET = 0*GeV
-#EL_MET = 120*GeV
-#EL_MET = 220*GeV
-#EL_MT = 0*GeV
 EL_MT = 120*GeV
-EL_HT = 0*GeV
-#EL_HT = 1300*GeV
-#EL_MEFF = 0*GeV
-#EL_MEFF = 1000*GeV
-#EL_HTjet_MAX = -1.0
-#EL_HTjet_MAX = 100*GeV
 
-if DO_SRS:
-    #SRS
-    EL_MET = 220*GeV
-    EL_HTjet_MAX = -1.0
-    EL_MEFF = 1000*GeV
-else:
-    #SRW
-    EL_MET = 120*GeV
-    EL_HTjet_MAX = 100*GeV
-    EL_MEFF = 0*GeV
+#SRS
+EL_SRS_MET = 220*GeV
+EL_SRS_HT = 0*GeV
+EL_SRS_MEFF = 1000*GeV
+
+#SRW
+EL_SRW_MET = 120*GeV
+EL_SRW_HTjet_MAX = 100*GeV
+EL_SRW_BVETO = -1.0
+#EL_SRW_BVETO = 0.3511 #80%
+#EL_SRW_BVETO = 0.7892 #70%
+#EL_SRW_BVETO = 0.9827 #60%
 
 EL_QCD_MINV_WINDOW = 15*GeV
 
@@ -124,86 +123,107 @@ EL_WCR_MET_MAX = 100*GeV
 EL_WCR_MT_MIN = 35*GeV
 EL_WCR_MT_MAX = 90*GeV
 
+EL_WCR1_HTjet_MAX = 100*GeV
+EL_WCR2_HTjet_MIN = 100*GeV
+
 # # loose
 #EL_WCR_MET_MIN = 0*GeV
 #EL_WCR_MET_MAX = 10000000*GeV
 #EL_WCR_MT_MIN = 0*GeV
 #EL_WCR_MT_MAX = 1000000*GeV
-#EL_TCR_MET_MIN = 25*GeV
+#EL_HMT_MET_MIN = 25*GeV
 
 # # Wgamma selection
 # EL_WCR_MET_MIN = 25*GeV
 # EL_WCR_MET_MAX = 1000000*GeV
 # EL_WCR_MT_MIN = 40*GeV
 # EL_WCR_MT_MAX = 90000000*GeV
-# EL_TCR_MET_MIN = 25*GeV
+# EL_HMT_MET_MIN = 25*GeV
 
 #This is also known as the HMT
-EL_TCR_MET_MIN = 45*GeV
-EL_TCR_MET_MAX = 100*GeV
-EL_TCR_MT_MIN =  120*GeV
+EL_HMT_MET_MIN = 45*GeV
+EL_HMT_MET_MAX = 100*GeV
+EL_HMT_MT_MIN =  120*GeV
+
+EL_HMTW_HTjet_MAX = 100*GeV
+EL_HMTS_MEFF = 1000*GeV
+
+EL_HMET_MT_MIN = 35*GeV
+EL_HMET_MT_MAX = 90*GeV
+EL_HMET_MET_MIN =  100*GeV
+
+EL_HMETW_HTjet_MAX = 100*GeV
+EL_HMETS_MEFF = 1000*GeV
 
 EL_QCD_MET_MAX = 20*GeV
 EL_QCD_MT_MAX = 20*GeV
 
-
 # - muon channel
+
 MU_PHPTCUT = 125*GeV
 MU_MUPTCUT = 20*GeV
-#MU_MET = 0*GeV
-#MU_MET = 120*GeV
-#MU_MT = 0*GeV
 MU_MT = 120*GeV
-MU_HT = 0*GeV
-#MU_MEFF = 0*GeV
-#MU_HTjet_MAX = -1.0
-#MU_HTjet_MAX = 100.0*GeV
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
 
-if DO_SRS:
-    #SRS
-    MU_MET = 220*GeV
-    MU_HTjet_MAX = -1.0
-    MU_MEFF = 1000*GeV
-else:
-    #SRW
-    MU_MET = 120*GeV
-    MU_HTjet_MAX = 100*GeV
-    MU_MEFF = 0*GeV
+#SRS
+MU_SRS_MET = 220*GeV
+MU_SRS_HT = 0*GeV
+MU_SRS_MEFF = 1000*GeV
+
+#SRW
+MU_SRW_MET = 120*GeV
+MU_SRW_HTjet_MAX = 100*GeV
+MU_SRW_BVETO = -1.0
+#MU_SRW_BVETO = 0.3511 #80%
+#MU_SRW_BVETO = 0.7892 #70%
+#MU_SRW_BVETO = 0.9827 #60%
 
 # tight (default)
 MU_WCR_MET_MIN = 45*GeV
 MU_WCR_MET_MAX = 100*GeV
 MU_WCR_MT_MIN = 35*GeV
 MU_WCR_MT_MAX = 90*GeV
-MU_TCR_MET_MIN = 35*GeV
+
+MU_WCR1_HTjet_MAX = 100*GeV
+MU_WCR2_HTjet_MIN = 100*GeV
 
 # # loose
 # MU_WCR_MET_MIN = 25*GeV
 # MU_WCR_MET_MAX = 80*GeV
 # MU_WCR_MT_MIN = 25*GeV
 # MU_WCR_MT_MAX = 90*GeV
-#MU_TCR_MET_MIN = 25*GeV
+#MU_HMT_MET_MIN = 25*GeV
 
 # Wgamma
 # MU_WCR_MET_MIN = 25*GeV
 # MU_WCR_MET_MAX = 80000000*GeV
 # MU_WCR_MT_MIN = 40*GeV
 # MU_WCR_MT_MAX = 900000000*GeV
-# MU_TCR_MET_MIN = 25*GeV
+# MU_HMT_MET_MIN = 25*GeV
 
 # # test for events
 # MU_WCR_MET_MIN = 50*GeV
 # MU_WCR_MET_MAX = 100*GeV
 # MU_WCR_MT_MIN = 100*GeV
 # MU_WCR_MT_MAX = 90000*GeV
-# MU_TCR_MET_MIN = 25*GeV
+# MU_HMT_MET_MIN = 25*GeV
 
 
-MU_TCR_MET_MAX = 80*GeV
-MU_TCR_MT_MIN =  90*GeV
+MU_HMT_MET_MIN = 45*GeV
+MU_HMT_MET_MAX = 100*GeV
+MU_HMT_MT_MIN =  120*GeV
+
+MU_HMTW_HTjet_MAX = 100*GeV
+MU_HMTS_MEFF = 1000*GeV
+
+MU_HMET_MT_MIN = 35*GeV
+MU_HMET_MT_MAX = 90*GeV
+MU_HMET_MET_MIN =  100*GeV
+
+MU_HMETW_HTjet_MAX = 100*GeV
+MU_HMETS_MEFF = 1000*GeV
 
 MU_QCD_MET_MAX = 25*GeV
 MU_QCD_MT_MAX = 25*GeV
@@ -288,7 +308,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       doTruth = False,
                       onlyOrigin = -1,
                       metType = MET_DEFAULT,
-                      useWeights = True):
+                      useWeights = True,
+                      doPDFUnc = False,
+                      PDFUncType = SYM_HESS,
+                      nPDF = 25):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -334,7 +357,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         binSizeExtmt = "10 GeV"
         binSizeMET = "5 GeV"
         binSizemt = "5 GeV"
-    elif plotsRegion == TCR:
+    elif plotsRegion == HMT:
         nBinsEta = 15
         nBinsPt = 25
         nBinsHT = 30
@@ -349,7 +372,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         metBinMax = 180
         binSizeMET = "10 GeV"
         binSizemt = "10 GeV"
-    elif plotsRegion == XR2:
+    elif plotsRegion == HMET:
         nBinsEta = 15
         nBinsPt = 25
         nBinsHT = 30
@@ -364,7 +387,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         metBinMax = 220
         binSizeMET = "10 GeV"
         binSizemt = "10 GeV"
-    elif plotsRegion == SR:
+    elif plotsRegion == SRW:
         nBinsEta = 10
         nBinsPt = 10
         nBinsHT = 10
@@ -511,26 +534,47 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
 
     nPRESEL = ROOT.TH1F("nPRESEL", "Number of events in the PRESEL", 1, 0, 1);
     nWCR = ROOT.TH1F("nWCR", "Number of events in the WCR", 1, 0, 1);
-    nTCR = ROOT.TH1F("nTCR", "Number of events in the TCR", 1, 0, 1);
+    nWCR1 = ROOT.TH1F("nWCR1", "Number of events in the WCR1", 1, 0, 1);
+    nWCR2 = ROOT.TH1F("nWCR2", "Number of events in the WCR2", 1, 0, 1);
+    nHMT = ROOT.TH1F("nHMT", "Number of events in the HMT", 1, 0, 1);
+    nHMTW = ROOT.TH1F("nHMTW", "Number of events in the HMTW", 1, 0, 1);
+    nHMTS = ROOT.TH1F("nHMTS", "Number of events in the HMTS", 1, 0, 1);
     nQCD = ROOT.TH1F("nQCD", "Number of events in the QCD", 1, 0, 1);
-    nSIG = ROOT.TH1F("nSIG", "Number of events in the SR", 1, 0, 1);
-    nXR1 = ROOT.TH1F("nXR1", "Number of events in the XR1", 1, 0, 1);
-    nXR2 = ROOT.TH1F("nXR2", "Number of events in the XR2", 1, 0, 1);
+    nSRS = ROOT.TH1F("nSRS", "Number of events in the SRS", 1, 0, 1);
+    nSRW = ROOT.TH1F("nSRW", "Number of events in the SRW", 1, 0, 1);
+    nHMET = ROOT.TH1F("nHMET", "Number of events in the HMET", 1, 0, 1);
+    nHMETW = ROOT.TH1F("nHMETW", "Number of events in the HMETW", 1, 0, 1);
+    nHMETS = ROOT.TH1F("nHMETS", "Number of events in the HMETS", 1, 0, 1);
 
-    nPRESEL.Sumw2()
-    nWCR.Sumw2()
-    nTCR.Sumw2()
-    nQCD.Sumw2()
-    nSIG.Sumw2()
-    nXR1.Sumw2()
-    nXR2.Sumw2()
+    if doPDFUnc:
+        nWCRp = ROOT.TH1F("nWCRp", "Number of events in the WCR", nPDF, 0, nPDF);
+        nWCR1p = ROOT.TH1F("nWCR1p", "Number of events in the WCR1", nPDF, 0, nPDF);
+        nWCR2p = ROOT.TH1F("nWCR2p", "Number of events in the WCR2", nPDF, 0, nPDF);
+        nHMTp = ROOT.TH1F("nHMTp", "Number of events in the HMT", nPDF, 0, nPDF);
+        nHMTWp = ROOT.TH1F("nHMTWp", "Number of events in the HMTW", nPDF, 0, nPDF);
+        nHMTSp = ROOT.TH1F("nHMTSp", "Number of events in the HMTS", nPDF, 0, nPDF);
+        nSRSp = ROOT.TH1F("nSRSp", "Number of events in the SRS", nPDF, 0, nPDF);
+        nSRWp = ROOT.TH1F("nSRWp", "Number of events in the SRW", nPDF, 0, nPDF);
+        nHMETp = ROOT.TH1F("nHMETp", "Number of events in the HMET", nPDF, 0, nPDF);
+        nHMETWp = ROOT.TH1F("nHMETWp", "Number of events in the HMETW", nPDF, 0, nPDF);
+        nHMETSp = ROOT.TH1F("nHMETSp", "Number of events in the HMETS", nPDF, 0, nPDF);
+
+        nWCRm = ROOT.TH1F("nWCRm", "Number of events in the WCR", nPDF, 0, nPDF);
+        nWCR1m = ROOT.TH1F("nWCR1m", "Number of events in the WCR1", nPDF, 0, nPDF);
+        nWCR2m = ROOT.TH1F("nWCR2m", "Number of events in the WCR2", nPDF, 0, nPDF);
+        nHMTm = ROOT.TH1F("nHMTm", "Number of events in the HMT", nPDF, 0, nPDF);
+        nHMTWm = ROOT.TH1F("nHMTWm", "Number of events in the HMTW", nPDF, 0, nPDF);
+        nHMTSm = ROOT.TH1F("nHMTSm", "Number of events in the HMTS", nPDF, 0, nPDF);
+        nSRSm = ROOT.TH1F("nSRSm", "Number of events in the SRS", nPDF, 0, nPDF);
+        nSRWm = ROOT.TH1F("nSRWm", "Number of events in the SRW", nPDF, 0, nPDF);
+        nHMETm = ROOT.TH1F("nHMETm", "Number of events in the HMET", nPDF, 0, nPDF);
+        nHMETWm = ROOT.TH1F("nHMETWm", "Number of events in the HMETW", nPDF, 0, nPDF);
+        nHMETSm = ROOT.TH1F("nHMETSm", "Number of events in the HMETS", nPDF, 0, nPDF);
+        
 
     if measureFakeAndEff:
         nWCRTight = ROOT.TH1F("nWCRTight", "Number of tight events in the WCR", 1, 0, 1);
         nQCDTight = ROOT.TH1F("nQCDTight", "Number of tight events in the QCD", 1, 0, 1);
-        nWCRTight.Sumw2()
-        nQCDTight.Sumw2()    
-
 
     for ev in ttree:
         # lets apply the cuts
@@ -920,20 +964,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             weight = 1
 
 
-        # lets calculated a few more values
-        passHTjetMax = True
-        passBVeto = True
 
-        if BVETO > 0.0:
-            for i in range(ev.numJets):
-                if ev.JetMV1[i] > BVETO:
-                    passBVeto = False
-            
-        if lepton == ELECTRON and EL_HTjet_MAX > 0:
-            passHTjetMax = ev.HTjet < EL_HTjet_MAX
-
-        if lepton == MUON and MU_HTjet_MAX > 0:
-            passHTjetMax = ev.HTjet < MU_HTjet_MAX
             
         # if lepton == MUON and abs(ev.deltaPhiMuMET) > 2.9:
         #     continue
@@ -944,11 +975,17 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         h_mTmuvsMET.Fill(met/GeV, mt/GeV, weight)
 
         inQCD = False
-        inTCR = False
         inWCR = False
-        inXR1 = False
-        inXR2 = False
-        inSR = False
+        inWCR1 = False
+        inWCR2 = False
+        inHMT = False
+        inHMTW = False
+        inHMTS = False
+        inHMET = False
+        inHMETW = False
+        inHMETS = False
+        inSRS = False
+        inSRW = False
             
         if debug: print "  met =", met, "mTmu =", mt, "mTel =", mt
 
@@ -974,12 +1011,69 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                   EL_WCR_MT_MIN < mt < EL_WCR_MT_MAX):
                 inWCR = True
                 nWCR.Fill(0, weight)
+
+                if doPDFUnc and PDFUncType == SYM_HESS:
+                    SymHess(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+
                 if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
-            if (EL_TCR_MET_MIN < met < EL_TCR_MET_MAX and
-                  EL_TCR_MT_MIN < mt):
-                nTCR.Fill(0, weight)
-                inTCR = True
+
+                if ev.HTjet < EL_WCR1_HTjet_MAX:
+                    inWCR1 = True
+                    nWCR1.Fill(0, weight)
+                    if doPDFUnc and PDFUncType == SYM_HESS:
+                        SymHess(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                   
+                if ev.HTjet > EL_WCR2_HTjet_MIN:
+                    inWCR2 = True
+                    nWCR2.Fill(0, weight)
+                    if doPDFUnc and PDFUncType == SYM_HESS:
+                        SymHess(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+
+            if (EL_HMT_MET_MIN < met < EL_HMT_MET_MAX and
+                  EL_HMT_MT_MIN < mt):
+                nHMT.Fill(0, weight)
+                inHMT = True
+                if ev.HTjet < EL_HMTW_HTjet_MAX:
+                    inHMTW = True
+                    nHMTW.Fill(0, weight)
+                    
+                if ev.meff > EL_HMTS_MEFF:
+                    inHMTS = True
+                    nHMTS.Fill(0, weight)
+
+            if (EL_HMET_MET_MIN < met and
+                EL_HMET_MT_MIN < mt < EL_HMET_MT_MAX):
+                inHMET = True
+                nHMET.Fill(0, weight)
+                if ev.HTjet < EL_HMETW_HTjet_MAX:
+                    inHMETW = True
+                    nHMETW.Fill(0, weight)
+                    
+                if ev.meff > EL_HMETS_MEFF:
+                    inHMETS = True
+                    nHMETS.Fill(0, weight)
+
+            if mt > EL_MT and met > EL_SRW_MET and (EL_SRW_HTjet_MAX < 0 or ev.HTjet < EL_SRW_HTjet_MAX):
+                passBVeto = True
+                if EL_SRW_BVETO > 0.0:
+                    for i in range(ev.numJets):
+                        if ev.JetMV1[i] > BVETO:
+                            passBVeto = False
+                if passBVeto:
+                    inSRW = True
+                    nSRW.Fill(0, weight)
+
+                    if doPDFUnc and PDFUncType == SYM_HESS:
+                        SymHess(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                
+            if mt > EL_MT and met > EL_SRS_MET and ev.HT > EL_SRS_HT and ev.meff > EL_SRS_MEFF:
+                inSRS = True
+                nSRS.Fill(0, weight)
+
+                if doPDFUnc and PDFUncType == SYM_HESS:
+                    SymHess(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+
         else:
             if met < MU_QCD_MET_MAX and mt < MU_QCD_MT_MAX:
                 if (ev.PhElMinv < ZMASS - MU_QCD_MINV_WINDOW or
@@ -988,81 +1082,92 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                     nQCD.Fill(0, weight)
                     if measureFakeAndEff and ev.MuonTight[lepIndex]:
                         nQCDTight.Fill(0, weight)
-            elif (MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
+            if (MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
                   MU_WCR_MT_MIN < mt < MU_WCR_MT_MAX):
                 inWCR = True
                 nWCR.Fill(0, weight)
                 if measureFakeAndEff and ev.MuonTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
-            elif (MU_TCR_MET_MIN < met < MU_TCR_MET_MAX and
-                  MU_TCR_MT_MIN < mt):
-                nTCR.Fill(0, weight)
-                inTCR = True
-
-        # do the XR
-        if lepton == ELECTRON:
-            if (EL_WCR_MET_MAX < met and
-                EL_WCR_MT_MIN < mt < EL_WCR_MT_MAX):
-                inXR2 = True
-                nXR2.Fill(0, weight)
-            if (EL_WCR_MT_MAX < mt and
-                EL_WCR_MET_MIN < met < EL_WCR_MET_MAX and
-                not inTCR):
-                inXR1 = True
-                nXR1.Fill(0, weight)
-        else:
-            if (MU_WCR_MET_MAX < met and
-                MU_WCR_MT_MIN < mt < MU_WCR_MT_MAX):
-                inXR2 = True
-                nXR2.Fill(0, weight)
-            if (MU_WCR_MT_MAX < mt and
-                MU_WCR_MET_MIN < met < MU_WCR_MET_MAX and
-                not inTCR):
-                inXR1 = True
-                nXR1.Fill(0, weight)
-
-
-        ## our selection
-        if ((lepton == ELECTRON and
-             (passBVeto and passHTjetMax and met > EL_MET and mt > EL_MT and ev.HT > EL_HT and ev.meff > EL_MEFF)) or
-            (lepton == MUON and
-             (passBVeto and passHTjetMax and met > MU_MET and mt > MU_MT and ev.HT > MU_HT and ev.meff > MU_MEFF))):
-            inSR = True
-            nSIG.Fill(0, weight)
-
-
-        if not (blind and inSR):
-            if plotsRegion == SR:
-                if ((lepton == ELECTRON and met > EL_MET) or
-                    (lepton == MUON and met > MU_MET)):
-                    h_mTel.Fill(mt/GeV, weight)
-                    h_mTmu.Fill(mt/GeV, weight)
-                    h_mTelShort.Fill(mt/GeV, weight)
-                    h_mTmuShort.Fill(mt/GeV, weight)
+                if ev.HTjet < MU_WCR1_HTjet_MAX:
+                    inWCR1 = True
+                    nWCR1.Fill(0, weight)
                     
-                if ((lepton == ELECTRON and mt > EL_MT) or
-                    (lepton == MUON and mt > MU_MT)):
-                    h_met.Fill(met/GeV, weight)
-                    h_metShort.Fill(met/GeV, weight)
+                if ev.HTjet > MU_WCR2_HTjet_MIN:
+                    inWCR2 = True
+                    nWCR2.Fill(0, weight)
+
+            if (MU_HMT_MET_MIN < met < MU_HMT_MET_MAX and
+                  MU_HMT_MT_MIN < mt):
+                nHMT.Fill(0, weight)
+                inHMT = True
+                if ev.HTjet < MU_HMTW_HTjet_MAX:
+                    inHMTW = True
+                    nHMTW.Fill(0, weight)
+                    
+                if ev.meff > MU_HMTS_MEFF:
+                    inHMTS = True
+                    nHMTS.Fill(0, weight)
+            if (MU_HMET_MET_MIN < met and
+                MU_HMET_MT_MIN < mt < MU_HMET_MT_MAX):
+                inHMET = True
+                nHMET.Fill(0, weight)
+                if ev.HTjet < MU_HMETW_HTjet_MAX:
+                    inHMETW = True
+                    nHMETW.Fill(0, weight)
+                    
+                if ev.meff > MU_HMETS_MEFF:
+                    inHMETS = True
+                    nHMETS.Fill(0, weight)
+
+            if mt > MU_MT and met > MU_SRW_MET and (MU_SRW_HTjet_MAX < 0 or ev.HTjet < MU_SRW_HTjet_MAX):
+                passBVeto = True
+                if MU_SRW_BVETO > 0.0:
+                    for i in range(ev.numJets):
+                        if ev.JetMV1[i] > BVETO:
+                            passBVeto = False
+                if passBVeto:
+                    inSRW = True
+                    nSRW.Fill(0, weight)
+                
+            if mt > MU_MT and met > MU_SRS_MET and ev.HT > MU_SRS_HT and ev.meff > MU_SRS_MEFF:
+                inSRS = True
+                nSRS.Fill(0, weight)
+
+
+        # if not (blind and inSR):
+        #     if plotsRegion == SR:
+        #         if ((lepton == ELECTRON and met > EL_MET) or
+        #             (lepton == MUON and met > MU_MET)):
+        #             h_mTel.Fill(mt/GeV, weight)
+        #             h_mTmu.Fill(mt/GeV, weight)
+        #             h_mTelShort.Fill(mt/GeV, weight)
+        #             h_mTmuShort.Fill(mt/GeV, weight)
+                    
+        #         if ((lepton == ELECTRON and mt > EL_MT) or
+        #             (lepton == MUON and mt > MU_MT)):
+        #             h_met.Fill(met/GeV, weight)
+        #             h_metShort.Fill(met/GeV, weight)
                 
         if (plotsRegion == NO_SEL or plotsRegion == PRESEL or
-            plotsRegion == SR and inSR and not blind or
+            plotsRegion == SRS and inSRS and not blind or
+            plotsRegion == SRW and inSRW and not blind or
             plotsRegion == WCR and inWCR or
-            plotsRegion == TCR and inTCR or
-            plotsRegion == XR1 and inXR1 or
-            plotsRegion == XR2 and inXR2):
+            plotsRegion == HMT and inHMT or
+            plotsRegion == HMET and inHMET):
 
             # Accepted avent
             if printAccepted:
                 print "Accepted event with Run =", ev.Run, "Event =", ev.Event, "met =", met, "mT =", mt, "meff =", ev.meff
 
-            if plotsRegion != SR:  # think this is a bug, if statement not needed
-                h_mTel.Fill(mt/GeV, weight)
-                h_mTmu.Fill(mt/GeV, weight)
-                h_mTelShort.Fill(mt/GeV, weight)
-                h_mTmuShort.Fill(mt/GeV, weight)
-                h_met.Fill(met/GeV, weight)
-                h_metShort.Fill(met/GeV, weight)
+            # if plotsRegion != SR:  # think this is a bug, if statement not needed
+            #     pass
+
+            h_mTel.Fill(mt/GeV, weight)
+            h_mTmu.Fill(mt/GeV, weight)
+            h_mTelShort.Fill(mt/GeV, weight)
+            h_mTmuShort.Fill(mt/GeV, weight)
+            h_met.Fill(met/GeV, weight)
+            h_metShort.Fill(met/GeV, weight)
 
             h_mTelExtended.Fill(mt/GeV, weight)
             h_mTmuExtended.Fill(mt/GeV, weight)
@@ -1177,17 +1282,23 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         print "*****          YIELDS            *****"
         print "**************************************"
         if not blind:
-            print "  Signal Yield =",nSIG.GetBinContent(1),"+-", nSIG.GetBinError(1)
-        print "  W+jets CR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
+            print "  SRS Yield =",nSRS.GetBinContent(1),"+-", nSRS.GetBinError(1)
+            print "  SRW Yield =",nSRW.GetBinContent(1),"+-", nSRW.GetBinError(1)
+        print "  WCR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
+        print "  WCR1 Yield =",nWCR1.GetBinContent(1),"+-", nWCR1.GetBinError(1)
+        print "  WCR2 Yield =",nWCR2.GetBinContent(1),"+-", nWCR2.GetBinError(1)
         if measureFakeAndEff:
             print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nWCRTight.GetBinError(1)
-        print "  ttbar CR Yield =",nTCR.GetBinContent(1),"+-", nTCR.GetBinError(1)
+        print "  HMT Yield =",nHMT.GetBinContent(1),"+-", nHMT.GetBinError(1)
+        print "  HMTW Yield =",nHMTW.GetBinContent(1),"+-", nHMTW.GetBinError(1)
+        print "  HMTS Yield =",nHMTS.GetBinContent(1),"+-", nHMTS.GetBinError(1)
+        print "  HMET Yield =",nHMET.GetBinContent(1),"+-", nHMET.GetBinError(1)
+        print "  HMETW Yield =",nHMETW.GetBinContent(1),"+-", nHMETW.GetBinError(1)
+        print "  HMETS Yield =",nHMETS.GetBinContent(1),"+-", nHMETS.GetBinError(1)
         print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
         if measureFakeAndEff:
             print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCDTight.GetBinError(1)
         
-        print "  XR1 Yield =",nXR1.GetBinContent(1),"+-", nXR1.GetBinError(1)
-        print "  XR2 Yield =",nXR2.GetBinContent(1),"+-", nXR2.GetBinError(1)
         print "  PRESEL Yield =",nPRESEL.GetBinContent(1),"+-", nPRESEL.GetBinError(1)
 
 
@@ -1232,17 +1343,13 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
     # nTF = nSIG.Clone()
     # nTF.Divide(nWCR)
 
-    # nXF1 = nXR1.Clone()
-    # nXF1.Divide(nCR)
-
-    # nXF2 = nXR2.Clone()
+    # nXF2 = nHMET.Clone()
     # nXF2.Divide(nCR)
 
     # print "  SR/CR =",nTF.GetBinContent(1),"+-", nTF.GetBinError(1)
-    # print "  XR1/CR =",nXF1.GetBinContent(1),"+-", nXF1.GetBinError(1)
-    # print "  XR2/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
+    # print "  HMET/CR =",nXF2.GetBinContent(1),"+-", nXF2.GetBinError(1)
 
-    return (nSIG.GetBinContent(1), nSIG.GetBinError(1))
+    return (nSRW.GetBinContent(1), nSRW.GetBinError(1), nSRS.GetBinContent(1), nSRS.GetBinError(1))
     #return (nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1))
 
 # This function calls the LepPhotonAnalysis function 
@@ -1362,6 +1469,13 @@ def mT(pt, phi, metx, mety):
         metphi = math.atan2(mety, metx)
         phidiff = deltaPhi(phi, metphi)
         return math.sqrt(2 * pt * math.hypot(metx, mety) * (1 - math.cos(phidiff)))
+
+def SymHess(histp, histm, weight, pdfWeights, nPDFs, scale=0.6079):
+    for i in range(nPDFs):
+        deltaX = 0.5 * (pdfWeights[2*i] - pdfWeights[2*i + 1]) * scale
+        histp.Fill(i, weight*(1+deltaX))
+        histm.Fill(i, weight*(1-deltaX))
+
 
 if __name__ == "__main__":
     main()
