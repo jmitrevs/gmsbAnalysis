@@ -311,7 +311,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       useWeights = True,
                       doPDFUnc = False,
                       PDFUncType = SYM_HESS,
-                      nPDF = 25):
+                      nPDF = 26):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -1012,8 +1012,16 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 inWCR = True
                 nWCR.Fill(0, weight)
 
-                if doPDFUnc and PDFUncType == SYM_HESS:
-                    SymHess(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                if doPDFUnc:
+                    if PDFUncType == SYM_HESS:
+                        SymHess(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ASYM_HESS:
+                        AsymHess(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ENS:
+                        Ens(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                    else:
+                        print "*** ERROR:  PDF error type not correctly specified ***"
+                        exit(1)
 
                 if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
@@ -1021,14 +1029,33 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 if ev.HTjet < EL_WCR1_HTjet_MAX:
                     inWCR1 = True
                     nWCR1.Fill(0, weight)
-                    if doPDFUnc and PDFUncType == SYM_HESS:
-                        SymHess(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
-                   
+
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
+
                 if ev.HTjet > EL_WCR2_HTjet_MIN:
                     inWCR2 = True
                     nWCR2.Fill(0, weight)
-                    if doPDFUnc and PDFUncType == SYM_HESS:
-                        SymHess(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
+
 
             if (EL_HMT_MET_MIN < met < EL_HMT_MET_MAX and
                   EL_HMT_MT_MIN < mt):
@@ -1064,15 +1091,32 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                     inSRW = True
                     nSRW.Fill(0, weight)
 
-                    if doPDFUnc and PDFUncType == SYM_HESS:
-                        SymHess(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
-                
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
+
             if mt > EL_MT and met > EL_SRS_MET and ev.HT > EL_SRS_HT and ev.meff > EL_SRS_MEFF:
                 inSRS = True
                 nSRS.Fill(0, weight)
 
-                if doPDFUnc and PDFUncType == SYM_HESS:
-                    SymHess(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                if doPDFUnc:
+                    if PDFUncType == SYM_HESS:
+                        SymHess(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ASYM_HESS:
+                        AsymHess(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ENS:
+                        Ens(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                    else:
+                        print "*** ERROR:  PDF error type not correctly specified ***"
+                        exit(1)
+
 
         else:
             if met < MU_QCD_MET_MAX and mt < MU_QCD_MT_MAX:
@@ -1086,15 +1130,47 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                   MU_WCR_MT_MIN < mt < MU_WCR_MT_MAX):
                 inWCR = True
                 nWCR.Fill(0, weight)
+
+                if doPDFUnc:
+                    if PDFUncType == SYM_HESS:
+                        SymHess(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ASYM_HESS:
+                        AsymHess(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ENS:
+                        Ens(nWCRp, nWCRm, weight, ev.PDFWeights, nPDF)
+                    else:
+                        print "*** ERROR:  PDF error type not correctly specified ***"
+                        exit(1)
+
                 if measureFakeAndEff and ev.MuonTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
                 if ev.HTjet < MU_WCR1_HTjet_MAX:
                     inWCR1 = True
                     nWCR1.Fill(0, weight)
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nWCR1p, nWCR1m, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
                     
                 if ev.HTjet > MU_WCR2_HTjet_MIN:
                     inWCR2 = True
                     nWCR2.Fill(0, weight)
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nWCR2p, nWCR2m, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
 
             if (MU_HMT_MET_MIN < met < MU_HMT_MET_MAX and
                   MU_HMT_MT_MIN < mt):
@@ -1128,10 +1204,30 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 if passBVeto:
                     inSRW = True
                     nSRW.Fill(0, weight)
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nSRWp, nSRWm, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
                 
             if mt > MU_MT and met > MU_SRS_MET and ev.HT > MU_SRS_HT and ev.meff > MU_SRS_MEFF:
                 inSRS = True
                 nSRS.Fill(0, weight)
+                if doPDFUnc:
+                    if PDFUncType == SYM_HESS:
+                        SymHess(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ASYM_HESS:
+                        AsymHess(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                    elif PDFUncType == ENS:
+                        Ens(nSRSp, nSRSm, weight, ev.PDFWeights, nPDF)
+                    else:
+                        print "*** ERROR:  PDF error type not correctly specified ***"
+                        exit(1)
 
 
         # if not (blind and inSR):
@@ -1476,6 +1572,14 @@ def SymHess(histp, histm, weight, pdfWeights, nPDFs, scale=0.6079):
         histp.Fill(i, weight*(1+deltaX))
         histm.Fill(i, weight*(1-deltaX))
 
+def AsymHess(histp, histm, weight, pdfWeights, nPDFs, scale=1.0):
+    for i in range(nPDFs):
+        histp.Fill(i, weight*pdfWeights[2*i])
+        histm.Fill(i, weight*pdfWeights[2*i + 1])
+
+def Ens(histp, histm, weight, pdfWeights, nPDFs, scale=1.0):
+    for i in range(nPDFs):
+        histp.Fill(i, weight*pdfWeights[i])
 
 if __name__ == "__main__":
     main()
