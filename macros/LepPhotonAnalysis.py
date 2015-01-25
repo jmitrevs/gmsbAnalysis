@@ -311,14 +311,15 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       useWeights = True,
                       doPDFUnc = False,
                       PDFUncType = SYM_HESS,
-                      nPDF = 26):
+                      nPDF = 26,
+                      sample = ""):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
         return
 
-    if metType != MET_DEFAULT:
-        print "Using metType =",metType
+    # if metType != MET_DEFAULT:
+    #     print "Using metType =",metType
 
     f = ROOT.TFile(outfile, 'RECREATE')
 
@@ -1373,29 +1374,57 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         
 
     f.Write()
-    if printSummary:
-        print "**************************************"
-        print "*****          YIELDS            *****"
-        print "**************************************"
-        if not blind:
-            print "  SRS Yield =",nSRS.GetBinContent(1),"+-", nSRS.GetBinError(1)
-            print "  SRW Yield =",nSRW.GetBinContent(1),"+-", nSRW.GetBinError(1)
-        print "  WCR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
-        print "  WCR1 Yield =",nWCR1.GetBinContent(1),"+-", nWCR1.GetBinError(1)
-        print "  WCR2 Yield =",nWCR2.GetBinContent(1),"+-", nWCR2.GetBinError(1)
-        if measureFakeAndEff:
-            print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nWCRTight.GetBinError(1)
-        print "  HMT Yield =",nHMT.GetBinContent(1),"+-", nHMT.GetBinError(1)
-        print "  HMTW Yield =",nHMTW.GetBinContent(1),"+-", nHMTW.GetBinError(1)
-        print "  HMTS Yield =",nHMTS.GetBinContent(1),"+-", nHMTS.GetBinError(1)
-        print "  HMET Yield =",nHMET.GetBinContent(1),"+-", nHMET.GetBinError(1)
-        print "  HMETW Yield =",nHMETW.GetBinContent(1),"+-", nHMETW.GetBinError(1)
-        print "  HMETS Yield =",nHMETS.GetBinContent(1),"+-", nHMETS.GetBinError(1)
-        print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
-        if measureFakeAndEff:
-            print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCDTight.GetBinError(1)
+    # if printSummary:
+    #     print "**************************************"
+    #     print "*****          YIELDS            *****"
+    #     print "**************************************"
+    #     if not blind:
+    #         print "  SRS Yield =",nSRS.GetBinContent(1),"+-", nSRS.GetBinError(1)
+    #         print "  SRW Yield =",nSRW.GetBinContent(1),"+-", nSRW.GetBinError(1)
+    #     print "  WCR Yield =",nWCR.GetBinContent(1),"+-", nWCR.GetBinError(1)
+    #     print "  WCR1 Yield =",nWCR1.GetBinContent(1),"+-", nWCR1.GetBinError(1)
+    #     print "  WCR2 Yield =",nWCR2.GetBinContent(1),"+-", nWCR2.GetBinError(1)
+    #     if measureFakeAndEff:
+    #         print "  W+jets CR Yield (making tight req) =",nWCRTight.GetBinContent(1),"+-", nWCRTight.GetBinError(1)
+    #     print "  HMT Yield =",nHMT.GetBinContent(1),"+-", nHMT.GetBinError(1)
+    #     print "  HMTW Yield =",nHMTW.GetBinContent(1),"+-", nHMTW.GetBinError(1)
+    #     print "  HMTS Yield =",nHMTS.GetBinContent(1),"+-", nHMTS.GetBinError(1)
+    #     print "  HMET Yield =",nHMET.GetBinContent(1),"+-", nHMET.GetBinError(1)
+    #     print "  HMETW Yield =",nHMETW.GetBinContent(1),"+-", nHMETW.GetBinError(1)
+    #     print "  HMETS Yield =",nHMETS.GetBinContent(1),"+-", nHMETS.GetBinError(1)
+    #     print "  QCD CR Yield =",nQCD.GetBinContent(1),"+-", nQCD.GetBinError(1)
+    #     if measureFakeAndEff:
+    #         print "  QCD CR Yield (making tight req) =",nQCDTight.GetBinContent(1),"+-", nQCDTight.GetBinError(1)
         
-        print "  PRESEL Yield =",nPRESEL.GetBinContent(1),"+-", nPRESEL.GetBinError(1)
+    #     print "  PRESEL Yield =",nPRESEL.GetBinContent(1),"+-", nPRESEL.GetBinError(1)
+
+    if printSummary:
+        if lepton == ELECTRON:
+            lepText = 'El'
+        else:
+            lepText = "Mu"
+        # print "**************************************"
+        # print "*****          YIELDS            *****"
+        # print "**************************************"
+        if not blind:
+            print lepText, "SRS", sample, nSRS.GetBinContent(1), nSRS.GetBinError(1)
+            print lepText, "SRW", sample,nSRW.GetBinContent(1), nSRW.GetBinError(1)
+        print lepText, "WCR", sample,nWCR.GetBinContent(1), nWCR.GetBinError(1)
+        print lepText, "WCRhHT", sample,nWCR1.GetBinContent(1), nWCR1.GetBinError(1)
+        print lepText, "WCRlHT", sample,nWCR2.GetBinContent(1), nWCR2.GetBinError(1)
+        if measureFakeAndEff:
+            print lepText, "WCRTight", sample,nWCRTight.GetBinContent(1), nWCRTight.GetBinError(1)
+        print lepText, "HMT", sample,nHMT.GetBinContent(1), nHMT.GetBinError(1)
+        print lepText, "HMTlHT", sample,nHMTW.GetBinContent(1), nHMTW.GetBinError(1)
+        print lepText, "HMTmeff", sample,nHMTS.GetBinContent(1), nHMTS.GetBinError(1)
+        print lepText, "HMET", sample,nHMET.GetBinContent(1), nHMET.GetBinError(1)
+        print lepText, "HMETlHT", sample,nHMETW.GetBinContent(1), nHMETW.GetBinError(1)
+        print lepText, "HMETmeff", sample,nHMETS.GetBinContent(1), nHMETS.GetBinError(1)
+        print lepText, "QCD", sample,nQCD.GetBinContent(1), nQCD.GetBinError(1)
+        if measureFakeAndEff:
+            print lepText, "QCDTight", sample,nQCDTight.GetBinContent(1), nQCDTight.GetBinError(1)
+        
+        print lepText, "PRESEL", sample,nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1)
 
 
     if measureFakeAndEff:
