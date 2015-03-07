@@ -135,20 +135,19 @@ inDS_full = [
     ]
 #how to automatically configure GRL ?
 
+tarfile = "/data/jmitrevs/scratch/submission_150123.tar"
 
     
 for i,inDS in enumerate(inDS_full):
 
     outName = inDS[:89] # make sure the name is not too long
  
-    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_141202.%s newSignalGammaMuon_afast.py " % (inDS, outName)
+    command = "pathena --mergeOutput --nGBPerJob=MAX --inDS %s/ --outDS user.jmitrevs.GM_150123.%s newSignalGammaMuon_afast.py " % (inDS, outName)
    
-    # if i == 0:
-    #     command += " --outTarBall=/data/jmitrevs/scratch/submission_gammamu_140905.tar"
-    # else:
-    #     command += " --inTarBall=/data/jmitrevs/scratch/submission_gammamu_140905.tar"
-
-    command += " --inTarBall=/data/jmitrevs/scratch/submission_141117.tar"
+    if not os.path.exists(tarfile):
+        command += " --outTarBall="+tarfile
+    else:
+        command += " --inTarBall="+tarfile
 
     print command
     sys.stdout.flush()

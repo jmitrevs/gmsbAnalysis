@@ -52,8 +52,9 @@ def makeOutputName(infileName, extra = ""):
     return outfile
 
 def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
-                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, extraName="",
-                doStandard = True, doSyst = False):
+                abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, 
+                applySF=LepPhotonAnalysis.NOMINAL, extraName="",
+                doStandard = False, doSyst = True, ):
 
     SRs = {}
 
@@ -81,6 +82,7 @@ def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS,
                                                      lepton,
                                                      scale, plotsRegion = plots,
                                                      metType = metType,
+                                                     applySF = applySF,
                                                      useWeights = APPLY_WEIGHTS)
             SRs[name] = sr
     if doSyst:
@@ -97,7 +99,9 @@ def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS,
                                                      lepton,
                                                      scale, plotsRegion = plots,
                                                      metType = metType,
-                                                     useWeights = APPLY_WEIGHTS)
+                                                     useWeights = APPLY_WEIGHTS,
+                                                     useJetAsPhoton = True,
+                                                     debug = False)
             SRs[name] = sr
 
     return SRs
@@ -107,7 +111,7 @@ if __name__ == "__main__":
     try:
         # retrive command line options
         shortopts  = "eml:p:a:"
-        longopts   = ["lepton=", "plots=", "abcd=", "met="]
+        longopts   = ["lepton=", "plots=", "abcd=", "met=", "applySF="]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
     except getopt.GetoptError:
         # print help information and exit:
@@ -118,6 +122,7 @@ if __name__ == "__main__":
     plots = LepPhotonAnalysis.DEFAULT_PLOTS
     abcd = DEFAULTABCD
     metType = LepPhotonAnalysis.MET_DEFAULT
+    applySF=LepPhotonAnalysis.NOMINAL #for scale factors
     for o, a in opts:
         if o in ("-?", "-h", "--help", "--usage"):
             usage()
@@ -139,8 +144,8 @@ if __name__ == "__main__":
                 plots = LepPhotonAnalysis.NO_SEL
             elif a == "PRESEL":
                 plots = LepPhotonAnalysis.PRESEL
-            elif a == "SR":
-                plots = LepPhotonAnalysis.SR
+            elif a == "SRW":
+                plots = LepPhotonAnalysis.SRW
             elif a == "WCR":
                 plots = LepPhotonAnalysis.WCR
             elif a == "TCR" or a == "HMT":
@@ -179,5 +184,23 @@ if __name__ == "__main__":
                 metType = LepPhotonAnalysis.MET_FULL
             elif a == "orig":
                 metType = LepPhotonAnalysis.MET_ORIG
+            else:
+                print "*** met unknown ****"
+                sys.exit(1)
+        elif o in ("--applySF"):
+            if a == "nominal":
+                applySF = LepPhotonAnalysis.NOMINAL
+            elif a == "high":
+                applySF = LepPhotonAnalysis.HIGH
+            elif a == "low":
+                applySF = LepPhotonAnalysis.LOW
+            elif a == "phohigh":
+                applySF = LepPhotonAnalysis.PHOHIGH
+            elif a == "pholow":
+                applySF = LepPhotonAnalysis.PHOLOW
+            else:
+                print "*** applySF unknown ****"
+                sys.exit(1)
 
-    RunAnalysis(lepton, plots, abcd, metType)
+
+    RunAnalysis(lepton, plots, abcd, metType, applySF)

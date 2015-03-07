@@ -18,7 +18,14 @@ Lumi = 20300.0
 DOSTANDARD = True
 DOSYST = True
 
+if 'DOTEST' not in globals():
+    DOTEST = False
+
+DOTEST = True
+
 print "Lepton is ELECTRON."
+
+
 path = "/data/jmitrevs/output/elphoton/v141110/mergedFiles/"
 
 # format is (name, xsec in pb, kfac, eff, dsid)
@@ -41,25 +48,67 @@ names = (('Wenugamma', 0.71925, 1.0, 1.0, 126741),
          ('tW_thadWlep_gammaWDec', 0.020788, 1.000000, 0.075740, 202631)
          )
 
-pathSyst = "/data/jmitrevs/output/elphoton/v141113_truth/mergedFiles/"
-namesSyst = (('Wenugamma_ckkw15', 0.71925, 1.0, 1.0, 204731),
-             ('Wenugamma_ckkw30', 0.71925, 1.0, 1.0, 204732),
-             ('Wenugamma_fac025', 0.71925, 1.0, 1.0, 204733),
-             ('Wenugamma_fac4', 0.71925, 1.0, 1.0, 204734),
-             ('Wenugamma_renorm025', 0.71925, 1.0, 1.0, 204735),
-             ('Wenugamma_renorm4', 0.71925, 1.0, 1.0, 204736),
-             ('ttbargamma_nom', 1.3963, 1.9, 7.0707E-02, 177998),
-             ('ttbargamma_scaleUP', 1.3963, 1.9, 7.0707E-02, 202332),
-             ('ttbargamma_scaleDN', 1.3963, 1.9, 7.0707E-02, 202333),
-             ('ttbargamma_alpsUP', 1.3963, 1.9, 7.0707E-02, 202334),
-             ('ttbargamma_alpsDN', 1.3963, 1.9, 7.0707E-02, 202335),
-             ('ttbargamma_lessFSR', 1.3963, 1.9, 7.0707E-02, 202336),
-             ('ttbargamma_moreFSR', 1.3963, 1.9, 7.0707E-02, 202337)
+# pathSyst = "/data/jmitrevs/output/elphoton/v141113_truth/mergedFiles/"
+# namesSyst = (('Wenugamma_ckkw15', 0.71925, 1.0, 1.0, 204731),
+#              ('Wenugamma_ckkw30', 0.71925, 1.0, 1.0, 204732),
+#              ('Wenugamma_fac025', 0.71925, 1.0, 1.0, 204733),
+#              ('Wenugamma_fac4', 0.71925, 1.0, 1.0, 204734),
+#              ('Wenugamma_renorm025', 0.71925, 1.0, 1.0, 204735),
+#              ('Wenugamma_renorm4', 0.71925, 1.0, 1.0, 204736),
+#              ('ttbargamma_nom', 1.3963, 1.9, 7.0707E-02, 177998),
+#              ('ttbargamma_scaleUP', 1.3963, 1.9, 7.0707E-02, 202332),
+#              ('ttbargamma_scaleDN', 1.3963, 1.9, 7.0707E-02, 202333),
+#              ('ttbargamma_alpsUP', 1.3963, 1.9, 7.0707E-02, 202334),
+#              ('ttbargamma_alpsDN', 1.3963, 1.9, 7.0707E-02, 202335),
+#              ('ttbargamma_lessFSR', 1.3963, 1.9, 7.0707E-02, 202336),
+#              ('ttbargamma_moreFSR', 1.3963, 1.9, 7.0707E-02, 202337)
+#              )
+
+pathSyst = "/data/jmitrevs/output/elphoton/v150204_truth/mergedFiles/"
+namesSyst = (
+    # ('WenuPt70_140_ckkw15', 250.55, 1.11, 0.74456, 183497),
+    # ('WenuPt70_140_ckkw30', 250.55, 1.11, 0.75784, 183498),
+    # ('WenuPt70_140_fac025', 250.55, 1.11, 0.76846, 183499),
+    # ('WenuPt70_140_fac4', 250.55, 1.11, 0.73826, 183500),
+    ('WenuPt70_140_renorm025', 250.55, 1.11, 0.73177, 183501),
+    ('WenuPt70_140_renorm4', 250.55, 1.11, 0.76347, 183502),
+    # ('WenuPt140_280_ckkw15', 31.155, 1.11, 0.70323, 183515),
+    # ('WenuPt140_280_ckkw30', 31.155, 1.11, 0.72312, 183516),
+    # ('WenuPt140_280_fac025', 31.155, 1.11, 0.73174, 183517),
+    # ('WenuPt140_280_fac4', 31.155, 1.11, 0.70092, 183518),
+    ('WenuPt140_280_renorm025', 31.155, 1.11, 0.68695, 183519),
+    ('WenuPt140_280_renorm4', 31.155, 1.11, 0.73235, 183520),
+    ('WenuPt280_500_ckkw15', 1.8413, 1.11, 0.66937, 183533),
+    ('WenuPt280_500_ckkw30', 1.8413, 1.11, 0.69556, 183534),
+    ('WenuPt280_500_fac025', 1.8413, 1.11, 0.69974, 183535),
+    ('WenuPt280_500_fac4', 1.8413, 1.11, 0.66888, 183536),
+    ('WenuPt280_500_renorm025', 1.8413, 1.11, 0.65114, 183537),
+    ('WenuPt280_500_renorm4', 1.8413, 1.11, 0.70563, 183538),
+    ('WenuPt500_ckkw15', 0.10188, 1.11, 0.64323, 183551),
+    ('WenuPt500_ckkw30', 0.10188, 1.11, 0.67156, 183552),
+    ('WenuPt500_fac025', 0.10188, 1.11, 0.67314, 183553),
+    ('WenuPt500_fac4', 0.10188, 1.11, 0.64569, 183554),
+    ('WenuPt500_renorm025', 0.10188, 1.11, 0.62521, 183555),
+    ('WenuPt500_renorm4', 0.10188, 1.11, 0.68381, 183556)
              )
 
 binToLookAt = 12 #1 more than last Fill value because this count starts at 1
 
 values = {}
+
+if DOTEST:
+    path = "/data/jmitrevs/output/elphoton/v150116/mergedFiles/"
+
+    # format is (name, xsec in pb, kfac, eff, dsid)
+    names = (('dilep', 22.134, 1.1997, 1.0, 181087), 
+             ('dilepAlt', 21.806 , 1.217, 1.0, 110001),
+             ('dilepShLeptLept', 9.1637 , 1.2876, 1.0, 117800),
+             ('dilepShLeptTaulept', 3.2296 , 1.286, 1.0, 117801),
+             ('dilepShTauleptTaulept', 0.28 , 1.3053, 1.0, 117802),
+             ('dilepShLeptTauhad', 6.0007 , 1.2741, 1.0, 117804),
+             ('Znunugammagamma', 5.6e-3 , 2.0, 1.0, 167479)
+             )
+    
 
 if DOSTANDARD:
     for i in range(len(names)):

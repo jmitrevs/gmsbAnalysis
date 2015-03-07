@@ -11,7 +11,8 @@ from glob import glob
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.NTUP_SUSY.e1727_a188_a171_r3549_p1328*/*root*')
 #InputList = glob('/data3/jmitrevs/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_SUSY.e1513_s1499_s1504_r3945_r3549_p1328*/*root*')
 #InputList = glob('/data/jmitrevs/input/mc12_8TeV.*GGM_wino_300_egfilter*/*root*')
-InputList = glob('/data/jmitrevs/input/mc12_8TeV.*Sherpa_CT10_enugammaPt80.merge.NTUP_SUSY*0/*root*')
+#InputList = glob('/data/jmitrevs/input/mc12_8TeV.*Sherpa_CT10_munugammaPt80.merge.NTUP_SUSY*0/*root*')
+InputList = glob('/data/jmitrevs/input/mc12_8TeV.177998.MadGraphPythia_AUET2BCTEQ6L1_ttbargammaPt80_noAllHad_fixed.merge.NTUP_SUSY.e2189_a188_a205_r4540_p1328_tid01334594_00/*root*')
 # InputList = ['root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000001.root.1',
 #              'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000002.root.1',
 #              'root://eosatlas//eos/atlas/user/j/jmitrevs/wino_300/NTUP_SUSY.01185684._000003.root.1']
@@ -77,7 +78,8 @@ gmsbFinalSelectionTool.PhotonPt = 125*GeV
 
 from PDFTool.PDFToolConf import PDFTool
 pdfTool = PDFTool(name = "PDFTool", 
-                  PDFSet = 10800,
+                  #PDFSet = 10800,
+                  PDFSet = 10042,
                   OutputLevel=ERROR)
 ToolSvc += pdfTool
 

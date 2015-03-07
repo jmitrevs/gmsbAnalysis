@@ -25,6 +25,8 @@ NONE = 0
 NOMINAL = 1
 LOW = 2
 HIGH = 3
+PHOLOW = 4
+PHOHIGH = 5
 
 GeV = 1000.0
 
@@ -312,7 +314,8 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       doPDFUnc = False,
                       PDFUncType = SYM_HESS,
                       nPDF = 26,
-                      sample = ""):
+                      sample = "",
+                      useJetAsPhoton = False):
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -580,7 +583,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
     for ev in ttree:
         # lets apply the cuts
         # double-check quality
-        if ev.numPh == 0 or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
+        if (ev.numPh == 0 and not useJetAsPhoton) or (ev.numEl == 0 and lepton == ELECTRON) or (ev.numMu == 0 and lepton == MUON):
             print "ERROR: event is malformed:", ev.numPh, ev.numEl, ev.numMu, lepton
             sys.exit(1)
             #continue
@@ -651,6 +654,16 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 weight *= ev.PhotonSF * (ev.ElectronSF + ev.ElectronSFUnc)
             else:
                 weight *= ev.PhotonSF * (ev.MuonSF + ev.MuonSFUnc)
+        elif applySF == PHOLOW:
+            if lepton == ELECTRON:
+                weight *= (ev.PhotonSF-ev.PhotonSFUnc) * ev.ElectronSF
+            else:
+                weight *= (ev.PhotonSF-ev.PhotonSFUnc) * ev.MuonSF
+        elif applySF == PHOHIGH:
+            if lepton == ELECTRON:
+                weight *= (ev.PhotonSF+ev.PhotonSFUnc) * ev.ElectronSF
+            else:
+                weight *= (ev.PhotonSF+ev.PhotonSFUnc) * ev.MuonSF
 
 
         if reweighAlpgen:
@@ -849,29 +862,52 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
 
 
         photon = ROOT.TLorentzVector()
-        photon.SetPtEtaPhiM(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex], 0.0)
+
+        jetIndex = -1;
+        jetPt = -10.0;
+        if useJetAsPhoton:
+            # find leading jet
+            for i in range(ev.numJets):
+                if ev.JetPt[i] > EL_PHPTCUT and ev.JetPt[i] > jetPt:
+                    jetPt = ev.JetPt[i]
+                    jetIndex = i
+            if jetIndex < 0:
+                continue        # no jet found
+            photon.SetPtEtaPhiE(ev.JetPt[jetIndex], ev.JetEta[jetIndex], ev.JetPhi[jetIndex], ev.JetE[jetIndex])
+        else:
+            photon.SetPtEtaPhiM(ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.PhotonPhi[photonIndex], 0.0)
         if lepton == ELECTRON:
             electron = ROOT.TLorentzVector()
             electron.SetPtEtaPhiM(ev.ElectronPt[lepIndex], ev.ElectronEta[lepIndex], ev.ElectronPhi[lepIndex], 0.0)
 
+        if debug: print "  passed jet with jetPt =", jetPt
 
         iso = -999.0
-        try:
-            iso = ev.PhotonEtcone20[photonIndex]
-        except AttributeError:
-            pass
+        if not useJetAsPhoton:
+            try:
+                iso = ev.PhotonEtcone20[photonIndex]
+            except AttributeError:
+                pass
 
 
 
         if plotsRegion != NO_SEL:
 
             # first the basic lepton and photon selection (but not MET and mT):
-            if ((lepton == ELECTRON and
+            if (useJetAsPhoton == False and
+                (lepton == ELECTRON and
                  (ev.PhotonPt[photonIndex] < EL_PHPTCUT or #abs(ev.PhotonEta[photonIndex]) > EL_PHETACUT or
                   ev.ElectronPt[lepIndex] < EL_ELPTCUT)) or #abs(ev.ElectronEta[lepIndex]) > EL_ELETACUT)) or
                 (lepton == MUON and
                  (ev.PhotonPt[photonIndex] < MU_PHPTCUT or #abs(ev.PhotonEta[photonIndex]) > MU_PHETACUT or
                   ev.MuonPt[lepIndex] < MU_MUPTCUT))): # or abs(ev.MuonEta[lepIndex]) > MU_MUETACUT))):
+                print '** fail basic selection **', lepton, ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.ElectronPt[lepIndex], ev.ElectronEta[lepIndex]
+                continue
+
+            # first the basic lepton and photon selection (but not MET and mT):
+            if (useJetAsPhoton and
+                (lepton == ELECTRON and ev.ElectronPt[lepIndex] < EL_ELPTCUT) or 
+                (lepton == MUON and ev.MuonPt[lepIndex] < MU_MUPTCUT)): 
                 print '** fail basic selection **', lepton, ev.PhotonPt[photonIndex], ev.PhotonEta[photonIndex], ev.ElectronPt[lepIndex], ev.ElectronEta[lepIndex]
                 continue
 
@@ -965,7 +1001,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             weight = 1
 
 
+        HTjet = ev.HTjet
 
+        if useJetAsPhoton:
+           HTjet -= jetPt; 
             
         # if lepton == MUON and abs(ev.deltaPhiMuMET) > 2.9:
         #     continue
@@ -1027,7 +1066,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 if measureFakeAndEff and ev.ElectronTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
 
-                if ev.HTjet < EL_WCR1_HTjet_MAX:
+                if HTjet < EL_WCR1_HTjet_MAX:
                     inWCR1 = True
                     nWCR1.Fill(0, weight)
 
@@ -1042,7 +1081,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                             print "*** ERROR:  PDF error type not correctly specified ***"
                             exit(1)
 
-                if ev.HTjet > EL_WCR2_HTjet_MIN:
+                if HTjet > EL_WCR2_HTjet_MIN:
                     inWCR2 = True
                     nWCR2.Fill(0, weight)
 
@@ -1062,10 +1101,20 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                   EL_HMT_MT_MIN < mt):
                 nHMT.Fill(0, weight)
                 inHMT = True
-                if ev.HTjet < EL_HMTW_HTjet_MAX:
+                if HTjet < EL_HMTW_HTjet_MAX:
                     inHMTW = True
                     nHMTW.Fill(0, weight)
-                    
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nHMTWp, nHMTWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nHMTWp, nHMTWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nHMTWp, nHMTWm, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
+                   
                 if ev.meff > EL_HMTS_MEFF:
                     inHMTS = True
                     nHMTS.Fill(0, weight)
@@ -1074,15 +1123,25 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 EL_HMET_MT_MIN < mt < EL_HMET_MT_MAX):
                 inHMET = True
                 nHMET.Fill(0, weight)
-                if ev.HTjet < EL_HMETW_HTjet_MAX:
+                if HTjet < EL_HMETW_HTjet_MAX:
                     inHMETW = True
                     nHMETW.Fill(0, weight)
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nHMETWp, nHMETWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nHMETWp, nHMETWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nHMETWp, nHMETWm, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
                     
                 if ev.meff > EL_HMETS_MEFF:
                     inHMETS = True
                     nHMETS.Fill(0, weight)
 
-            if mt > EL_MT and met > EL_SRW_MET and (EL_SRW_HTjet_MAX < 0 or ev.HTjet < EL_SRW_HTjet_MAX):
+            if mt > EL_MT and met > EL_SRW_MET and (EL_SRW_HTjet_MAX < 0 or HTjet < EL_SRW_HTjet_MAX):
                 passBVeto = True
                 if EL_SRW_BVETO > 0.0:
                     for i in range(ev.numJets):
@@ -1145,7 +1204,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
 
                 if measureFakeAndEff and ev.MuonTight[lepIndex]:
                     nWCRTight.Fill(0, weight)
-                if ev.HTjet < MU_WCR1_HTjet_MAX:
+                if HTjet < MU_WCR1_HTjet_MAX:
                     inWCR1 = True
                     nWCR1.Fill(0, weight)
                     if doPDFUnc:
@@ -1159,7 +1218,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                             print "*** ERROR:  PDF error type not correctly specified ***"
                             exit(1)
                     
-                if ev.HTjet > MU_WCR2_HTjet_MIN:
+                if HTjet > MU_WCR2_HTjet_MIN:
                     inWCR2 = True
                     nWCR2.Fill(0, weight)
                     if doPDFUnc:
@@ -1177,9 +1236,19 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                   MU_HMT_MT_MIN < mt):
                 nHMT.Fill(0, weight)
                 inHMT = True
-                if ev.HTjet < MU_HMTW_HTjet_MAX:
+                if HTjet < MU_HMTW_HTjet_MAX:
                     inHMTW = True
                     nHMTW.Fill(0, weight)
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nHMTWp, nHMTWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nHMTWp, nHMTWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nHMTWp, nHMTWm, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
                     
                 if ev.meff > MU_HMTS_MEFF:
                     inHMTS = True
@@ -1188,15 +1257,25 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 MU_HMET_MT_MIN < mt < MU_HMET_MT_MAX):
                 inHMET = True
                 nHMET.Fill(0, weight)
-                if ev.HTjet < MU_HMETW_HTjet_MAX:
+                if HTjet < MU_HMETW_HTjet_MAX:
                     inHMETW = True
                     nHMETW.Fill(0, weight)
+                    if doPDFUnc:
+                        if PDFUncType == SYM_HESS:
+                            SymHess(nHMETWp, nHMETWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ASYM_HESS:
+                            AsymHess(nHMETWp, nHMETWm, weight, ev.PDFWeights, nPDF)
+                        elif PDFUncType == ENS:
+                            Ens(nHMETWp, nHMETWm, weight, ev.PDFWeights, nPDF)
+                        else:
+                            print "*** ERROR:  PDF error type not correctly specified ***"
+                            exit(1)
                     
                 if ev.meff > MU_HMETS_MEFF:
                     inHMETS = True
                     nHMETS.Fill(0, weight)
 
-            if mt > MU_MT and met > MU_SRW_MET and (MU_SRW_HTjet_MAX < 0 or ev.HTjet < MU_SRW_HTjet_MAX):
+            if mt > MU_MT and met > MU_SRW_MET and (MU_SRW_HTjet_MAX < 0 or HTjet < MU_SRW_HTjet_MAX):
                 passBVeto = True
                 if MU_SRW_BVETO > 0.0:
                     for i in range(ev.numJets):
@@ -1281,52 +1360,53 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             h_eventType.Fill(ev.eventType, weight)
 
             rejectStudies = -9
-            if ev.PhotonConvType[photonIndex] == 0:
-                # unconverted
-                if ev.PhotonNumBEl[photonIndex] > 0:
-                    rejectStudies = 0
-                elif ev.PhotonNumPixEl[photonIndex] > 0:
-                    rejectStudies = 1
-                elif ev.PhotonNumSiEl[photonIndex] > 0:
-                    rejectStudies = 2
-            elif ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0:
-                # TRTSA single-track
-                isSame = (ev.PhotonNumSiEl[photonIndex] == ev.PhotonNumSi0[photonIndex] or
-                          ev.PhotonNumPixEl[photonIndex] == ev.PhotonNumPix0[photonIndex])
-                if ev.PhotonNumBEl[photonIndex] > 0:
-                    rejectStudies = 3
-                elif not isSame:
-                    if ev.PhotonNumPixEl[photonIndex] > 0:
-                        rejectStudies = 4
+            if not useJetAsPhoton:
+                if ev.PhotonConvType[photonIndex] == 0:
+                    # unconverted
+                    if ev.PhotonNumBEl[photonIndex] > 0:
+                        rejectStudies = 0
+                    elif ev.PhotonNumPixEl[photonIndex] > 0:
+                        rejectStudies = 1
                     elif ev.PhotonNumSiEl[photonIndex] > 0:
-                        rejectStudies = 5
-                    else:
-                        rejectStudies = 6
-            elif ev.PhotonConvType[photonIndex] == 1:
-                # Si single-track
-                isSame = (ev.PhotonNumSiEl[photonIndex] == ev.PhotonNumSi0[photonIndex] or
-                          ev.PhotonNumPixEl[photonIndex] == ev.PhotonNumPix0[photonIndex])
-                if ev.PhotonNumBEl[photonIndex] > 0:
-                    rejectStudies = 7
-                elif not isSame:
-                    if ev.PhotonNumPixEl[photonIndex] > 0:
-                        rejectStudies = 8
-                    elif ev.PhotonNumSiEl[photonIndex] > 0:
-                        rejectStudies = 9
-                    else:
-                        rejectStudies = 10
+                        rejectStudies = 2
+                elif ev.PhotonConvType[photonIndex] == 1 and ev.PhotonNumSi0[photonIndex] == 0:
+                    # TRTSA single-track
+                    isSame = (ev.PhotonNumSiEl[photonIndex] == ev.PhotonNumSi0[photonIndex] or
+                              ev.PhotonNumPixEl[photonIndex] == ev.PhotonNumPix0[photonIndex])
+                    if ev.PhotonNumBEl[photonIndex] > 0:
+                        rejectStudies = 3
+                    elif not isSame:
+                        if ev.PhotonNumPixEl[photonIndex] > 0:
+                            rejectStudies = 4
+                        elif ev.PhotonNumSiEl[photonIndex] > 0:
+                            rejectStudies = 5
+                        else:
+                            rejectStudies = 6
+                elif ev.PhotonConvType[photonIndex] == 1:
+                    # Si single-track
+                    isSame = (ev.PhotonNumSiEl[photonIndex] == ev.PhotonNumSi0[photonIndex] or
+                              ev.PhotonNumPixEl[photonIndex] == ev.PhotonNumPix0[photonIndex])
+                    if ev.PhotonNumBEl[photonIndex] > 0:
+                        rejectStudies = 7
+                    elif not isSame:
+                        if ev.PhotonNumPixEl[photonIndex] > 0:
+                            rejectStudies = 8
+                        elif ev.PhotonNumSiEl[photonIndex] > 0:
+                            rejectStudies = 9
+                        else:
+                            rejectStudies = 10
 
-            h_ph_rejectStudies.Fill(rejectStudies, weight)
-            #h_ph_ConvType.Fill(ev.PhotonConvType[photonIndex], weight)
-            h_ph_ConvType.Fill(ev.PhotonConvType[photonIndex], weight)
-            h_ph_numSi0.Fill(ev.PhotonNumSi0[photonIndex], weight)
-            h_ph_numSi1.Fill(ev.PhotonNumSi1[photonIndex], weight)
-            h_ph_numPix0.Fill(ev.PhotonNumPix0[photonIndex], weight)
-            h_ph_numPix1.Fill(ev.PhotonNumPix1[photonIndex], weight)
-            h_ph_numSiEl.Fill(ev.PhotonNumSiEl[photonIndex], weight)
-            h_ph_numPixEl.Fill(ev.PhotonNumPixEl[photonIndex], weight)
-            h_ph_numBEl.Fill(ev.PhotonNumBEl[photonIndex], weight)
-            h_ph_iso.Fill(iso/GeV, weight)
+                h_ph_rejectStudies.Fill(rejectStudies, weight)
+                #h_ph_ConvType.Fill(ev.PhotonConvType[photonIndex], weight)
+                h_ph_ConvType.Fill(ev.PhotonConvType[photonIndex], weight)
+                h_ph_numSi0.Fill(ev.PhotonNumSi0[photonIndex], weight)
+                h_ph_numSi1.Fill(ev.PhotonNumSi1[photonIndex], weight)
+                h_ph_numPix0.Fill(ev.PhotonNumPix0[photonIndex], weight)
+                h_ph_numPix1.Fill(ev.PhotonNumPix1[photonIndex], weight)
+                h_ph_numSiEl.Fill(ev.PhotonNumSiEl[photonIndex], weight)
+                h_ph_numPixEl.Fill(ev.PhotonNumPixEl[photonIndex], weight)
+                h_ph_numBEl.Fill(ev.PhotonNumBEl[photonIndex], weight)
+                h_ph_iso.Fill(iso/GeV, weight)
             h_Wpt.Fill(W.Pt()/GeV, weight)
             h_WptAlt.Fill(Walt.Pt()/GeV, weight)
 
@@ -1350,9 +1430,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             if ev.numPh >= 2:
                 h_ph_pt2.Fill(ev.PhotonPt[1]/GeV, weight)
                 h_ph_eta2.Fill(ev.PhotonEta[1], weight)
-            h_ph_pt1.Fill(ev.PhotonPt[photonIndex]/GeV, weight)
-            h_ph_eta1.Fill(ev.PhotonEta[photonIndex], weight)
-            h_ph_phi1.Fill(ev.PhotonPhi[photonIndex], weight)
+            if ev.numPh >= 1:
+                h_ph_pt1.Fill(ev.PhotonPt[photonIndex]/GeV, weight)
+                h_ph_eta1.Fill(ev.PhotonEta[photonIndex], weight)
+                h_ph_phi1.Fill(ev.PhotonPhi[photonIndex], weight)
             if ev.numEl >= 2:
                 h_el_pt2.Fill(ev.ElectronPt[1]/GeV, weight)
                 h_el_eta2.Fill(ev.ElectronEta[1], weight)
@@ -1415,10 +1496,10 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
         if measureFakeAndEff:
             print lepText, "WCRTight", sample,nWCRTight.GetBinContent(1), nWCRTight.GetBinError(1)
         print lepText, "HMT", sample,nHMT.GetBinContent(1), nHMT.GetBinError(1)
-        print lepText, "HMTlHT", sample,nHMTW.GetBinContent(1), nHMTW.GetBinError(1)
+        print lepText, "HMThHT", sample,nHMTW.GetBinContent(1), nHMTW.GetBinError(1)
         print lepText, "HMTmeff", sample,nHMTS.GetBinContent(1), nHMTS.GetBinError(1)
         print lepText, "HMET", sample,nHMET.GetBinContent(1), nHMET.GetBinError(1)
-        print lepText, "HMETlHT", sample,nHMETW.GetBinContent(1), nHMETW.GetBinError(1)
+        print lepText, "HMEThHT", sample,nHMETW.GetBinContent(1), nHMETW.GetBinError(1)
         print lepText, "HMETmeff", sample,nHMETS.GetBinContent(1), nHMETS.GetBinError(1)
         print lepText, "QCD", sample,nQCD.GetBinContent(1), nQCD.GetBinError(1)
         if measureFakeAndEff:
@@ -1601,10 +1682,22 @@ def SymHess(histp, histm, weight, pdfWeights, nPDFs, scale=0.6079):
         histp.Fill(i, weight*(1+deltaX))
         histm.Fill(i, weight*(1-deltaX))
 
+# def SymHess(histp, histm, weight, pdfWeights, nPDFs, scale=0.6079):
+#     # first one is special. I'll put it in both
+#     histp.Fill(0, weight*pdfWeights[0])
+#     histm.Fill(0, weight*pdfWeights[0])
+#     for i in range(nPDFs):
+#         deltaX = 0.5 * (pdfWeights[2*i+1] - pdfWeights[2*i + 2]) * scale
+#         histp.Fill(i+1, weight*(1+deltaX))
+#         histm.Fill(i+1, weight*(1-deltaX))
+
 def AsymHess(histp, histm, weight, pdfWeights, nPDFs, scale=1.0):
+    # first one is special. I'll put it in both
+    histp.Fill(0, weight*pdfWeights[0])
+    histm.Fill(0, weight*pdfWeights[0])
     for i in range(nPDFs):
-        histp.Fill(i, weight*pdfWeights[2*i])
-        histm.Fill(i, weight*pdfWeights[2*i + 1])
+        histp.Fill(i+1, weight*pdfWeights[2*i + 1])
+        histm.Fill(i+1, weight*pdfWeights[2*i + 2])
 
 def Ens(histp, histm, weight, pdfWeights, nPDFs, scale=1.0):
     for i in range(nPDFs):

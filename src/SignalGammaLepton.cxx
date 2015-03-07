@@ -491,7 +491,7 @@ StatusCode SignalGammaLepton::initialize(){
 
   // get the tools for the electron and photon sfs
 
-  if (m_isMC) {
+  if (m_isMC && !m_isTruth) {
     // lets set up electron SFs
     m_electron_reco_SF = new Root::TElectronEfficiencyCorrectionTool;
     m_electron_id_SF = new Root::TElectronEfficiencyCorrectionTool;
@@ -965,7 +965,7 @@ StatusCode SignalGammaLepton::execute()
   m_randRunNumber = m_runNumber; // for MC this will change
   m_lumiBlock = evtInfo.lbn();
   m_eventNumber = evtInfo.EventNumber();
-  if (m_isMC != evtInfo.isSimulation()) {
+  if (m_isMC != evtInfo.isSimulation() and !m_isTruth) {
     ATH_MSG_ERROR("isMC is not set correctly");
     return StatusCode::FAILURE;
   }
@@ -1052,7 +1052,7 @@ StatusCode SignalGammaLepton::execute()
   // } 
 
   // let's replace it by this simpler script (for vetoing overlap)
-  if (m_isMC) {
+  if (m_isMC && !m_isTruth) {
     const TruthParticleD3PDObject truthObj(m_truthParticleContainerName);
     ATH_CHECK(truthObj.retrieve());    
     m_numTruthPh = FindNumTruthPhotons(channelNumber, truthObj);
@@ -1880,7 +1880,7 @@ StatusCode SignalGammaLepton::execute()
   m_el_sf_unc = 0;
   m_mu_sf_unc = 0;
 
-  if (m_isMC) {
+  if (m_isMC && !m_isTruth) {
     if (m_numPhotonsReq > 0) {
       const std::pair<float, float> sf = GetSignalPhotonSF(photons->isConv(leadingPh), 
 							   photons->etas2(leadingPh), 

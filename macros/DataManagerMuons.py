@@ -18,6 +18,11 @@ Lumi = 20300.0
 DOSTANDARD = True
 DOSYST = True
 
+if 'DOTEST' not in globals():
+    DOTEST = False
+
+DOTEST = False
+
 print "Lepton is MUON."
 #path = "/data/jmitrevs/output/muphoton/v140912/mergedFiles/"
 path = "/data/jmitrevs/output/muphoton/v141108/mergedFiles/"
@@ -49,6 +54,14 @@ namesSyst = (('Wmunugamma_ckkw15', 0.71781, 1.0, 1.0, 204737),
 binToLookAt = 12 #1 more than last Fill value because this count starts at 1
 
 values = {}
+
+if DOTEST:
+    path = "/data/jmitrevs/output/muphoton/v150116/mergedFiles/"
+
+    # format is (name, xsec in pb, kfac, eff, dsid)
+    names = (('dilep', 22.134, 1.1997, 1.0, 181087), 
+             ('dilepAlt', 21.806 , 1.217, 1.0, 110001)
+             )
 
 if DOSTANDARD:
     for i in range(len(names)):
