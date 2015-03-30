@@ -85,6 +85,10 @@ private:
 
   int FindNumTruthPhotons(unsigned int mc_channel_number, 
 			  const TruthParticleD3PDObject& truthObj) const;
+
+  // 0 = none, 1 means only light, 2 means also including tau
+  int IsTtbarDilep(unsigned int mc_channel_number, 
+		   const TruthParticleD3PDObject& truthObj) const;
   
   // bool isInLArHole(Jet* jet) const;
 
@@ -354,6 +358,7 @@ private:
   TruthStudies::EventType m_type;
   int m_isStrong;
   int m_numTruthPh;
+  int m_isTtbarDilep;
 
   // MET
   float m_metx;

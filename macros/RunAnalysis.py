@@ -54,7 +54,7 @@ def makeOutputName(infileName, extra = ""):
 def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS, 
                 abcd = DEFAULTABCD, metType = LepPhotonAnalysis.MET_DEFAULT, 
                 applySF=LepPhotonAnalysis.NOMINAL, extraName="",
-                doStandard = False, doSyst = True, ):
+                doStandard = True, doSyst = False):
 
     SRs = {}
 
@@ -83,7 +83,8 @@ def RunAnalysis(lepton, plots = LepPhotonAnalysis.DEFAULT_PLOTS,
                                                      scale, plotsRegion = plots,
                                                      metType = metType,
                                                      applySF = applySF,
-                                                     useWeights = APPLY_WEIGHTS)
+                                                     useWeights = APPLY_WEIGHTS,
+                                                     debug = False)
             SRs[name] = sr
     if doSyst:
         for nameEnt in  DataManager.namesSyst:

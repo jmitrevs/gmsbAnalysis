@@ -38,6 +38,9 @@ DEFAULTTTREE = 'GammaLepton'
 DEFAULTWEIGHT = 1.0
 DEFAULT_LEPTON = ELECTRON
 
+# determine channel by leading lepton
+TAKE_LEADING = True
+
 removeCrack = True
 DELTAR_EL_PH = 0.7
 DELTAR_MU_PH = 0.7
@@ -70,7 +73,7 @@ HMETS = 13
 SRS = 14
 
 #DEFAULT_PLOTS = NO_SEL
-DEFAULT_PLOTS = PRESEL
+DEFAULT_PLOTS = HMETW
 
 # For the ABCD method
 NoABCD = 0
@@ -103,6 +106,7 @@ ENS = 2
 EL_PHPTCUT = 125*GeV
 EL_ELPTCUT = 20*GeV
 EL_MT = 120*GeV
+#EL_MT = 0*GeV
 
 #SRS
 EL_SRS_MET = 220*GeV
@@ -111,7 +115,9 @@ EL_SRS_MEFF = 1000*GeV
 
 #SRW
 EL_SRW_MET = 120*GeV
+#EL_SRW_MET = 0*GeV
 EL_SRW_HTjet_MAX = 100*GeV
+#EL_SRW_HTjet_MAX = -1.0
 EL_SRW_BVETO = -1.0
 #EL_SRW_BVETO = 0.3511 #80%
 #EL_SRW_BVETO = 0.7892 #70%
@@ -122,6 +128,8 @@ EL_QCD_MINV_WINDOW = 15*GeV
 # tight (default)
 EL_WCR_MET_MIN = 45*GeV
 EL_WCR_MET_MAX = 100*GeV
+#EL_WCR_MET_MIN = 0*GeV
+#EL_WCR_MET_MAX = 100000000000000000000*GeV
 EL_WCR_MT_MIN = 35*GeV
 EL_WCR_MT_MAX = 90*GeV
 
@@ -145,14 +153,20 @@ EL_WCR2_HTjet_MIN = 100*GeV
 #This is also known as the HMT
 EL_HMT_MET_MIN = 45*GeV
 EL_HMT_MET_MAX = 100*GeV
+#EL_HMT_MET_MIN = 0*GeV
+#EL_HMT_MET_MAX = 10000000000*GeV
 EL_HMT_MT_MIN =  120*GeV
+#EL_HMT_MT_MIN =  0*GeV
 
 EL_HMTW_HTjet_MAX = 100*GeV
 EL_HMTS_MEFF = 1000*GeV
 
 EL_HMET_MT_MIN = 35*GeV
 EL_HMET_MT_MAX = 90*GeV
+#EL_HMET_MT_MIN = 0*GeV
+#EL_HMET_MT_MAX = 100000000000000000000*GeV
 EL_HMET_MET_MIN =  100*GeV
+#EL_HMET_MET_MIN =  0*GeV
 
 EL_HMETW_HTjet_MAX = 100*GeV
 EL_HMETS_MEFF = 1000*GeV
@@ -165,6 +179,7 @@ EL_QCD_MT_MAX = 20*GeV
 MU_PHPTCUT = 125*GeV
 MU_MUPTCUT = 20*GeV
 MU_MT = 120*GeV
+#MU_MT = 0
 
 MU_QCD_MINV_WINDOW = 0*GeV
 MU_MINV_WINDOW = 15*GeV
@@ -176,7 +191,9 @@ MU_SRS_MEFF = 1000*GeV
 
 #SRW
 MU_SRW_MET = 120*GeV
+#MU_SRW_MET = 0*GeV
 MU_SRW_HTjet_MAX = 100*GeV
+#MU_SRW_HTjet_MAX = -1.0
 MU_SRW_BVETO = -1.0
 #MU_SRW_BVETO = 0.3511 #80%
 #MU_SRW_BVETO = 0.7892 #70%
@@ -185,8 +202,12 @@ MU_SRW_BVETO = -1.0
 # tight (default)
 MU_WCR_MET_MIN = 45*GeV
 MU_WCR_MET_MAX = 100*GeV
+#MU_WCR_MET_MIN = 0*GeV
+#MU_WCR_MET_MAX = 10000000000000000*GeV
 MU_WCR_MT_MIN = 35*GeV
 MU_WCR_MT_MAX = 90*GeV
+#MU_WCR_MT_MIN = 0*GeV
+#MU_WCR_MT_MAX = 10000000000*GeV
 
 MU_WCR1_HTjet_MAX = 100*GeV
 MU_WCR2_HTjet_MIN = 100*GeV
@@ -216,12 +237,15 @@ MU_WCR2_HTjet_MIN = 100*GeV
 MU_HMT_MET_MIN = 45*GeV
 MU_HMT_MET_MAX = 100*GeV
 MU_HMT_MT_MIN =  120*GeV
+#MU_HMT_MT_MIN =  0*GeV
 
 MU_HMTW_HTjet_MAX = 100*GeV
 MU_HMTS_MEFF = 1000*GeV
 
 MU_HMET_MT_MIN = 35*GeV
 MU_HMET_MT_MAX = 90*GeV
+#MU_HMET_MT_MIN = 0*GeV
+#MU_HMET_MT_MAX = 100000000000*GeV
 MU_HMET_MET_MIN =  100*GeV
 
 MU_HMETW_HTjet_MAX = 100*GeV
@@ -316,6 +340,16 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                       nPDF = 26,
                       sample = "",
                       useJetAsPhoton = False):
+
+
+    #some stats on why events rejected
+    crack = 0
+    channel = 0
+    egZwin = 0
+    secLep = 0
+    secsfLep = 0
+    deltar = 0
+
 
     if not (lepton == ELECTRON or lepton == MUON):
         print "ERROR: The lepton must be ELECTRON or MUON"
@@ -701,6 +735,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                     break
             else:
                 #print "*** electron only in crack ***"
+                crack += 1
                 continue
 
         # if lepIndex != 0:
@@ -912,6 +947,22 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 continue
 
             # veto second lepton or Z window cut
+            if TAKE_LEADING:
+                if lepton == ELECTRON and ev.numMu > 0 and ev.MuonPt[0] > ev.ElectronPt[lepIndex]:
+                    channel += 1
+                    continue
+                if lepton == MUON and ev.numEl > 0:
+                    # more complicated because of crack
+                    elIndex = -1
+                    for i in range(ev.numEl):
+                        if not (1.37 < abs(ev.ElectronEta2[i]) < 1.52):
+                            elIndex = i
+                            break
+
+                    if elIndex >= 0 and ev.ElectronPt[elIndex] > ev.MuonPt[lepIndex]:
+                        channel += 1
+                        continue
+
             if lepton == ELECTRON and EL_MINV_WINDOW != 0:
                 if photonIndex == 0 and lepIndex == 0:
                     minv = ev.PhElMinv
@@ -921,10 +972,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                     #print "**minv =", minv
                 if ZMASS - EL_MINV_WINDOW < minv < ZMASS + EL_MINV_WINDOW:
                     #print '** fail electron z **'
+                    egZwin += 1
                     continue
 
             if VETO_SECOND_LEPTON and ev.numMu + ev.numEl > 1:
                 print '** fail veto second electron **'
+                secLep += 1
                 continue
             # elif (lepton == ELECTRON and ev.numMu > 0 or
             #       lepton == MUON and ev.numEl > 0):
@@ -935,6 +988,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
                 ((lepton == ELECTRON and ZMASS - EL_MINV_WINDOW < ev.ElMinv < ZMASS + EL_MINV_WINDOW) or
                  (lepton == MUON and ZMASS - MU_MINV_WINDOW < ev.MuMinv < ZMASS + MU_MINV_WINDOW))):
                 print '** fail second sflepon veto **'
+                secsfLep += 1
                 continue
 
             if (VETO_TRTSA_PHOTON_E_BLAYER and # ev.numPh == 1 and
@@ -950,6 +1004,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             el_ph_deltaPhi = photon.DeltaPhi(electron)
             if plotsRegion != NO_SEL and el_ph_deltaR < DELTAR_EL_PH:
                 #print '** fail deltar photon lepton veto **'
+                deltar += 1
                 continue
         else:
             muon = ROOT.TLorentzVector()
@@ -958,6 +1013,7 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             mu_ph_deltaPhi = photon.DeltaPhi(muon)
             if plotsRegion != NO_SEL and mu_ph_deltaR < DELTAR_MU_PH:
                 #print '** fail deltar photon lepton veto **'
+                deltar += 1
                 continue
 
             # if abs(mu_ph_deltaPhi) < 2.93:
@@ -1506,6 +1562,12 @@ def LepPhotonAnalysis(ttree, outfile, lepton, glWeight, filterPhotons = True,
             print lepText, "QCDTight", sample,nQCDTight.GetBinContent(1), nQCDTight.GetBinError(1)
         
         print lepText, "PRESEL", sample,nPRESEL.GetBinContent(1), nPRESEL.GetBinError(1)
+
+
+        print
+        print "rejected crack = %d, channel = %d, eg Z window = %d, secLep = %d, sec sf lep = %d, detlaR(gamma, lep) = %d" % (
+            crack, channel, egZwin, secLep, secsfLep, deltar)
+        print
 
 
     if measureFakeAndEff:

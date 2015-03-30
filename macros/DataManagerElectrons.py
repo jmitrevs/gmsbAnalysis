@@ -97,16 +97,23 @@ binToLookAt = 12 #1 more than last Fill value because this count starts at 1
 values = {}
 
 if DOTEST:
-    path = "/data/jmitrevs/output/elphoton/v150116/mergedFiles/"
+    # path = "/data/jmitrevs/output/elphoton/v150116/mergedFiles/"
+
+    # # format is (name, xsec in pb, kfac, eff, dsid)
+    # names = (('dilep', 22.134, 1.1997, 1.0, 181087), 
+    #          ('dilepAlt', 21.806 , 1.217, 1.0, 110001),
+    #          ('dilepShLeptLept', 9.1637 , 1.2876, 1.0, 117800),
+    #          ('dilepShLeptTaulept', 3.2296 , 1.286, 1.0, 117801),
+    #          ('dilepShTauleptTaulept', 0.28 , 1.3053, 1.0, 117802),
+    #          ('dilepShLeptTauhad', 6.0007 , 1.2741, 1.0, 117804),
+    #          ('Znunugammagamma', 5.6e-3 , 2.0, 1.0, 167479)
+    #          )
+
+    path = "/data/jmitrevs/output/elphoton/v150317/mergedFiles/"
 
     # format is (name, xsec in pb, kfac, eff, dsid)
-    names = (('dilep', 22.134, 1.1997, 1.0, 181087), 
-             ('dilepAlt', 21.806 , 1.217, 1.0, 110001),
-             ('dilepShLeptLept', 9.1637 , 1.2876, 1.0, 117800),
-             ('dilepShLeptTaulept', 3.2296 , 1.286, 1.0, 117801),
-             ('dilepShTauleptTaulept', 0.28 , 1.3053, 1.0, 117802),
-             ('dilepShLeptTauhad', 6.0007 , 1.2741, 1.0, 117804),
-             ('Znunugammagamma', 5.6e-3 , 2.0, 1.0, 167479)
+    names = (('Zeegamma', 0.18606, 1.0, 1.0, 158728), 
+             ('Ztautaugamma', 0.18584, 1.0, 1.0, 158730) 
              )
     
 

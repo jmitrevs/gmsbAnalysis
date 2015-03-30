@@ -192,6 +192,48 @@ int SignalGammaLepton::FindNumTruthPhotons(unsigned int mc_channel_number,
   return -1;
 }
 
+// return 0 is not dilep, 1 if e/mu only, 2 if also has taus
+int SignalGammaLepton::IsTtbarDilep(unsigned int mc_channel_number, 
+				    const TruthParticleD3PDObject& truthObj) const
+{
+  
+  bool isTtbar = mc_channel_number == 117050 || mc_channel_number == 105200;
+
+  int numLight = 0;
+  int numTau = 0;
+
+  const int MAX_BARCODE = 100;
+
+  if(isTtbar) {
+    
+    for(int par=0; par<truthObj.n(); par++) {
+      switch (abs(truthObj.pdgId(par))) {
+      case 11:
+      case 13:
+	ATH_MSG_DEBUG("light lepton status = " << truthObj.status(par) << ", barcode = " << truthObj.barcode(par));
+	if (truthObj.status(par) == 1 && truthObj.barcode(par) < MAX_BARCODE) {
+	  numLight++;
+	}
+	break;
+      case 15:
+	ATH_MSG_DEBUG("tau status = " << truthObj.status(par) << ", barcode = " << truthObj.barcode(par));
+	if (truthObj.status(par) == 2 && truthObj.barcode(par) < MAX_BARCODE) {
+	  numTau++;
+	}
+	break;
+      }
+    }
+  }
+  int numTotal = numLight + numTau;
+  if (numTotal < 2) {
+    return 0;
+  } else if (numTau > 0) {
+    return 2;
+  } else {
+    return 1;
+  }
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -769,6 +811,7 @@ StatusCode SignalGammaLepton::initialize(){
     // now event (vs object) variables
     m_tree->Branch("numPh",  &m_numPh, "numPh/i");
     m_tree->Branch("numTruthPh",  &m_numTruthPh, "numTruthPh/I");
+    m_tree->Branch("isTtbarDilep",  &m_isTtbarDilep, "isTtbarDilep/I");
     m_tree->Branch("numEl",  &m_numEl, "numEl/i");
     m_tree->Branch("numMu",  &m_numMu, "numMu/i");
     m_tree->Branch("numJets",  &m_numJets, "numJets/i");
@@ -1038,6 +1081,7 @@ StatusCode SignalGammaLepton::execute()
 
   m_type = TruthStudies::unknown;
   m_numTruthPh = -1;
+  m_isTtbarDilep = 0;
 
   // if (m_doTruthStudies) {
   //   StatusCode sc = m_truth->execute();
@@ -1056,6 +1100,7 @@ StatusCode SignalGammaLepton::execute()
     const TruthParticleD3PDObject truthObj(m_truthParticleContainerName);
     ATH_CHECK(truthObj.retrieve());    
     m_numTruthPh = FindNumTruthPhotons(channelNumber, truthObj);
+    m_isTtbarDilep = IsTtbarDilep(channelNumber, truthObj);
   }
 
 
@@ -1069,11 +1114,6 @@ StatusCode SignalGammaLepton::execute()
     }
   }
 
-  if (m_applyTriggers) {
-    if (! trig.EF_g120_loose()) {
-      return StatusCode::SUCCESS; // reject event
-    }
-  }
 
   // switch(m_matchTriggers) {
   // case NONE:
@@ -1096,7 +1136,7 @@ StatusCode SignalGammaLepton::execute()
   //   break;
   // }
 
-  ATH_MSG_DEBUG("Passed trig");
+  ATH_MSG_DEBUG("Passed GRL");
   m_histograms["CutFlow"]->Fill(1.0, m_weight);
 
   const bool passTTR = m_ttrHandle->checkEvent(m_runNumber, m_lumiBlock, m_eventNumber);
@@ -1438,127 +1478,10 @@ StatusCode SignalGammaLepton::execute()
   m_histograms["CutFlow"]->Fill(8.0, m_weight);
   ATH_MSG_DEBUG("Passed cosmic muon rejection");
 
-  // loop over photons
-  m_numPhPresel = photons->n();
-
-  unsigned int numConvPhPass = 0; // this is per event
-  int leadingPh = -1;
-  int secondPh = -1;
-  
-  double leadingPhPt = 0;
-  double secondPhPt = 0;
-
-  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->n());
-  
-  m_numPh = 0;
-  for (SortHelpers::sl_t::const_iterator it = phoOrder.begin(); 
-       it != phoOrder.end(); 
-       ++it) {
-    const std::size_t ph = it->first;
-
-    const double pt = it->second;
-
-    // // get the user data
-    // if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
-    // 	!= StatusCode::SUCCESS) {
-    //   ATH_MSG_ERROR("Error in geting photon decoration");
-    //   return StatusCode::FAILURE;
-    // }
-
-    const bool isTight = m_FinalSelectionTool->isSelected(*photons, ph);
-    if (m_requireTightPho && !isTight) continue; 
-
-    const bool isAlt = (m_doABCDPho) ? m_AltSelectionTool->isSelected(*photons, ph) : false;
-
-    // photon is OK
-    m_numPh++;
-
-    m_HT += pt;
-
-    // let's do the AR studies
-
-    const int convType = photons->convFlag(ph) % 10;
-    const int numPix0 = photons->convtrk1nPixHits(ph);
-    const int numSi0 = numPix0 + photons->convtrk1nSCTHits(ph);
-    const int numPix1 = photons->convtrk2nPixHits(ph);
-    const int numSi1 = numPix1 + photons->convtrk2nSCTHits(ph);
-
-
-    ATH_MSG_DEBUG("electron track");
-
-    int numBEl = -9;
-    int numSiEl = -9;
-    int numPixEl = -9;
-    bool expectHitInBL = false;
-
-    const int elIndex = photons->el_index(ph);
-    if (elIndex >= 0) {
-      numPixEl = origEl.nPixHits(elIndex);
-      numSiEl = numPixEl + origEl.nSCTHits(elIndex);
-      numBEl = origEl.nBLHits(elIndex);
-      expectHitInBL = origEl.expectBLayerHit(elIndex);
-    }
-
-    ATH_MSG_DEBUG("will do truth classifier");
-    const int truth = photons->type(ph);
-    const int origin = photons->origin(ph);
-
-    ATH_MSG_DEBUG("will push back stuff");
-
-    if (m_outputNtuple) {
-      m_ph_pt->push_back(pt);
-      m_ph_eta->push_back(photons->eta(ph));
-      m_ph_eta2->push_back(photons->etas2(ph));
-      m_ph_phi->push_back(photons->phi(ph));
-
-      m_ph_etcone20->push_back(photons->topoEtcone20_corrected(ph));
-      m_ph_tight->push_back(isTight);
-      m_ph_alt->push_back(isAlt);
-      m_ph_truth->push_back(truth);
-      m_ph_origin->push_back(origin);
-      unsigned int isem = photons->isEM(ph);
-      m_ph_isEM->push_back(isem & 0x0FFFFFFF);
-
-      m_ph_AR->push_back(-999);
-      m_ph_convType->push_back(convType);
-      m_ph_numSi0->push_back(numSi0);
-      m_ph_numSi1->push_back(numSi1);
-      m_ph_numPix0->push_back(numPix0);
-      m_ph_numPix1->push_back(numPix1);
-      m_ph_numSiEl->push_back(numSiEl);
-      m_ph_numPixEl->push_back(numPixEl);
-      m_ph_numBEl->push_back(numBEl);
-
-      m_ph_expectBLayerHit->push_back(expectHitInBL);
-    }
-
-    if (convType) numConvPhPass++;
-    ATH_MSG_DEBUG("Found photon with E = " << photons->E(ph) << ", pt = " << pt << ", etaBE2 = " << photons->etas2(ph)
-		  << ", phi = " << photons->phi(ph));
-    
-    if (pt > leadingPhPt ) {
-      secondPh = leadingPh;
-      leadingPh = ph;
-      secondPhPt = leadingPhPt;
-      leadingPhPt = pt;
-    } else if (pt > secondPhPt) {
-      secondPh = ph;
-      secondPhPt = pt;
-    }
-
-  }
-
-  if (m_numPh < m_numPhotonsReq || m_numPh > m_numPhotonsMax) {
-    return StatusCode::SUCCESS;
-  }
-
-  m_histograms["CutFlow"]->Fill(9.0, m_weight);
-  ATH_MSG_DEBUG("Passed photons");
-
   // let's print out run, lb, and event numbers,...
-  ATH_MSG_INFO("Selected before lepton: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
-  	       << " " << m_numPh << " " << m_numEl << " " 
-  	       << m_numMu << " " << met/GeV);
+  // ATH_MSG_INFO("Selected before lepton: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
+  // 	       << " " << m_numPh << " " << m_numEl << " " 
+  // 	       << m_numMu << " " << met/GeV);
 
   // ATH_MSG_INFO("Selected: " << m_runNumber << " " << m_lumiBlock << " " << m_eventNumber 
   //  	       << " " << m_numPh << " " << " " << met/GeV);
@@ -1675,7 +1598,125 @@ StatusCode SignalGammaLepton::execute()
 
   ATH_MSG_DEBUG("Passed lepton");
    
+  m_histograms["CutFlow"]->Fill(9.0, m_weight);
+
+  // loop over photons
+  m_numPhPresel = photons->n();
+
+  unsigned int numConvPhPass = 0; // this is per event
+  int leadingPh = -1;
+  int secondPh = -1;
+  
+  double leadingPhPt = 0;
+  double secondPhPt = 0;
+
+  ATH_MSG_DEBUG("Overlap-removed photons size at input = " << photons->n());
+  
+  m_numPh = 0;
+  for (SortHelpers::sl_t::const_iterator it = phoOrder.begin(); 
+       it != phoOrder.end(); 
+       ++it) {
+    const std::size_t ph = it->first;
+
+    const double pt = it->second;
+
+    // // get the user data
+    // if (m_userdatasvc->getInMemElementDecoration(**ph, std::string("corrPt"), pt)
+    // 	!= StatusCode::SUCCESS) {
+    //   ATH_MSG_ERROR("Error in geting photon decoration");
+    //   return StatusCode::FAILURE;
+    // }
+
+    const bool isTight = m_FinalSelectionTool->isSelected(*photons, ph);
+    if (m_requireTightPho && !isTight) continue; 
+
+    const bool isAlt = (m_doABCDPho) ? m_AltSelectionTool->isSelected(*photons, ph) : false;
+
+    // photon is OK
+    m_numPh++;
+
+    m_HT += pt;
+
+    // let's do the AR studies
+
+    const int convType = photons->convFlag(ph) % 10;
+    const int numPix0 = photons->convtrk1nPixHits(ph);
+    const int numSi0 = numPix0 + photons->convtrk1nSCTHits(ph);
+    const int numPix1 = photons->convtrk2nPixHits(ph);
+    const int numSi1 = numPix1 + photons->convtrk2nSCTHits(ph);
+
+
+    ATH_MSG_DEBUG("electron track");
+
+    int numBEl = -9;
+    int numSiEl = -9;
+    int numPixEl = -9;
+    bool expectHitInBL = false;
+
+    const int elIndex = photons->el_index(ph);
+    if (elIndex >= 0) {
+      numPixEl = origEl.nPixHits(elIndex);
+      numSiEl = numPixEl + origEl.nSCTHits(elIndex);
+      numBEl = origEl.nBLHits(elIndex);
+      expectHitInBL = origEl.expectBLayerHit(elIndex);
+    }
+
+    ATH_MSG_DEBUG("will do truth classifier");
+    const int truth = photons->type(ph);
+    const int origin = photons->origin(ph);
+
+    ATH_MSG_DEBUG("will push back stuff");
+
+    if (m_outputNtuple) {
+      m_ph_pt->push_back(pt);
+      m_ph_eta->push_back(photons->eta(ph));
+      m_ph_eta2->push_back(photons->etas2(ph));
+      m_ph_phi->push_back(photons->phi(ph));
+
+      m_ph_etcone20->push_back(photons->topoEtcone20_corrected(ph));
+      m_ph_tight->push_back(isTight);
+      m_ph_alt->push_back(isAlt);
+      m_ph_truth->push_back(truth);
+      m_ph_origin->push_back(origin);
+      unsigned int isem = photons->isEM(ph);
+      m_ph_isEM->push_back(isem & 0x0FFFFFFF);
+
+      m_ph_AR->push_back(-999);
+      m_ph_convType->push_back(convType);
+      m_ph_numSi0->push_back(numSi0);
+      m_ph_numSi1->push_back(numSi1);
+      m_ph_numPix0->push_back(numPix0);
+      m_ph_numPix1->push_back(numPix1);
+      m_ph_numSiEl->push_back(numSiEl);
+      m_ph_numPixEl->push_back(numPixEl);
+      m_ph_numBEl->push_back(numBEl);
+
+      m_ph_expectBLayerHit->push_back(expectHitInBL);
+    }
+
+    if (convType) numConvPhPass++;
+    ATH_MSG_DEBUG("Found photon with E = " << photons->E(ph) << ", pt = " << pt << ", etaBE2 = " << photons->etas2(ph)
+		  << ", phi = " << photons->phi(ph));
+    
+    if (pt > leadingPhPt ) {
+      secondPh = leadingPh;
+      leadingPh = ph;
+      secondPhPt = leadingPhPt;
+      leadingPhPt = pt;
+    } else if (pt > secondPhPt) {
+      secondPh = ph;
+      secondPhPt = pt;
+    }
+
+  }
+
+  if (m_numPh < m_numPhotonsReq || m_numPh > m_numPhotonsMax) {
+    return StatusCode::SUCCESS;
+  }
+
   m_histograms["CutFlow"]->Fill(10.0, m_weight);
+  ATH_MSG_DEBUG("Passed photons");
+
 
 
 
@@ -1744,7 +1785,14 @@ StatusCode SignalGammaLepton::execute()
     //   }
     // }
   }
-  ATH_MSG_DEBUG("Passed LAr Hole");
+
+  if (m_applyTriggers) {
+    if (! trig.EF_g120_loose()) {
+      return StatusCode::SUCCESS; // reject event
+    }
+  }
+
+  ATH_MSG_DEBUG("Passed Trig");
   m_histograms["CutFlow"]->Fill(11.0, m_weight);
   
 
